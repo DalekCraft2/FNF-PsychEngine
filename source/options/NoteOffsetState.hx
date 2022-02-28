@@ -273,7 +273,6 @@ class NoteOffsetState extends MusicBeatState
 						 startMousePos.y - rating.y >= 0 && startMousePos.y - rating.y <= rating.height)
 				{
 					holdingObjectType = false;
-					FlxG.mouse.getScreenPosition(camHUD, startMousePos);
 					startComboOffset.x = OptionUtils.options.comboOffset[0];
 					startComboOffset.y = OptionUtils.options.comboOffset[1];
 					//trace('heya');

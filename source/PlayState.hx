@@ -52,6 +52,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.input.keyboard.FlxKey;
 import Note.EventNote;
 import openfl.events.KeyboardEvent;
+import flixel.util.FlxSave;
 import Achievements;
 import StageData;
 import FunkinLua;
@@ -85,6 +86,7 @@ class PlayState extends MusicBeatState
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
 	public var modchartSounds:Map<String, FlxSound> = new Map<String, FlxSound>();
 	public var modchartTexts:Map<String, ModchartText> = new Map<String, ModchartText>();
+	public var modchartSaves:Map<String, FlxSave> = new Map<String, FlxSave>();
 
 	// event variables
 	private var isCameraOnForcedPos:Bool = false;
@@ -291,15 +293,15 @@ class PlayState extends MusicBeatState
 		// for lua
 		instance = this;
 
-		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
-		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
+		debugKeysChart = ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('debug_1'));
+		debugKeysCharacter = ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('debug_2'));
 		Achievements.loadAchievements();
 
 		keysArray = [
-			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_left')),
-			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_down')),
-			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_up')),
-			ClientPrefs.copyKey(ClientPrefs.keyBinds.get('note_right'))
+			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_left')),
+			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_down')),
+			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_up')),
+			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_right'))
 		];
 
 		// For the "Just the Two of Us" achievement
@@ -3841,7 +3843,10 @@ class PlayState extends MusicBeatState
 		var key:Int = getKeyFromEvent(eventKey);
 		// trace('Pressed: ' + eventKey);
 
-		if (!cpuControlled && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || OptionUtils.options.controllerMode))
+		if (!cpuControlled
+			&& !paused
+			&& key > -1
+			&& (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || OptionUtils.options.controllerMode))
 		{
 			if (!boyfriend.stunned && generatedMusic && !endingSong)
 			{
@@ -4965,7 +4970,8 @@ class PlayState extends MusicBeatState
 							}
 						}
 					case 'toastie':
-						if (/*OptionUtils.options.framerate <= 60 &&*/ OptionUtils.options.lowQuality && !OptionUtils.options.globalAntialiasing /*&& !OptionUtils.options.imagesPersist*/)
+						if (/*OptionUtils.options.framerate <= 60 &&*/ OptionUtils.options.lowQuality
+							&& !OptionUtils.options.globalAntialiasing /*&& !OptionUtils.options.imagesPersist*/)
 						{
 							unlock = true;
 						}
