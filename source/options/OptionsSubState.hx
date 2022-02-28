@@ -49,30 +49,31 @@ class OptionsSubState extends MusicBeatSubstate
 	{
 		defCat = new OptionCategory("Default", [
 			new OptionCategory("Gameplay", [
-				new OptionCategory("Controls", [
-					// TODO: rewrite
-					new ControlOption(controls, 'note_left', [A, LEFT]),
-					new ControlOption(controls, 'note_down', [S, DOWN]),
-					new ControlOption(controls, 'note_up', [W, UP]),
-					new ControlOption(controls, 'note_right', [D, RIGHT]),
+				new OptionCategory("Controls",
+					[
+						// TODO: rewrite
+						new ControlOption(controls, 'note_left', [A, LEFT]),
+						new ControlOption(controls, 'note_down', [S, DOWN]),
+						new ControlOption(controls, 'note_up', [W, UP]),
+						new ControlOption(controls, 'note_right', [D, RIGHT]),
 
-					new ControlOption(controls, 'ui_left', [A, LEFT]),
-					new ControlOption(controls, 'ui_down', [S, DOWN]),
-					new ControlOption(controls, 'ui_up', [W, UP]),
-					new ControlOption(controls, 'ui_right', [D, RIGHT]),
+						new ControlOption(controls, 'ui_left', [A, LEFT]),
+						new ControlOption(controls, 'ui_down', [S, DOWN]),
+						new ControlOption(controls, 'ui_up', [W, UP]),
+						new ControlOption(controls, 'ui_right', [D, RIGHT]),
 
-					new ControlOption(controls, 'accept', [SPACE, ENTER]),
-					new ControlOption(controls, 'back', [BACKSPACE, ESCAPE]),
-					new ControlOption(controls, 'pause', [ENTER, ESCAPE]),
-					new ControlOption(controls, 'reset', [R, NONE]),
+						new ControlOption(controls, 'accept', [SPACE, ENTER]),
+						new ControlOption(controls, 'back', [BACKSPACE, ESCAPE]),
+						new ControlOption(controls, 'pause', [ENTER, ESCAPE]),
+						new ControlOption(controls, 'reset', [R, NONE]),
 
-					new ControlOption(controls, 'volume_mute', [ZERO, NONE]),
-					new ControlOption(controls, 'volume_up', [NUMPADPLUS, PLUS]),
-					new ControlOption(controls, 'volume_down', [NUMPADMINUS, MINUS]),
+						new ControlOption(controls, 'volume_mute', [ZERO, NONE]),
+						new ControlOption(controls, 'volume_up', [NUMPADPLUS, PLUS]),
+						new ControlOption(controls, 'volume_down', [NUMPADMINUS, MINUS]),
 
-					new ControlOption(controls, 'debug_1', [SEVEN, NONE]),
-					new ControlOption(controls, 'debug_2', [EIGHT, NONE])
-				]),
+						new ControlOption(controls, 'debug_1', [SEVEN, NONE]),
+						new ControlOption(controls, 'debug_2', [EIGHT, NONE])
+					]),
 				new ToggleOption("controllerMode", false, "Controller Mode",
 					"Check this if you want to play with a controller instead of using your Keyboard."),
 				new ToggleOption("resetKey", true, "Reset Key", "Toggle pressing the bound key to instantly die"),
@@ -83,6 +84,16 @@ class OptionsSubState extends MusicBeatSubstate
 				#if !NO_BOTPLAY new ToggleOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
 				// new StepOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
 				// 	1, 0, 500, "ms", ""),
+				new StepOption("ratingOffset", 0, "Rating Offset",
+					"Changes how late/early you have to hit for a \"Sick!\" Higher values mean you have to hit later.", 1, -30, 30, "ms"),
+				new StepOption("sickWindow", 45, "Sick! Hit Window", "Changes the amount of time you have for hitting a \"Sick!\" in milliseconds.", 1, 15,
+					45, "ms"),
+				new StepOption("goodWindow", 90, "Good Hit Window", "Changes the amount of time you have for hitting a \"Good\" in milliseconds.", 1, 15, 90,
+					"ms"),
+				new StepOption("badWindow", 135, "Bad Hit Window", "Changes the amount of time you have for hitting a \"Bad\" in milliseconds.", 1, 15, 135,
+					"ms"),
+				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10,
+					"ms"),
 				#if !NO_FREEPLAY_MODS
 				new OptionCategory("Freeplay Modifiers", [
 					new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scrollspeed. 0 for chart-dependant speed", 0.1, 0, 10, "",
@@ -90,7 +101,7 @@ class OptionsSubState extends MusicBeatSubstate
 					new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scrollspeed", 0.1, 0, 2, "", "x", true),
 					new StepOption("mMod", 1, "Minimum Speed", "The minimum scrollspeed a chart can have", 0.1, 0, 10, "", "", true),
 					new ToggleOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
-				]),
+				]), new StateOption("Delay and Combo Offset", new NoteOffsetState()),
 				#end
 				new OptionCategory("Advanced", [
 					#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
@@ -98,9 +109,9 @@ class OptionsSubState extends MusicBeatSubstate
 					#end
 					new ScrollOption("accuracySystem", 0, "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
 					// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
-				]),
-				new StateOption("Calibrate Offset", new SoundOffsetState())
-				// TODO: make a better 'calibrate offset'
+				]
+				),
+				new StateOption("Calibrate Offset", new SoundOffsetState()) // TODO: make a better 'calibrate offset'
 			]),
 			new OptionCategory("Appearance", [
 				new StateOption("Note Colors", new NotesState()),

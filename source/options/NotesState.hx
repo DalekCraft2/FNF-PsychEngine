@@ -217,7 +217,6 @@ class NotesState extends MusicBeatState
 		{
 			if (!changingNote)
 			{
-				// OptionUtils.options.arrowHSV = currOffset;
 				OptionUtils.saveOptions(OptionUtils.options);
 				FlxG.switchState(new OptionsState());
 			}
