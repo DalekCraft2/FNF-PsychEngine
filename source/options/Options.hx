@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flash.events.KeyboardEvent;
 import flixel.util.FlxSave;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.FlxSprite;
 import ui.*;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -78,6 +79,22 @@ class StateOption extends Option
 		return false;
 	}
 }
+
+// class SubStateOption extends Option
+// {
+// 	private var subState:FlxSubState;
+// 	public function new(name:String, subState:FlxSubState)
+// 	{
+// 		super();
+// 		this.subState = subState;
+// 		this.name = name;
+// 	}
+// 	public override function accept()
+// 	{
+// 		OptionsSubState.openSubState(subState);
+// 		return false;
+// 	}
+// }
 
 class OptionCheckbox extends FlxSprite
 {

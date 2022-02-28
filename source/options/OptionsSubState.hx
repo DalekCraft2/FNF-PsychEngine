@@ -99,11 +99,11 @@ class OptionsSubState extends MusicBeatSubstate
 					new ScrollOption("accuracySystem", 0, "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
 					// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
 				]),
-				// new StateOption("Calibrate Offset", new SoundOffsetState())
+				new StateOption("Calibrate Offset", new SoundOffsetState())
 				// TODO: make a better 'calibrate offset'
 			]),
 			new OptionCategory("Appearance", [
-				// new StateOption("Note Colors", new NotesSubState()),
+				new StateOption("Note Colors", new NotesState()),
 				new ToggleOption("showComboCounter", true, "Show combo", "Shows your combo when you hit a note"),
 				new ToggleOption("showRatings", true, "Show judgements", "Shows judgements when you hit a note"),
 				new ToggleOption("showMS", false, "Show Hit MS", "Shows millisecond difference when you hit a note"),

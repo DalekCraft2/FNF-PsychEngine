@@ -28,7 +28,7 @@ import Controls;
 
 using StringTools;
 
-class NotesSubState extends MusicBeatSubstate
+class NotesState extends MusicBeatState
 {
 	private static var curSelected:Int = 0;
 	private static var typeSelected:Int = 0;
@@ -63,6 +63,9 @@ class NotesSubState extends MusicBeatSubstate
 		add(grpNotes);
 		grpNumbers = new FlxTypedGroup<Alphabet>();
 		add(grpNumbers);
+
+		if (OptionUtils.options.arrowHSV == null)
+			OptionUtils.options.arrowHSV = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
 
 		for (i in 0...OptionUtils.options.arrowHSV.length)
 		{
@@ -214,7 +217,9 @@ class NotesSubState extends MusicBeatSubstate
 		{
 			if (!changingNote)
 			{
-				close();
+				// OptionUtils.options.arrowHSV = currOffset;
+				OptionUtils.saveOptions(OptionUtils.options);
+				FlxG.switchState(new OptionsState());
 			}
 			else
 			{
@@ -235,7 +240,7 @@ class NotesSubState extends MusicBeatSubstate
 	{
 		curSelected += change;
 		if (curSelected < 0)
-			curSelected = OptionUtils.options.arrowHSV.length - 1;
+			curSelected = cast(OptionUtils.options.arrowHSV.length, Int) - 1;
 		if (curSelected >= OptionUtils.options.arrowHSV.length)
 			curSelected = 0;
 
