@@ -1,6 +1,6 @@
 package;
 
-#if MODS_ALLOWED
+#if FEATURE_MODS
 import sys.io.File;
 import sys.FileSystem;
 #else
@@ -24,7 +24,7 @@ typedef StageFile = {
 
 class StageData {
 	public static var forceNextDirectory:String = null;
-	public static function loadDirectory(SONG:SwagSong) {
+	public static function loadDirectory(SONG:SongData) {
 		var stage:String = '';
 		if(SONG.stage != null) {
 			stage = SONG.stage;
@@ -64,7 +64,7 @@ class StageData {
 		var rawJson:String = null;
 		var path:String = Paths.getPreloadPath('stages/' + stage + '.json');
 
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		var modPath:String = Paths.modFolders('stages/' + stage + '.json');
 		if(FileSystem.exists(modPath)) {
 			rawJson = File.getContent(modPath);

@@ -1,5 +1,6 @@
 package;
 
+import options.Options.OptionUtils;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -8,8 +9,8 @@ import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSort;
-import Section.SwagSection;
-#if MODS_ALLOWED
+import Section.SectionData;
+#if FEATURE_MODS
 import sys.io.File;
 import sys.FileSystem;
 #end
@@ -90,7 +91,7 @@ class Character extends FlxSprite
 		#end
 		curCharacter = character;
 		this.isPlayer = isPlayer;
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = OptionUtils.options.globalAntialiasing;
 		var library:String = null;
 		switch (curCharacter)
 		{
@@ -98,7 +99,7 @@ class Character extends FlxSprite
 
 			default:
 				var characterPath:String = 'characters/' + curCharacter + '.json';
-				#if MODS_ALLOWED
+				#if FEATURE_MODS
 				
 				
 				
@@ -120,7 +121,7 @@ class Character extends FlxSprite
 					path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
 				}
 
-				#if MODS_ALLOWED
+				#if FEATURE_MODS
 				var rawJson = File.getContent(path);
 				#else
 				var rawJson = Assets.getText(path);
@@ -131,7 +132,7 @@ class Character extends FlxSprite
 				//sparrow
 				//packer
 				//texture
-				#if MODS_ALLOWED
+				#if FEATURE_MODS
 				var modTxtToFind:String = Paths.modsTxt(json.image);
 				var txtToFind:String = Paths.getPath('images/' + json.image + '.txt', TEXT);
 				
@@ -151,7 +152,7 @@ class Character extends FlxSprite
 				
 				
 				
-				#if MODS_ALLOWED
+				#if FEATURE_MODS
 				var modAnimToFind:String = Paths.modFolders('images/' + json.image + '/Animation.json');
 				var animToFind:String = Paths.getPath('images/' + json.image + '/Animation.json', TEXT);
 				
@@ -208,7 +209,7 @@ class Character extends FlxSprite
 					healthColorArray = json.healthbar_colors;
 
 				antialiasing = !noAntialiasing;
-				if(!ClientPrefs.globalAntialiasing) antialiasing = false;
+				if(!OptionUtils.options.globalAntialiasing) antialiasing = false;
 
 				animationsArray = json.animations;
 				if(animationsArray != null && animationsArray.length > 0) {

@@ -1,6 +1,13 @@
 package;
 
-import flixel.graphics.FlxGraphic;
+import openfl.display.Bitmap;
+import lime.app.Application;
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
+import openfl.display.BlendMode;
+import openfl.text.TextFormat;
+import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -9,28 +16,33 @@ import openfl.Lib;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
+import flixel.graphics.FlxGraphic;
 import openfl.display.StageScaleMode;
 
 class Main extends Sprite
 {
 	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
+	var initialState:Class<FlxState> = InitState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	var framerate:Int = 60; // How many frames per second the game should run at.
+	var framerate:Int = 120; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
-	public static var fpsVar:FPS;
+	public static var fpsCounter:FPS;
+	public static var instance:Main;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
 	{
+		// quick checks
 		Lib.current.addChild(new Main());
 	}
 
 	public function new()
 	{
+		instance = this;
+
 		super();
 
 		if (stage != null)
@@ -67,10 +79,17 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
-		#if !debug
-		initialState = TitleState;
+		#if !cpp
+		framerate = 60;
 		#end
-	
+
+		// Run this first so we can see logs.
+		// Debug.onInitProgram();
+
+		#if !mobile
+		fpsCounter = new FPS(10, 3, 0xFFFFFF);
+		#end
+
 		ClientPrefs.loadDefaultKeys();
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
@@ -78,18 +97,83 @@ class Main extends Sprite
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
-		fpsVar = new FPS(10, 3, 0xFFFFFF);
-		addChild(fpsVar);
+		addChild(fpsCounter);
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null) {
-			fpsVar.visible = ClientPrefs.showFPS;
-		}
 		#end
 
-		#if html5
 		FlxG.autoPause = false;
+		
+		#if html5
 		FlxG.mouse.visible = false;
 		#end
+
+		// Finish up loading debug tools.
+		// Debug.onGameStart();
+	}
+
+	public static function dumpObject(graphic:FlxGraphic)
+	{
+		@:privateAccess
+		for (key in FlxG.bitmap._cache.keys())
+		{
+			var obj = FlxG.bitmap._cache.get(key);
+			if (obj != null)
+			{
+				if (obj == graphic)
+				{
+					Assets.cache.removeBitmapData(key);
+					FlxG.bitmap._cache.remove(key);
+					obj.destroy();
+					break;
+				}
+			}
+		}
+	}
+
+	public static function dumpCache()
+	{
+		///* SPECIAL THANKS TO HAYA
+		@:privateAccess
+		for (key in FlxG.bitmap._cache.keys())
+		{
+			var obj = FlxG.bitmap._cache.get(key);
+			if (obj != null)
+			{
+				Assets.cache.removeBitmapData(key);
+				FlxG.bitmap._cache.remove(key);
+				obj.destroy();
+			}
+		}
+		Assets.cache.clear("songs");
+	}
+
+	public static function toggleFPS(fpsEnabled:Bool):Void
+	{
+		fpsCounter.visible = fpsEnabled;
+	}
+
+	public static function changeFPSColor(color:FlxColor)
+	{
+		fpsCounter.textColor = color;
+	}
+
+	public static function setFPSCap(cap:Float)
+	{
+		openfl.Lib.current.stage.frameRate = cap;
+	}
+
+	public static function getFPSCap():Float
+	{
+		return openfl.Lib.current.stage.frameRate;
+	}
+
+	public static function getFPS():Float
+	{
+		return fpsCounter.currentFPS;
+	}
+
+	public static function adjustFPS(num:Float):Float{
+		return FlxG.elapsed / (1/60) * num;
 	}
 }

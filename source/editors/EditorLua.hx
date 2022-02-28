@@ -1,12 +1,13 @@
 package editors;
 
-#if LUA_ALLOWED
+#if FEATURE_LUA
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
 import llua.Convert;
 #end
 
+import options.Options.OptionUtils;
 import flixel.FlxG;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -27,7 +28,7 @@ import Type.ValueType;
 import Controls;
 import DialogueBoxPsych;
 
-#if desktop
+#if FEATURE_DISCORD
 import Discord;
 #end
 
@@ -37,12 +38,12 @@ class EditorLua {
 	public static var Function_Stop = 1;
 	public static var Function_Continue = 0;
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	public var lua:State = null;
 	#end
 
 	public function new(script:String) {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
@@ -83,8 +84,8 @@ class EditorLua {
 			set('defaultOpponentStrumY' + i, 0);
 		}
 
-		set('downscroll', ClientPrefs.downScroll);
-		set('middlescroll', ClientPrefs.middleScroll);
+		set('downscroll', OptionUtils.options.downScroll);
+		set('middlescroll', OptionUtils.options.middleScroll);
 
 		//stuff 4 noobz like you B)
 		Lua_helper.add_callback(lua, "getProperty", function(variable:String) {
@@ -187,7 +188,7 @@ class EditorLua {
 	}
 	
 	public function call(event:String, args:Array<Dynamic>):Dynamic {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return Function_Continue;
 		}
@@ -218,7 +219,7 @@ class EditorLua {
 		return Function_Continue;
 	}
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	function resultIsAllowed(leLua:State, leResult:Null<Int>) { //Makes it ignore warnings
 		switch(Lua.type(leLua, leResult)) {
 			case Lua.LUA_TNIL | Lua.LUA_TBOOLEAN | Lua.LUA_TNUMBER | Lua.LUA_TSTRING | Lua.LUA_TTABLE:
@@ -229,7 +230,7 @@ class EditorLua {
 	#end
 
 	public function set(variable:String, data:Dynamic) {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return;
 		}
@@ -239,7 +240,7 @@ class EditorLua {
 		#end
 	}
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	public function getBool(variable:String) {
 		var result:String = null;
 		Lua.getglobal(lua, variable);
@@ -257,7 +258,7 @@ class EditorLua {
 	#end
 
 	public function stop() {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return;
 		}

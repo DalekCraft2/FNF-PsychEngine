@@ -1,6 +1,7 @@
 package;
 
-#if desktop
+import options.Options.OptionUtils;
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flash.text.TextField;
@@ -19,7 +20,7 @@ using StringTools;
 
 class AchievementsMenuState extends MusicBeatState
 {
-	#if ACHIEVEMENTS_ALLOWED
+	#if FEATURE_ACHIEVEMENTS
 	var options:Array<String> = [];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private static var curSelected:Int = 0;
@@ -28,7 +29,7 @@ class AchievementsMenuState extends MusicBeatState
 	private var descText:FlxText;
 
 	override function create() {
-		#if desktop
+		#if FEATURE_DISCORD
 		DiscordClient.changePresence("Achievements Menu", null);
 		#end
 
@@ -36,7 +37,7 @@ class AchievementsMenuState extends MusicBeatState
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
-		menuBG.antialiasing = ClientPrefs.globalAntialiasing;
+		menuBG.antialiasing = OptionUtils.options.globalAntialiasing;
 		add(menuBG);
 
 		grpOptions = new FlxTypedGroup<Alphabet>();

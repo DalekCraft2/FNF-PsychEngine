@@ -1,6 +1,6 @@
 package;
 
-typedef SwagSection =
+typedef SectionData =
 {
 	var sectionNotes:Array<Dynamic>;
 	var lengthInSteps:Int;

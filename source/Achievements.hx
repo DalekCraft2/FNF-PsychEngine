@@ -1,3 +1,4 @@
+import options.Options.OptionUtils;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -7,7 +8,7 @@ import flixel.tweens.FlxTween;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
-#if MODS_ALLOWED
+#if FEATURE_MODS
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -82,7 +83,7 @@ class Achievements {
 		achievementsStuff = [];
 		achievementsStuff = achievementShits;
 
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		//reloadAchievements(); //custom achievements do not work. will add once it doesn't do the duplication bug -bb
 		#end
 
@@ -120,7 +121,7 @@ class Achievements {
 	public static function reloadAchievements() {	//Achievements in game are hardcoded, no need to make a folder for them
 		loadedAchievements.clear();
 
-		#if MODS_ALLOWED //Based on WeekData.hx
+		#if FEATURE_MODS //Based on WeekData.hx
 		var disabledMods:Array<String> = [];
 		var modsListPath:String = 'modsList.txt';
 		var directories:Array<String> = [Paths.mods()];
@@ -198,7 +199,7 @@ class Achievements {
 
 	private static function getAchievementInfo(path:String):AchievementFile {
 		var rawJson:String = null;
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		if (FileSystem.exists(path)) {
 			rawJson = File.getContent(path);
 		}
@@ -222,7 +223,7 @@ class AttachedAchievement extends FlxSprite {
 		super(x, y);
 
 		changeAchievement(name);
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 
 	public function changeAchievement(tag:String) {
@@ -269,7 +270,7 @@ class AchievementObject extends FlxSpriteGroup {
 	public function new(name:String, ?camera:FlxCamera = null)
 	{
 		super(x, y);
-		ClientPrefs.saveSettings();
+		OptionUtils.saveOptions(OptionUtils.options);
 
 		var id:Int = Achievements.getAchievementIndex(name);
 		var achieveName:String = Achievements.achievementsStuff[id][0];
@@ -306,7 +307,7 @@ class AchievementObject extends FlxSpriteGroup {
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
-		achievementIcon.antialiasing = ClientPrefs.globalAntialiasing;
+		achievementIcon.antialiasing = OptionUtils.options.globalAntialiasing;
 
 		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achieveName, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);

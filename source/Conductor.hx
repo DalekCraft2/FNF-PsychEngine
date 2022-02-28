@@ -1,6 +1,7 @@
 package;
 
-import Song.SwagSong;
+import options.Options.OptionUtils;
+import Song.SongData;
 
 /**
  * ...
@@ -23,8 +24,7 @@ class Conductor
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
-	//public static var safeFrames:Int = 10;
-	public static var safeZoneOffset:Float = (ClientPrefs.safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
+	public static var safeZoneOffset:Float = (OptionUtils.options.safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
@@ -35,7 +35,7 @@ class Conductor
 	public static function judgeNote(note:Note, diff:Float=0) //STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
 	{
 		//tryna do MS based judgment due to popular demand
-		var timingWindows:Array<Int> = [ClientPrefs.sickWindow, ClientPrefs.goodWindow, ClientPrefs.badWindow];
+		var timingWindows:Array<Int> = [OptionUtils.options.sickWindow, OptionUtils.options.goodWindow, OptionUtils.options.badWindow];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 
 		// var diff = Math.abs(note.strumTime - Conductor.songPosition) / (PlayState.songMultiplier >= 1 ? PlayState.songMultiplier : 1);
@@ -48,7 +48,7 @@ class Conductor
 		}
 		return 'shit';
 	}
-	public static function mapBPMChanges(song:SwagSong)
+	public static function mapBPMChanges(song:SongData)
 	{
 		bpmChangeMap = [];
 

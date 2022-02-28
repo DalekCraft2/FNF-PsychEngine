@@ -1,6 +1,6 @@
 package editors;
 
-#if desktop
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -12,7 +12,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.system.FlxSound;
-#if MODS_ALLOWED
+#if FEATURE_MODS
 import sys.FileSystem;
 #end
 
@@ -38,7 +38,7 @@ class MasterEditorMenu extends MusicBeatState
 	override function create()
 	{
 		FlxG.camera.bgColor = FlxColor.BLACK;
-		#if desktop
+		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Editors Main Menu", null);
 		#end
@@ -59,7 +59,7 @@ class MasterEditorMenu extends MusicBeatState
 			grpTexts.add(leText);
 		}
 		
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 42).makeGraphic(FlxG.width, 42, 0xFF000000);
 		textBG.alpha = 0.6;
 		add(textBG);
@@ -94,7 +94,7 @@ class MasterEditorMenu extends MusicBeatState
 		{
 			changeSelection(1);
 		}
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		if(controls.UI_LEFT_P)
 		{
 			changeDirectory(-1);
@@ -162,7 +162,7 @@ class MasterEditorMenu extends MusicBeatState
 			curSelected = 0;
 	}
 
-	#if MODS_ALLOWED
+	#if FEATURE_MODS
 	function changeDirectory(change:Int = 0)
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);

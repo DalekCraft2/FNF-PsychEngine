@@ -1,6 +1,7 @@
 package;
 
-#if desktop
+import options.Options.OptionUtils;
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flash.text.TextField;
@@ -172,7 +173,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		if (controls.BACK) {
 			close();
-			ClientPrefs.saveSettings();
+			OptionUtils.saveOptions(OptionUtils.options);
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 

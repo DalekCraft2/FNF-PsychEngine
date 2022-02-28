@@ -1,9 +1,10 @@
 package;
 
+#if FEATURE_DISCORD
 import Sys.sleep;
 import discord_rpc.DiscordRpc;
 
-#if LUA_ALLOWED
+#if FEATURE_LUA
 import llua.Lua;
 import llua.State;
 #end
@@ -44,7 +45,7 @@ class DiscordClient
 			details: "In the Menus",
 			state: null,
 			largeImageKey: 'icon',
-			largeImageText: "Psych Engine"
+			largeImageText: "Mock Engine (Psych Fork)"
 		});
 	}
 
@@ -90,7 +91,7 @@ class DiscordClient
 		//trace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
 	}
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	public static function addLuaCallbacks(lua:State) {
 		Lua_helper.add_callback(lua, "changePresence", function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) {
 			changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
@@ -98,3 +99,4 @@ class DiscordClient
 	}
 	#end
 }
+#end

@@ -4,7 +4,7 @@
 		"stage": null,
 		"player1": "bf-pixel",
 		"player2": "senpai-angry",
-		"player3": "gf-pixel",
+		"gfVersion": "gf-pixel",
 		"notes": [
 			{
 				"lengthInSteps": 16,

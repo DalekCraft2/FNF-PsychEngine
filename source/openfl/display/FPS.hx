@@ -1,10 +1,16 @@
 package openfl.display;
 
+import options.Options.OptionUtils;
+import flixel.math.FlxMath;
+import flixel.util.FlxColor;
+import openfl.Lib;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
+import flixel.FlxG;
 import haxe.Timer;
 import openfl.events.Event;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import flixel.math.FlxMath;
 #if gl_stats
 import openfl.display._internal.stats.Context3DStats;
 import openfl.display._internal.stats.DrawCallContext;
@@ -12,7 +18,6 @@ import openfl.display._internal.stats.DrawCallContext;
 #if flash
 import openfl.Lib;
 #end
-
 #if openfl
 import openfl.system.System;
 #end
@@ -32,6 +37,8 @@ class FPS extends TextField
 	**/
 	public var currentFPS(default, null):Int;
 
+	public var bitmap:Bitmap;
+
 	@:noCompletion private var cacheCount:Int;
 	@:noCompletion private var currentTime:Float;
 	@:noCompletion private var times:Array<Float>;
@@ -46,10 +53,9 @@ class FPS extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 16, color);
-		autoSize = LEFT;
-		multiline = true;
+		defaultTextFormat = new TextFormat(openfl.utils.Assets.getFont("assets/fonts/vcr.ttf").fontName, 14, color);
 		text = "FPS: ";
+		width += 200;
 
 		cacheCount = 0;
 		currentTime = 0;
@@ -62,12 +68,42 @@ class FPS extends TextField
 			__enterFrame(time - currentTime);
 		});
 		#end
+
+		bitmap = ImageOutline.renderImage(this, 1, 0x000000, 1, true);
+		(cast(Lib.current.getChildAt(0), Main)).addChild(bitmap);
 	}
+
+	var array:Array<FlxColor> = [
+		FlxColor.fromRGB(148, 0, 211),
+		FlxColor.fromRGB(75, 0, 130),
+		FlxColor.fromRGB(0, 0, 255),
+		FlxColor.fromRGB(0, 255, 0),
+		FlxColor.fromRGB(255, 255, 0),
+		FlxColor.fromRGB(255, 127, 0),
+		FlxColor.fromRGB(255, 0, 0)
+	];
+
+	var skippedFrames = 0;
+
+	public static var currentColor = 0;
 
 	// Event Handlers
 	@:noCompletion
 	private #if !flash override #end function __enterFrame(deltaTime:Float):Void
 	{
+		// if (MusicBeatState.initSave)
+		// 	if (FlxG.save.data.fpsRain)
+		// 	{
+		// 		if (currentColor >= array.length)
+		// 			currentColor = 0;
+		// 		currentColor = Math.round(FlxMath.lerp(0, array.length, skippedFrames / (FlxG.save.data.fpsCap / 3)));
+		// 		(cast(Lib.current.getChildAt(0), Main)).changeFPSColor(array[currentColor]);
+		// 		currentColor++;
+		// 		skippedFrames++;
+		// 		if (skippedFrames > (FlxG.save.data.fpsCap / 3))
+		// 			skippedFrames = 0;
+		// 	}
+
 		currentTime += deltaTime;
 		times.push(currentTime);
 
@@ -83,14 +119,13 @@ class FPS extends TextField
 		{
 			text = "FPS: " + currentFPS;
 			var memoryMegas:Float = 0;
-			
+
 			#if openfl
 			memoryMegas = FlxMath.roundDecimal(System.totalMemory / 1000000, 1);
 			text += "\nMemory: " + memoryMegas + " MB";
 			#end
-
 			textColor = 0xFFFFFFFF;
-			if (memoryMegas > 3000 || currentFPS <= ClientPrefs.framerate / 1.5)
+			if (memoryMegas > 3000 || currentFPS <= OptionUtils.options.framerate / 1.5)
 			{
 				textColor = 0xFFFF0000;
 			}
@@ -100,9 +135,17 @@ class FPS extends TextField
 			text += "\nstageDC: " + Context3DStats.contextDrawCalls(DrawCallContext.STAGE);
 			text += "\nstage3DDC: " + Context3DStats.contextDrawCalls(DrawCallContext.STAGE3D);
 			#end
-
-			text += "\n";
 		}
+
+		visible = true;
+
+		Main.instance.removeChild(bitmap);
+
+		bitmap = ImageOutline.renderImage(this, 2, 0x000000, 1);
+
+		Main.instance.addChild(bitmap);
+
+		visible = false;
 
 		cacheCount = currentCount;
 	}

@@ -1,6 +1,6 @@
 package;
 
-#if desktop
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flash.text.TextField;
@@ -13,7 +13,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
-#if MODS_ALLOWED
+#if FEATURE_MODS
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -39,7 +39,7 @@ class CreditsState extends MusicBeatState
 
 	override function create()
 	{
-		#if desktop
+		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
@@ -52,7 +52,7 @@ class CreditsState extends MusicBeatState
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
-		#if MODS_ALLOWED
+		#if FEATURE_MODS
 		//trace("finding mod shit");
 		for (folder in Paths.getModDirectories())
 		{

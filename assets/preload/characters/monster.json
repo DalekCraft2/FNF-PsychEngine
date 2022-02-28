@@ -24,8 +24,8 @@
 		},
 		{
 			"offsets": [
-				-30,
-				20
+				-51,
+				30
 			],
 			"loop": false,
 			"anim": "singLEFT",
@@ -35,8 +35,8 @@
 		},
 		{
 			"offsets": [
-				-51,
-				30
+				-30,
+				20
 			],
 			"loop": false,
 			"anim": "singRIGHT",

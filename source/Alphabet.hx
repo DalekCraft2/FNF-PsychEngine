@@ -1,5 +1,6 @@
 package;
 
+import options.Options.OptionUtils;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -378,7 +379,7 @@ class AlphaCharacter extends FlxSprite
 		setGraphicSize(Std.int(width * textSize));
 		updateHitbox();
 		this.textSize = textSize;
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 
 	public function createBoldLetter(letter:String)

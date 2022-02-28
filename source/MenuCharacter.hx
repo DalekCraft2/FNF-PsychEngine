@@ -1,8 +1,9 @@
 package;
 
+import options.Options.OptionUtils;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
-#if MODS_ALLOWED
+#if FEATURE_MODS
 import sys.io.File;
 import sys.FileSystem;
 #end
@@ -35,7 +36,7 @@ class MenuCharacter extends FlxSprite
 		if(character == this.character) return;
 
 		this.character = character;
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = OptionUtils.options.globalAntialiasing;
 		visible = true;
 
 		var dontPlayAnim:Bool = false;
@@ -50,7 +51,7 @@ class MenuCharacter extends FlxSprite
 				var characterPath:String = 'images/menucharacters/' + character + '.json';
 				var rawJson = null;
 
-				#if MODS_ALLOWED
+				#if FEATURE_MODS
 				var path:String = Paths.modFolders(characterPath);
 				if (!FileSystem.exists(path)) {
 					path = Paths.getPreloadPath(characterPath);

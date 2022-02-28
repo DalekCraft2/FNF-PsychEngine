@@ -1,6 +1,7 @@
 package editors;
 
-#if desktop
+import options.Options.OptionUtils;
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -70,7 +71,7 @@ class DialogueEditorState extends MusicBeatState
 		box = new FlxSprite(70, 370);
 		box.frames = Paths.getSparrowAtlas('speech_bubble');
 		box.scrollFactor.set();
-		box.antialiasing = ClientPrefs.globalAntialiasing;
+		box.antialiasing = OptionUtils.options.globalAntialiasing;
 		box.animation.addByPrefix('normal', 'speech bubble normal', 24);
 		box.animation.addByPrefix('angry', 'AHH speech bubble', 24);
 		box.animation.addByPrefix('center', 'speech bubble middle', 24);
@@ -243,7 +244,7 @@ class DialogueEditorState extends MusicBeatState
 			characterAnimSpeed();
 		}
 
-		#if desktop
+		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		var rpcText:String = lineInputText.text;
 		if(rpcText == null || rpcText.length < 1) rpcText = '(Empty)';

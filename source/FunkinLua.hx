@@ -1,4 +1,5 @@
-#if LUA_ALLOWED
+import options.Options.OptionUtils;
+#if FEATURE_LUA
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
@@ -36,7 +37,7 @@ import Type.ValueType;
 import Controls;
 import DialogueBoxPsych;
 
-#if desktop
+#if FEATURE_DISCORD
 import Discord;
 #end
 
@@ -46,7 +47,7 @@ class FunkinLua {
 	public static var Function_Stop = 1;
 	public static var Function_Continue = 0;
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	public var lua:State = null;
 	#end
 	public var camTarget:FlxCamera;
@@ -55,7 +56,7 @@ class FunkinLua {
 
 	public var accessedProps:Map<String, Dynamic> = null;
 	public function new(script:String) {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
@@ -159,22 +160,22 @@ class FunkinLua {
 		// Character shit
 		set('boyfriendName', PlayState.SONG.player1);
 		set('dadName', PlayState.SONG.player2);
-		set('gfName', PlayState.SONG.player3);
+		set('gfName', PlayState.SONG.gfVersion);
 
 		// Some settings, no jokes
-		set('downscroll', ClientPrefs.downScroll);
-		set('middlescroll', ClientPrefs.middleScroll);
-		set('framerate', ClientPrefs.framerate);
-		set('ghostTapping', ClientPrefs.ghostTapping);
-		set('hideHud', ClientPrefs.hideHud);
-		set('timeBarType', ClientPrefs.timeBarType);
-		set('scoreZoom', ClientPrefs.scoreZoom);
-		set('cameraZoomOnBeat', ClientPrefs.camZooms);
-		set('flashingLights', ClientPrefs.flashing);
-		set('noteOffset', ClientPrefs.noteOffset);
-		set('healthBarAlpha', ClientPrefs.healthBarAlpha);
-		set('noResetButton', ClientPrefs.noReset);
-		set('lowQuality', ClientPrefs.lowQuality);
+		set('downscroll', OptionUtils.options.downScroll);
+		set('middlescroll', OptionUtils.options.middleScroll);
+		set('framerate', OptionUtils.options.framerate);
+		set('ghostTapping', OptionUtils.options.ghostTapping);
+		set('hideHud', OptionUtils.options.hideHud);
+		set('timeBarType', OptionUtils.options.timeBarType);
+		set('scoreZoom', OptionUtils.options.scoreZoom);
+		set('cameraZoomOnBeat', OptionUtils.options.camZooms);
+		set('flashingLights', OptionUtils.options.flashing);
+		set('noteOffset', OptionUtils.options.noteOffset);
+		set('healthBarAlpha', OptionUtils.options.healthBarAlpha);
+		set('resetButton', OptionUtils.options.resetKey);
+		set('lowQuality', OptionUtils.options.lowQuality);
 
 		Lua_helper.add_callback(lua, "addLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false) { //would be dope asf. 
 			var cervix = luaFile + ".lua";
@@ -893,7 +894,7 @@ class FunkinLua {
 			{
 				leSprite.loadGraphic(Paths.image(image));
 			}
-			leSprite.antialiasing = ClientPrefs.globalAntialiasing;
+			leSprite.antialiasing = OptionUtils.options.globalAntialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 			leSprite.active = true;
 		});
@@ -903,7 +904,7 @@ class FunkinLua {
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 			
 			loadFrames(leSprite, image, spriteType);
-			leSprite.antialiasing = ClientPrefs.globalAntialiasing;
+			leSprite.antialiasing = OptionUtils.options.globalAntialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 		});
 
@@ -1234,7 +1235,7 @@ class FunkinLua {
 			}
 		});
 		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String) {
-			#if VIDEOS_ALLOWED
+			#if FEATURE_VIDEOS
 			if(FileSystem.exists(Paths.video(videoFile))) {
 				PlayState.instance.startVideo(videoFile);
 			} else {
@@ -1366,7 +1367,7 @@ class FunkinLua {
 		});
 
 		Lua_helper.add_callback(lua, "changePresence", function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) {
-			#if desktop
+			#if FEATURE_DISCORD
 			DiscordClient.changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
 			#end
 		});
@@ -1806,7 +1807,7 @@ class FunkinLua {
 	}
 
 	public function luaTrace(text:String, ignoreCheck:Bool = false, deprecated:Bool = false) {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(ignoreCheck || getBool('luaDebugMode')) {
 			if(deprecated && !getBool('luaDeprecatedWarnings')) {
 				return;
@@ -1818,7 +1819,7 @@ class FunkinLua {
 	}
 	
 	public function call(event:String, args:Array<Dynamic>):Dynamic {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return Function_Continue;
 		}
@@ -1871,7 +1872,7 @@ class FunkinLua {
 		return coverMeInPiss;
 	}
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	function resultIsAllowed(leLua:State, leResult:Null<Int>) { //Makes it ignore warnings
 		switch(Lua.type(leLua, leResult)) {
 			case Lua.LUA_TNIL | Lua.LUA_TBOOLEAN | Lua.LUA_TNUMBER | Lua.LUA_TSTRING | Lua.LUA_TTABLE:
@@ -1882,7 +1883,7 @@ class FunkinLua {
 	#end
 
 	public function set(variable:String, data:Dynamic) {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return;
 		}
@@ -1892,7 +1893,7 @@ class FunkinLua {
 		#end
 	}
 
-	#if LUA_ALLOWED
+	#if FEATURE_LUA
 	public function getBool(variable:String) {
 		var result:String = null;
 		Lua.getglobal(lua, variable);
@@ -1910,7 +1911,7 @@ class FunkinLua {
 	#end
 
 	public function stop() {
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		if(lua == null) {
 			return;
 		}
@@ -1938,7 +1939,7 @@ class ModchartSprite extends FlxSprite
 	public function new(?x:Float = 0, ?y:Float = 0)
 	{
 		super(x, y);
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 }
 

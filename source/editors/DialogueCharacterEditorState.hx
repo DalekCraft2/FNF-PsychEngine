@@ -1,6 +1,7 @@
 package editors;
 
-#if desktop
+import options.Options.OptionUtils;
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -111,7 +112,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		box = new FlxSprite(70, 370);
 		box.frames = Paths.getSparrowAtlas('speech_bubble');
 		box.scrollFactor.set();
-		box.antialiasing = ClientPrefs.globalAntialiasing;
+		box.antialiasing = OptionUtils.options.globalAntialiasing;
 		box.animation.addByPrefix('normal', 'speech bubble normal', 24);
 		box.animation.addByPrefix('center', 'speech bubble middle', 24);
 		box.animation.play('normal', true);
@@ -441,7 +442,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 			offsetIdleText.text = 'Idle: ' + animShit.idle_offsets;
 		}
 
-		#if desktop
+		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Dialogue Character Editor", "Editting: " + character.jsonFile.image);
 		#end

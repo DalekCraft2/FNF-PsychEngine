@@ -2016,7 +2016,7 @@
 				"mustHitSection": true
 			}
 		],
-		"player3": "gf",
+		"gfVersion": "gf",
 		"song": "Smash",
 		"needsVoices": false,
 		"validScore": true,

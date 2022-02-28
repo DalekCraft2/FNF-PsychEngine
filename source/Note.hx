@@ -1,5 +1,6 @@
 package;
 
+import options.Options.OptionUtils;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -46,9 +47,9 @@ class Note extends FlxSprite
 	private var earlyHitMult:Float = 0.5;
 
 	public static var swagWidth:Float = 160 * 0.7;
-	public static var PURP_NOTE:Int = 0;
-	public static var GREEN_NOTE:Int = 2;
+	public static var PURPLE_NOTE:Int = 0;
 	public static var BLUE_NOTE:Int = 1;
+	public static var GREEN_NOTE:Int = 2;
 	public static var RED_NOTE:Int = 3;
 
 	// Lua shit
@@ -87,9 +88,9 @@ class Note extends FlxSprite
 
 	private function set_noteType(value:String):String {
 		noteSplashTexture = PlayState.SONG.splashSkin;
-		colorSwap.hue = ClientPrefs.arrowHSV[noteData % 4][0] / 360;
-		colorSwap.saturation = ClientPrefs.arrowHSV[noteData % 4][1] / 100;
-		colorSwap.brightness = ClientPrefs.arrowHSV[noteData % 4][2] / 100;
+		colorSwap.hue = OptionUtils.options.arrowHSV[noteData % 4][0] / 360;
+		colorSwap.saturation = OptionUtils.options.arrowHSV[noteData % 4][1] / 100;
+		colorSwap.brightness = OptionUtils.options.arrowHSV[noteData % 4][2] / 100;
 
 		if(noteData > -1 && noteType != value) {
 			switch(value) {
@@ -130,11 +131,11 @@ class Note extends FlxSprite
 		isSustainNote = sustainNote;
 		this.inEditor = inEditor;
 
-		x += (ClientPrefs.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
+		x += (OptionUtils.options.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
-		if(!inEditor) this.strumTime += ClientPrefs.noteOffset;
+		if(!inEditor) this.strumTime += OptionUtils.options.noteOffset;
 
 		this.noteData = noteData;
 
@@ -167,7 +168,7 @@ class Note extends FlxSprite
 		{
 			alpha = 0.6;
 			multAlpha = 0.6;
-			if(ClientPrefs.downScroll) flipY = true;
+			if(OptionUtils.options.downScroll) flipY = true;
 
 			offsetX += width / 2;
 			copyAngle = false;
@@ -287,7 +288,7 @@ class Note extends FlxSprite
 		} else {
 			frames = Paths.getSparrowAtlas(blahblah);
 			loadNoteAnims();
-			antialiasing = ClientPrefs.globalAntialiasing;
+			antialiasing = OptionUtils.options.globalAntialiasing;
 		}
 		if(isSustainNote) {
 			scale.y = lastScaleY;
@@ -311,7 +312,7 @@ class Note extends FlxSprite
 
 		if (isSustainNote)
 		{
-			animation.addByPrefix('purpleholdend', 'pruple end hold');
+			animation.addByPrefix('purpleholdend', 'purple end hold');
 			animation.addByPrefix('greenholdend', 'green hold end');
 			animation.addByPrefix('redholdend', 'red hold end');
 			animation.addByPrefix('blueholdend', 'blue hold end');
@@ -328,12 +329,12 @@ class Note extends FlxSprite
 
 	function loadPixelNoteAnims() {
 		if(isSustainNote) {
-			animation.add('purpleholdend', [PURP_NOTE + 4]);
+			animation.add('purpleholdend', [PURPLE_NOTE + 4]);
 			animation.add('greenholdend', [GREEN_NOTE + 4]);
 			animation.add('redholdend', [RED_NOTE + 4]);
 			animation.add('blueholdend', [BLUE_NOTE + 4]);
 
-			animation.add('purplehold', [PURP_NOTE]);
+			animation.add('purplehold', [PURPLE_NOTE]);
 			animation.add('greenhold', [GREEN_NOTE]);
 			animation.add('redhold', [RED_NOTE]);
 			animation.add('bluehold', [BLUE_NOTE]);
@@ -341,7 +342,7 @@ class Note extends FlxSprite
 			animation.add('greenScroll', [GREEN_NOTE + 4]);
 			animation.add('redScroll', [RED_NOTE + 4]);
 			animation.add('blueScroll', [BLUE_NOTE + 4]);
-			animation.add('purpleScroll', [PURP_NOTE + 4]);
+			animation.add('purpleScroll', [PURPLE_NOTE + 4]);
 		}
 	}
 
