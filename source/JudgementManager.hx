@@ -1,11 +1,9 @@
 package;
 
-import flixel.math.FlxMath;
-import options.Options;
 import haxe.Json;
-import haxe.format.JsonParser;
-import haxe.macro.Type;
+import haxe.macro.Type.AnonType;
 import lime.utils.Assets;
+import options.Options.OptionUtils;
 
 typedef JudgementInfo =
 {
@@ -34,7 +32,7 @@ class JudgementData
 		for (judge in info.judgements)
 		{
 			if (EngineData.validJudgements.contains(judge))
-				if (judge != 'epic' || judge == 'epic' && EngineData.options.useEpic)
+				if (judge != 'epic' || judge == 'epic' && OptionUtils.options.useEpic)
 					judgements.push(judge);
 		}
 		for (judge in info.comboBreakJudgements)
@@ -102,7 +100,7 @@ class JudgementManager
 	public function getWifeZero()
 	{
 		return judgeData.wifeZeroPoint;
-	};
+	}
 
 	public static function getDataByName(name:String)
 	{

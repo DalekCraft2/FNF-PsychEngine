@@ -3,25 +3,22 @@ package;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
-import options.Options.OptionUtils;
 import editors.ChartingState;
+import flash.events.MouseEvent;
 import flash.text.TextField;
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxObject;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionableState;
+import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.mouse.FlxMouseEventManager;
-import flash.events.MouseEvent;
 import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import flixel.tweens.FlxTween;
-import lime.utils.Assets;
 import flixel.system.FlxSound;
+import flixel.text.FlxText;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxColor;
+import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
-import WeekData;
+import options.Options.OptionUtils;
 #if FEATURE_MODS
 import sys.FileSystem;
 #end
@@ -413,7 +410,7 @@ class FreeplayState extends MusicBeatState
 		if (ctrl)
 		{
 			persistentUpdate = false;
-			openSubState(new GameplayChangersSubstate());
+			openSubState(new GameplayChangersSubState());
 		}
 		else if (space)
 		{
@@ -571,8 +568,8 @@ class FreeplayState extends MusicBeatState
 				CoolUtil.difficulties = diffs;
 			}
 		}
-		
-		if(CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+
+		if (CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
 		{
 			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
 		}

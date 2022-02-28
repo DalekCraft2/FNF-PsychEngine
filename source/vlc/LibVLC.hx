@@ -1,14 +1,7 @@
 package vlc;
 
-import cpp.Callable;
-import cpp.Function;
 import cpp.Pointer;
-import cpp.RawPointer;
 import cpp.UInt8;
-import haxe.io.ArrayBufferView;
-import lime.utils.UInt8Array;
-
-// import cpp.Void;
 
 /**
  * ...

@@ -1,18 +1,13 @@
 package options;
 
 import Controls;
-import Controls.Control;
-import Controls.KeyboardScheme;
-import flixel.input.keyboard.FlxKey;
-import Sys.sleep;
 import flixel.FlxG;
-import flash.events.KeyboardEvent;
-import flixel.util.FlxSave;
-import flixel.FlxState;
-import flixel.FlxSubState;
 import flixel.FlxSprite;
-import ui.*;
+import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.input.keyboard.FlxKey;
+import flixel.math.FlxMath;
+import flixel.util.FlxSave;
 
 class OptionUtils
 {
@@ -40,7 +35,7 @@ class OptionUtils
 			Reflect.setField(save.data, f, shit);
 		}
 		save.flush();
-		FlxG.log.add("Settings saved!");
+		trace("Settings saved!");
 	}
 
 	public static function loadOptions(options:Dynamic)
@@ -79,22 +74,6 @@ class StateOption extends Option
 		return false;
 	}
 }
-
-// class SubStateOption extends Option
-// {
-// 	private var subState:FlxSubState;
-// 	public function new(name:String, subState:FlxSubState)
-// 	{
-// 		super();
-// 		this.subState = subState;
-// 		this.name = name;
-// 	}
-// 	public override function accept()
-// 	{
-// 		OptionsSubState.openSubState(subState);
-// 		return false;
-// 	}
-// }
 
 class OptionCheckbox extends FlxSprite
 {
@@ -145,7 +124,7 @@ class OptionCheckbox extends FlxSprite
 		super.update(elapsed);
 		if (tracker != null)
 		{
-			setPosition(tracker.x - 130 + offsetX, tracker.y + 30 + offsetY);
+			setPosition(tracker.x - 130 + offsetX, tracker.y + offsetY);
 			if (copyAlpha)
 			{
 				alpha = tracker.alpha;
@@ -192,7 +171,7 @@ class ToggleOption extends Option
 		if (text == null)
 		{
 			remove(text);
-			text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
 			text.isMenuItem = true;
 			text.xAdd = 145;
 			checkbox.tracker = text;
@@ -217,7 +196,6 @@ class ToggleOption extends Option
 	}
 }
 
-// StepOption("backTrans","Background Transparency",10,0,100,"%", "", "How transparent the background is")
 class StepOption extends Option
 {
 	private var names:Array<String>;
@@ -225,6 +203,7 @@ class StepOption extends Option
 	private var max:Float = -1;
 	private var min:Float = 0;
 	private var step:Float = 1;
+	private var scrollSpeed:Float = 50;
 	private var label:String = '';
 	private var leftArrow:FlxSprite;
 	private var rightArrow:FlxSprite;
@@ -233,6 +212,8 @@ class StepOption extends Option
 	private var suffix:String = '';
 	private var prefix:String = '';
 	private var truncFloat:Bool = false;
+
+	private var decimals:Int = 1;
 
 	public function new(property:String, defaultValue:Float, label:String, ?desc:String = '', ?step:Float = 1, ?min:Float = 0, ?max:Float = 100,
 			?suffix:String = '', ?prefix:String = '', ?truncateFloat = false, ?callback:Float->Float->Void)
@@ -274,7 +255,10 @@ class StepOption extends Option
 			value = CoolUtil.truncateFloat(value, 2);
 
 		name = '${prefix}${Std.string(value)}${suffix}';
-	};
+	}
+
+	var holdTime:Float = 0;
+	var holdValue:Float = 0;
 
 	override function update(elapsed:Float)
 	{
@@ -284,7 +268,6 @@ class StepOption extends Option
 		rightArrow.alpha = text.alpha;
 
 		super.update(elapsed);
-		// sprTracker.x + sprTracker.width + 10
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -314,6 +297,71 @@ class StepOption extends Option
 		leftArrow.x = text.x - 60;
 		leftArrow.y = text.y - 10;
 		rightArrow.y = text.y - 10;
+
+		// if (PlayerSettings.player1.controls.UI_LEFT || PlayerSettings.player1.controls.UI_RIGHT)
+		// {
+		// 	var pressed = (PlayerSettings.player1.controls.UI_LEFT_P || PlayerSettings.player1.controls.UI_RIGHT_P);
+		// 	if (holdTime > 0.5 || pressed)
+		// 	{
+		// 		if (pressed)
+		// 		{
+		// 			var add:Dynamic = PlayerSettings.player1.controls.UI_LEFT ? -step : step;
+
+		// 			holdValue = getValue() + add;
+		// 			if (holdValue < min)
+		// 				holdValue = min;
+		// 			else if (holdValue > max)
+		// 				holdValue = max;
+
+		// 			holdValue = FlxMath.roundDecimal(holdValue, decimals);
+		// 			setValue(holdValue);
+
+		// 			updateOptionText();
+		// 			// if (callback != null)
+		// 			// 	callback(value, add);
+		// 			FlxG.sound.play(Paths.sound('scrollMenu'));
+		// 		}
+		// 		else
+		// 		{
+		// 			holdValue += scrollSpeed * elapsed * (PlayerSettings.player1.controls.UI_LEFT ? -1 : 1);
+		// 			if (holdValue < min)
+		// 				holdValue = min;
+		// 			else if (holdValue > max)
+		// 				holdValue = max;
+
+		// 			holdValue = FlxMath.roundDecimal(holdValue, decimals);
+		// 			setValue(holdValue);
+
+		// 			updateOptionText();
+		// 			// if (callback != null)
+		// 			// 	callback(value, add);
+		// 		}
+		// 	}
+		// 	holdTime += elapsed;
+		// }
+		// else if (PlayerSettings.player1.controls.UI_LEFT_R || PlayerSettings.player1.controls.UI_RIGHT_R)
+		// {
+		// 	clearHold();
+		// }
+	}
+
+	function clearHold()
+	{
+		if (holdTime > 0.5)
+		{
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+		}
+		holdTime = 0;
+	}
+
+	function getValue()
+	{
+		return Reflect.field(OptionUtils.options, property);
+	}
+
+	function setValue(value:Float)
+	{
+		Reflect.setField(OptionUtils.options, property, value);
 	}
 
 	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
@@ -322,10 +370,10 @@ class StepOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected) + 30, label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -335,10 +383,15 @@ class StepOption extends Option
 		}
 		else
 		{
-			labelAlphabet.changeText(label);
-			text.changeText(name);
+			updateOptionText();
 		}
 		return text;
+	}
+
+	public function updateOptionText()
+	{
+		labelAlphabet.changeText(label);
+		text.changeText(name);
 	}
 
 	public override function left():Bool
@@ -360,7 +413,7 @@ class StepOption extends Option
 			callback(value, -step);
 
 		return true;
-	};
+	}
 
 	public override function right():Bool
 	{
@@ -380,7 +433,7 @@ class StepOption extends Option
 			callback(value, step);
 
 		return true;
-	};
+	}
 }
 
 class ScrollOption extends Option
@@ -438,7 +491,7 @@ class ScrollOption extends Option
 		{
 			name = Std.string(value);
 		}
-	};
+	}
 
 	override function update(elapsed:Float)
 	{
@@ -447,7 +500,6 @@ class ScrollOption extends Option
 		leftArrow.alpha = text.alpha;
 		rightArrow.alpha = text.alpha;
 		super.update(elapsed);
-		// sprTracker.x + sprTracker.width + 10
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -485,10 +537,10 @@ class ScrollOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected) + 30, label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -530,7 +582,7 @@ class ScrollOption extends Option
 			callback(value, name, -1);
 		}
 		return true;
-	};
+	}
 
 	public override function right():Bool
 	{
@@ -557,7 +609,7 @@ class ScrollOption extends Option
 			callback(value, name, 1);
 		}
 		return true;
-	};
+	}
 }
 
 class JudgementsOption extends Option
@@ -628,7 +680,7 @@ class JudgementsOption extends Option
 		add(leftArrow);
 
 		name = judgementNames[curValue];
-	};
+	}
 
 	override function update(elapsed:Float)
 	{
@@ -637,7 +689,6 @@ class JudgementsOption extends Option
 		leftArrow.alpha = text.alpha;
 		rightArrow.alpha = text.alpha;
 		super.update(elapsed);
-		// sprTracker.x + sprTracker.width + 10
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -675,10 +726,10 @@ class JudgementsOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected) + 30, label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -709,7 +760,7 @@ class JudgementsOption extends Option
 		curValue = value;
 		name = judgementNames[value];
 		return true;
-	};
+	}
 
 	public override function right():Bool
 	{
@@ -726,7 +777,7 @@ class JudgementsOption extends Option
 		curValue = value;
 		name = judgementNames[value];
 		return true;
-	};
+	}
 }
 
 // class NoteskinOption extends Option
@@ -785,7 +836,7 @@ class JudgementsOption extends Option
 // 		add(rightArrow);
 // 		add(leftArrow);
 // 		name = Note.skinManifest.get(skinNames[curValue]).name;
-// 	};
+// 	}
 // 	override function update(elapsed:Float)
 // 	{
 // 		labelAlphabet.targetY = text.targetY;
@@ -793,7 +844,6 @@ class JudgementsOption extends Option
 // 		leftArrow.alpha = text.alpha;
 // 		rightArrow.alpha = text.alpha;
 // 		super.update(elapsed);
-// 		// sprTracker.x + sprTracker.width + 10
 // 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 // 		{
 // 			leftArrow.animation.play("pressed");
@@ -827,9 +877,9 @@ class JudgementsOption extends Option
 // 	{
 // 		remove(text);
 // 		remove(labelAlphabet);
-// 		labelAlphabet = new Alphabet(0, (70 * curSelected) + 30, label, true, false);
+// 		labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
 // 		labelAlphabet.isMenuItem = true;
-// 		text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
+// 		text = new Alphabet(0, (70 * curSelected), name, true, false);
 // 		text.isMenuItem = true;
 // 		text.xAdd = labelAlphabet.width + 120;
 // 		labelAlphabet.targetY = text.targetY;
@@ -849,7 +899,7 @@ class JudgementsOption extends Option
 // 		name = Note.skinManifest.get(skinNames[value]).name;
 // 		updateDescription();
 // 		return true;
-// 	};
+// 	}
 // 	public override function right():Bool
 // 	{
 // 		var value:Int = curValue + 1;
@@ -862,7 +912,7 @@ class JudgementsOption extends Option
 // 		name = Note.skinManifest.get(skinNames[value]).name;
 // 		updateDescription();
 // 		return true;
-// 	};
+// 	}
 // }
 
 class CountOption extends Option
@@ -884,7 +934,7 @@ class CountOption extends Option
 		this.suffix = suffix;
 
 		name = prefix + " " + Std.string(value) + " " + suffix;
-	};
+	}
 
 	public override function left():Bool
 	{
@@ -898,7 +948,7 @@ class CountOption extends Option
 		Reflect.setField(OptionUtils.options, property, value);
 		name = prefix + " " + Std.string(value) + " " + suffix;
 		return true;
-	};
+	}
 
 	public override function right():Bool
 	{
@@ -913,7 +963,7 @@ class CountOption extends Option
 
 		name = prefix + " " + Std.string(value) + " " + suffix;
 		return true;
-	};
+	}
 }
 
 class ControlOption extends Option
@@ -967,7 +1017,7 @@ class ControlOption extends Option
 		if (text == null)
 		{
 			remove(text);
-			text = new Alphabet(0, (70 * curSelected) + 30, name, false, false);
+			text = new Alphabet(0, (70 * curSelected), name, false, false);
 			text.isMenuItem = true;
 			add(text);
 		}
@@ -980,7 +1030,6 @@ class ControlOption extends Option
 
 	public override function accept():Bool
 	{
-		Debug.logTrace("Initial keyboard scheme: " + controls.keyboardScheme);
 		controls.setKeyboardScheme(None, true);
 		allowMultiKeyInput = true;
 		name = "<Press any key to rebind>";

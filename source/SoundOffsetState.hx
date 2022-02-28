@@ -1,24 +1,14 @@
 package;
 
-import options.*;
-import options.Options;
-import Controls.Control;
-import Controls.KeyboardScheme;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.addons.transition.FlxTransitionableState;
-import ui.*;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
+import options.Options.OptionUtils;
+import options.OptionsState;
 
 // TODO: turn this into a chart thing
 class SoundOffsetState extends MusicBeatState
@@ -154,22 +144,22 @@ class SoundOffsetState extends MusicBeatState
 			if (FlxG.keys.pressed.LEFT)
 			{
 				currOffset--;
-			};
+			}
 			if (FlxG.keys.pressed.RIGHT)
 			{
 				currOffset++;
-			};
+			}
 		}
 		else
 		{
 			if (FlxG.keys.justPressed.LEFT)
 			{
 				currOffset--;
-			};
+			}
 			if (FlxG.keys.justPressed.RIGHT)
 			{
 				currOffset++;
-			};
+			}
 		}
 
 		super.update(elapsed);

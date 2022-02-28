@@ -13,7 +13,7 @@ class OptionCategory extends Option
 		}
 		opt.parent = this;
 		options.push(opt);
-	};
+	}
 
 	public function delOption(opt:Option)
 	{

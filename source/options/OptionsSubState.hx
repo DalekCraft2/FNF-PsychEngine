@@ -1,30 +1,19 @@
 package options;
 
-import options.Options;
-import Controls;
-import Controls.Control;
-import Controls.KeyboardScheme;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.graphics.FlxGraphic;
-import ui.*;
-
-using StringTools;
-
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.graphics.FlxGraphic;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
+import options.Options;
 
-class OptionsSubState extends MusicBeatSubstate
+using StringTools;
+
+class OptionsSubState extends MusicBeatSubState
 {
 	public static var instance:OptionsSubState;
 
@@ -92,8 +81,7 @@ class OptionsSubState extends MusicBeatSubstate
 					"ms"),
 				new StepOption("badWindow", 135, "Bad Hit Window", "Changes the amount of time you have for hitting a \"Bad\" in milliseconds.", 1, 15, 135,
 					"ms"),
-				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10,
-					"ms"),
+				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
 				#if !NO_FREEPLAY_MODS
 				new OptionCategory("Freeplay Modifiers", [
 					new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scrollspeed. 0 for chart-dependant speed", 0.1, 0, 10, "",
@@ -144,7 +132,7 @@ class OptionsSubState extends MusicBeatSubstate
 				new ToggleOption("noteSplashes", true, "Show NoteSplashes", "Notesplashes showing up on sicks and above."),
 				new ToggleOption("camFollowsAnims", false, "Directional Camera", "Camera moving depending on a character's animations"),
 				new ToggleOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
-				new ScrollOption("timeBarType", 0, "Time Bar:", "What should the Time Bar display?", 0, 3,
+				new ScrollOption("timeBarType", 0, "Time Bar", "What should the Time Bar display?", 0, 3,
 					['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']),
 				new ToggleOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
 				new ToggleOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),

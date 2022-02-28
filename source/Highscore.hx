@@ -2,8 +2,6 @@ package;
 
 import flixel.FlxG;
 
-using StringTools;
-
 class Highscore
 {
 	#if (haxe >= "4.0.0")
@@ -15,7 +13,6 @@ class Highscore
 	public static var songScores:Map<String, Int> = new Map<String, Int>();
 	public static var songRating:Map<String, Float> = new Map<String, Float>();
 	#end
-
 
 	public static function resetSong(song:String, diff:Int = 0):Void
 	{
@@ -32,7 +29,7 @@ class Highscore
 
 	public static function floorDecimal(value:Float, decimals:Int):Float
 	{
-		if(decimals < 1)
+		if (decimals < 1)
 		{
 			return Math.floor(value);
 		}
@@ -50,15 +47,20 @@ class Highscore
 	{
 		var daSong:String = formatSong(song, diff);
 
-		if (songScores.exists(daSong)) {
-			if (songScores.get(daSong) < score) {
+		if (songScores.exists(daSong))
+		{
+			if (songScores.get(daSong) < score)
+			{
 				setScore(daSong, score);
-				if(rating >= 0) setRating(daSong, rating);
+				if (rating >= 0)
+					setRating(daSong, rating);
 			}
 		}
-		else {
+		else
+		{
 			setScore(daSong, score);
-			if(rating >= 0) setRating(daSong, rating);
+			if (rating >= 0)
+				setRating(daSong, rating);
 		}
 	}
 
@@ -85,6 +87,7 @@ class Highscore
 		FlxG.save.data.songScores = songScores;
 		FlxG.save.flush();
 	}
+
 	static function setWeekScore(week:String, score:Int):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!

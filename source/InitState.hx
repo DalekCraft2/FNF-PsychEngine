@@ -1,27 +1,15 @@
 package;
 
-import options.*;
-import options.Options;
-import flixel.input.keyboard.FlxKey;
-import flixel.addons.ui.FlxUIState;
-import sys.thread.Thread;
-import flixel.graphics.FlxGraphic;
-import flixel.FlxG;
-import flixel.util.FlxColor;
-import flixel.text.FlxText;
-import lime.app.Application;
+#if FEATURE_DISCORD
 import Discord.DiscordClient;
-import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+#end
+import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
-import flixel.addons.transition.TransitionData;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import haxe.Json;
-import sys.FileSystem;
-import ui.*;
-
-using StringTools;
+import flixel.addons.ui.FlxUIState;
+import flixel.graphics.FlxGraphic;
+import flixel.input.keyboard.FlxKey;
+import lime.app.Application;
+import options.Options.OptionUtils;
 
 class InitState extends FlxUIState
 {
@@ -31,8 +19,8 @@ class InitState extends FlxUIState
 
 	public static function initTransition()
 	{ // TRANS RIGHTS
-		// FlxTransitionableState.defaultTransIn = FadeTransitionSubstate;
-		// FlxTransitionableState.defaultTransOut = FadeTransitionSubstate;
+		// FlxTransitionableState.defaultTransIn = FadeTransitionSubState;
+		// FlxTransitionableState.defaultTransOut = FadeTransitionSubState;
 	}
 
 	override function create()
@@ -44,7 +32,6 @@ class InitState extends FlxUIState
 		OptionUtils.loadOptions(OptionUtils.options);
 		var currentOptions = OptionUtils.options;
 
-		EngineData.options = currentOptions;
 		Main.fpsCounter.visible = currentOptions.showFPS;
 		// Main.fpsCounter.showFPS = currentOptions.showFPS;
 		// Main.fpsCounter.showMem = currentOptions.showMem;

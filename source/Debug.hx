@@ -1,4 +1,5 @@
-import lime.app.Application;
+package;
+
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.system.debug.log.LogStyle;
@@ -6,7 +7,7 @@ import flixel.system.debug.watch.Tracker.TrackerProfile;
 import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
-import Song.SongData;
+import lime.app.Application;
 
 using StringTools;
 
@@ -207,8 +208,8 @@ class Debug
 		logInfo("This is a RELEASE build.");
 		#end
 		logInfo('HaxeFlixel version: ${Std.string(FlxG.VERSION)}');
-		// logInfo('Friday Night Funkin\' version: ${MainMenuState.gameVer}');
-		// logInfo('KadeEngine version: ${MainMenuState.kadeEngineVer}');
+		logInfo('Friday Night Funkin\' version: ${Application.current.meta.get('version')}');
+		logInfo('Psych Engine version: ${MainMenuState.psychEngineVersion}');
 	}
 
 	/**
@@ -286,7 +287,7 @@ class Debug
 		addConsoleCommand("trackDad", function()
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Dad...");
-			trackObject(PlayState.instance.dad);
+			trackObject(PlayState.instance.opponent);
 		});
 
 		addConsoleCommand("setLogLevel", function(logLevel:String)
@@ -324,7 +325,7 @@ class Debug
 		{
 			inArray = ['<NULL>'];
 		}
-		else if (!Std.is(input, Array))
+		else if (!Std.isOfType(input, Array))
 		{
 			inArray = [input];
 		}

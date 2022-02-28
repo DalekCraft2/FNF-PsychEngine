@@ -1,13 +1,10 @@
 package vlc;
 
 import flixel.FlxG;
-import openfl.system.Capabilities;
 #if (cpp && !mobile)
 import cpp.NativeArray;
 import cpp.UInt8;
-import haxe.ValueException;
 import haxe.io.Bytes;
-import lime.app.Application;
 import openfl.Lib;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
@@ -15,7 +12,6 @@ import openfl.display3D.textures.RectangleTexture;
 import openfl.errors.Error;
 import openfl.events.Event;
 import openfl.geom.Rectangle;
-import vlc.LibVLC;
 
 /**
  * ...

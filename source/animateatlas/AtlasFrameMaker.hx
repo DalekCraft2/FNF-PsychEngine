@@ -1,42 +1,35 @@
 package animateatlas;
-import flixel.util.FlxDestroyUtil;
-import openfl.geom.Rectangle;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import openfl.Assets;
-import haxe.Json;
-import openfl.display.BitmapData;
-import animateatlas.JSONData.AtlasData;
+
 import animateatlas.JSONData.AnimationData;
+import animateatlas.JSONData.AtlasData;
 import animateatlas.displayobject.SpriteAnimationLibrary;
 import animateatlas.displayobject.SpriteMovieClip;
 import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame;
-#if FEATURE_FILESYSTEM
-import sys.FileSystem;
-import sys.io.File;
-#else
-import js.html.FileSystem;
-import js.html.File;
-#end
+import flixel.graphics.frames.FlxFramesCollection;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import haxe.Json;
+import openfl.display.BitmapData;
+import openfl.geom.Rectangle;
 
 using StringTools;
+
 class AtlasFrameMaker extends FlxFramesCollection
 {
-	//public static var widthoffset:Int = 0;
-	//public static var heightoffset:Int = 0;
-	//public static var excludeArray:Array<String>;
-	/**
-	
-	* Creates Frames from TextureAtlas(very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
-	*
-	* @param   key                 The file path.
-	* @param   _excludeArray       Use this to only create selected animations. Keep null to create all of them.
-	*
-	*/
+	// public static var widthoffset:Int = 0;
+	// public static var heightoffset:Int = 0;
+	// public static var excludeArray:Array<String>;
 
-	public static function construct(key:String,?_excludeArray:Array<String> = null, ?noAntialiasing:Bool = false):FlxFramesCollection
+	/**
+
+		* Creates Frames from TextureAtlas(very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
+		*
+		* @param   key                 The file path.
+		* @param   _excludeArray       Use this to only create selected animations. Keep null to create all of them.
+		*
+	 */
+	public static function construct(key:String, ?_excludeArray:Array<String> = null, ?noAntialiasing:Bool = false):FlxFramesCollection
 	{
 		// widthoffset = _widthoffset;
 		// heightoffset = _heightoffset;
@@ -57,22 +50,22 @@ class AtlasFrameMaker extends FlxFramesCollection
 		var graphic:FlxGraphic = Paths.image('$key/spritemap');
 		var ss:SpriteAnimationLibrary = new SpriteAnimationLibrary(animationData, atlasData, graphic.bitmap);
 		var t:SpriteMovieClip = ss.createAnimation(noAntialiasing);
-		if(_excludeArray == null)
+		if (_excludeArray == null)
 		{
 			_excludeArray = t.getFrameLabels();
-			//trace('creating all anims');
+			// trace('creating all anims');
 		}
 		trace('Creating: ' + _excludeArray);
 
 		frameCollection = new FlxFramesCollection(graphic, FlxFrameCollectionType.IMAGE);
-		for(x in _excludeArray)
+		for (x in _excludeArray)
 		{
 			frameArray.push(getFramesArray(t, x));
 		}
 
-		for(x in frameArray)
+		for (x in frameArray)
 		{
-			for(y in x)
+			for (y in x)
 			{
 				frameCollection.pushFrame(y);
 			}
@@ -80,7 +73,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 		return frameCollection;
 	}
 
-	@:noCompletion static function getFramesArray(t:SpriteMovieClip,animation:String):Array<FlxFrame>
+	@:noCompletion static function getFramesArray(t:SpriteMovieClip, animation:String):Array<FlxFrame>
 	{
 		var sizeInfo:Rectangle = new Rectangle(0, 0);
 		t.currentLabel = animation;
@@ -101,23 +94,24 @@ class AtlasFrameMaker extends FlxFramesCollection
 
 				if (firstPass)
 				{
-					frameSize.set(bitmapShit.width,bitmapShit.height);
+					frameSize.set(bitmapShit.width, bitmapShit.height);
 					firstPass = false;
 				}
 			}
-			else break;
+			else
+				break;
 		}
-		
+
 		for (i in 0...bitMapArray.length)
 		{
 			var b = FlxGraphic.fromBitmapData(bitMapArray[i]);
 			var theFrame = new FlxFrame(b);
 			theFrame.parent = b;
 			theFrame.name = animation + i;
-			theFrame.sourceSize.set(frameSize.x,frameSize.y);
+			theFrame.sourceSize.set(frameSize.x, frameSize.y);
 			theFrame.frame = new FlxRect(0, 0, bitMapArray[i].width, bitMapArray[i].height);
 			daFramez.push(theFrame);
-			//trace(daFramez);
+			// trace(daFramez);
 		}
 		return daFramez;
 	}

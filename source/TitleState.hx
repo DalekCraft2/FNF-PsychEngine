@@ -1,38 +1,24 @@
 package;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
-import options.Options;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxState;
-import flixel.input.keyboard.FlxKey;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
-import flixel.addons.transition.TransitionData;
-import haxe.Json;
-import openfl.display.Bitmap;
-import openfl.display.BitmapData;
-#if FEATURE_MODS
-import sys.FileSystem;
-import sys.io.File;
-#end
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.system.FlxSound;
-import flixel.system.ui.FlxSoundTray;
-import flixel.text.FlxText;
+import flixel.input.keyboard.FlxKey;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import lime.app.Application;
+import haxe.Json;
 import openfl.Assets;
+import options.Options.OptionUtils;
+#if FEATURE_MODS
+import flixel.graphics.frames.FlxAtlasFrames;
+import openfl.display.BitmapData;
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 using StringTools;
 
@@ -225,7 +211,7 @@ class TitleState extends MusicBeatState
 			path = "assets/images/titleEnter.png";
 		}
 		// trace(path, FileSystem.exists(path));
-		titleText.frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile(path), File.getContent(StringTools.replace(path, ".png", ".xml")));
+		titleText.frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile(path), File.getContent(path.replace(".png", ".xml")));
 		#else
 		titleText.frames = Paths.getSparrowAtlas('titleEnter');
 		#end

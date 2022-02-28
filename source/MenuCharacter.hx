@@ -1,17 +1,16 @@
 package;
 
-import options.Options.OptionUtils;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-#if FEATURE_MODS
-import sys.io.File;
-import sys.FileSystem;
-#end
-import openfl.utils.Assets;
 import haxe.Json;
-import haxe.format.JsonParser;
+import openfl.utils.Assets;
+import options.Options.OptionUtils;
+#if FEATURE_MODS
+import sys.FileSystem;
+import sys.io.File;
+#end
 
-typedef MenuCharacterFile = {
+typedef MenuCharacterFile =
+{
 	var image:String;
 	var scale:Float;
 	var position:Array<Int>;
@@ -22,6 +21,7 @@ typedef MenuCharacterFile = {
 class MenuCharacter extends FlxSprite
 {
 	public var character:String;
+
 	private static var DEFAULT_CHARACTER:String = 'bf';
 
 	public function new(x:Float, character:String = 'bf')
@@ -31,9 +31,12 @@ class MenuCharacter extends FlxSprite
 		changeCharacter(character);
 	}
 
-	public function changeCharacter(?character:String = 'bf') {
-		if(character == null) character = '';
-		if(character == this.character) return;
+	public function changeCharacter(?character:String = 'bf')
+	{
+		if (character == null)
+			character = '';
+		if (character == this.character)
+			return;
 
 		this.character = character;
 		antialiasing = OptionUtils.options.globalAntialiasing;
@@ -43,7 +46,8 @@ class MenuCharacter extends FlxSprite
 		scale.set(1, 1);
 		updateHitbox();
 
-		switch(character) {
+		switch (character)
+		{
 			case '':
 				visible = false;
 				dontPlayAnim = true;
@@ -53,29 +57,32 @@ class MenuCharacter extends FlxSprite
 
 				#if FEATURE_MODS
 				var path:String = Paths.modFolders(characterPath);
-				if (!FileSystem.exists(path)) {
+				if (!FileSystem.exists(path))
+				{
 					path = Paths.getPreloadPath(characterPath);
 				}
 
-				if(!FileSystem.exists(path)) {
+				if (!FileSystem.exists(path))
+				{
 					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
 				}
 				rawJson = File.getContent(path);
-
 				#else
 				var path:String = Paths.getPreloadPath(characterPath);
-				if(!Assets.exists(path)) {
+				if (!Assets.exists(path))
+				{
 					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
 				}
 				rawJson = Assets.getText(path);
 				#end
-				
+
 				var charFile:MenuCharacterFile = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
 				animation.addByPrefix('idle', charFile.idle_anim, 24);
 				animation.addByPrefix('confirm', charFile.confirm_anim, 24, false);
 
-				if(charFile.scale != 1) {
+				if (charFile.scale != 1)
+				{
 					scale.set(charFile.scale, charFile.scale);
 					updateHitbox();
 				}

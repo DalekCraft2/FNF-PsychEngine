@@ -1,23 +1,16 @@
 package;
 
-import openfl.display.Bitmap;
-import lime.app.Application;
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
-import openfl.display.BlendMode;
-import openfl.text.TextFormat;
-import flixel.util.FlxColor;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
+import flixel.graphics.FlxGraphic;
+import flixel.util.FlxColor;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.FPS;
 import openfl.display.Sprite;
-import openfl.events.Event;
-import flixel.graphics.FlxGraphic;
 import openfl.display.StageScaleMode;
+import openfl.events.Event;
 
 class Main extends Sprite
 {
@@ -28,6 +21,7 @@ class Main extends Sprite
 	var framerate:Int = 120; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
+
 	public static var fpsCounter:FPS;
 	public static var instance:Main;
 
@@ -103,7 +97,7 @@ class Main extends Sprite
 		#end
 
 		FlxG.autoPause = false;
-		
+
 		#if html5
 		FlxG.mouse.visible = false;
 		#end
@@ -173,7 +167,8 @@ class Main extends Sprite
 		return fpsCounter.currentFPS;
 	}
 
-	public static function adjustFPS(num:Float):Float{
-		return FlxG.elapsed / (1/60) * num;
+	public static function adjustFPS(num:Float):Float
+	{
+		return FlxG.elapsed / (1 / 60) * num;
 	}
 }

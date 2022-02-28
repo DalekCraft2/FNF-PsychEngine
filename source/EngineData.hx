@@ -1,11 +1,6 @@
 package;
 
-import options.Options;
-import flixel.system.debug.log.LogStyle;
-
-using StringTools;
-
-import JudgementManager;
+import JudgementManager.JudgementInfo;
 
 class EngineData
 {
@@ -43,5 +38,4 @@ class EngineData
 		}
 		// miss window acts as a sort of "antimash"
 	};
-	public static var options:Dynamic;
 }

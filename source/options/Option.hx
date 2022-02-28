@@ -1,9 +1,8 @@
 package options;
 
-import flixel.input.keyboard.FlxKey;
-import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
-import ui.*;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.input.keyboard.FlxKey;
 
 class Option extends FlxTypedGroup<FlxSprite>
 {
@@ -41,31 +40,31 @@ class Option extends FlxTypedGroup<FlxSprite>
 	{
 		trace("Unset");
 		return false;
-	};
+	}
 
 	public function right():Bool
 	{
 		trace("Unset");
 		return false;
-	};
+	}
 
 	public function left():Bool
 	{
 		trace("Unset");
 		return false;
-	};
+	}
 
 	public function selected():Bool
 	{
 		trace("Unset");
 		return false;
-	};
+	}
 
 	public function deselected():Bool
 	{
 		trace("Unset");
 		return false;
-	};
+	}
 
 	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
 	{
@@ -79,5 +78,5 @@ class Option extends FlxTypedGroup<FlxSprite>
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-	};
+	}
 }

@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Windows (Debug)",
+      "type": "hxcpp",
+      "preLaunchTask": "Test Windows (Debug)",
+      "request": "launch",
+      "program": "${workspaceFolder}/export/debug/windows/bin/Kade Engine.exe"
+    },
+    {
+      "name": "Windows (Release)",
+      "type": "hxcpp",
+      "preLaunchTask": "Test Windows (Release)",
+      "request": "launch",
+      "program": "${workspaceFolder}/export/debug/windows/bin/Kade Engine.exe"
+    },
+    {
+      "name": "HTML5 (Debug)",
+      "request": "launch",
+      "preLaunchTask": "Test HTML5 (Debug)",
+      "type": "node-terminal",
+      "command": "npx live-server \"${workspaceFolder}/export/debug/html5/bin/\""
+    },
+    {
+      "name": "HTML5 (Release)",
+      "request": "launch",
+      "preLaunchTask": "Test HTML5 (Release)",
+      "type": "node-terminal",
+      "command": "npx live-server \"${workspaceFolder}/export/release/html5/bin/\""
+    },
+    {
+      "name": "Linux (Debug)",
+      "type": "hxcpp",
+      "preLaunchTask": "Test Linux (Debug)",
+      "request": "launch",
+      "program": "${workspaceFolder}/export/debug/linux/bin/Kade Engine"
+    },
+    {
+      "name": "Linux (Release)",
+      "type": "hxcpp",
+      "preLaunchTask": "Test Linux (Release)",
+      "request": "launch",
+      "program": "${workspaceFolder}/export/debug/linux/bin/Kade Engine"
+    },
+  ],
+}

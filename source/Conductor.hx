@@ -1,13 +1,12 @@
 package;
 
-import options.Options.OptionUtils;
 import Song.SongData;
+import options.Options.OptionUtils;
 
 /**
  * ...
  * @author
  */
-
 typedef BPMChangeEvent =
 {
 	var stepTime:Int;
@@ -20,7 +19,7 @@ class Conductor
 	public static var bpm:Float = 100;
 	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
-	public static var songPosition:Float=0;
+	public static var songPosition:Float = 0;
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
@@ -32,14 +31,19 @@ class Conductor
 	{
 	}
 
-	public static function judgeNote(note:Note, diff:Float=0) //STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
+	public static function judgeNote(note:Note,
+			diff:Float = 0) // STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
 	{
-		//tryna do MS based judgment due to popular demand
-		var timingWindows:Array<Int> = [OptionUtils.options.sickWindow, OptionUtils.options.goodWindow, OptionUtils.options.badWindow];
+		// tryna do MS based judgment due to popular demand
+		var timingWindows:Array<Int> = [
+			OptionUtils.options.sickWindow,
+			OptionUtils.options.goodWindow,
+			OptionUtils.options.badWindow
+		];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 
 		// var diff = Math.abs(note.strumTime - Conductor.songPosition) / (PlayState.songMultiplier >= 1 ? PlayState.songMultiplier : 1);
-		for(i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
+		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
 			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
 			{
@@ -48,6 +52,7 @@ class Conductor
 		}
 		return 'shit';
 	}
+
 	public static function mapBPMChanges(song:SongData)
 	{
 		bpmChangeMap = [];
@@ -57,7 +62,7 @@ class Conductor
 		var totalPos:Float = 0;
 		for (i in 0...song.notes.length)
 		{
-			if(song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
+			if (song.notes[i].changeBPM && song.notes[i].bpm != curBPM)
 			{
 				curBPM = song.notes[i].bpm;
 				var event:BPMChangeEvent = {

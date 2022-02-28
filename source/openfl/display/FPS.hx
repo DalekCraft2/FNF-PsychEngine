@@ -1,26 +1,22 @@
 package openfl.display;
 
-import options.Options.OptionUtils;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import openfl.Lib;
 import openfl.display.Bitmap;
-import openfl.display.BitmapData;
-import flixel.FlxG;
-import haxe.Timer;
-import openfl.events.Event;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
 #if gl_stats
 import openfl.display._internal.stats.Context3DStats;
 import openfl.display._internal.stats.DrawCallContext;
 #end
 #if flash
-import openfl.Lib;
+import openfl.events.Event;
 #end
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 #if openfl
 import openfl.system.System;
 #end
+import options.Options.OptionUtils;
 
 /**
 	The FPS class provides an easy-to-use monitor to display
@@ -116,7 +112,8 @@ class FPS extends TextField
 
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
-		if (currentFPS > OptionUtils.options.framerate) currentFPS = OptionUtils.options.framerate;
+		if (currentFPS > OptionUtils.options.framerate)
+			currentFPS = OptionUtils.options.framerate;
 
 		if (currentCount != cacheCount /*&& visible*/)
 		{

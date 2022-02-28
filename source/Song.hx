@@ -2,11 +2,10 @@ package;
 
 import Section.SectionData;
 import haxe.Json;
-import haxe.format.JsonParser;
 import lime.utils.Assets;
 #if sys
-import sys.io.File;
 import sys.FileSystem;
+import sys.io.File;
 #end
 
 using StringTools;
@@ -23,7 +22,6 @@ typedef SongData =
 	var player1:String;
 	var player2:String;
 	var gfVersion:String;
-
 	var stage:String;
 	var arrowSkin:String;
 	var splashSkin:String;

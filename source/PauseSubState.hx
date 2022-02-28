@@ -1,20 +1,16 @@
 package;
 
-import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxSubState;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.keyboard.FlxKey;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import flixel.FlxCamera;
 
-class PauseSubState extends MusicBeatSubstate
+class PauseSubState extends MusicBeatSubState
 {
 	public static var goToOptions:Bool = false;
 	public static var goBack:Bool = false;
@@ -230,7 +226,7 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		if (!goToOptions)
 		{
-			Debug.logTrace("destroying music for pauseeta");
+			trace("destroying music for pauseeta");
 			pauseMusic.destroy();
 		}
 

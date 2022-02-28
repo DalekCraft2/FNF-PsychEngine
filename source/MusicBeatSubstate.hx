@@ -1,14 +1,9 @@
 package;
 
-import lime.app.Application;
-import openfl.Lib;
 import Conductor.BPMChangeEvent;
-import flixel.FlxG;
 import flixel.FlxSubState;
-import flixel.FlxBasic;
-import flixel.FlxSprite;
 
-class MusicBeatSubstate extends FlxSubState
+class MusicBeatSubState extends FlxSubState
 {
 	public function new()
 	{
