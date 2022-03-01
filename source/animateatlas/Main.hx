@@ -11,7 +11,7 @@ import haxe.Json;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.BitmapData;
-import openfl.display.FPS;
+import openfl.display.FPSMem;
 import openfl.display.Sprite;
 import openfl.display.Tilemap;
 import openfl.events.Event;
@@ -49,7 +49,7 @@ class Main extends Sprite
 		renderer.tileColorTransformEnabled = false;
 
 		addChild(renderer);
-		addChild(new FPS(10, 10, 0xFFFFFF));
+		addChild(new FPSMem(10, 10, 0xFFFFFF));
 
 		tileSymbols = [];
 		spriteSymbols = [];
@@ -84,7 +84,7 @@ class Main extends Sprite
 	{
 		for (i in 0...1)
 		{
-			var t = ss.createAnimation();
+			var t = ss.createAnimation(false);
 			t.x = mouseX + i * 20 * (-1 * i % 2);
 			t.y = mouseY + i * 20 * (-1 * i % 2);
 

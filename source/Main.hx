@@ -8,6 +8,7 @@ import flixel.util.FlxColor;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.FPS;
+import openfl.display.FPSMem;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
@@ -22,7 +23,6 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
-	public static var fpsCounter:FPS;
 	public static var instance:Main;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -80,18 +80,13 @@ class Main extends Sprite
 		// Run this first so we can see logs.
 		// Debug.onInitProgram();
 
-		#if !mobile
-		fpsCounter = new FPS(10, 3, 0xFFFFFF);
-		#end
-
-		ClientPrefs.loadDefaultKeys();
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
 		// the reason for this is we're going to be handling our own cache smartly
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
-		addChild(fpsCounter);
+		addChild(new FPSMem(10, 3, 0xFFFFFF));
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		#end
@@ -142,16 +137,6 @@ class Main extends Sprite
 		Assets.cache.clear("songs");
 	}
 
-	public static function toggleFPS(fpsEnabled:Bool):Void
-	{
-		fpsCounter.visible = fpsEnabled;
-	}
-
-	public static function changeFPSColor(color:FlxColor)
-	{
-		fpsCounter.textColor = color;
-	}
-
 	public static function setFPSCap(cap:Float)
 	{
 		openfl.Lib.current.stage.frameRate = cap;
@@ -160,11 +145,6 @@ class Main extends Sprite
 	public static function getFPSCap():Float
 	{
 		return openfl.Lib.current.stage.frameRate;
-	}
-
-	public static function getFPS():Float
-	{
-		return fpsCounter.currentFPS;
 	}
 
 	public static function adjustFPS(num:Float):Float

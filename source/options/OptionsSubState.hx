@@ -9,6 +9,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.display.FPSMem;
 import options.Options;
 
 using StringTools;
@@ -34,7 +35,8 @@ class OptionsSubState extends MusicBeatSubState
 		isInPause = pauseMenu;
 	}
 
-	private function createDefault()
+	// TODO Make some of these not changeable whilst in PlayState, like in Kade Engine
+	public function createDefault()
 	{
 		defCat = new OptionCategory("Default", [
 			new OptionCategory("Gameplay", [
@@ -69,8 +71,10 @@ class OptionsSubState extends MusicBeatSubState
 				#if !FORCE_LUA_MODCHARTS new ToggleOption("loadModcharts", true, "Load Lua modcharts", "Toggles lua modcharts"),
 				#end
 				new ToggleOption("ghostTapping", true, "Ghost-Tapping", "Allows you to press keys while no notes are able to be hit."),
-				new ToggleOption("failForMissing", false, "Sudden Death", "FC or die"),
+				new ToggleOption("instakill", false, "Instakill on Miss", "FC or die"),
 				#if !NO_BOTPLAY new ToggleOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
+				// TODO Finish the description of this
+				new ToggleOption("practice ", false, "Practice Mode", ""),
 				// new StepOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
 				// 	1, 0, 500, "ms", ""),
 				new StepOption("ratingOffset", 0, "Rating Offset",
@@ -147,18 +151,17 @@ class OptionsSubState extends MusicBeatSubState
 				new ToggleOption("hitSound", false, "Hit sounds", "Play a click sound when you hit a note"),
 				new ToggleOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", function(state:Bool)
 				{
-					if (Main.fpsCounter != null)
-						Main.fpsCounter.visible = OptionUtils.options.showFPS;
+					FPSMem.showFPS = state;
 				}),
-				// new ToggleOption("showMem", false, "Show Memory", "Shows memory usage in the top left", function(state:Bool)
-				// {
-				// 	ui.FPSMem.showMem = state;
-				// }),
-				// new ToggleOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
-				// 	function(state:Bool)
-				// 	{
-				// 		ui.FPSMem.showMemPeak = state;
-				// 	}),
+				new ToggleOption("showMem", false, "Show Memory", "Shows memory usage in the top left", function(state:Bool)
+				{
+					FPSMem.showMem = state;
+				}),
+				new ToggleOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
+					function(state:Bool)
+					{
+						FPSMem.showMemPeak = state;
+					}),
 				new ToggleOption("ghosttapSounds", false, "Ghost-tap hit sounds", "Play a click sound when you ghost-tap"),
 				new StepOption("hitsoundVol", 50, "Hit sound volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
 				// new ToggleOption("freeplayPreview", false, "Song preview in freeplay", "Whether songs get played as you hover over them in Freeplay"),

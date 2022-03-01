@@ -295,9 +295,9 @@ class MenuCharacterEditorState extends MusicBeatState
 
 		if (!blockInput)
 		{
-			FlxG.sound.muteKeys = TitleState.muteKeys;
-			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
-			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
+			FlxG.sound.muteKeys = InitState.muteKeys;
+			FlxG.sound.volumeDownKeys = InitState.volumeDownKeys;
+			FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
 				MusicBeatState.switchState(new editors.MasterEditorMenu());

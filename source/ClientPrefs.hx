@@ -4,6 +4,7 @@ import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
+import openfl.display.FPSMem;
 
 class ClientPrefs
 {
@@ -45,7 +46,7 @@ class ClientPrefs
 		'healthloss' => 1.0,
 		'instakill' => false,
 		'practice' => false,
-		'botplay' => false,
+		'botPlay' => false,
 		'opponentplay' => false
 	];
 
@@ -141,10 +142,7 @@ class ClientPrefs
 		if (FlxG.save.data.showFPS != null)
 		{
 			showFPS = FlxG.save.data.showFPS;
-			if (Main.fpsCounter != null)
-			{
-				Main.fpsCounter.visible = showFPS;
-			}
+			FPSMem.showFPS = showFPS;
 		}
 		if (FlxG.save.data.flashing != null)
 		{
@@ -288,12 +286,12 @@ class ClientPrefs
 	{
 		PlayerSettings.player1.controls.setKeyboardScheme(KeyboardScheme.Solo);
 
-		TitleState.muteKeys = copyKey(keyBinds.get('volume_mute'));
-		TitleState.volumeDownKeys = copyKey(keyBinds.get('volume_down'));
-		TitleState.volumeUpKeys = copyKey(keyBinds.get('volume_up'));
-		FlxG.sound.muteKeys = TitleState.muteKeys;
-		FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
-		FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
+		InitState.muteKeys = copyKey(keyBinds.get('volume_mute'));
+		InitState.volumeDownKeys = copyKey(keyBinds.get('volume_down'));
+		InitState.volumeUpKeys = copyKey(keyBinds.get('volume_up'));
+		FlxG.sound.muteKeys = InitState.muteKeys;
+		FlxG.sound.volumeDownKeys = InitState.volumeDownKeys;
+		FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
 	}
 
 	public static function copyKey(arrayToCopy:Array<FlxKey>):Array<FlxKey>

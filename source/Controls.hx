@@ -643,20 +643,20 @@ class Controls extends FlxActionSet
 		switch (scheme)
 		{
 			case Solo:
-				inline bindKeys(Control.NOTE_LEFT, keysMap.get('note_left'));
-				inline bindKeys(Control.NOTE_DOWN, keysMap.get('note_down'));
-				inline bindKeys(Control.NOTE_UP, keysMap.get('note_up'));
-				inline bindKeys(Control.NOTE_RIGHT, keysMap.get('note_right'));
+				inline bindKeys(Control.NOTE_LEFT, [A, LEFT]);
+				inline bindKeys(Control.NOTE_DOWN, [S, DOWN]);
+				inline bindKeys(Control.NOTE_UP, [W, UP]);
+				inline bindKeys(Control.NOTE_RIGHT, [D, RIGHT]);
 
-				inline bindKeys(Control.UI_LEFT, keysMap.get('ui_left'));
-				inline bindKeys(Control.UI_DOWN, keysMap.get('ui_down'));
-				inline bindKeys(Control.UI_UP, keysMap.get('ui_up'));
-				inline bindKeys(Control.UI_RIGHT, keysMap.get('ui_right'));
+				inline bindKeys(Control.UI_LEFT, [A, LEFT]);
+				inline bindKeys(Control.UI_DOWN, [S, DOWN]);
+				inline bindKeys(Control.UI_UP, [W, UP]);
+				inline bindKeys(Control.UI_RIGHT, [D, RIGHT]);
 
-				inline bindKeys(Control.ACCEPT, keysMap.get('accept'));
-				inline bindKeys(Control.BACK, keysMap.get('back'));
-				inline bindKeys(Control.PAUSE, keysMap.get('pause'));
-				inline bindKeys(Control.RESET, keysMap.get('reset'));
+				inline bindKeys(Control.ACCEPT, [SPACE, ENTER]);
+				inline bindKeys(Control.BACK, [BACKSPACE, ESCAPE]);
+				inline bindKeys(Control.PAUSE, [ENTER, ESCAPE]);
+				inline bindKeys(Control.RESET, [R]);
 			case Duo(true):
 				inline bindKeys(Control.NOTE_LEFT, [A]);
 				inline bindKeys(Control.NOTE_DOWN, [S]);
@@ -673,22 +673,22 @@ class Controls extends FlxActionSet
 				inline bindKeys(Control.PAUSE, [ONE]);
 				inline bindKeys(Control.RESET, [R]);
 			case Duo(false):
-				inline bindKeys(Control.NOTE_LEFT, [FlxKey.LEFT]);
-				inline bindKeys(Control.NOTE_DOWN, [FlxKey.DOWN]);
-				inline bindKeys(Control.NOTE_UP, [FlxKey.UP]);
-				inline bindKeys(Control.NOTE_RIGHT, [FlxKey.RIGHT]);
+				inline bindKeys(Control.NOTE_LEFT, [LEFT]);
+				inline bindKeys(Control.NOTE_DOWN, [DOWN]);
+				inline bindKeys(Control.NOTE_UP, [UP]);
+				inline bindKeys(Control.NOTE_RIGHT, [RIGHT]);
 
-				inline bindKeys(Control.UI_LEFT, [FlxKey.LEFT]);
-				inline bindKeys(Control.UI_DOWN, [FlxKey.DOWN]);
-				inline bindKeys(Control.UI_UP, [FlxKey.UP]);
-				inline bindKeys(Control.UI_RIGHT, [FlxKey.RIGHT]);
+				inline bindKeys(Control.UI_LEFT, [LEFT]);
+				inline bindKeys(Control.UI_DOWN, [DOWN]);
+				inline bindKeys(Control.UI_UP, [UP]);
+				inline bindKeys(Control.UI_RIGHT, [RIGHT]);
 
 				inline bindKeys(Control.ACCEPT, [O]);
 				inline bindKeys(Control.BACK, [P]);
 				inline bindKeys(Control.PAUSE, [ENTER]);
 				inline bindKeys(Control.RESET, [BACKSPACE]);
 			case None: // nothing
-			case Custom: // nothing
+			case Custom:
 				inline bindKeys(Control.NOTE_LEFT, keysMap.get('note_left'));
 				inline bindKeys(Control.NOTE_DOWN, keysMap.get('note_down'));
 				inline bindKeys(Control.NOTE_UP, keysMap.get('note_up'));
@@ -708,15 +708,15 @@ class Controls extends FlxActionSet
 		switch (scheme)
 		{
 			case Solo:
-				bindKeys(Control.NOTE_LEFT, [A, FlxKey.LEFT]);
-				bindKeys(Control.NOTE_DOWN, [S, FlxKey.DOWN]);
-				bindKeys(Control.NOTE_UP, [W, FlxKey.UP]);
-				bindKeys(Control.NOTE_RIGHT, [D, FlxKey.RIGHT]);
+				bindKeys(Control.NOTE_LEFT, [A, LEFT]);
+				bindKeys(Control.NOTE_DOWN, [S, DOWN]);
+				bindKeys(Control.NOTE_UP, [W, UP]);
+				bindKeys(Control.NOTE_RIGHT, [D, RIGHT]);
 
-				bindKeys(Control.UI_LEFT, [A, FlxKey.LEFT]);
-				bindKeys(Control.UI_DOWN, [S, FlxKey.DOWN]);
-				bindKeys(Control.UI_UP, [W, FlxKey.UP]);
-				bindKeys(Control.UI_RIGHT, [D, FlxKey.RIGHT]);
+				bindKeys(Control.UI_LEFT, [A, LEFT]);
+				bindKeys(Control.UI_DOWN, [S, DOWN]);
+				bindKeys(Control.UI_UP, [W, UP]);
+				bindKeys(Control.UI_RIGHT, [D, RIGHT]);
 
 				bindKeys(Control.ACCEPT, [Z, SPACE, ENTER]);
 				bindKeys(Control.BACK, [BACKSPACE, ESCAPE]);
@@ -738,15 +738,15 @@ class Controls extends FlxActionSet
 				bindKeys(Control.PAUSE, [ONE]);
 				bindKeys(Control.RESET, [R]);
 			case Duo(false):
-				bindKeys(Control.NOTE_LEFT, [FlxKey.LEFT]);
-				bindKeys(Control.NOTE_DOWN, [FlxKey.DOWN]);
-				bindKeys(Control.NOTE_UP, [FlxKey.UP]);
-				bindKeys(Control.NOTE_RIGHT, [FlxKey.RIGHT]);
+				bindKeys(Control.NOTE_LEFT, [LEFT]);
+				bindKeys(Control.NOTE_DOWN, [DOWN]);
+				bindKeys(Control.NOTE_UP, [UP]);
+				bindKeys(Control.NOTE_RIGHT, [RIGHT]);
 
-				bindKeys(Control.UI_LEFT, [FlxKey.LEFT]);
-				bindKeys(Control.UI_DOWN, [FlxKey.DOWN]);
-				bindKeys(Control.UI_UP, [FlxKey.UP]);
-				bindKeys(Control.UI_RIGHT, [FlxKey.RIGHT]);
+				bindKeys(Control.UI_LEFT, [LEFT]);
+				bindKeys(Control.UI_DOWN, [DOWN]);
+				bindKeys(Control.UI_UP, [UP]);
+				bindKeys(Control.UI_RIGHT, [RIGHT]);
 
 				bindKeys(Control.ACCEPT, [O]);
 				bindKeys(Control.BACK, [P]);

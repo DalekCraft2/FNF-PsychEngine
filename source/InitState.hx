@@ -9,13 +9,15 @@ import flixel.addons.ui.FlxUIState;
 import flixel.graphics.FlxGraphic;
 import flixel.input.keyboard.FlxKey;
 import lime.app.Application;
+import openfl.display.FPSMem;
 import options.Options.OptionUtils;
+import options.OptionsSubState;
 
 class InitState extends FlxUIState
 {
-	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
-	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
-	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
+	public static var muteKeys:Array<FlxKey> = [ZERO];
+	public static var volumeDownKeys:Array<FlxKey> = [NUMPADMINUS, MINUS];
+	public static var volumeUpKeys:Array<FlxKey> = [NUMPADPLUS, PLUS];
 
 	public static function initTransition()
 	{ // TRANS RIGHTS
@@ -28,16 +30,14 @@ class InitState extends FlxUIState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
+		PlayerSettings.init();
 		OptionUtils.bindSave();
 		OptionUtils.loadOptions(OptionUtils.options);
 		var currentOptions = OptionUtils.options;
 
-		Main.fpsCounter.visible = currentOptions.showFPS;
-		// Main.fpsCounter.showFPS = currentOptions.showFPS;
-		// Main.fpsCounter.showMem = currentOptions.showMem;
-		// Main.fpsCounter.showMemPeak = currentOptions.showMemPeak;
-
-		PlayerSettings.init();
+		FPSMem.showFPS = currentOptions.showFPS;
+		FPSMem.showMem = currentOptions.showMem;
+		FPSMem.showMemPeak = currentOptions.showMemPeak;
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();
@@ -69,8 +69,6 @@ class InitState extends FlxUIState
 			FlxG.fullscreen = FlxG.save.data.fullscreen;
 			// trace('LOADED FULLSCREEN SETTING!!');
 		}
-
-		ClientPrefs.loadPrefs();
 
 		if (FlxG.save.data.weekCompleted != null)
 		{

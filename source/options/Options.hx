@@ -47,6 +47,8 @@ class OptionUtils
 			if (Reflect.getProperty(options, f) != null)
 				Reflect.setField(options, f, Reflect.field(save.data, f));
 		}
+
+		new OptionsSubState().createDefault();
 	}
 
 	public static function getKey(control:String)

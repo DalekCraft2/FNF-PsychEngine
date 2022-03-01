@@ -137,16 +137,6 @@ class FPS extends TextField
 			#end
 		}
 
-		visible = true;
-
-		Main.instance.removeChild(bitmap);
-
-		bitmap = ImageOutline.renderImage(this, 2, 0x000000, 1);
-
-		Main.instance.addChild(bitmap);
-
-		visible = false;
-
 		cacheCount = currentCount;
 	}
 }

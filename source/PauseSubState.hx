@@ -22,6 +22,8 @@ class PauseSubState extends MusicBeatSubState
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
+	public static var playingPause:Bool = false;
+
 	var pauseMusic:FlxSound;
 	var practiceText:FlxText;
 
@@ -36,7 +38,7 @@ class PauseSubState extends MusicBeatSubState
 		if (PlayState.chartingMode)
 		{
 			menuItemsOG.insert(2, 'Toggle Practice Mode');
-			menuItemsOG.insert(3, 'Toggle Botplay');
+			menuItemsOG.insert(3, 'Toggle BotPlay');
 		}
 		menuItems = menuItemsOG;
 
@@ -47,11 +49,24 @@ class PauseSubState extends MusicBeatSubState
 		}
 		difficultyChoices.push('BACK');
 
-		pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
-		pauseMusic.volume = 0;
-		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
+		if (!playingPause)
+		{
+			playingPause = true;
+			pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
+			pauseMusic.volume = 0;
+			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
+			pauseMusic.ID = 9000;
 
-		FlxG.sound.list.add(pauseMusic);
+			FlxG.sound.list.add(pauseMusic);
+		}
+		else
+		{
+			for (i in FlxG.sound.list)
+			{
+				if (i.ID == 9000) // jankiest static variable
+					pauseMusic = i;
+			}
+		}
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
@@ -177,7 +192,7 @@ class PauseSubState extends MusicBeatSubState
 					PlayState.instance.practiceMode = !PlayState.instance.practiceMode;
 					PlayState.changedDifficulty = true;
 					practiceText.visible = PlayState.instance.practiceMode;
-				case 'Toggle Botplay':
+				case 'Toggle BotPlay':
 					PlayState.instance.cpuControlled = !PlayState.instance.cpuControlled;
 					PlayState.changedDifficulty = true;
 					PlayState.instance.botplayTxt.visible = PlayState.instance.cpuControlled;
@@ -228,6 +243,7 @@ class PauseSubState extends MusicBeatSubState
 		{
 			trace("destroying music for pauseeta");
 			pauseMusic.destroy();
+			playingPause = false;
 		}
 
 		super.destroy();
