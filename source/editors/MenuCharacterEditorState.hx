@@ -29,7 +29,7 @@ using StringTools;
 class MenuCharacterEditorState extends MusicBeatState
 {
 	var grpWeekCharacters:FlxTypedGroup<MenuCharacter>;
-	var characterFile:MenuCharacterFile = null;
+	var characterFile:MenuCharacterData = null;
 	var txtOffsets:FlxText;
 	var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
 
@@ -380,7 +380,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			var rawJson:String = File.getContent(fullPath);
 			if (rawJson != null)
 			{
-				var loadedChar:MenuCharacterFile = cast Json.parse(rawJson);
+				var loadedChar:MenuCharacterData = cast Json.parse(rawJson);
 				if (loadedChar.idle_anim != null && loadedChar.confirm_anim != null) // Make sure it's really a character
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);

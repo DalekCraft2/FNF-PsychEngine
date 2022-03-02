@@ -60,7 +60,7 @@ class ModsMenuState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
-		WeekData.setDirectoryFromWeek();
+		Week.setDirectoryFromWeek();
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence

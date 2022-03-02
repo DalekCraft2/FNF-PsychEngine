@@ -14,7 +14,7 @@ import sys.io.File;
 
 using StringTools;
 
-typedef DialogueCharacterFile =
+typedef DialogueCharacterData =
 {
 	var image:String;
 	var dialogue_pos:String;
@@ -35,7 +35,7 @@ typedef DialogueAnimArray =
 
 // Gonna try to kind of make it compatible to Forever Engine,
 // love u Shubs no homo :flushedh4:
-typedef DialogueFile =
+typedef DialogueData =
 {
 	var dialogue:Array<DialogueLine>;
 }
@@ -57,7 +57,7 @@ class DialogueCharacter extends FlxSprite
 	public static var DEFAULT_CHARACTER:String = 'bf';
 	public static var DEFAULT_SCALE:Float = 0.7;
 
-	public var jsonFile:DialogueCharacterFile = null;
+	public var jsonFile:DialogueCharacterData = null;
 	#if (haxe >= "4.0.0")
 	public var dialogueAnimations:Map<String, DialogueAnimArray> = new Map();
 	#else
@@ -183,7 +183,7 @@ class DialogueCharacter extends FlxSprite
 class DialogueBoxPsych extends FlxSpriteGroup
 {
 	var dialogue:Alphabet;
-	var dialogueList:DialogueFile = null;
+	var dialogueList:DialogueData = null;
 
 	public var finishThing:Void->Void;
 	public var nextDialogueThing:Void->Void = null;
@@ -204,7 +204,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	// var charPositionList:Array<String> = ['left', 'center', 'right'];
 
-	public function new(dialogueList:DialogueFile, ?song:String = null)
+	public function new(dialogueList:DialogueData, ?song:String = null)
 	{
 		super();
 
@@ -615,7 +615,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 	}
 
-	public static function parseDialogue(path:String):DialogueFile
+	public static function parseDialogue(path:String):DialogueData
 	{
 		#if FEATURE_MODS
 		if (FileSystem.exists(path))

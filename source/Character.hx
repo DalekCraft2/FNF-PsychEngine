@@ -14,7 +14,7 @@ import sys.io.File;
 
 using StringTools;
 
-typedef CharacterFile =
+typedef CharacterData =
 {
 	var animations:Array<AnimArray>;
 	var image:String;
@@ -116,7 +116,7 @@ class Character extends FlxSprite
 				var rawJson = Assets.getText(path);
 				#end
 
-				var json:CharacterFile = cast Json.parse(rawJson);
+				var json:CharacterData = cast Json.parse(rawJson);
 				var spriteType = "sparrow";
 				// sparrow
 				// packer

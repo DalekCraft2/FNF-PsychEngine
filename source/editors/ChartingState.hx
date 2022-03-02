@@ -6,6 +6,7 @@ import Discord.DiscordClient;
 #end
 import Section.SectionData;
 import Song.SongData;
+import Song.SongMeta;
 import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -124,7 +125,6 @@ class ChartingState extends MusicBeatState
 	var strumLine:FlxSprite;
 	var quant:AttachedSprite;
 	var strumLineNotes:FlxTypedGroup<StrumNote>;
-	var curSong:String = 'Dadbattle';
 	var amountSteps:Int = 0;
 	var bullshitUI:FlxGroup;
 
@@ -202,7 +202,8 @@ class ChartingState extends MusicBeatState
 		else
 		{
 			_song = {
-				song: 'Test',
+				songId: 'test',
+				songName: 'Test',
 				notes: [],
 				events: [],
 				bpm: 150.0,
@@ -224,7 +225,7 @@ class ChartingState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("Chart Editor", _song.song.replace('-', ' '));
+		DiscordClient.changePresence("Chart Editor", _song.songName);
 		#end
 
 		vortex = FlxG.save.data.chart_vortex;
@@ -277,7 +278,7 @@ class ChartingState extends MusicBeatState
 
 		// sections = _song.notes;
 
-		currentSongName = Paths.formatToSongPath(_song.song);
+		currentSongName = _song.songId;
 		loadAudioBuffer();
 		reloadGridLayer();
 		loadSong();
@@ -396,7 +397,7 @@ class ChartingState extends MusicBeatState
 
 	function addSongUI():Void
 	{
-		UI_songTitle = new FlxUIInputText(10, 10, 70, _song.song, 8);
+		UI_songTitle = new FlxUIInputText(10, 10, 70, _song.songId, 8);
 		blockPressWhileTypingOn.push(UI_songTitle);
 
 		var check_voices = new FlxUICheckBox(10, 25, null, null, "Has voice track", 100);
@@ -425,28 +426,37 @@ class ChartingState extends MusicBeatState
 		{
 			openSubState(new Prompt('This action will clear current progress.\n\nProceed?', 0, function()
 			{
-				loadJson(_song.song.toLowerCase());
+				loadJson(_song.songId);
 			}, null, ignoreWarnings));
 		});
 
 		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'Load Autosave', function()
 		{
-			PlayState.SONG = Song.parseJSONshit(FlxG.save.data.autosave);
+			var autoSaveData = Json.parse(FlxG.save.data.autosave);
+
+			var data:SongData = cast autoSaveData.song;
+			var meta:SongMeta = {};
+			var name:String = data.songId;
+			if (autoSaveData.song != null)
+			{
+				meta = autoSaveData.songMeta != null ? cast autoSaveData.songMeta : {};
+				name = meta.name;
+			}
+			PlayState.SONG = Song.parseJson(name, data, meta);
 			MusicBeatState.resetState();
 		});
 
 		var loadEventJson:FlxButton = new FlxButton(loadAutosaveBtn.x, loadAutosaveBtn.y + 30, 'Load Events', function()
 		{
-			var songName:String = Paths.formatToSongPath(_song.song);
-			var file:String = Paths.json(songName + '/events');
+			var file:String = Paths.json(_song.songId + '/events');
 			#if sys
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson(songName + '/events')) || #end FileSystem.exists(file))
+			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson(_song.songId + '/events')) || #end FileSystem.exists(file))
 			#else
 			if (OpenFlAssets.exists(file))
 			#end
 			{
 				clearEvents();
-				var events:SongData = Song.loadFromJson('events', songName);
+				var events:SongData = Song.loadFromJson('events', '', _song.songId);
 				_song.events = events.events;
 				changeSection(curSection);
 			}
@@ -1552,7 +1562,7 @@ class ChartingState extends MusicBeatState
 			changeSection();
 		}
 		Conductor.songPosition = FlxG.sound.music.time;
-		_song.song = UI_songTitle.text;
+		_song.songId = UI_songTitle.text;
 
 		strumLine.y = getYfromStrum((Conductor.songPosition - sectionStartTime()) / zoomList[curZoom] % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps));
 		for (i in 0...8)
@@ -1707,7 +1717,7 @@ class ChartingState extends MusicBeatState
 					vocals.stop();
 
 				// if(_song.stage == null) _song.stage = stageDropDown.selectedLabel;
-				StageData.loadDirectory(_song);
+				Stage.loadDirectory(_song);
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
 
@@ -2433,7 +2443,7 @@ class ChartingState extends MusicBeatState
 		var rawJson = OpenFlAssets.getText(path);
 		#end
 
-		var json:Character.CharacterFile = cast Json.parse(rawJson);
+		var json:Character.CharacterData = cast Json.parse(rawJson);
 		return json.healthicon;
 	}
 
@@ -2933,17 +2943,10 @@ class ChartingState extends MusicBeatState
 		return noteData;
 	}
 
-	function loadJson(song:String):Void
+	function loadJson(songId:String):Void
 	{
-		// make it look sexier if possible
-		if (CoolUtil.difficulties[PlayState.storyDifficulty] != "Normal")
-		{
-			PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + CoolUtil.difficulties[PlayState.storyDifficulty], song.toLowerCase());
-		}
-		else
-		{
-			PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
-		}
+		var difficulty:String = CoolUtil.getDifficultyFilePath(PlayState.storyDifficulty);
+		PlayState.SONG = Song.loadFromJson(songId, difficulty);
 		MusicBeatState.resetState();
 	}
 
@@ -2976,7 +2979,7 @@ class ChartingState extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data.trim(), Paths.formatToSongPath(_song.song) + ".json");
+			_file.save(data.trim(), _song.songId + ".json");
 		}
 	}
 
@@ -2989,7 +2992,8 @@ class ChartingState extends MusicBeatState
 	{
 		_song.events.sort(sortByTime);
 		var eventsSong:SongData = {
-			song: _song.song,
+			songId: _song.songId,
+			songName: _song.songName,
 			notes: [],
 			events: _song.events,
 			bpm: _song.bpm,

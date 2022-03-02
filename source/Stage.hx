@@ -11,7 +11,7 @@ import openfl.utils.Assets;
 
 using StringTools;
 
-typedef StageFile =
+typedef StageData =
 {
 	var directory:String;
 	var defaultZoom:Float;
@@ -22,7 +22,7 @@ typedef StageFile =
 	var opponent:Array<Dynamic>;
 }
 
-class StageData
+class Stage
 {
 	public static var forceNextDirectory:String = null;
 
@@ -33,9 +33,9 @@ class StageData
 		{
 			stage = SONG.stage;
 		}
-		else if (SONG.song != null)
+		else if (SONG.songId != null)
 		{
-			switch (SONG.song.toLowerCase().replace(' ', '-'))
+			switch (SONG.songId)
 			{
 				case 'spookeez' | 'south' | 'monster':
 					stage = 'spooky';
@@ -60,18 +60,18 @@ class StageData
 			stage = 'stage';
 		}
 
-		var stageFile:StageFile = getStageFile(stage);
-		if (stageFile == null)
+		var stageData:StageData = getStageFile(stage);
+		if (stageData == null)
 		{ // preventing crashes
 			forceNextDirectory = '';
 		}
 		else
 		{
-			forceNextDirectory = stageFile.directory;
+			forceNextDirectory = stageData.directory;
 		}
 	}
 
-	public static function getStageFile(stage:String):StageFile
+	public static function getStageFile(stage:String):StageData
 	{
 		var rawJson:String = null;
 		var path:String = Paths.getPreloadPath('stages/' + stage + '.json');

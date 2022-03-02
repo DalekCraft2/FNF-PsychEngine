@@ -50,8 +50,8 @@ class StoryMenuState extends MusicBeatState
 		Paths.clearUnusedMemory();
 
 		PlayState.isStoryMode = true;
-		WeekData.reloadWeekFiles(true);
-		if (curWeek >= WeekData.weeksList.length)
+		Week.reloadWeekData(true);
+		if (curWeek >= Week.weeksList.length)
 			curWeek = 0;
 		persistentUpdate = persistentDraw = true;
 
@@ -89,10 +89,10 @@ class StoryMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		for (i in 0...WeekData.weeksList.length)
+		for (i in 0...Week.weeksList.length)
 		{
-			WeekData.setDirectoryFromWeek(WeekData.weeksLoaded.get(WeekData.weeksList[i]));
-			var weekThing:MenuItem = new MenuItem(0, bgSprite.y + 396, WeekData.weeksList[i]);
+			Week.setDirectoryFromWeek(Week.weeksLoaded.get(Week.weeksList[i]));
+			var weekThing:MenuItem = new MenuItem(0, bgSprite.y + 396, Week.weeksList[i]);
 			weekThing.y += ((weekThing.height + 20) * i);
 			weekThing.targetY = i;
 			grpWeekText.add(weekThing);
@@ -114,8 +114,8 @@ class StoryMenuState extends MusicBeatState
 			}
 		}
 
-		WeekData.setDirectoryFromWeek(WeekData.weeksLoaded.get(WeekData.weeksList[0]));
-		var charArray:Array<String> = WeekData.weeksLoaded.get(WeekData.weeksList[0]).weekCharacters;
+		Week.setDirectoryFromWeek(Week.weeksLoaded.get(Week.weeksList[0]));
+		var charArray:Array<String> = Week.weeksLoaded.get(Week.weeksList[0]).weekCharacters;
 		for (char in 0...3)
 		{
 			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, charArray[char]);
@@ -282,7 +282,7 @@ class StoryMenuState extends MusicBeatState
 
 			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
 			var songArray:Array<String> = [];
-			var leWeek:Array<Dynamic> = WeekData.weeksLoaded.get(WeekData.weeksList[curWeek]).songs;
+			var leWeek:Array<Dynamic> = Week.weeksLoaded.get(Week.weeksList[curWeek]).songs;
 			for (i in 0...leWeek.length)
 			{
 				songArray.push(leWeek[i][0]);
@@ -293,13 +293,13 @@ class StoryMenuState extends MusicBeatState
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
-			var diffic = CoolUtil.getDifficultyFilePath(curDifficulty);
-			if (diffic == null)
-				diffic = '';
+			var difficulty = CoolUtil.getDifficultyFilePath(curDifficulty);
+			if (difficulty == null)
+				difficulty = '';
 
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0], difficulty);
 			PlayState.campaignScore = 0;
 			PlayState.campaignMisses = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)
@@ -325,7 +325,7 @@ class StoryMenuState extends MusicBeatState
 		if (curDifficulty >= CoolUtil.difficulties.length)
 			curDifficulty = 0;
 
-		WeekData.setDirectoryFromWeek(WeekData.weeksLoaded.get(WeekData.weeksList[curWeek]));
+		Week.setDirectoryFromWeek(Week.weeksLoaded.get(Week.weeksList[curWeek]));
 
 		var diff:String = CoolUtil.difficulties[curDifficulty];
 		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
@@ -351,7 +351,7 @@ class StoryMenuState extends MusicBeatState
 		lastDifficultyName = diff;
 
 		#if !switch
-		intendedScore = Highscore.getWeekScore(WeekData.weeksList[curWeek], curDifficulty);
+		intendedScore = Highscore.getWeekScore(Week.weeksList[curWeek], curDifficulty);
 		#end
 	}
 
@@ -362,13 +362,13 @@ class StoryMenuState extends MusicBeatState
 	{
 		curWeek += change;
 
-		if (curWeek >= WeekData.weeksList.length)
+		if (curWeek >= Week.weeksList.length)
 			curWeek = 0;
 		if (curWeek < 0)
-			curWeek = WeekData.weeksList.length - 1;
+			curWeek = Week.weeksList.length - 1;
 
-		var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[curWeek]);
-		WeekData.setDirectoryFromWeek(leWeek);
+		var leWeek:Week = Week.weeksLoaded.get(Week.weeksList[curWeek]);
+		Week.setDirectoryFromWeek(leWeek);
 
 		var leName:String = leWeek.storyName;
 		txtWeekTitle.text = leName.toUpperCase();
@@ -400,7 +400,7 @@ class StoryMenuState extends MusicBeatState
 		PlayState.storyWeek = curWeek;
 
 		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
-		var diffStr:String = WeekData.getCurrentWeek().difficulties;
+		var diffStr:String = Week.getCurrentWeek().difficulties;
 		if (diffStr != null)
 			diffStr = diffStr.trim(); // Fuck you HTML5
 
@@ -445,7 +445,7 @@ class StoryMenuState extends MusicBeatState
 
 	function weekIsLocked(weekNum:Int)
 	{
-		var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[weekNum]);
+		var leWeek:Week = Week.weeksLoaded.get(Week.weeksList[weekNum]);
 		return (!leWeek.startUnlocked
 			&& leWeek.weekBefore.length > 0
 			&& (!weekCompleted.exists(leWeek.weekBefore) || !weekCompleted.get(leWeek.weekBefore)));
@@ -453,13 +453,13 @@ class StoryMenuState extends MusicBeatState
 
 	function updateText()
 	{
-		var weekArray:Array<String> = WeekData.weeksLoaded.get(WeekData.weeksList[curWeek]).weekCharacters;
+		var weekArray:Array<String> = Week.weeksLoaded.get(Week.weeksList[curWeek]).weekCharacters;
 		for (i in 0...grpWeekCharacters.length)
 		{
 			grpWeekCharacters.members[i].changeCharacter(weekArray[i]);
 		}
 
-		var leWeek:WeekData = WeekData.weeksLoaded.get(WeekData.weeksList[curWeek]);
+		var leWeek:Week = Week.weeksLoaded.get(Week.weeksList[curWeek]);
 		var stringThing:Array<String> = [];
 		for (i in 0...leWeek.songs.length)
 		{
@@ -478,7 +478,7 @@ class StoryMenuState extends MusicBeatState
 		txtTracklist.x -= FlxG.width * 0.35;
 
 		#if !switch
-		intendedScore = Highscore.getWeekScore(WeekData.weeksList[curWeek], curDifficulty);
+		intendedScore = Highscore.getWeekScore(Week.weeksList[curWeek], curDifficulty);
 		#end
 	}
 }

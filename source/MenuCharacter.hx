@@ -9,7 +9,7 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 
-typedef MenuCharacterFile =
+typedef MenuCharacterData =
 {
 	var image:String;
 	var scale:Float;
@@ -76,7 +76,7 @@ class MenuCharacter extends FlxSprite
 				rawJson = Assets.getText(path);
 				#end
 
-				var charFile:MenuCharacterFile = cast Json.parse(rawJson);
+				var charFile:MenuCharacterData = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
 				animation.addByPrefix('idle', charFile.idle_anim, 24);
 				animation.addByPrefix('confirm', charFile.confirm_anim, 24, false);

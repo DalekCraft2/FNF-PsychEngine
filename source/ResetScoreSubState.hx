@@ -29,7 +29,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		var name:String = song;
 		if (week > -1)
 		{
-			name = WeekData.weeksLoaded.get(WeekData.weeksList[week]).weekName;
+			name = Week.weeksLoaded.get(Week.weeksList[week]).weekName;
 		}
 		name += ' (' + CoolUtil.difficulties[difficulty] + ')?';
 
@@ -107,7 +107,7 @@ class ResetScoreSubState extends MusicBeatSubState
 				}
 				else
 				{
-					Highscore.resetWeek(WeekData.weeksList[week], difficulty);
+					Highscore.resetWeek(Week.weeksList[week], difficulty);
 				}
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'), 1);

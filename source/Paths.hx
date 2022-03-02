@@ -1,10 +1,10 @@
 package;
 
-import haxe.Exception;
 import flash.media.Sound;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import haxe.Json;
 import lime.utils.Assets;
 import openfl.system.System;
 import openfl.utils.Assets as OpenFlAssets;
@@ -126,6 +126,49 @@ class Paths
 		return getPreloadPath(file);
 	}
 
+	static public function loadJson(key:String, ?library:String):Dynamic
+	{
+		var rawJson = null;
+
+		#if FEATURE_MODS
+		var modKey:String = Paths.modsJson(key);
+		if (FileSystem.exists(modKey))
+		{
+			rawJson = File.getContent(modKey);
+		}
+		#end
+
+		if (rawJson == null)
+		{
+			#if sys
+			rawJson = File.getContent(Paths.json(key, library));
+			#else
+			rawJson = OpenFlAssets.getText(Paths.json(key, library));
+			#end
+		}
+
+		// Perform cleanup on files that have bad data at the end.
+		rawJson = rawJson.trim();
+		while (!rawJson.endsWith("}"))
+		{
+			rawJson = rawJson.substr(0, rawJson.length - 1);
+		}
+
+		try
+		{
+			// Attempt to parse and return the JSON data.
+			return Json.parse(rawJson);
+		}
+		catch (e)
+		{
+			Debug.logError("AN ERROR OCCURRED parsing a JSON file.");
+			Debug.logError(e.message);
+
+			// Return null.
+			return null;
+		}
+	}
+
 	static public function getLibraryPath(file:String, library = "preload")
 	{
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
@@ -133,8 +176,7 @@ class Paths
 
 	inline static function getLibraryPathForce(file:String, library:String)
 	{
-		var returnPath = '$library:assets/$library/$file';
-		return returnPath;
+		return '$library:assets/$library/$file';
 	}
 
 	inline public static function getPreloadPath(file:String = '')
@@ -189,10 +231,9 @@ class Paths
 		return 'assets/videos/$key.$VIDEO_EXT';
 	}
 
-	static public function sound(key:String, ?library:String):Dynamic
+	static public function sound(key:String, ?library:String)
 	{
-		var sound:Sound = returnSound('sounds', key, library);
-		return sound;
+		return returnSound('sounds', key, library);
 	}
 
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
@@ -200,22 +241,21 @@ class Paths
 		return sound(key + FlxG.random.int(min, max), library);
 	}
 
-	inline static public function music(key:String, ?library:String):Dynamic
+	inline static public function music(key:String, ?library:String)
 	{
-		var file:Sound = returnSound('music', key, library);
-		return file;
+		return returnSound('music', key, library);
 	}
 
 	inline static public function voices(song:String):Any
 	{
-		var songKey:String = '${song.toLowerCase().replace(' ', '-')}/Voices';
+		var songKey:String = '${formatToSongPath(song)}/Voices';
 		var voices = returnSound('songs', songKey);
 		return voices;
 	}
 
 	inline static public function inst(song:String):Any
 	{
-		var songKey:String = '${song.toLowerCase().replace(' ', '-')}/Inst';
+		var songKey:String = '${formatToSongPath(song)}/Inst';
 		var inst = returnSound('songs', songKey);
 		return inst;
 	}
@@ -391,70 +431,70 @@ class Paths
 	#if FEATURE_MODS
 	inline static public function mods(key:String = '')
 	{
-		return 'mods/' + key;
+		return 'mods/$key';
 	}
 
 	inline static public function modsFont(key:String)
 	{
-		return modFolders('fonts/' + key);
+		return modFolders('fonts/$key');
 	}
 
 	inline static public function modsJson(key:String)
 	{
-		return modFolders('data/' + key + '.json');
+		return modFolders('data/$key.json');
 	}
 
 	inline static public function modsVideo(key:String)
 	{
-		return modFolders('videos/' + key + '.' + VIDEO_EXT);
+		return modFolders('videos/$key.$VIDEO_EXT');
 	}
 
 	inline static public function modsSounds(path:String, key:String)
 	{
-		return modFolders(path + '/' + key + '.' + SOUND_EXT);
+		return modFolders('$path/$key.$SOUND_EXT');
 	}
 
 	inline static public function modsImages(key:String)
 	{
-		return modFolders('images/' + key + '.png');
+		return modFolders('images/$key.png');
 	}
 
 	inline static public function modsXml(key:String)
 	{
-		return modFolders('images/' + key + '.xml');
+		return modFolders('images/$key.xml');
 	}
 
 	inline static public function modsTxt(key:String)
 	{
-		return modFolders('images/' + key + '.txt');
+		return modFolders('images/$key.txt');
 	}
 
-	inline static public function modsShaderFragment(key:String, ?library:String)
+	inline static public function modsShaderFragment(key:String)
 	{
-		return modFolders('shaders/' + key + '.frag');
+		return modFolders('shaders/$key.frag');
 	}
 
-	inline static public function modsShaderVertex(key:String, ?library:String)
+	inline static public function modsShaderVertex(key:String)
 	{
-		return modFolders('shaders/' + key + '.vert');
+		return modFolders('shaders/$key.vert');
 	}
 
 	inline static public function modsAchievements(key:String)
 	{
-		return modFolders('achievements/' + key + '.json');
+		return modFolders('achievements/$key.json');
 	}
 
 	static public function modFolders(key:String)
 	{
 		if (currentModDirectory != null && currentModDirectory.length > 0)
 		{
-			var fileToCheck:String = mods(currentModDirectory + '/' + key);
+			var fileToCheck:String = mods('$currentModDirectory/$key');
 			if (FileSystem.exists(fileToCheck))
 			{
 				return fileToCheck;
 			}
 		}
-		return 'mods/' + key;
+		return 'mods/$key';
 	}
 
 	static public function getModDirectories():Array<String>

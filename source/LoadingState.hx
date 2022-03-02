@@ -143,12 +143,12 @@ class LoadingState extends MusicBeatState
 
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.SONG.song);
+		return Paths.inst(PlayState.SONG.songId);
 	}
 
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.SONG.song);
+		return Paths.voices(PlayState.SONG.songId);
 	}
 
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
@@ -159,8 +159,8 @@ class LoadingState extends MusicBeatState
 	static function getNextState(target:FlxState, stopMusic = false):FlxState
 	{
 		var directory:String = 'shared';
-		var weekDir:String = StageData.forceNextDirectory;
-		StageData.forceNextDirectory = null;
+		var weekDir:String = Stage.forceNextDirectory;
+		Stage.forceNextDirectory = null;
 
 		if (weekDir != null && weekDir.length > 0 && weekDir != '')
 			directory = weekDir;

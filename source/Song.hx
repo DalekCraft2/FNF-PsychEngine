@@ -12,46 +12,47 @@ using StringTools;
 
 typedef SongData =
 {
-	var song:String;
+	/**
+	 * The readable name of the song, as displayed to the user.
+	 		* Can be any string.
+	 */
+	var songName:String;
+
+	/**
+	 * The internal name of the song, as used in the file system.
+	 */
+	var songId:String;
+
 	var notes:Array<SectionData>;
 	var events:Array<Dynamic>;
 	var bpm:Float;
 	var needsVoices:Bool;
 	var speed:Float;
-
 	var player1:String;
 	var player2:String;
 	var gfVersion:String;
 	var stage:String;
 	var arrowSkin:String;
 	var splashSkin:String;
-	var validScore:Bool;
+	var ?validScore:Bool;
+}
+
+typedef SongMeta =
+{
+	var ?offset:Int;
+	var ?name:String;
 }
 
 class Song
 {
-	public var song:String;
-	public var notes:Array<SectionData>;
-	public var events:Array<Dynamic>;
-	public var bpm:Float;
-	public var needsVoices:Bool = true;
-	public var arrowSkin:String;
-	public var splashSkin:String;
-	public var speed:Float = 1;
-	public var stage:String;
-
-	public var player1:String = 'bf';
-	public var player2:String = 'dad';
-	public var gfVersion:String = 'gf';
-
-	private static function onLoadJson(songJson:SongData) // Convert old charts to newest format
+	private static function onLoadJson(songData:SongData) // Convert old charts to newest format
 	{
-		if (songJson.events == null)
+		if (songData.events == null)
 		{
-			songJson.events = [];
-			for (secNum in 0...songJson.notes.length)
+			songData.events = [];
+			for (secNum in 0...songData.notes.length)
 			{
-				var sec:SectionData = songJson.notes[secNum];
+				var sec:SectionData = songData.notes[secNum];
 
 				var i:Int = 0;
 				var notes:Array<Dynamic> = sec.sectionNotes;
@@ -61,7 +62,7 @@ class Song
 					var note:Array<Dynamic> = notes[i];
 					if (note[1] < 0)
 					{
-						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
+						songData.events.push([note[0], [[note[2], note[3], note[4]]]]);
 						notes.remove(note);
 						len = notes.length;
 					}
@@ -72,69 +73,60 @@ class Song
 		}
 	}
 
-	public function new(song, notes, bpm)
+	public static function loadFromJsonRaw(rawJson:String)
 	{
-		this.song = song;
-		this.notes = notes;
-		this.bpm = bpm;
-	}
-
-	public static function loadFromJson(jsonInput:String, ?folder:String):SongData
-	{
-		var rawJson = null;
-
-		var formattedFolder:String = Paths.formatToSongPath(folder);
-		var formattedSong:String = Paths.formatToSongPath(jsonInput);
-		#if FEATURE_MODS
-		var moddyFile:String = Paths.modsJson(formattedFolder + '/' + formattedSong);
-		if (FileSystem.exists(moddyFile))
-		{
-			rawJson = File.getContent(moddyFile).trim();
-		}
-		#end
-
-		if (rawJson == null)
-		{
-			#if sys
-			rawJson = File.getContent(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-			#else
-			rawJson = Assets.getText(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-			#end
-		}
-
 		while (!rawJson.endsWith("}"))
 		{
 			rawJson = rawJson.substr(0, rawJson.length - 1);
-			// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
 		}
+		var jsonData = Json.parse(rawJson);
 
-		// FIX THE CASTING ON WINDOWS/NATIVE
-		// Windows???
-		// trace(songData);
-
-		// trace('LOADED FROM JSON: ' + songData.notes);
-		/* 
-			for (i in 0...songData.notes.length)
-			{
-				trace('LOADED FROM JSON: ' + songData.notes[i].sectionNotes);
-				// songData.notes[i].sectionNotes = songData.notes[i].sectionNotes
-			}
-
-				daNotes = songData.notes;
-				daSong = songData.song;
-				daBpm = songData.bpm; */
-
-		var songJson:SongData = parseJSONshit(rawJson);
-		if (jsonInput != 'events')
-			StageData.loadDirectory(songJson);
-		onLoadJson(songJson);
-		return songJson;
+		return parseJson("rawsong", jsonData, ["name" => jsonData.name]);
 	}
 
-	public static function parseJSONshit(rawJson:String):SongData
+	public static function loadFromJson(songId:String, difficulty:String, ?folder:String):SongData
 	{
-		var swagShit:SongData = cast Json.parse(rawJson).song;
-		swagShit.validScore = true;
-		return swagShit;
+		if (folder == null)
+		{
+			folder = songId;
+		}
+
+		var songPath = '$folder/$songId$difficulty';
+		var songMetaPath = '$folder/_meta';
+
+		var rawJson = Paths.loadJson(songPath);
+		var rawMetaJson = Paths.loadJson('$folder/_meta');
+
+		var songData:SongData = parseJson(songId, rawJson, rawMetaJson);
+		if (songId != 'events')
+			Stage.loadDirectory(songData);
+		onLoadJson(songData);
+		return songData;
+	}
+
+	public static function parseJson(songId:String, jsonData:Dynamic, jsonMetaData:Dynamic):SongData
+	{
+		var songData:SongData = cast jsonData.song;
+
+		songData.songId = songId;
+
+		// Enforce default values for optional fields.
+		if (songData.validScore == null)
+			songData.validScore = true;
+
+		// Inject info from _meta.json.
+		var songMetaData:SongMeta = cast jsonMetaData;
+		if (songMetaData.name != null)
+		{
+			songData.songName = songMetaData.name;
+		}
+		else
+		{
+			songData.songName = songId.split('-').join(' ');
+		}
+
+		// songData.offset = songMetaData.offset != null ? songMetaData.offset : 0;
+
+		return songData;
 	}
 }

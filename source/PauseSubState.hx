@@ -74,7 +74,7 @@ class PauseSubState extends MusicBeatSubState
 		add(bg);
 
 		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
-		levelInfo.text += PlayState.SONG.song;
+		levelInfo.text += PlayState.SONG.songName;
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();
@@ -165,9 +165,9 @@ class PauseSubState extends MusicBeatSubState
 			var daSelected:String = menuItems[curSelected];
 			if (daSelected != 'BACK' && difficultyChoices.contains(daSelected))
 			{
-				var name:String = PlayState.SONG.song.toLowerCase();
-				var poop = Highscore.formatSong(name, curSelected);
-				PlayState.SONG = Song.loadFromJson(poop, name);
+				var songId:String = PlayState.SONG.songId;
+				var difficulty:String = CoolUtil.getDifficultyFilePath(curSelected);
+				PlayState.SONG = Song.loadFromJson(songId, difficulty);
 				PlayState.storyDifficulty = curSelected;
 				MusicBeatState.resetState();
 				FlxG.sound.music.volume = 0;

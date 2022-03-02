@@ -47,7 +47,7 @@ _____________________________________
   * Thunders does a quick light flash and zooms the camera in slightly
   * Added a quick transition/cutscene to Monster
 ### Week 3:
-  * BF does "Hey!" during Philly Nice
+  * BF does "Hey!" during Philly
   * Blammed has a cool new colors flash during that sick part of the song
 ### Week 4:
   * Better hair physics for Mom/Boyfriend (Maybe even slightly better than Week 7's :eyes:)

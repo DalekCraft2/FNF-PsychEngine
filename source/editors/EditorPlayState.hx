@@ -106,11 +106,11 @@ class EditorPlayState extends MusicBeatState
 		splash.alpha = 0.0;
 
 		if (PlayState.SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.songId));
 		else
 			vocals = new FlxSound();
 
-		generateSong(PlayState.SONG.song);
+		generateSong(PlayState.SONG.songId);
 		#if FEATURE_LUA
 		for (notetype in noteTypeMap.keys())
 		{
@@ -191,7 +191,7 @@ class EditorPlayState extends MusicBeatState
 
 	private function generateSong(dataPath:String):Void
 	{
-		FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0, false);
+		FlxG.sound.playMusic(Paths.inst(PlayState.SONG.songId), 0, false);
 		FlxG.sound.music.pause();
 		FlxG.sound.music.onComplete = endSong;
 		vocals.pause();

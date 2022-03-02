@@ -1,7 +1,7 @@
 package;
 
 import Type.ValueType;
-import DialogueBoxPsych.DialogueFile;
+import DialogueBoxPsych.DialogueData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -92,14 +92,15 @@ class FunkinLua
 		set('crochet', Conductor.crochet);
 		set('stepCrochet', Conductor.stepCrochet);
 		set('songLength', FlxG.sound.music.length);
-		set('songName', PlayState.SONG.song);
+		set('songId', PlayState.SONG.songId);
+		set('songName', PlayState.SONG.songName);
 		set('startedCountdown', false);
 
 		set('isStoryMode', PlayState.isStoryMode);
 		set('difficulty', PlayState.storyDifficulty);
 		set('difficultyName', CoolUtil.difficulties[PlayState.storyDifficulty]);
 		set('weekRaw', PlayState.storyWeek);
-		set('week', WeekData.weeksList[PlayState.storyWeek]);
+		set('week', Week.weeksList[PlayState.storyWeek]);
 		set('seenCutscene', PlayState.seenCutscene);
 
 		// Block require and os, Should probably have a proper function but this should be good enough for now until someone smarter comes along and recreates a safe version of the OS library
@@ -1525,16 +1526,16 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "startDialogue", function(dialogueFile:String, music:String = null)
 		{
-			var path:String = Paths.modsJson(Paths.formatToSongPath(PlayState.SONG.song) + '/' + dialogueFile);
+			var path:String = Paths.modsJson(PlayState.SONG.songId + '/' + dialogueFile);
 			if (!FileSystem.exists(path))
 			{
-				path = Paths.json(Paths.formatToSongPath(PlayState.SONG.song) + '/' + dialogueFile);
+				path = Paths.json(PlayState.SONG.songId + '/' + dialogueFile);
 			}
 			luaTrace('Trying to load dialogue: ' + path);
 
 			if (FileSystem.exists(path))
 			{
-				var shit:DialogueFile = DialogueBoxPsych.parseDialogue(path);
+				var shit:DialogueData = DialogueBoxPsych.parseDialogue(path);
 				if (shit.dialogue.length > 0)
 				{
 					PlayState.instance.startDialogue(shit, music);

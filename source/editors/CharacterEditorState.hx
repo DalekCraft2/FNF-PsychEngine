@@ -445,7 +445,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var templateCharacter:FlxButton = new FlxButton(140, 50, "Load Template", function()
 		{
-			var parsedJson:CharacterFile = cast Json.parse(TemplateCharacter);
+			var parsedJson:CharacterData = cast Json.parse(TemplateCharacter);
 			var characters:Array<Character> = [char, ghostChar];
 			for (character in characters)
 			{

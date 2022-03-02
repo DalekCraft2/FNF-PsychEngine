@@ -58,7 +58,8 @@ class EditorLua
 		set('crochet', Conductor.crochet);
 		set('stepCrochet', Conductor.stepCrochet);
 		set('songLength', FlxG.sound.music.length);
-		set('songName', PlayState.SONG.song);
+		set('songId', PlayState.SONG.songId);
+		set('songName', PlayState.SONG.songName);
 
 		set('screenWidth', FlxG.width);
 		set('screenHeight', FlxG.height);

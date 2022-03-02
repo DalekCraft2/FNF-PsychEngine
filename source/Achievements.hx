@@ -19,7 +19,7 @@ import sys.io.File;
 
 using StringTools;
 
-typedef AchievementFile =
+typedef AchievementData =
 {
 	var unlocksAfter:String;
 	var icon:String;
@@ -147,7 +147,7 @@ class Achievements
 	];
 
 	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
-	public static var loadedAchievements:Map<String, AchievementFile> = new Map<String, AchievementFile>();
+	public static var loadedAchievements:Map<String, AchievementData> = new Map<String, AchievementData>();
 
 	public static var henchmenDeath:Int = 0;
 
@@ -228,7 +228,7 @@ class Achievements
 	{ // Achievements in game are hardcoded, no need to make a folder for them
 		loadedAchievements.clear();
 
-		#if FEATURE_MODS // Based on WeekData.hx
+		#if FEATURE_MODS // Based on Week.hx
 		var disabledMods:Array<String> = [];
 		var modsListPath:String = 'modsList.txt';
 		var directories:Array<String> = [Paths.mods()];
@@ -313,7 +313,7 @@ class Achievements
 		#end
 	}
 
-	private static function getAchievementInfo(path:String):AchievementFile
+	private static function getAchievementInfo(path:String):AchievementData
 	{
 		var rawJson:String = null;
 		#if FEATURE_MODS

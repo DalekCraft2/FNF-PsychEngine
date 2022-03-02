@@ -3,7 +3,7 @@ package editors;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
-import WeekData;
+import Week;
 import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -41,12 +41,12 @@ class WeekEditorState extends MusicBeatState
 	var weekThing:MenuItem;
 	var missingFileText:FlxText;
 
-	var weekFile:WeekFile = null;
+	var weekFile:WeekData = null;
 
-	public function new(weekFile:WeekFile = null)
+	public function new(weekFile:WeekData = null)
 	{
 		super();
-		this.weekFile = WeekData.createWeekFile();
+		this.weekFile = Week.createWeekData();
 		if (weekFile != null)
 			this.weekFile = weekFile;
 		else
@@ -507,7 +507,7 @@ class WeekEditorState extends MusicBeatState
 		_file.browse([jsonFilter]);
 	}
 
-	public static var loadedWeek:WeekFile = null;
+	public static var loadedWeek:WeekData = null;
 	public static var loadError:Bool = false;
 
 	private static function onLoadComplete(_):Void
@@ -572,7 +572,7 @@ class WeekEditorState extends MusicBeatState
 		trace("Problem loading file");
 	}
 
-	public static function saveWeek(weekFile:WeekFile)
+	public static function saveWeek(weekFile:WeekData)
 	{
 		var data:String = Json.stringify(weekFile, "\t");
 		if (data.length > 0)
@@ -620,12 +620,12 @@ class WeekEditorState extends MusicBeatState
 
 class WeekEditorFreeplayState extends MusicBeatState
 {
-	var weekFile:WeekFile = null;
+	var weekFile:WeekData = null;
 
-	public function new(weekFile:WeekFile = null)
+	public function new(weekFile:WeekData = null)
 	{
 		super();
-		this.weekFile = WeekData.createWeekFile();
+		this.weekFile = Week.createWeekData();
 		if (weekFile != null)
 			this.weekFile = weekFile;
 	}

@@ -52,7 +52,7 @@ class MainMenuState extends MusicBeatState
 
 	override function create()
 	{
-		WeekData.loadTheFirstEnabledMod();
+		Week.loadTheFirstEnabledMod();
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence

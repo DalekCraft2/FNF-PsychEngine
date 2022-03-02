@@ -37,7 +37,7 @@ class DialogueEditorState extends MusicBeatState
 	var animText:FlxText;
 
 	var defaultLine:DialogueLine;
-	var dialogueFile:DialogueFile = null;
+	var dialogueFile:DialogueData = null;
 
 	override function create()
 	{
@@ -552,7 +552,7 @@ class DialogueEditorState extends MusicBeatState
 			var rawJson:String = File.getContent(fullPath);
 			if (rawJson != null)
 			{
-				var loadedDialog:DialogueFile = cast Json.parse(rawJson);
+				var loadedDialog:DialogueData = cast Json.parse(rawJson);
 				if (loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) // Make sure it's really a dialogue file
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);

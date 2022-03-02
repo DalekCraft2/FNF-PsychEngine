@@ -10,7 +10,7 @@ import sys.io.File;
 
 using StringTools;
 
-typedef WeekFile =
+typedef WeekData =
 {
 	// JSON variables
 	var songs:Array<Dynamic>;
@@ -26,9 +26,9 @@ typedef WeekFile =
 	var difficulties:String;
 }
 
-class WeekData
+class Week
 {
-	public static var weeksLoaded:Map<String, WeekData> = new Map<String, WeekData>();
+	public static var weeksLoaded:Map<String, Week> = new Map<String, Week>();
 	public static var weeksList:Array<String> = [];
 
 	public var folder:String = '';
@@ -46,13 +46,13 @@ class WeekData
 	public var hideFreeplay:Bool;
 	public var difficulties:String;
 
-	public static function createWeekFile():WeekFile
+	public static function createWeekData():WeekData
 	{
-		var weekFile:WeekFile = {
+		var weekData:WeekData = {
 			songs: [
-				["Bopeebo", "dad", [146, 113, 253]],
-				["Fresh", "dad", [146, 113, 253]],
-				["Dad Battle", "dad", [146, 113, 253]]
+				["bopeebo", "dad", [146, 113, 253]],
+				["fresh", "dad", [146, 113, 253]],
+				["dadbattle", "dad", [146, 113, 253]]
 			],
 			weekCharacters: ['dad', 'bf', 'gf'],
 			weekBackground: 'stage',
@@ -65,26 +65,26 @@ class WeekData
 			hideFreeplay: false,
 			difficulties: ''
 		};
-		return weekFile;
+		return weekData;
 	}
 
-	// HELP: Is there any way to convert a WeekFile to WeekData without having to put all variables there manually? I'm kind of a noob in haxe lmao
-	public function new(weekFile:WeekFile)
+	// HELP: Is there any way to convert a WeekData to Week without having to put all variables there manually? I'm kind of a noob in haxe lmao
+	public function new(weekData:WeekData)
 	{
-		songs = weekFile.songs;
-		weekCharacters = weekFile.weekCharacters;
-		weekBackground = weekFile.weekBackground;
-		weekBefore = weekFile.weekBefore;
-		storyName = weekFile.storyName;
-		weekName = weekFile.weekName;
-		freeplayColor = weekFile.freeplayColor;
-		startUnlocked = weekFile.startUnlocked;
-		hideStoryMode = weekFile.hideStoryMode;
-		hideFreeplay = weekFile.hideFreeplay;
-		difficulties = weekFile.difficulties;
+		songs = weekData.songs;
+		weekCharacters = weekData.weekCharacters;
+		weekBackground = weekData.weekBackground;
+		weekBefore = weekData.weekBefore;
+		storyName = weekData.storyName;
+		weekName = weekData.weekName;
+		freeplayColor = weekData.freeplayColor;
+		startUnlocked = weekData.startUnlocked;
+		hideStoryMode = weekData.hideStoryMode;
+		hideFreeplay = weekData.hideFreeplay;
+		difficulties = weekData.difficulties;
 	}
 
-	public static function reloadWeekFiles(isStoryMode:Null<Bool> = false)
+	public static function reloadWeekData(isStoryMode:Null<Bool> = false)
 	{
 		weeksList = [];
 		weeksLoaded.clear();
@@ -142,24 +142,24 @@ class WeekData
 				var fileToCheck:String = directories[j] + 'weeks/' + sexList[i] + '.json';
 				if (!weeksLoaded.exists(sexList[i]))
 				{
-					var week:WeekFile = getWeekFile(fileToCheck);
+					var week:WeekData = getWeekData(fileToCheck);
 					if (week != null)
 					{
-						var weekFile:WeekData = new WeekData(week);
+						var weekData:Week = new Week(week);
 
 						#if FEATURE_MODS
 						if (j >= originalLength)
 						{
-							weekFile.folder = directories[j].substring(Paths.mods().length, directories[j].length - 1);
+							weekData.folder = directories[j].substring(Paths.mods().length, directories[j].length - 1);
 						}
 						#end
 
-						if (weekFile != null
+						if (weekData != null
 							&& (isStoryMode == null
-								|| (isStoryMode && !weekFile.hideStoryMode)
-								|| (!isStoryMode && !weekFile.hideFreeplay)))
+								|| (isStoryMode && !weekData.hideStoryMode)
+								|| (!isStoryMode && !weekData.hideFreeplay)))
 						{
-							weeksLoaded.set(sexList[i], weekFile);
+							weeksLoaded.set(sexList[i], weekData);
 							weeksList.push(sexList[i]);
 						}
 					}
@@ -200,26 +200,26 @@ class WeekData
 	{
 		if (!weeksLoaded.exists(weekToCheck))
 		{
-			var week:WeekFile = getWeekFile(path);
+			var week:WeekData = getWeekData(path);
 			if (week != null)
 			{
-				var weekFile:WeekData = new WeekData(week);
+				var weekData:Week = new Week(week);
 				if (i >= originalLength)
 				{
 					#if FEATURE_MODS
-					weekFile.folder = directory.substring(Paths.mods().length, directory.length - 1);
+					weekData.folder = directory.substring(Paths.mods().length, directory.length - 1);
 					#end
 				}
-				if ((PlayState.isStoryMode && !weekFile.hideStoryMode) || (!PlayState.isStoryMode && !weekFile.hideFreeplay))
+				if ((PlayState.isStoryMode && !weekData.hideStoryMode) || (!PlayState.isStoryMode && !weekData.hideFreeplay))
 				{
-					weeksLoaded.set(weekToCheck, weekFile);
+					weeksLoaded.set(weekToCheck, weekData);
 					weeksList.push(weekToCheck);
 				}
 			}
 		}
 	}
 
-	private static function getWeekFile(path:String):WeekFile
+	private static function getWeekData(path:String):WeekData
 	{
 		var rawJson:String = null;
 		#if FEATURE_MODS
@@ -243,18 +243,18 @@ class WeekData
 
 	//   FUNCTIONS YOU WILL PROBABLY NEVER NEED TO USE
 	// To use on PlayState.hx or Highscore stuff
-	public static function getWeekFileName():String
+	public static function getWeekDataName():String
 	{
 		return weeksList[PlayState.storyWeek];
 	}
 
 	// Used on LoadingState, nothing really too relevant
-	public static function getCurrentWeek():WeekData
+	public static function getCurrentWeek():Week
 	{
 		return weeksLoaded.get(weeksList[PlayState.storyWeek]);
 	}
 
-	public static function setDirectoryFromWeek(?data:WeekData = null)
+	public static function setDirectoryFromWeek(?data:Week = null)
 	{
 		Paths.currentModDirectory = '';
 		if (data != null && data.folder != null && data.folder.length > 0)

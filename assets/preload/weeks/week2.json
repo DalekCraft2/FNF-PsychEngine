@@ -1,8 +1,8 @@
 {
 	"songs": [
-		["Spookeez", "spooky", [34, 51, 68]],
-		["South", "spooky", [34, 51, 68]],
-		["Monster", "monster", [34, 51, 68]]
+		["spookeez", "spooky", [34, 51, 68]],
+		["south", "spooky", [34, 51, 68]],
+		["monster", "monster", [34, 51, 68]]
 	],
 
 	"weekCharacters": [

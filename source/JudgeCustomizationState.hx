@@ -1,6 +1,6 @@
 package;
 
-import StageData.StageFile;
+import Stage.StageData;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
@@ -12,7 +12,7 @@ import options.OptionsState;
 
 class JudgeCustomizationState extends MusicBeatState
 {
-	var stage:StageFile;
+	var stage:StageData;
 	var judge:FlxSprite;
 	var judgePlacementPos:FlxPoint;
 	var defaultPos:FlxPoint;

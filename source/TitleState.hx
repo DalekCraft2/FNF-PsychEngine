@@ -63,7 +63,7 @@ class TitleState extends MusicBeatState
 	override public function create():Void
 	{
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
-		WeekData.loadTheFirstEnabledMod();
+		Week.loadTheFirstEnabledMod();
 
 		// trace(path, FileSystem.exists(path));
 		titleJSON = Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
