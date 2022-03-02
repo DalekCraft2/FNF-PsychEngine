@@ -199,7 +199,7 @@ class Week
 		if (!weeksLoaded.exists(weekToCheck))
 		{
 			var weekData:WeekData = getWeekData(path);
-			if (week != null)
+			if (weekData != null)
 			{
 				var week:Week = new Week(weekData);
 				if (i >= originalLength)

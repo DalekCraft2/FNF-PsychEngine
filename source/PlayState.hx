@@ -5,9 +5,9 @@ import DialogueBoxPsych.DialogueData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
+import FunkinLua.DebugLuaText;
 import FunkinLua.ModchartSprite;
 import FunkinLua.ModchartText;
-import FunkinLua.DebugLuaText;
 import Note.EventNote;
 import Section.SectionData;
 import Song.SongData;
@@ -576,7 +576,7 @@ class PlayState extends MusicBeatState
 
 				santa = new BGSprite('christmas/santa', -840, 150, 1, 1, ['santa idle in fear']);
 				add(santa);
-				CoolUtil.precacheSound('Lights_Shut_off');
+				CoolUtil.precacheSound('Lights_Shut_Off');
 
 			case 'mallEvil': // Week 5 - Winter Horrorland
 				var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
@@ -3557,7 +3557,7 @@ class PlayState extends MusicBeatState
 						add(blackShit);
 						camHUD.visible = false;
 
-						FlxG.sound.play(Paths.sound('Lights_Shut_off'));
+						FlxG.sound.play(Paths.sound('Lights_Shut_Off'));
 					}
 
 					FlxTransitionableState.skipNextTransIn = true;
