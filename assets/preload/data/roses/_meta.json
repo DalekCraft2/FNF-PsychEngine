@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Roses"
+  "name": "Roses",
+  "icon": "senpai-pixel",
+  "color": [255, 120, 191]
 }

@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Pico"
+  "name": "Pico",
+  "icon": "pico",
+  "color": [148, 22, 83]
 }

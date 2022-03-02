@@ -300,7 +300,7 @@ class FreeplayState extends MusicBeatState
 			trace('Couldnt find file');
 		}
 		trace('$songId/$songId$difficulty');
-		PlayState.SONG = Song.loadFromJson(songId, difficulty);
+		PlayState.song = Song.loadFromJson(songId, difficulty);
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
 		trace('CURRENT WEEK: ' + Week.getWeekDataName());
@@ -419,14 +419,14 @@ class FreeplayState extends MusicBeatState
 				Paths.currentModDirectory = songs[curSelected].folder;
 				var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
 				var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
-				PlayState.SONG = Song.loadFromJson(songId, difficulty);
-				if (PlayState.SONG.needsVoices)
-					vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.songId));
+				PlayState.song = Song.loadFromJson(songId, difficulty);
+				if (PlayState.song.needsVoices)
+					vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.song.songId));
 				else
 					vocals = new FlxSound();
 
 				FlxG.sound.list.add(vocals);
-				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.songId), 0.7);
+				FlxG.sound.playMusic(Paths.inst(PlayState.song.songId), 0.7);
 				vocals.play();
 				vocals.persist = true;
 				vocals.looped = true;

@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Cocoa"
+  "name": "Cocoa",
+  "icon": "parents",
+  "color": [160, 209, 255]
 }

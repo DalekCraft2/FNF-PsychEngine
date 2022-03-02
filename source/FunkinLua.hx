@@ -87,13 +87,13 @@ class FunkinLua
 
 		// Song/Week shit
 		set('curBpm', Conductor.bpm);
-		set('bpm', PlayState.SONG.bpm);
-		set('scrollSpeed', PlayState.SONG.speed);
+		set('bpm', PlayState.song.bpm);
+		set('scrollSpeed', PlayState.song.speed);
 		set('crochet', Conductor.crochet);
 		set('stepCrochet', Conductor.stepCrochet);
 		set('songLength', FlxG.sound.music.length);
-		set('songId', PlayState.SONG.songId);
-		set('songName', PlayState.SONG.songName);
+		set('songId', PlayState.song.songId);
+		set('songName', PlayState.song.songName);
 		set('startedCountdown', false);
 
 		set('isStoryMode', PlayState.isStoryMode);
@@ -157,9 +157,9 @@ class FunkinLua
 		set('defaultGirlfriendY', PlayState.instance.GF_Y);
 
 		// Character shit
-		set('boyfriendName', PlayState.SONG.player1);
-		set('dadName', PlayState.SONG.player2);
-		set('gfName', PlayState.SONG.gfVersion);
+		set('boyfriendName', PlayState.song.player1);
+		set('dadName', PlayState.song.player2);
+		set('gfName', PlayState.song.gfVersion);
 
 		// Some settings, no jokes
 		set('downscroll', OptionUtils.options.downScroll);
@@ -1526,10 +1526,10 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "startDialogue", function(dialogueFile:String, music:String = null)
 		{
-			var path:String = Paths.modsJson(PlayState.SONG.songId + '/' + dialogueFile);
+			var path:String = Paths.modsJson(PlayState.song.songId + '/' + dialogueFile);
 			if (!FileSystem.exists(path))
 			{
-				path = Paths.json(PlayState.SONG.songId + '/' + dialogueFile);
+				path = Paths.json(PlayState.song.songId + '/' + dialogueFile);
 			}
 			luaTrace('Trying to load dialogue: ' + path);
 

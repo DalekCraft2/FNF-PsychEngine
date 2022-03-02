@@ -105,12 +105,12 @@ class EditorPlayState extends MusicBeatState
 		grpNoteSplashes.add(splash);
 		splash.alpha = 0.0;
 
-		if (PlayState.SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.songId));
+		if (PlayState.song.needsVoices)
+			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.song.songId));
 		else
 			vocals = new FlxSound();
 
-		generateSong(PlayState.SONG.songId);
+		generateSong(PlayState.song.songId);
 		#if FEATURE_LUA
 		for (notetype in noteTypeMap.keys())
 		{
@@ -191,13 +191,13 @@ class EditorPlayState extends MusicBeatState
 
 	private function generateSong(dataPath:String):Void
 	{
-		FlxG.sound.playMusic(Paths.inst(PlayState.SONG.songId), 0, false);
+		FlxG.sound.playMusic(Paths.inst(PlayState.song.songId), 0, false);
 		FlxG.sound.music.pause();
 		FlxG.sound.music.onComplete = endSong;
 		vocals.pause();
 		vocals.volume = 0;
 
-		var songData = PlayState.SONG;
+		var songData = PlayState.song;
 		Conductor.changeBPM(songData.bpm);
 
 		notes = new FlxTypedGroup<Note>();
@@ -258,7 +258,7 @@ class EditorPlayState extends MusicBeatState
 
 								var sustainNote:Note = new Note(daStrumTime
 									+ (Conductor.stepCrochet * susNote)
-									+ (Conductor.stepCrochet / FlxMath.roundDecimal(PlayState.SONG.speed, 2)),
+									+ (Conductor.stepCrochet / FlxMath.roundDecimal(PlayState.song.speed, 2)),
 									daNoteData, oldNote, true);
 								sustainNote.mustPress = gottaHitNote;
 								sustainNote.noteType = swagNote.noteType;
@@ -351,7 +351,7 @@ class EditorPlayState extends MusicBeatState
 			Conductor.songPosition += elapsed * 1000;
 		}
 
-		var roundedSpeed:Float = FlxMath.roundDecimal(PlayState.SONG.speed, 2);
+		var roundedSpeed:Float = FlxMath.roundDecimal(PlayState.song.speed, 2);
 		if (unspawnNotes[0] != null)
 		{
 			var time:Float = 1500;
@@ -370,7 +370,7 @@ class EditorPlayState extends MusicBeatState
 
 		if (generatedMusic)
 		{
-			var fakeCrochet:Float = (60 / PlayState.SONG.bpm) * 1000;
+			var fakeCrochet:Float = (60 / PlayState.song.bpm) * 1000;
 			notes.forEachAlive(function(daNote:Note)
 			{
 				/*if (daNote.y > FlxG.height)
@@ -428,7 +428,7 @@ class EditorPlayState extends MusicBeatState
 								}
 							}
 							daNote.y += (Note.swagWidth / 2) - (60.5 * (roundedSpeed - 1));
-							daNote.y += 27.5 * ((PlayState.SONG.bpm / 100) - 1) * (roundedSpeed - 1);
+							daNote.y += 27.5 * ((PlayState.song.bpm / 100) - 1) * (roundedSpeed - 1);
 
 							if (daNote.mustPress || !daNote.ignoreNote)
 							{
@@ -466,7 +466,7 @@ class EditorPlayState extends MusicBeatState
 
 				if (!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote)
 				{
-					if (PlayState.SONG.needsVoices)
+					if (PlayState.song.needsVoices)
 						vocals.volume = 1;
 
 					var time:Float = 0.15;
@@ -1069,8 +1069,8 @@ class EditorPlayState extends MusicBeatState
 	function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null)
 	{
 		var skin:String = 'noteSplashes';
-		if (PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0)
-			skin = PlayState.SONG.splashSkin;
+		if (PlayState.song.splashSkin != null && PlayState.song.splashSkin.length > 0)
+			skin = PlayState.song.splashSkin;
 
 		var hue:Float = OptionUtils.options.arrowHSV[data % 4][0] / 360;
 		var sat:Float = OptionUtils.options.arrowHSV[data % 4][1] / 100;

@@ -105,7 +105,7 @@ class PlayState extends MusicBeatState
 
 	public static var curStage:String = '';
 	public static var isPixelStage:Bool = false;
-	public static var SONG:SongData = null;
+	public static var song:SongData = null;
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
@@ -328,11 +328,11 @@ class PlayState extends MusicBeatState
 		persistentUpdate = true;
 		persistentDraw = true;
 
-		if (SONG == null)
-			SONG = Song.loadFromJson('tutorial', '');
+		if (song == null)
+			song = Song.loadFromJson('tutorial', '');
 
-		Conductor.mapBPMChanges(SONG);
-		Conductor.changeBPM(SONG.bpm);
+		Conductor.mapBPMChanges(song);
+		Conductor.changeBPM(song.bpm);
 
 		#if desktop
 		storyDifficultyText = CoolUtil.difficulties[storyDifficulty];
@@ -353,11 +353,11 @@ class PlayState extends MusicBeatState
 
 		GameOverSubState.resetVariables();
 
-		curStage = SONG.stage;
+		curStage = song.stage;
 		// trace('stage is: ' + curStage);
-		if (SONG.stage == null || SONG.stage.length < 1)
+		if (song.stage == null || song.stage.length < 1)
 		{
-			switch (SONG.songId)
+			switch (song.songId)
 			{
 				case 'spookeez' | 'south' | 'monster':
 					curStage = 'spooky';
@@ -802,7 +802,7 @@ class PlayState extends MusicBeatState
 		blammedLightsBlack = modchartSprites.get('blammedLightsBlack');
 		blammedLightsBlack.alpha = 0.0;
 
-		var gfVersion:String = SONG.gfVersion;
+		var gfVersion:String = song.gfVersion;
 		if (gfVersion == null || gfVersion.length < 1)
 		{
 			switch (curStage)
@@ -816,7 +816,7 @@ class PlayState extends MusicBeatState
 				default:
 					gfVersion = 'gf';
 			}
-			SONG.gfVersion = gfVersion; // Fix for the Chart Editor
+			song.gfVersion = gfVersion; // Fix for the Chart Editor
 		}
 
 		gf = new Character(0, 0, gfVersion);
@@ -825,12 +825,12 @@ class PlayState extends MusicBeatState
 		gfGroup.add(gf);
 		startCharacterLua(gf.curCharacter);
 
-		opponent = new Character(0, 0, SONG.player2);
+		opponent = new Character(0, 0, song.player2);
 		startCharacterPos(opponent, true);
 		dadGroup.add(opponent);
 		startCharacterLua(opponent.curCharacter);
 
-		boyfriend = new Boyfriend(0, 0, SONG.player1);
+		boyfriend = new Boyfriend(0, 0, song.player1);
 		startCharacterPos(boyfriend);
 		boyfriendGroup.add(boyfriend);
 		startCharacterLua(boyfriend.curCharacter);
@@ -874,13 +874,13 @@ class PlayState extends MusicBeatState
 				insert(members.indexOf(dadGroup) - 1, evilTrail);
 		}
 
-		var file:String = Paths.json(SONG.songId + '/dialogue'); // Checks for json/Psych Engine dialogue
+		var file:String = Paths.json(song.songId + '/dialogue'); // Checks for json/Psych Engine dialogue
 		if (OpenFlAssets.exists(file))
 		{
 			dialogueJson = DialogueBoxPsych.parseDialogue(file);
 		}
 
-		var file:String = Paths.txt(SONG.songId + '/' + SONG.songId + 'Dialogue'); // Checks for vanilla/Senpai dialogue
+		var file:String = Paths.txt(song.songId + '/' + song.songId + 'Dialogue'); // Checks for vanilla/Senpai dialogue
 		if (OpenFlAssets.exists(file))
 		{
 			dialogue = CoolUtil.coolTextFile(file);
@@ -910,7 +910,7 @@ class PlayState extends MusicBeatState
 
 		if (OptionUtils.options.timeBarType == 'Song Name')
 		{
-			timeTxt.text = SONG.songName;
+			timeTxt.text = song.songName;
 		}
 		updateTime = showTime;
 
@@ -955,7 +955,7 @@ class PlayState extends MusicBeatState
 
 		// startCountdown();
 
-		generateSong(SONG.songId);
+		generateSong(song.songId);
 		#if FEATURE_LUA
 		for (notetype in noteTypeMap.keys())
 		{
@@ -1089,7 +1089,7 @@ class PlayState extends MusicBeatState
 		timeTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
-		// if (SONG.song == 'South')
+		// if (song.song == 'South')
 		// FlxG.camera.alpha = 0.7;
 		// UI_camera.zoom = 1;
 
@@ -1099,12 +1099,12 @@ class PlayState extends MusicBeatState
 		// SONG SPECIFIC SCRIPTS
 		#if FEATURE_LUA
 		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/' + SONG.songId + '/')];
+		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/' + song.songId + '/')];
 
 		#if FEATURE_MODS
-		foldersToCheck.insert(0, Paths.mods('data/' + SONG.songId + '/'));
+		foldersToCheck.insert(0, Paths.mods('data/' + song.songId + '/'));
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + SONG.songId + '/'));
+			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + song.songId + '/'));
 		#end
 
 		for (folder in foldersToCheck)
@@ -1125,7 +1125,7 @@ class PlayState extends MusicBeatState
 
 		if (isStoryMode && !seenCutscene)
 		{
-			switch (SONG.songId)
+			switch (song.songId)
 			{
 				case "monster":
 					var whiteScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.WHITE);
@@ -1182,7 +1182,7 @@ class PlayState extends MusicBeatState
 						});
 					});
 				case 'senpai' | 'roses' | 'thorns':
-					if (SONG.songId == 'roses')
+					if (song.songId == 'roses')
 						FlxG.sound.play(Paths.sound('ANGRY'));
 					schoolIntro(doof);
 
@@ -1205,7 +1205,7 @@ class PlayState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+		DiscordClient.changePresence(detailsText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 		#end
 
 		if (!OptionUtils.options.controllerMode)
@@ -1486,11 +1486,11 @@ class PlayState extends MusicBeatState
 		senpaiEvil.screenCenter();
 		senpaiEvil.x += 300;
 
-		if (SONG.songId == 'roses' || SONG.songId == 'thorns')
+		if (song.songId == 'roses' || song.songId == 'thorns')
 		{
 			remove(black);
 
-			if (SONG.songId == 'thorns')
+			if (song.songId == 'thorns')
 			{
 				add(red);
 				camHUD.visible = false;
@@ -1509,7 +1509,7 @@ class PlayState extends MusicBeatState
 			{
 				if (dialogueBox != null)
 				{
-					if (SONG.songId == 'thorns')
+					if (song.songId == 'thorns')
 					{
 						add(senpaiEvil);
 						senpaiEvil.alpha = 0;
@@ -1761,7 +1761,7 @@ class PlayState extends MusicBeatState
 		previousFrameTime = FlxG.game.ticks;
 		lastReportedPlayheadPosition = 0;
 
-		FlxG.sound.playMusic(Paths.inst(SONG.songId), 1, false);
+		FlxG.sound.playMusic(Paths.inst(song.songId), 1, false);
 		FlxG.sound.music.onComplete = finishSong;
 		vocals.play();
 
@@ -1779,7 +1779,7 @@ class PlayState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence (with Time Left)
-		DiscordClient.changePresence(detailsText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength);
+		DiscordClient.changePresence(detailsText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength);
 		#end
 		setOnLuas('songLength', songLength);
 		callOnLuas('onSongStart', []);
@@ -1797,20 +1797,20 @@ class PlayState extends MusicBeatState
 		switch (songSpeedType)
 		{
 			case "multiplicative":
-				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1);
+				songSpeed = song.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1);
 			case "constant":
 				songSpeed = ClientPrefs.getGameplaySetting('scrollSpeed', 1);
 		}
 
-		Conductor.changeBPM(SONG.bpm);
+		Conductor.changeBPM(song.bpm);
 
-		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(SONG.songId));
+		if (song.needsVoices)
+			vocals = new FlxSound().loadEmbedded(Paths.voices(song.songId));
 		else
 			vocals = new FlxSound();
 
 		FlxG.sound.list.add(vocals);
-		FlxG.sound.list.add(new FlxSound().loadEmbedded(Paths.inst(SONG.songId)));
+		FlxG.sound.list.add(new FlxSound().loadEmbedded(Paths.inst(song.songId)));
 
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
@@ -1818,21 +1818,21 @@ class PlayState extends MusicBeatState
 		var noteData:Array<SectionData>;
 
 		// NEW SHIT
-		noteData = SONG.notes;
+		noteData = song.notes;
 
 		var playerCounter:Int = 0;
 
 		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 
-		var file:String = Paths.json(SONG.songId + '/events');
+		var file:String = Paths.json(song.songId + '/events');
 		#if sys
-		if (FileSystem.exists(Paths.modsJson(SONG.songId + '/events')) || FileSystem.exists(file))
+		if (FileSystem.exists(Paths.modsJson(song.songId + '/events')) || FileSystem.exists(file))
 		{
 		#else
 		if (OpenFlAssets.exists(file))
 		{
 		#end
-			var eventsData:Array<Dynamic> = Song.loadFromJson('events', '', SONG.songId).events;
+			var eventsData:Array<Dynamic> = Song.loadFromJson('events', '', song.songId).events;
 			for (event in eventsData) // Event Notes
 			{
 				for (i in 0...event[1].length)
@@ -1933,7 +1933,7 @@ class PlayState extends MusicBeatState
 			}
 			daBeats += 1;
 		}
-		for (event in SONG.events) // Event Notes
+		for (event in song.events) // Event Notes
 		{
 			for (i in 0...event[1].length)
 			{
@@ -2164,7 +2164,7 @@ class PlayState extends MusicBeatState
 			#if FEATURE_DISCORD
 			if (startTimer.finished)
 			{
-				DiscordClient.changePresence(detailsText, SONG.songName
+				DiscordClient.changePresence(detailsText, song.songName
 					+ " ("
 					+ storyDifficultyText
 					+ ")", iconP2.getCharacter(), true,
@@ -2174,7 +2174,7 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				DiscordClient.changePresence(detailsText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence(detailsText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 			}
 			#end
 		}
@@ -2189,7 +2189,7 @@ class PlayState extends MusicBeatState
 		{
 			if (Conductor.songPosition > 0.0)
 			{
-				DiscordClient.changePresence(detailsText, SONG.songName
+				DiscordClient.changePresence(detailsText, song.songName
 					+ " ("
 					+ storyDifficultyText
 					+ ")", iconP2.getCharacter(), true,
@@ -2199,7 +2199,7 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				DiscordClient.changePresence(detailsText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence(detailsText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 			}
 		}
 		#end
@@ -2226,7 +2226,7 @@ class PlayState extends MusicBeatState
 				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
 				#if FEATURE_DISCORD
-				DiscordClient.changePresence(detailsPausedText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence(detailsPausedText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 				#end
 			}
 		}
@@ -2458,7 +2458,7 @@ class PlayState extends MusicBeatState
 				// }
 
 				#if FEATURE_DISCORD
-				DiscordClient.changePresence(detailsPausedText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence(detailsPausedText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 				#end
 			}
 		}
@@ -2508,7 +2508,7 @@ class PlayState extends MusicBeatState
 			persistentUpdate = false;
 			paused = true;
 			cancelMusicFadeTween();
-			MusicBeatState.switchState(new CharacterEditorState(SONG.player2));
+			MusicBeatState.switchState(new CharacterEditorState(song.player2));
 		}
 
 		if (startingSong)
@@ -2600,7 +2600,7 @@ class PlayState extends MusicBeatState
 
 		if (generatedMusic)
 		{
-			var fakeCrochet:Float = (60 / SONG.bpm) * 1000;
+			var fakeCrochet:Float = (60 / song.bpm) * 1000;
 			notes.forEachAlive(function(daNote:Note)
 			{
 				var strumGroup:FlxTypedGroup<StrumNote> = playerStrums;
@@ -2661,7 +2661,7 @@ class PlayState extends MusicBeatState
 							}
 						}
 						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
-						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (songSpeed - 1);
+						daNote.y += 27.5 * ((song.bpm / 100) - 1) * (songSpeed - 1);
 					}
 				}
 
@@ -2851,7 +2851,7 @@ class PlayState extends MusicBeatState
 
 				#if FEATURE_DISCORD
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence("Game Over - " + detailsText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 				#end
 				isDead = true;
 				return true;
@@ -3298,7 +3298,7 @@ class PlayState extends MusicBeatState
 				if (Math.isNaN(val2))
 					val2 = 0;
 
-				var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1) * val1;
+				var newValue:Float = song.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1) * val1;
 
 				if (val2 <= 0)
 				{
@@ -3320,10 +3320,10 @@ class PlayState extends MusicBeatState
 
 	function moveCameraSection(?id:Int = 0):Void
 	{
-		if (SONG.notes[id] == null)
+		if (song.notes[id] == null)
 			return;
 
-		if (SONG.notes[id].gfSection)
+		if (song.notes[id].gfSection)
 		{
 			camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
 			camFollow.x += gf.cameraPosition[0];
@@ -3333,7 +3333,7 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		if (!SONG.notes[id].mustHitSection)
+		if (!song.notes[id].mustHitSection)
 		{
 			moveCamera(true);
 			callOnLuas('onMoveCamera', ['dad']);
@@ -3373,7 +3373,7 @@ class PlayState extends MusicBeatState
 			camFollow.x -= boyfriend.cameraPosition[0];
 			camFollow.y += boyfriend.cameraPosition[1];
 
-			if (SONG.songId == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1)
+			if (song.songId == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1)
 			{
 				cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {
 					ease: FlxEase.elasticInOut,
@@ -3388,7 +3388,7 @@ class PlayState extends MusicBeatState
 
 	function tweenCamIn()
 	{
-		if (SONG.songId == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3)
+		if (song.songId == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1.3)
 		{
 			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {
 				ease: FlxEase.elasticInOut,
@@ -3492,13 +3492,13 @@ class PlayState extends MusicBeatState
 
 		if (ret != FunkinLua.Function_Stop && !transitioning)
 		{
-			if (SONG.validScore)
+			if (song.validScore)
 			{
 				#if !switch
 				var percent:Float = ratingPercent;
 				if (Math.isNaN(percent))
 					percent = 0;
-				Highscore.saveScore(SONG.songId, songScore, storyDifficulty, percent);
+				Highscore.saveScore(song.songId, songScore, storyDifficulty, percent);
 				#end
 			}
 
@@ -3531,7 +3531,7 @@ class PlayState extends MusicBeatState
 					{
 						StoryMenuState.weekCompleted.set(Week.weeksList[storyWeek], true);
 
-						if (SONG.validScore)
+						if (song.validScore)
 						{
 							Highscore.saveWeekScore(Week.getWeekDataName(), campaignScore, storyDifficulty);
 						}
@@ -3548,7 +3548,7 @@ class PlayState extends MusicBeatState
 					trace('LOADING NEXT SONG');
 					trace(Paths.formatToSongPath(storyPlaylist[0]) + difficulty);
 
-					var winterHorrorlandNext = (SONG.songId == "eggnog");
+					var winterHorrorlandNext = (song.songId == "eggnog");
 					if (winterHorrorlandNext)
 					{
 						var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
@@ -3566,7 +3566,7 @@ class PlayState extends MusicBeatState
 					prevCamFollow = camFollow;
 					prevCamFollowPos = camFollowPos;
 
-					SONG = Song.loadFromJson(storyPlaylist[0], difficulty);
+					song = Song.loadFromJson(storyPlaylist[0], difficulty);
 					FlxG.sound.music.stop();
 
 					if (winterHorrorlandNext)
@@ -4156,7 +4156,7 @@ class PlayState extends MusicBeatState
 
 	function opponentNoteHit(note:Note):Void
 	{
-		if (SONG.songId != 'tutorial')
+		if (song.songId != 'tutorial')
 			camZooming = true;
 
 		if (note.noteType == 'Hey!' && opponent.animOffsets.exists('hey'))
@@ -4170,9 +4170,9 @@ class PlayState extends MusicBeatState
 			var altAnim:String = "";
 
 			var curSection:Int = Math.floor(curStep / 16);
-			if (SONG.notes[curSection] != null)
+			if (song.notes[curSection] != null)
 			{
-				if (SONG.notes[curSection].altAnim || note.noteType == 'Alt Animation')
+				if (song.notes[curSection].altAnim || note.noteType == 'Alt Animation')
 				{
 					altAnim = '-alt';
 				}
@@ -4189,7 +4189,7 @@ class PlayState extends MusicBeatState
 			char.holdTimer = 0;
 		}
 
-		if (SONG.needsVoices)
+		if (song.needsVoices)
 			vocals.volume = 1;
 
 		var time:Float = 0.15;
@@ -4361,8 +4361,8 @@ class PlayState extends MusicBeatState
 	public function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null)
 	{
 		var skin:String = 'noteSplashes';
-		if (SONG.splashSkin != null && SONG.splashSkin.length > 0)
-			skin = SONG.splashSkin;
+		if (song.splashSkin != null && song.splashSkin.length > 0)
+			skin = song.splashSkin;
 
 		var hue:Float = OptionUtils.options.arrowHSV[data % 4][0] / 360;
 		var sat:Float = OptionUtils.options.arrowHSV[data % 4][1] / 100;
@@ -4589,7 +4589,7 @@ class PlayState extends MusicBeatState
 	{
 		super.stepHit();
 		if (Math.abs(FlxG.sound.music.time - (Conductor.songPosition - Conductor.offset)) > 20
-			|| (SONG.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
+			|| (song.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
 		{
 			resyncVocals();
 		}
@@ -4623,30 +4623,30 @@ class PlayState extends MusicBeatState
 			notes.sort(FlxSort.byY, OptionUtils.options.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 		}
 
-		if (SONG.notes[Math.floor(curStep / 16)] != null)
+		if (song.notes[Math.floor(curStep / 16)] != null)
 		{
-			if (SONG.notes[Math.floor(curStep / 16)].changeBPM)
+			if (song.notes[Math.floor(curStep / 16)].changeBPM)
 			{
-				Conductor.changeBPM(SONG.notes[Math.floor(curStep / 16)].bpm);
+				Conductor.changeBPM(song.notes[Math.floor(curStep / 16)].bpm);
 				// trace('CHANGED BPM!');
 				setOnLuas('curBpm', Conductor.bpm);
 				setOnLuas('crochet', Conductor.crochet);
 				setOnLuas('stepCrochet', Conductor.stepCrochet);
 			}
-			setOnLuas('mustHitSection', SONG.notes[Math.floor(curStep / 16)].mustHitSection);
-			setOnLuas('altAnim', SONG.notes[Math.floor(curStep / 16)].altAnim);
-			setOnLuas('gfSection', SONG.notes[Math.floor(curStep / 16)].gfSection);
+			setOnLuas('mustHitSection', song.notes[Math.floor(curStep / 16)].mustHitSection);
+			setOnLuas('altAnim', song.notes[Math.floor(curStep / 16)].altAnim);
+			setOnLuas('gfSection', song.notes[Math.floor(curStep / 16)].gfSection);
 			// else
-			// Conductor.changeBPM(SONG.bpm);
+			// Conductor.changeBPM(song.bpm);
 		}
-		// trace('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
+		// trace('change bpm' + song.notes[Std.int(curStep / 16)].changeBPM);
 
-		if (generatedMusic && SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+		if (generatedMusic && song.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
 		{
 			moveCameraSection(Std.int(curStep / 16));
 
 			// TODO Get the directional camera to work.
-			// if (SONG.notes[Std.int(curStep / 16)].mustHitSection)
+			// if (song.notes[Std.int(curStep / 16)].mustHitSection)
 			// {
 			// 	if (turn != 'bf')
 			// 	{
@@ -5035,7 +5035,7 @@ class PlayState extends MusicBeatState
 							unlock = true;
 						}
 					case 'debugger':
-						if (SONG.songId == 'test' && !usedPractice)
+						if (song.songId == 'test' && !usedPractice)
 						{
 							unlock = true;
 						}

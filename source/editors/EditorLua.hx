@@ -53,13 +53,13 @@ class EditorLua
 		set('inChartEditor', true);
 
 		set('curBpm', Conductor.bpm);
-		set('bpm', PlayState.SONG.bpm);
-		set('scrollSpeed', PlayState.SONG.speed);
+		set('bpm', PlayState.song.bpm);
+		set('scrollSpeed', PlayState.song.speed);
 		set('crochet', Conductor.crochet);
 		set('stepCrochet', Conductor.stepCrochet);
 		set('songLength', FlxG.sound.music.length);
-		set('songId', PlayState.SONG.songId);
-		set('songName', PlayState.SONG.songName);
+		set('songId', PlayState.song.songId);
+		set('songName', PlayState.song.songName);
 
 		set('screenWidth', FlxG.width);
 		set('screenHeight', FlxG.height);

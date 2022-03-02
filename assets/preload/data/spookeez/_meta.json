@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Spookeez"
+  "name": "Spookeez",
+  "icon": "spooky",
+  "color": [34, 51, 68]
 }

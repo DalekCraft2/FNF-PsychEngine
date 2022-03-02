@@ -16,8 +16,8 @@ class NoteSplash extends FlxSprite
 		super(x, y);
 
 		var skin:String = 'noteSplashes';
-		if (PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0)
-			skin = PlayState.SONG.splashSkin;
+		if (PlayState.song.splashSkin != null && PlayState.song.splashSkin.length > 0)
+			skin = PlayState.song.splashSkin;
 
 		loadAnims(skin);
 
@@ -36,8 +36,8 @@ class NoteSplash extends FlxSprite
 		if (texture == null)
 		{
 			texture = 'noteSplashes';
-			if (PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0)
-				texture = PlayState.SONG.splashSkin;
+			if (PlayState.song.splashSkin != null && PlayState.song.splashSkin.length > 0)
+				texture = PlayState.song.splashSkin;
 		}
 
 		if (textureLoaded != texture)

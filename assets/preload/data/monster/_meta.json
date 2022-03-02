@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Monster"
+  "name": "Monster",
+  "icon": "monster",
+  "color": [34, 51, 68]
 }

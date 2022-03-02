@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "Tutorial"
+  "name": "Tutorial",
+  "icon": "gf",
+  "color": [165, 0, 77]
 }

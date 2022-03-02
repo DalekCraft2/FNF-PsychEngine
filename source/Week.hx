@@ -142,24 +142,22 @@ class Week
 				var fileToCheck:String = directories[j] + 'weeks/' + sexList[i] + '.json';
 				if (!weeksLoaded.exists(sexList[i]))
 				{
-					var week:WeekData = getWeekData(fileToCheck);
-					if (week != null)
+					var weekData:WeekData = getWeekData(fileToCheck);
+					if (weekData != null)
 					{
-						var weekData:Week = new Week(week);
+						var week:Week = new Week(weekData);
 
 						#if FEATURE_MODS
 						if (j >= originalLength)
 						{
-							weekData.folder = directories[j].substring(Paths.mods().length, directories[j].length - 1);
+							week.folder = directories[j].substring(Paths.mods().length, directories[j].length - 1);
 						}
 						#end
 
-						if (weekData != null
-							&& (isStoryMode == null
-								|| (isStoryMode && !weekData.hideStoryMode)
-								|| (!isStoryMode && !weekData.hideFreeplay)))
+						if (week != null
+							&& (isStoryMode == null || (isStoryMode && !week.hideStoryMode) || (!isStoryMode && !week.hideFreeplay)))
 						{
-							weeksLoaded.set(sexList[i], weekData);
+							weeksLoaded.set(sexList[i], week);
 							weeksList.push(sexList[i]);
 						}
 					}
@@ -200,19 +198,19 @@ class Week
 	{
 		if (!weeksLoaded.exists(weekToCheck))
 		{
-			var week:WeekData = getWeekData(path);
+			var weekData:WeekData = getWeekData(path);
 			if (week != null)
 			{
-				var weekData:Week = new Week(week);
+				var week:Week = new Week(weekData);
 				if (i >= originalLength)
 				{
 					#if FEATURE_MODS
-					weekData.folder = directory.substring(Paths.mods().length, directory.length - 1);
+					week.folder = directory.substring(Paths.mods().length, directory.length - 1);
 					#end
 				}
-				if ((PlayState.isStoryMode && !weekData.hideStoryMode) || (!PlayState.isStoryMode && !weekData.hideFreeplay))
+				if ((PlayState.isStoryMode && !week.hideStoryMode) || (!PlayState.isStoryMode && !week.hideFreeplay))
 				{
-					weeksLoaded.set(weekToCheck, weekData);
+					weeksLoaded.set(weekToCheck, week);
 					weeksList.push(weekToCheck);
 				}
 			}

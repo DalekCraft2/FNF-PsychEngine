@@ -85,7 +85,7 @@ class Note extends FlxSprite
 
 	private function set_noteType(value:String):String
 	{
-		noteSplashTexture = PlayState.SONG.splashSkin;
+		noteSplashTexture = PlayState.song.splashSkin;
 		colorSwap.hue = OptionUtils.options.arrowHSV[noteData % 4][0] / 360;
 		colorSwap.saturation = OptionUtils.options.arrowHSV[noteData % 4][1] / 100;
 		colorSwap.brightness = OptionUtils.options.arrowHSV[noteData % 4][2] / 100;
@@ -258,7 +258,7 @@ class Note extends FlxSprite
 		var skin:String = texture;
 		if (texture.length < 1)
 		{
-			skin = PlayState.SONG.arrowSkin;
+			skin = PlayState.song.arrowSkin;
 			if (skin == null || skin.length < 1)
 			{
 				skin = 'NOTE_assets';

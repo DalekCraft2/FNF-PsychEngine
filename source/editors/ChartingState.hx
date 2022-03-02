@@ -197,8 +197,8 @@ class ChartingState extends MusicBeatState
 
 	override function create()
 	{
-		if (PlayState.SONG != null)
-			_song = PlayState.SONG;
+		if (PlayState.song != null)
+			_song = PlayState.song;
 		else
 		{
 			_song = {
@@ -218,7 +218,7 @@ class ChartingState extends MusicBeatState
 				validScore: false
 			};
 			addSection();
-			PlayState.SONG = _song;
+			PlayState.song = _song;
 		}
 
 		// Paths.clearMemory();
@@ -442,7 +442,7 @@ class ChartingState extends MusicBeatState
 				meta = autoSaveData.songMeta != null ? cast autoSaveData.songMeta : {};
 				name = meta.name;
 			}
-			PlayState.SONG = Song.parseJson(name, data, meta);
+			PlayState.song = Song.parseJson(name, data, meta);
 			MusicBeatState.resetState();
 		});
 
@@ -621,7 +621,7 @@ class ChartingState extends MusicBeatState
 		stageDropDown.selectedLabel = _song.stage;
 		blockPressWhileScrolling.push(stageDropDown);
 
-		var skin = PlayState.SONG.arrowSkin;
+		var skin = PlayState.song.arrowSkin;
 		if (skin == null)
 			skin = '';
 		noteSkinInputText = new FlxUIInputText(player2DropDown.x, player2DropDown.y + 50, 150, skin, 8);
@@ -1711,7 +1711,7 @@ class ChartingState extends MusicBeatState
 			{
 				autosaveSong();
 				FlxG.mouse.visible = false;
-				PlayState.SONG = _song;
+				PlayState.song = _song;
 				FlxG.sound.music.stop();
 				if (vocals != null)
 					vocals.stop();
@@ -2946,7 +2946,7 @@ class ChartingState extends MusicBeatState
 	function loadJson(songId:String):Void
 	{
 		var difficulty:String = CoolUtil.getDifficultyFilePath(PlayState.storyDifficulty);
-		PlayState.SONG = Song.loadFromJson(songId, difficulty);
+		PlayState.song = Song.loadFromJson(songId, difficulty);
 		MusicBeatState.resetState();
 	}
 

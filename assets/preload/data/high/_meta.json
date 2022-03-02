@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "High"
+  "name": "High",
+  "icon": "mom",
+  "color": [252, 150, 215]
 }

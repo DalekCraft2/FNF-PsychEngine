@@ -1,4 +1,6 @@
 {
   "offset": 0,
-  "name": "South"
+  "name": "South",
+  "icon": "spooky",
+  "color": [34, 51, 68]
 }

@@ -38,7 +38,7 @@ class DialogueBox extends FlxSpriteGroup
 	{
 		super();
 
-		switch (PlayState.SONG.songId)
+		switch (PlayState.song.songId)
 		{
 			case 'senpai':
 				FlxG.sound.playMusic(Paths.music('Lunchbox'), 0);
@@ -63,7 +63,7 @@ class DialogueBox extends FlxSpriteGroup
 		box = new FlxSprite(-20, 45);
 
 		var hasDialog = false;
-		switch (PlayState.SONG.songId)
+		switch (PlayState.song.songId)
 		{
 			case 'senpai':
 				hasDialog = true;
@@ -154,9 +154,9 @@ class DialogueBox extends FlxSpriteGroup
 	override function update(elapsed:Float)
 	{
 		// HARD CODING CUZ IM STUPDI
-		if (PlayState.SONG.songId == 'roses')
+		if (PlayState.song.songId == 'roses')
 			portraitLeft.visible = false;
-		if (PlayState.SONG.songId == 'thorns')
+		if (PlayState.song.songId == 'thorns')
 		{
 			portraitLeft.visible = false;
 			swagDialogue.color = FlxColor.WHITE;
@@ -192,7 +192,7 @@ class DialogueBox extends FlxSpriteGroup
 						isEnding = true;
 						FlxG.sound.play(Paths.sound('clickText'), 0.8);
 
-						if (PlayState.SONG.songId == 'senpai' || PlayState.SONG.songId == 'thorns')
+						if (PlayState.song.songId == 'senpai' || PlayState.song.songId == 'thorns')
 							FlxG.sound.music.fadeOut(1.5, 0);
 
 						new FlxTimer().start(0.2, function(tmr:FlxTimer)
@@ -261,7 +261,7 @@ class DialogueBox extends FlxSpriteGroup
 				portraitRight.visible = false;
 				if (!portraitLeft.visible)
 				{
-					if (PlayState.SONG.songId == 'senpai')
+					if (PlayState.song.songId == 'senpai')
 						portraitLeft.visible = true;
 					portraitLeft.animation.play('enter');
 				}
