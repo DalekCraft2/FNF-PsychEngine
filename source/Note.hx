@@ -335,22 +335,22 @@ class Note extends FlxSprite
 
 	function loadNoteAnims()
 	{
-		animation.addByPrefix('greenScroll', 'green0');
-		animation.addByPrefix('redScroll', 'red0');
-		animation.addByPrefix('blueScroll', 'blue0');
-		animation.addByPrefix('purpleScroll', 'purple0');
+		animation.addByPrefix('purpleScroll', 'purple alone');
+		animation.addByPrefix('blueScroll', 'blue alone');
+		animation.addByPrefix('greenScroll', 'green alone');
+		animation.addByPrefix('redScroll', 'red alone');
 
 		if (isSustainNote)
 		{
-			animation.addByPrefix('purpleholdend', 'purple end hold');
-			animation.addByPrefix('greenholdend', 'green hold end');
-			animation.addByPrefix('redholdend', 'red hold end');
-			animation.addByPrefix('blueholdend', 'blue hold end');
+			animation.addByPrefix('purpleholdend', 'purple tail');
+			animation.addByPrefix('blueholdend', 'blue tail');
+			animation.addByPrefix('greenholdend', 'green tail');
+			animation.addByPrefix('redholdend', 'red tail');
 
-			animation.addByPrefix('purplehold', 'purple hold piece');
-			animation.addByPrefix('greenhold', 'green hold piece');
-			animation.addByPrefix('redhold', 'red hold piece');
-			animation.addByPrefix('bluehold', 'blue hold piece');
+			animation.addByPrefix('purplehold', 'purple hold');
+			animation.addByPrefix('bluehold', 'blue hold');
+			animation.addByPrefix('greenhold', 'green hold');
+			animation.addByPrefix('redhold', 'red hold');
 		}
 
 		setGraphicSize(Std.int(width * 0.7));
@@ -362,21 +362,21 @@ class Note extends FlxSprite
 		if (isSustainNote)
 		{
 			animation.add('purpleholdend', [PURPLE_NOTE + 4]);
+			animation.add('blueholdend', [BLUE_NOTE + 4]);
 			animation.add('greenholdend', [GREEN_NOTE + 4]);
 			animation.add('redholdend', [RED_NOTE + 4]);
-			animation.add('blueholdend', [BLUE_NOTE + 4]);
 
 			animation.add('purplehold', [PURPLE_NOTE]);
+			animation.add('bluehold', [BLUE_NOTE]);
 			animation.add('greenhold', [GREEN_NOTE]);
 			animation.add('redhold', [RED_NOTE]);
-			animation.add('bluehold', [BLUE_NOTE]);
 		}
 		else
 		{
+			animation.add('purpleScroll', [PURPLE_NOTE + 4]);
+			animation.add('blueScroll', [BLUE_NOTE + 4]);
 			animation.add('greenScroll', [GREEN_NOTE + 4]);
 			animation.add('redScroll', [RED_NOTE + 4]);
-			animation.add('blueScroll', [BLUE_NOTE + 4]);
-			animation.add('purpleScroll', [PURPLE_NOTE + 4]);
 		}
 	}
 

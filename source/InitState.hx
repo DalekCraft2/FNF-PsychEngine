@@ -30,7 +30,6 @@ class InitState extends FlxUIState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
-		PlayerSettings.init();
 		OptionUtils.bindSave();
 		OptionUtils.loadOptions(OptionUtils.options);
 		var currentOptions = OptionUtils.options;
@@ -38,6 +37,14 @@ class InitState extends FlxUIState
 		FPSMem.showFPS = currentOptions.showFPS;
 		FPSMem.showMem = currentOptions.showMem;
 		FPSMem.showMemPeak = currentOptions.showMemPeak;
+
+		ClientPrefs.loadDefaultKeys();
+
+		if (currentOptions.keyBinds == null)
+			currentOptions.keyBinds = ClientPrefs.defaultKeys.copy();
+
+		PlayerSettings.init();
+		new OptionsSubState().createDefault(); // Load default options in case any are null
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();

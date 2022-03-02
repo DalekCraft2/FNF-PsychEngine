@@ -1,5 +1,6 @@
 package;
 
+import haxe.Exception;
 import flash.media.Sound;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
@@ -353,7 +354,7 @@ class Paths
 			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
-		trace('oh no its returning null NOOOO');
+		trace('Could not find asset at "${path}"');
 		return null;
 	}
 

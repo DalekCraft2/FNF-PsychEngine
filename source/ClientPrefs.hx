@@ -30,8 +30,8 @@ class ClientPrefs
 	public static var healthBarAlpha:Float = 1;
 	public static var controllerMode:Bool = false;
 	public static var gameplaySettings:Map<String, Dynamic> = [
-		'scrollspeed' => 1.0,
-		'scrolltype' => 'multiplicative',
+		'scrollSpeed' => 1.0,
+		'scrollType' => 'multiplicative',
 		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
 		// an amod example would be chartSpeed * multiplier
 		// cmod would just be constantSpeed = chartSpeed
@@ -41,13 +41,13 @@ class ClientPrefs
 		// oh yeah and you'd have to actually convert the difference to seconds which I already do, because this is based on beats and stuff. but it should work
 		// just fine. but I wont implement it because I don't know how you handle sustains and other stuff like that.
 		// oh yeah when you calculate the bps divide it by the songSpeed or rate because it wont scroll correctly when speeds exist.
-		'songspeed' => 1.0,
-		'healthgain' => 1.0,
-		'healthloss' => 1.0,
+		'songSpeed' => 1.0,
+		'healthGain' => 1.0,
+		'healthLoss' => 1.0,
 		'instakill' => false,
 		'practice' => false,
 		'botPlay' => false,
-		'opponentplay' => false
+		'opponentPlay' => false
 	];
 
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];

@@ -305,8 +305,8 @@ class PlayState extends MusicBeatState
 			FlxG.sound.music.stop();
 
 		// Gameplay settings
-		healthGain = ClientPrefs.getGameplaySetting('healthgain', 1);
-		healthLoss = ClientPrefs.getGameplaySetting('healthloss', 1);
+		healthGain = ClientPrefs.getGameplaySetting('healthGain', 1);
+		healthLoss = ClientPrefs.getGameplaySetting('healthLoss', 1);
 		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill', false);
 		practiceMode = ClientPrefs.getGameplaySetting('practice', false);
 		cpuControlled = ClientPrefs.getGameplaySetting('botPlay', false);
@@ -1797,14 +1797,14 @@ class PlayState extends MusicBeatState
 	private function generateSong(dataPath:String):Void
 	{
 		// trace(ChartParser.parse());
-		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype', 'multiplicative');
+		songSpeedType = ClientPrefs.getGameplaySetting('scrollType', 'multiplicative');
 
 		switch (songSpeedType)
 		{
 			case "multiplicative":
-				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1);
+				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1);
 			case "constant":
-				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed', 1);
+				songSpeed = ClientPrefs.getGameplaySetting('scrollSpeed', 1);
 		}
 
 		var songData = SONG;
@@ -2477,8 +2477,8 @@ class PlayState extends MusicBeatState
 			openChartEditor();
 		}
 
-		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
-		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
+		// FlxG.watch.addQuick('VolumeLeft', vocals.amplitudeLeft);
+		// FlxG.watch.addQuick('VolumeRight', vocals.amplitudeRight);
 
 		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, CoolUtil.boundTo(1 - (elapsed * 9), 0, 1));
 		iconP1.scale.set(mult, mult);
@@ -2576,8 +2576,12 @@ class PlayState extends MusicBeatState
 			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, CoolUtil.boundTo(1 - (elapsed * 3.125), 0, 1));
 		}
 
-		FlxG.watch.addQuick("beatShit", curBeat);
-		FlxG.watch.addQuick("stepShit", curStep);
+		FlxG.watch.addQuick("Song Speed", songSpeed);
+		FlxG.watch.addQuick("BPM", Conductor.bpm);
+		FlxG.watch.addQuick("Beat", curBeat);
+		FlxG.watch.addQuick("Step", curStep);
+		var curSection:Int = Math.floor(curStep / 16);
+		FlxG.watch.addQuick("Section", curSection);
 
 		// RESET = Quick Game Over Screen
 		if (OptionUtils.options.resetKey && controls.RESET && !inCutscene && !endingSong)
@@ -3303,7 +3307,7 @@ class PlayState extends MusicBeatState
 				if (Math.isNaN(val2))
 					val2 = 0;
 
-				var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1) * val1;
+				var newValue:Float = SONG.speed * ClientPrefs.getGameplaySetting('scrollSpeed', 1) * val1;
 
 				if (val2 <= 0)
 				{

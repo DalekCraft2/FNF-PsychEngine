@@ -68,10 +68,17 @@ class Option extends FlxTypedGroup<FlxSprite>
 
 	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
 	{
-		remove(text);
-		text = new Alphabet(0, (70 * curSelected) + 30, name, true, false);
-		text.isMenuItem = true;
-		add(text);
+		if (text == null)
+		{
+			remove(text);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
+			text.isMenuItem = true;
+			add(text);
+		}
+		else
+		{
+			text.changeText(name);
+		}
 		return text;
 	}
 

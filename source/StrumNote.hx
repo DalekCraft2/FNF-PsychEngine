@@ -63,10 +63,10 @@ class StrumNote extends FlxSprite
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 
+			animation.add('purple', [4]);
+			animation.add('blue', [5]);
 			animation.add('green', [6]);
 			animation.add('red', [7]);
-			animation.add('blue', [5]);
-			animation.add('purple', [4]);
 			switch (Math.abs(noteData))
 			{
 				case 0:
@@ -90,9 +90,9 @@ class StrumNote extends FlxSprite
 		else
 		{
 			frames = Paths.getSparrowAtlas(texture);
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('blue', 'arrowDOWN');
 			animation.addByPrefix('purple', 'arrowLEFT');
+			animation.addByPrefix('blue', 'arrowDOWN');
+			animation.addByPrefix('green', 'arrowUP');
 			animation.addByPrefix('red', 'arrowRIGHT');
 
 			antialiasing = OptionUtils.options.globalAntialiasing;
@@ -150,8 +150,8 @@ class StrumNote extends FlxSprite
 		if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
 		{
 			centerOrigin();
-			// }
 		}
+		// }
 
 		super.update(elapsed);
 	}

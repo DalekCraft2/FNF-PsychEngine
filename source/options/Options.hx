@@ -47,8 +47,6 @@ class OptionUtils
 			if (Reflect.getProperty(options, f) != null)
 				Reflect.setField(options, f, Reflect.field(save.data, f));
 		}
-
-		new OptionsSubState().createDefault();
 	}
 
 	public static function getKey(control:String)
@@ -89,11 +87,11 @@ class OptionCheckbox extends FlxSprite
 	{
 		super();
 		this.state = state;
-		frames = Paths.getSparrowAtlas('checkboxanim');
-		animation.addByPrefix("unchecked", "checkbox0", 24, false);
-		animation.addByPrefix("unchecking", "checkbox anim reverse", 24, false);
-		animation.addByPrefix("checking", "checkbox anim0", 24, false);
-		animation.addByPrefix("checked", "checkbox finish", 24, false);
+		frames = Paths.getSparrowAtlas('checkbox');
+		animation.addByPrefix("unchecked", "unchecked", 24, false);
+		animation.addByPrefix("unchecking", "unchecking", 24, false);
+		animation.addByPrefix("checking", "checking", 24, false);
+		animation.addByPrefix("checked", "checked", 24, false);
 
 		antialiasing = OptionUtils.options.globalAntialiasing;
 		setGraphicSize(Std.int(0.9 * width));
@@ -173,7 +171,7 @@ class ToggleOption extends Option
 		if (text == null)
 		{
 			remove(text);
-			text = new Alphabet(0, (70 * curSelected), name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, false, false);
 			text.isMenuItem = true;
 			text.xAdd = 145;
 			checkbox.tracker = text;
@@ -988,7 +986,7 @@ class ControlOption extends Option
 			OptionUtils.options.keyBinds.set(controlType, defaultValue);
 
 		keys = OptionUtils.getKey(controlType);
-		name = '${controlType} : ${OptionUtils.getKey(controlType)[0].toString()}';
+		name = '${controlType.toUpperCase()} : ${OptionUtils.getKey(controlType)[0].toString()}';
 	}
 
 	public override function keyPressed(pressed:FlxKey)
@@ -1019,7 +1017,7 @@ class ControlOption extends Option
 		if (text == null)
 		{
 			remove(text);
-			text = new Alphabet(0, (70 * curSelected), name, false, false);
+			text = new Alphabet(0, (70 * curSelected), name, true, false);
 			text.isMenuItem = true;
 			add(text);
 		}

@@ -1515,14 +1515,6 @@ class ChartingState extends MusicBeatState
 
 	var updatedSection:Bool = false;
 
-	/* this function got owned LOL
-		function lengthBpmBullshit():Float
-		{
-			if (_song.notes[curSection].changeBPM)
-				return _song.notes[curSection].lengthInSteps * (_song.notes[curSection].bpm / _song.bpm);
-			else
-				return _song.notes[curSection].lengthInSteps;
-	}*/
 	function sectionStartTime(add:Int = 0):Float
 	{
 		var daBPM:Float = _song.bpm;
@@ -1590,8 +1582,11 @@ class ChartingState extends MusicBeatState
 				changeSection(curSection - 1, false);
 			}
 		}
-		FlxG.watch.addQuick('daBeat', curBeat);
-		FlxG.watch.addQuick('daStep', curStep);
+		// FlxG.watch.addQuick("Song Speed", songSpeed);
+		FlxG.watch.addQuick("BPM", Conductor.bpm);
+		FlxG.watch.addQuick("Beat", curBeat);
+		FlxG.watch.addQuick("Step", curStep);
+		FlxG.watch.addQuick("Section", curSection);
 
 		if (FlxG.mouse.justPressed)
 		{

@@ -56,9 +56,9 @@ class NotesState extends MusicBeatState
 			}
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
-			note.frames = Paths.getSparrowAtlas('NOTE_assets');
-			var animations:Array<String> = ['purple0', 'blue0', 'green0', 'red0'];
-			note.animation.addByPrefix('idle', animations[i]);
+			note.frames = Paths.getSparrowAtlas('NOTE_assets', 'shared');
+			var animations:Array<String> = ['purple', 'blue', 'green', 'red'];
+			note.animation.addByPrefix('idle', animations[i] + ' alone');
 			note.animation.play('idle');
 			note.antialiasing = OptionUtils.options.globalAntialiasing;
 			grpNotes.add(note);

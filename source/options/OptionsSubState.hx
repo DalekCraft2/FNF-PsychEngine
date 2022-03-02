@@ -88,10 +88,10 @@ class OptionsSubState extends MusicBeatSubState
 				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
 				#if !NO_FREEPLAY_MODS
 				new OptionCategory("Freeplay Modifiers", [
-					new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scrollspeed. 0 for chart-dependant speed", 0.1, 0, 10, "",
+					new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0, 10, "",
 						"", true),
-					new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scrollspeed", 0.1, 0, 2, "", "x", true),
-					new StepOption("mMod", 1, "Minimum Speed", "The minimum scrollspeed a chart can have", 0.1, 0, 10, "", "", true),
+					new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
+					new StepOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
 					new ToggleOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
 				]), new StateOption("Delay and Combo Offset", new NoteOffsetState()),
 				#end

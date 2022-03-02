@@ -42,7 +42,7 @@ class DiscordClient
 			details: "In the Menus",
 			state: null,
 			largeImageKey: 'icon',
-			largeImageText: "Mock Engine (Psych Fork)"
+			largeImageText: "Mock Engine"
 		});
 	}
 
