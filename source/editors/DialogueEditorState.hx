@@ -195,7 +195,7 @@ class DialogueEditorState extends MusicBeatState
 
 	function reloadCharacter()
 	{
-		character.frames = Paths.getSparrowAtlas('dialogue/' + character.jsonFile.image);
+		character.frames = Paths.getSparrowAtlas('dialogue/${character.jsonFile.image}');
 		character.jsonFile = character.jsonFile;
 		character.reloadAnimations();
 		character.setGraphicSize(Std.int(character.width * DialogueCharacter.DEFAULT_SCALE * character.jsonFile.scale));

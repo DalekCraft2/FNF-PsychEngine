@@ -79,13 +79,13 @@ class DialogueCharacter extends FlxSprite
 		this.curCharacter = character;
 
 		reloadCharacterJson(character);
-		frames = Paths.getSparrowAtlas('dialogue/' + jsonFile.image);
+		frames = Paths.getSparrowAtlas('dialogue/${jsonFile.image}');
 		reloadAnimations();
 	}
 
 	public function reloadCharacterJson(character:String)
 	{
-		var characterPath:String = 'images/dialogue/' + character + '.json';
+		var characterPath:String = 'images/dialogue/$character.json';
 		var rawJson = null;
 
 		#if FEATURE_MODS
@@ -97,7 +97,7 @@ class DialogueCharacter extends FlxSprite
 
 		if (!FileSystem.exists(path))
 		{
-			path = Paths.getPreloadPath('images/dialogue/' + DEFAULT_CHARACTER + '.json');
+			path = Paths.getPreloadPath('images/dialogue/$DEFAULT_CHARACTER.json');
 		}
 		rawJson = File.getContent(path);
 		#else

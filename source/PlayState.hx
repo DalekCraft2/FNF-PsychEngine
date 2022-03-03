@@ -722,7 +722,7 @@ class PlayState extends MusicBeatState
 			phillyCityLightsEvent = new FlxTypedGroup<BGSprite>();
 			for (i in 0...5)
 			{
-				var light:BGSprite = new BGSprite('philly/win' + i, -10, 0, 0.3, 0.3);
+				var light:BGSprite = new BGSprite('philly/win$i', -10, 0, 0.3, 0.3);
 				light.visible = false;
 				light.setGraphicSize(Std.int(light.width * 0.85));
 				light.updateHitbox();
@@ -738,7 +738,7 @@ class PlayState extends MusicBeatState
 		#if FEATURE_MODS
 		foldersToCheck.insert(0, Paths.mods('scripts/'));
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/scripts/'));
+			foldersToCheck.insert(0, Paths.mods('${Paths.currentModDirectory}/scripts/'));
 		#end
 
 		for (folder in foldersToCheck)
@@ -760,7 +760,7 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		#if (FEATURE_MODS && FEATURE_LUA)
 		var doPush:Bool = false;
-		var luaFile:String = 'stages/' + curStage + '.lua';
+		var luaFile:String = 'stages/$curStage.lua';
 		if (FileSystem.exists(Paths.modFolders(luaFile)))
 		{
 			luaFile = Paths.modFolders(luaFile);
@@ -874,13 +874,13 @@ class PlayState extends MusicBeatState
 				insert(members.indexOf(dadGroup) - 1, evilTrail);
 		}
 
-		var file:String = Paths.json(song.songId + '/dialogue'); // Checks for json/Psych Engine dialogue
+		var file:String = Paths.json('${song.songId}/dialogue'); // Checks for json/Psych Engine dialogue
 		if (OpenFlAssets.exists(file))
 		{
 			dialogueJson = DialogueBoxPsych.parseDialogue(file);
 		}
 
-		var file:String = Paths.txt(song.songId + '/' + song.songId + 'Dialogue'); // Checks for vanilla/Senpai dialogue
+		var file:String = Paths.txt('${song.songId}/${song.songId}Dialogue'); // Checks for vanilla/Senpai dialogue
 		if (OpenFlAssets.exists(file))
 		{
 			dialogue = CoolUtil.coolTextFile(file);
@@ -959,14 +959,14 @@ class PlayState extends MusicBeatState
 		#if FEATURE_LUA
 		for (notetype in noteTypeMap.keys())
 		{
-			var luaToLoad:String = Paths.modFolders('custom_notetypes/' + notetype + '.lua');
+			var luaToLoad:String = Paths.modFolders('custom_notetypes/$notetype.lua');
 			if (FileSystem.exists(luaToLoad))
 			{
 				luaArray.push(new FunkinLua(luaToLoad));
 			}
 			else
 			{
-				luaToLoad = Paths.getPreloadPath('custom_notetypes/' + notetype + '.lua');
+				luaToLoad = Paths.getPreloadPath('custom_notetypes/$notetype.lua');
 				if (FileSystem.exists(luaToLoad))
 				{
 					luaArray.push(new FunkinLua(luaToLoad));
@@ -975,14 +975,14 @@ class PlayState extends MusicBeatState
 		}
 		for (event in eventPushedMap.keys())
 		{
-			var luaToLoad:String = Paths.modFolders('custom_events/' + event + '.lua');
+			var luaToLoad:String = Paths.modFolders('custom_events/$event.lua');
 			if (FileSystem.exists(luaToLoad))
 			{
 				luaArray.push(new FunkinLua(luaToLoad));
 			}
 			else
 			{
-				luaToLoad = Paths.getPreloadPath('custom_events/' + event + '.lua');
+				luaToLoad = Paths.getPreloadPath('custom_events/$event.lua');
 				if (FileSystem.exists(luaToLoad))
 				{
 					luaArray.push(new FunkinLua(luaToLoad));
@@ -1099,12 +1099,12 @@ class PlayState extends MusicBeatState
 		// SONG SPECIFIC SCRIPTS
 		#if FEATURE_LUA
 		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/' + song.songId + '/')];
+		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/${song.songId}/')];
 
 		#if FEATURE_MODS
-		foldersToCheck.insert(0, Paths.mods('data/' + song.songId + '/'));
+		foldersToCheck.insert(0, Paths.mods('data/${song.songId}/'));
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/data/' + song.songId + '/'));
+			foldersToCheck.insert(0, Paths.mods('${Paths.currentModDirectory}/data/${song.songId}/'));
 		#end
 
 		for (folder in foldersToCheck)
@@ -1320,7 +1320,7 @@ class PlayState extends MusicBeatState
 	{
 		#if FEATURE_LUA
 		var doPush:Bool = false;
-		var luaFile:String = 'characters/' + name + '.lua';
+		var luaFile:String = 'characters/$name.lua';
 		if (FileSystem.exists(Paths.modFolders(luaFile)))
 		{
 			luaFile = Paths.modFolders(luaFile);
@@ -1362,7 +1362,7 @@ class PlayState extends MusicBeatState
 	{
 	#if FEATURE_VIDEOS
 	var foundFile:Bool = false;
-	var fileName:String = #if FEATURE_MODS Paths.modFolders('videos/' + name + '.' + Paths.VIDEO_EXT); #else ''; #end
+	var fileName:String = #if FEATURE_MODS Paths.modFolders('videos/$name.${Paths.VIDEO_EXT}'); #else ''; #end
 	#if sys
 	if (FileSystem.exists(fileName))
 	{
@@ -1655,7 +1655,7 @@ class PlayState extends MusicBeatState
 				switch (swagCounter)
 				{
 					case 0:
-						FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro3$introSoundsSuffix'), 0.6);
 					case 1:
 						countdownReady = new FlxSprite().loadGraphic(Paths.image(introAlts[0]));
 						countdownReady.scrollFactor.set();
@@ -1675,7 +1675,7 @@ class PlayState extends MusicBeatState
 								countdownReady.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro2$introSoundsSuffix'), 0.6);
 					case 2:
 						countdownSet = new FlxSprite().loadGraphic(Paths.image(introAlts[1]));
 						countdownSet.scrollFactor.set();
@@ -1694,7 +1694,7 @@ class PlayState extends MusicBeatState
 								countdownSet.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro1$introSoundsSuffix'), 0.6);
 					case 3:
 						if (!skipCountdown)
 						{
@@ -1717,7 +1717,7 @@ class PlayState extends MusicBeatState
 									countdownGo.destroy();
 								}
 							});
-							FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6);
+							FlxG.sound.play(Paths.sound('introGo$introSoundsSuffix'), 0.6);
 						}
 					case 4:
 				}
@@ -1824,9 +1824,9 @@ class PlayState extends MusicBeatState
 
 		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 
-		var file:String = Paths.json(song.songId + '/events');
+		var file:String = Paths.json('${song.songId}/events');
 		#if sys
-		if (FileSystem.exists(Paths.modsJson(song.songId + '/events')) || FileSystem.exists(file))
+		if (FileSystem.exists(Paths.modsJson('${song.songId}/events')) || FileSystem.exists(file))
 		{
 		#else
 		if (OpenFlAssets.exists(file))
@@ -3726,7 +3726,7 @@ class PlayState extends MusicBeatState
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic(Paths.image(pixelShitPart1 + daRating + pixelShitPart2));
+		rating.loadGraphic(Paths.image('$pixelShitPart1$daRating$pixelShitPart2'));
 		rating.cameras = [camHUD];
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
@@ -3738,7 +3738,7 @@ class PlayState extends MusicBeatState
 		rating.x += OptionUtils.options.comboOffset[0];
 		rating.y -= OptionUtils.options.comboOffset[1];
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}combo$pixelShitPart2'));
 		comboSpr.cameras = [camHUD];
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
@@ -3780,7 +3780,7 @@ class PlayState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'num' + Std.int(i) + pixelShitPart2));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}num${Std.int(i)}$pixelShitPart2'));
 			numScore.cameras = [camHUD];
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;

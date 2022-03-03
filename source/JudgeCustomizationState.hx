@@ -120,7 +120,7 @@ class JudgeCustomizationState extends MusicBeatState
 			{
 				i = 'Negative';
 			}
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('num' + i));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('num$i'));
 			numScore.screenCenter(XY);
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 25;

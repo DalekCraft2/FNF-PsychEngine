@@ -328,8 +328,8 @@ class StoryMenuState extends MusicBeatState
 		Week.setDirectoryFromWeek(Week.weeksLoaded.get(Week.weeksList[curWeek]));
 
 		var diff:String = CoolUtil.difficulties[curDifficulty];
-		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
-		trace(Paths.currentModDirectory + ', menudifficulties/' + Paths.formatToSongPath(diff));
+		var newImage:FlxGraphic = Paths.image('menudifficulties/${Paths.formatToSongPath(diff)}');
+		trace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
 
 		if (sprDifficulty.graphic != newImage)
 		{
@@ -394,7 +394,7 @@ class StoryMenuState extends MusicBeatState
 		}
 		else
 		{
-			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_' + assetName));
+			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_$assetName'));
 		}
 
 		PlayState.storyWeek = curWeek;

@@ -192,7 +192,7 @@ class FunkinLua
 
 		Lua_helper.add_callback(lua, "addLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false)
 		{ // would be dope asf.
-			var cervix = luaFile + ".lua";
+			var cervix = '$luaFile.lua';
 			var doPush = false;
 			if (FileSystem.exists(Paths.modFolders(cervix)))
 			{
@@ -228,7 +228,7 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "removeLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false)
 		{ // would be dope asf.
-			var cervix = luaFile + ".lua";
+			var cervix = '$luaFile.lua';
 			var doPush = false;
 			if (FileSystem.exists(Paths.modFolders(cervix)))
 			{
@@ -1526,10 +1526,10 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "startDialogue", function(dialogueFile:String, music:String = null)
 		{
-			var path:String = Paths.modsJson(PlayState.song.songId + '/' + dialogueFile);
+			var path:String = Paths.modsJson('${PlayState.song.songId}/$dialogueFile');
 			if (!FileSystem.exists(path))
 			{
-				path = Paths.json(PlayState.song.songId + '/' + dialogueFile);
+				path = Paths.json('${PlayState.song.songId}/$dialogueFile');
 			}
 			luaTrace('Trying to load dialogue: ' + path);
 

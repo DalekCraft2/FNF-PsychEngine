@@ -448,9 +448,9 @@ class ChartingState extends MusicBeatState
 
 		var loadEventJson:FlxButton = new FlxButton(loadAutosaveBtn.x, loadAutosaveBtn.y + 30, 'Load Events', function()
 		{
-			var file:String = Paths.json(_song.songId + '/events');
+			var file:String = Paths.json('${_song.songId}/events');
 			#if sys
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson(_song.songId + '/events')) || #end FileSystem.exists(file))
+			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson('${_song.songId}/events')) || #end FileSystem.exists(file))
 			#else
 			if (OpenFlAssets.exists(file))
 			#end
@@ -501,7 +501,7 @@ class ChartingState extends MusicBeatState
 		#if FEATURE_MODS
 		var directories:Array<String> = [
 			Paths.mods('characters/'),
-			Paths.mods(Paths.currentModDirectory + '/characters/'),
+			Paths.mods('${Paths.currentModDirectory}/characters/'),
 			Paths.getPreloadPath('characters/')
 		];
 		#else
@@ -568,7 +568,7 @@ class ChartingState extends MusicBeatState
 		#if FEATURE_MODS
 		var directories:Array<String> = [
 			Paths.mods('stages/'),
-			Paths.mods(Paths.currentModDirectory + '/stages/'),
+			Paths.mods('${Paths.currentModDirectory}/stages/'),
 			Paths.getPreloadPath('stages/')
 		];
 		#else
@@ -2121,15 +2121,15 @@ class ChartingState extends MusicBeatState
 		}
 		audioBuffers[0] = null;
 		#if FEATURE_MODS
-		if (FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg')))
+		if (FileSystem.exists(Paths.modFolders('songs/$currentSongName/Inst.ogg')))
 		{
-			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Inst.ogg'));
+			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/$currentSongName/Inst.ogg'));
 			// trace('Custom vocals found');
 		}
 		else
 		{
 		#end
-			var leVocals:String = Paths.getPath(currentSongName + '/Inst.' + Paths.SOUND_EXT, SOUND, 'songs');
+			var leVocals:String = Paths.getPath('$currentSongName/Inst.${Paths.SOUND_EXT}', SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals))
 			{ // Vanilla inst
 				audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
@@ -2145,15 +2145,15 @@ class ChartingState extends MusicBeatState
 		}
 		audioBuffers[1] = null;
 		#if FEATURE_MODS
-		if (FileSystem.exists(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg')))
+		if (FileSystem.exists(Paths.modFolders('songs/$currentSongName/Voices.ogg')))
 		{
-			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/' + currentSongName + '/Voices.ogg'));
+			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/$currentSongName/Voices.ogg'));
 			// trace('Custom vocals found');
 		}
 		else
 		{
 		#end
-			var leVocals:String = Paths.getPath(currentSongName + '/Voices.' + Paths.SOUND_EXT, SOUND, 'songs');
+			var leVocals:String = Paths.getPath('$currentSongName/Voices.${Paths.SOUND_EXT}', SOUND, 'songs');
 			if (OpenFlAssets.exists(leVocals))
 			{ // Vanilla voices
 				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
@@ -2419,7 +2419,7 @@ class ChartingState extends MusicBeatState
 
 	function loadHealthIconFromCharacter(char:String)
 	{
-		var characterPath:String = 'characters/' + char + '.json';
+		var characterPath:String = 'characters/$char.json';
 		#if FEATURE_MODS
 		var path:String = Paths.modFolders(characterPath);
 		if (!FileSystem.exists(path))
@@ -2433,8 +2433,7 @@ class ChartingState extends MusicBeatState
 		if (!OpenFlAssets.exists(path))
 		#end
 		{
-			path = Paths.getPreloadPath('characters/' + Character.DEFAULT_CHARACTER +
-				'.json'); // If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getPreloadPath('characters/${Character.DEFAULT_CHARACTER}.json'); // If a character couldn't be found, change him to BF just to prevent a crash
 		}
 
 		#if FEATURE_MODS

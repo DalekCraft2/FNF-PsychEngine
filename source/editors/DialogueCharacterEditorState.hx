@@ -434,7 +434,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		var charsArray:Array<DialogueCharacter> = [character, ghostLoop, ghostIdle];
 		for (char in charsArray)
 		{
-			char.frames = Paths.getSparrowAtlas('dialogue/' + character.jsonFile.image);
+			char.frames = Paths.getSparrowAtlas('dialogue/${character.jsonFile.image}');
 			char.jsonFile = character.jsonFile;
 			char.reloadAnimations();
 			char.setGraphicSize(Std.int(char.width * DialogueCharacter.DEFAULT_SCALE * character.jsonFile.scale));

@@ -131,10 +131,10 @@ class Paths
 		var rawJson = null;
 
 		#if FEATURE_MODS
-		var modKey:String = Paths.modsJson(key);
-		if (FileSystem.exists(modKey))
+		var modPath:String = Paths.modsJson(key);
+		if (FileSystem.exists(modPath))
 		{
-			rawJson = File.getContent(modKey);
+			rawJson = File.getContent(modPath);
 		}
 		#end
 
@@ -238,7 +238,7 @@ class Paths
 
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 	{
-		return sound(key + FlxG.random.int(min, max), library);
+		return sound('$key${FlxG.random.int(min, max)}', library);
 	}
 
 	inline static public function music(key:String, ?library:String)

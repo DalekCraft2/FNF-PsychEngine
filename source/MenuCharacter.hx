@@ -52,7 +52,7 @@ class MenuCharacter extends FlxSprite
 				visible = false;
 				dontPlayAnim = true;
 			default:
-				var characterPath:String = 'images/menucharacters/' + character + '.json';
+				var characterPath:String = 'images/menucharacters/$character.json';
 				var rawJson = null;
 
 				#if FEATURE_MODS
@@ -64,20 +64,20 @@ class MenuCharacter extends FlxSprite
 
 				if (!FileSystem.exists(path))
 				{
-					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
+					path = Paths.getPreloadPath('images/menucharacters/$DEFAULT_CHARACTER.json');
 				}
 				rawJson = File.getContent(path);
 				#else
 				var path:String = Paths.getPreloadPath(characterPath);
 				if (!Assets.exists(path))
 				{
-					path = Paths.getPreloadPath('images/menucharacters/' + DEFAULT_CHARACTER + '.json');
+					path = Paths.getPreloadPath('images/menucharacters/$DEFAULT_CHARACTER.json');
 				}
 				rawJson = Assets.getText(path);
 				#end
 
 				var charFile:MenuCharacterData = cast Json.parse(rawJson);
-				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
+				frames = Paths.getSparrowAtlas('menucharacters/${charFile.image}');
 				animation.addByPrefix('idle', charFile.idle_anim, 24);
 				animation.addByPrefix('confirm', charFile.confirm_anim, 24, false);
 
