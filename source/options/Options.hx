@@ -370,10 +370,10 @@ class StepOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected), name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, false, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -537,10 +537,10 @@ class ScrollOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected), name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, false, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -726,10 +726,10 @@ class JudgementsOption extends Option
 		{
 			remove(text);
 			remove(labelAlphabet);
-			labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
+			labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
 			labelAlphabet.isMenuItem = true;
 
-			text = new Alphabet(0, (70 * curSelected), name, true, false);
+			text = new Alphabet(0, (70 * curSelected), name, false, false);
 			text.isMenuItem = true;
 			text.xAdd = labelAlphabet.width + 120;
 
@@ -877,9 +877,9 @@ class JudgementsOption extends Option
 // 	{
 // 		remove(text);
 // 		remove(labelAlphabet);
-// 		labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
+// 		labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
 // 		labelAlphabet.isMenuItem = true;
-// 		text = new Alphabet(0, (70 * curSelected), name, true, false);
+// 		text = new Alphabet(0, (70 * curSelected), name, false, false);
 // 		text.isMenuItem = true;
 // 		text.xAdd = labelAlphabet.width + 120;
 // 		labelAlphabet.targetY = text.targetY;

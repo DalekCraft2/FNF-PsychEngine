@@ -4197,7 +4197,7 @@ class PlayState extends MusicBeatState
 		{
 			time += 0.15;
 		}
-		StrumPlayAnim(true, Std.int(Math.abs(note.noteData)) % 4, time);
+		strumPlayAnim(true, Std.int(Math.abs(note.noteData)) % 4, time);
 		note.hitByOpponent = true;
 
 		callOnLuas('opponentNoteHit', [
@@ -4292,6 +4292,7 @@ class PlayState extends MusicBeatState
 					boyfriend.holdTimer = 0;
 				}
 				// }
+
 				if (note.noteType == 'Hey!')
 				{
 					if (boyfriend.animOffsets.exists('hey'))
@@ -4317,7 +4318,7 @@ class PlayState extends MusicBeatState
 				{
 					time += 0.15;
 				}
-				StrumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
+				strumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
 			}
 			else
 			{
@@ -4645,58 +4646,8 @@ class PlayState extends MusicBeatState
 		{
 			moveCameraSection(Std.int(curStep / 16));
 
-			// TODO Get the directional camera to work.
-			// if (song.notes[Std.int(curStep / 16)].mustHitSection)
-			// {
-			// 	if (turn != 'bf')
-			// 	{
-			// 		turn = 'bf';
-			// 		if (OptionUtils.options.staticCam == 0)
-			// 			focus = 'bf';
-			// 	}
-			// }
-			// else
-			// {
-			// 	if (turn != 'dad')
-			// 	{
-			// 		turn = 'dad';
-			// 		if (OptionUtils.options.staticCam == 0)
-			// 			focus = 'dad';
-			// 	}
-			// }
-
-			// var focusedChar:Null<Character> = null;
-			// switch (focus)
-			// {
-			// 	case 'dad':
-			// 		focusedChar = opponent;
-			// 	case 'bf':
-			// 		focusedChar = boyfriend;
-			// 	case 'gf':
-			// 		focusedChar = gf;
-			// 	case 'center':
-			// 		focusedChar = null;
-			// 		// var centerX = /*(stage.centerX == -1) ?*/ (((opponent.getMidpoint().x + opponent.cameraPosition.x) + (boyfriend.getMidpoint().x - stage.camOffset.x)) / 2) /*: stage.centerX*/;
-			// 		// var centerY = /*(stage.centerY == -1) ?*/ (((opponent.getMidpoint().y + opponent.cameraPosition.y) + (boyfriend.getMidpoint().y - stage.camOffset.y)) / 2) /*: stage.centerY*/;
-			// 		// camFollow.set(centerX, centerY);
-			// }
-			// if (OptionUtils.options.camFollowsAnims && focusedChar != null)
-			// {
-			// 	if (focusedChar.animation.curAnim != null)
-			// 	{
-			// 		switch (focusedChar.animation.curAnim.name)
-			// 		{
-			// 			case 'singUP' | 'singUP-alt' | 'singUPmiss':
-			// 				camFollow.y -= 15 /** focusedChar.camMovementMult*/;
-			// 			case 'singDOWN' | 'singDOWN-alt' | 'singDOWNmiss':
-			// 				camFollow.y += 15 /** focusedChar.camMovementMult*/;
-			// 			case 'singLEFT' | 'singLEFT-alt' | 'singLEFTmiss':
-			// 				camFollow.x -= 15 /** focusedChar.camMovementMult*/;
-			// 			case 'singRIGHT' | 'singRIGHT-alt' | 'singRIGHTmiss':
-			// 				camFollow.x += 15 /** focusedChar.camMovementMult*/;
-			// 		}
-			// 	}
-			// }
+			updateFocusedCharacter();
+			// updateDirectionalCamera();
 		}
 
 		if (camZooming && FlxG.camera.zoom < 1.35 && OptionUtils.options.camZooms && curBeat % 4 == 0)
@@ -4802,6 +4753,65 @@ class PlayState extends MusicBeatState
 		callOnLuas('onBeatHit', []);
 	}
 
+	public function updateFocusedCharacter()
+	{
+		if (song.notes[Std.int(curStep / 16)].mustHitSection)
+		{
+			if (turn != 'bf')
+			{
+				turn = 'bf';
+				if (OptionUtils.options.staticCam == 0)
+					focus = 'bf';
+			}
+		}
+		else
+		{
+			if (turn != 'dad')
+			{
+				turn = 'dad';
+				if (OptionUtils.options.staticCam == 0)
+					focus = 'dad';
+			}
+		}
+	}
+
+	public function updateDirectionalCamera()
+	{
+		if (generatedMusic)
+			moveCameraSection(Std.int(curStep / 16)); // Reset the directional camera to be in the middle
+
+		var focusedChar:Null<Character> = null;
+		switch (focus)
+		{
+			case 'dad':
+				focusedChar = opponent;
+			case 'bf':
+				focusedChar = boyfriend;
+			case 'gf':
+				focusedChar = gf;
+			case 'center':
+				focusedChar = null;
+		}
+		if (OptionUtils.options.camFollowsAnims && focusedChar != null)
+		{
+			if (focusedChar.animation.curAnim != null)
+			{
+				// trace('Camera is following animation "${focusedChar.animation.curAnim.name}" for ${focus}');
+				switch (focusedChar.animation.curAnim.name)
+				{
+					case 'singUP' | 'singUP-alt' | 'singUPmiss':
+						camFollow.y -= 15 /** focusedChar.camMovementMult*/;
+					case 'singDOWN' | 'singDOWN-alt' | 'singDOWNmiss':
+						camFollow.y += 15 /** focusedChar.camMovementMult*/;
+					case 'singLEFT' | 'singLEFT-alt' | 'singLEFTmiss':
+						camFollow.x -= 15 /** focusedChar.camMovementMult*/;
+					case 'singRIGHT' | 'singRIGHT-alt' | 'singRIGHTmiss':
+						camFollow.x += 15 /** focusedChar.camMovementMult*/;
+				}
+			}
+		}
+	}
+
 	public var closeLuas:Array<FunkinLua> = [];
 
 	public function callOnLuas(event:String, args:Array<Dynamic>):Dynamic
@@ -4836,7 +4846,7 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	function StrumPlayAnim(isDad:Bool, id:Int, time:Float)
+	function strumPlayAnim(isDad:Bool, id:Int, time:Float)
 	{
 		var spr:StrumNote = null;
 		if (isDad)

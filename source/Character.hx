@@ -338,6 +338,9 @@ class Character extends FlxSprite
 				danced = !danced;
 			}
 		}
+
+		// I'm frickin' cheating.
+		PlayState.instance.updateDirectionalCamera();
 	}
 
 	public function recalculateDanceIdle()
