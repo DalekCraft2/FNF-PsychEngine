@@ -50,7 +50,7 @@ class CreditsState extends MusicBeatState
 		add(grpOptions);
 
 		#if FEATURE_MODS
-		// trace("finding mod shit");
+		// Debug.logTrace("Finding mod credits");
 		for (folder in Paths.getModDirectories())
 		{
 			var creditsFile:String = Paths.mods('$folder/data/credits.txt');

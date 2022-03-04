@@ -77,7 +77,7 @@ class Conductor
 			totalSteps += deltaSteps;
 			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
 		}
-		trace("new BPM map BUDDY " + bpmChangeMap);
+		Debug.logTrace("Created BPM map: " + bpmChangeMap);
 	}
 
 	public static function changeBPM(newBpm:Float)

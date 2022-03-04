@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxG;
 import openfl.utils.Assets;
-#if sys
+#if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -54,7 +54,7 @@ class CoolUtil
 	public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:Array<String> = [];
-		#if sys
+		#if FEATURE_FILESYSTEM
 		if (FileSystem.exists(path))
 			daList = File.getContent(path).trim().split('\n');
 		#else

@@ -45,49 +45,6 @@
       "args": [
         "-release"
       ]
-    },
-
-    {
-      "label": "Test Windows (Debug)",
-      "target": "windows",
-      "args": [
-        "-debug"
-      ]
-    },
-    {
-      "label": "Test Windows (Release)",
-      "target": "windows",
-      "args": [
-        "-release"
-      ]
-    },
-    {
-      "label": "Test Linux (Debug)",
-      "target": "linux",
-      "args": [
-        "-debug"
-      ]
-    },
-    {
-      "label": "Test Linux (Release)",
-      "target": "linux",
-      "args": [
-        "-release"
-      ]
-    },
-    {
-      "label": "Test HTML5 (Debug)",
-      "target": "html5",
-      "args": [
-        "-debug"
-      ]
-    },
-    {
-      "label": "Test HTML5 (Release)",
-      "target": "html5",
-      "args": [
-        "-release"
-      ]
     }
   ]
 }

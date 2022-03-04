@@ -31,11 +31,11 @@ class OptionUtils
 		for (f in fields)
 		{
 			var shit = Reflect.field(options, f);
-			trace(f, shit);
+			Debug.logTrace('$f, $shit');
 			Reflect.setField(save.data, f, shit);
 		}
 		save.flush();
-		trace("Settings saved!");
+		Debug.logTrace("Settings saved!");
 	}
 
 	public static function loadOptions(options:Dynamic)
@@ -43,7 +43,7 @@ class OptionUtils
 		var fields = Reflect.fields(save.data);
 		for (f in fields)
 		{
-			trace(f, Reflect.getProperty(options, f));
+			Debug.logTrace('$f, ${Reflect.getProperty(options, f)}');
 			if (Reflect.getProperty(options, f) != null)
 				Reflect.setField(options, f, Reflect.field(save.data, f));
 		}
@@ -1005,7 +1005,7 @@ class ControlOption extends Option
 		name = '${controlType} : ${OptionUtils.getKey(controlType)[0].toString()}';
 		if (pressed != -1)
 		{
-			trace("epic style " + pressed.toString());
+			Debug.logTrace("pressed: " + pressed);
 			controls.setKeyboardScheme(Custom, true);
 			allowMultiKeyInput = false;
 			return true;

@@ -16,6 +16,9 @@ import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
 import openfl.events.KeyboardEvent;
 import options.Options.OptionUtils;
+#if FEATURE_FILESYSTEM
+import sys.FileSystem;
+#end
 
 using StringTools;
 
@@ -111,11 +114,11 @@ class EditorPlayState extends MusicBeatState
 			vocals = new FlxSound();
 
 		generateSong(PlayState.song.songId);
-		#if FEATURE_LUA
+		#if (FEATURE_LUA && FEATURE_FILESYSTEM)
 		for (notetype in noteTypeMap.keys())
 		{
 			var luaToLoad:String = Paths.modFolders('custom_notetypes/$notetype.lua');
-			if (sys.FileSystem.exists(luaToLoad))
+			if (FileSystem.exists(luaToLoad))
 			{
 				var lua:editors.EditorLua = new editors.EditorLua(luaToLoad);
 				new FlxTimer().start(0.1, function(tmr:FlxTimer)
@@ -582,7 +585,7 @@ class EditorPlayState extends MusicBeatState
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
-		// trace('Pressed: ' + eventKey);
+		// Debug.logTrace('Pressed: $eventKey');
 
 		if (key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || OptionUtils.options.controllerMode))
 		{
@@ -599,7 +602,7 @@ class EditorPlayState extends MusicBeatState
 				// var notesDatas:Array<Int> = [];
 				var notesStopped:Bool = false;
 
-				// trace('test!');
+				// Debug.logTrace('Test!');
 				var sortedNotesList:Array<Note> = [];
 				notes.forEachAlive(function(daNote:Note)
 				{
@@ -607,7 +610,7 @@ class EditorPlayState extends MusicBeatState
 					{
 						if (daNote.noteData == key && !daNote.isSustainNote)
 						{
-							// trace('pushed note!');
+							// Debug.logTrace('Pushed note!');
 							sortedNotesList.push(daNote);
 							// notesDatas.push(daNote.noteData);
 						}
@@ -671,7 +674,7 @@ class EditorPlayState extends MusicBeatState
 				spr.resetAnim = 0;
 			}
 		}
-		// trace('released: ' + controlArray);
+		// Debug.logTrace('Released: $controlArray');
 	}
 
 	private function getKeyFromEvent(key:FlxKey):Int
@@ -720,7 +723,7 @@ class EditorPlayState extends MusicBeatState
 			}
 		}
 
-		// FlxG.watch.addQuick('asdfa', upP);
+		// Debug.quickWatch('asdfa', upP);
 		if (generatedMusic)
 		{
 			// rewritten inputs???
@@ -974,10 +977,8 @@ class EditorPlayState extends MusicBeatState
 
 			daLoop++;
 		}
-		/* 
-			trace(combo);
-			trace(seperatedScore);
-		 */
+		// Debug.logTrace(combo);
+		// Debug.logTrace(seperatedScore);
 
 		coolText.text = Std.string(seperatedScore);
 		// comboGroup.add(coolText);
@@ -1002,7 +1003,7 @@ class EditorPlayState extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			// trace(i);
+			// Debug.logTrace(i);
 			var targetAlpha:Float = 1;
 			if (player < 1 && OptionUtils.options.middleScroll)
 				targetAlpha = 0.35;

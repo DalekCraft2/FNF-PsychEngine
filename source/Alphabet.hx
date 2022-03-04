@@ -223,7 +223,7 @@ class Alphabet extends FlxSpriteGroup
 		_finalText = text;
 		doSplitWords();
 
-		// trace(arrayShit);
+		// Debug.logTrace(arrayShit);
 
 		if (speed <= 0)
 		{

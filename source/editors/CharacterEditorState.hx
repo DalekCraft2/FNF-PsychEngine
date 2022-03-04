@@ -744,7 +744,7 @@ class CharacterEditorState extends MusicBeatState
 
 			reloadAnimationDropDown();
 			genBoyOffsets();
-			trace('Added/Updated animation: ' + animationInputText.text);
+			Debug.logTrace('Added/Updated animation: ${animationInputText.text}');
 		});
 
 		var removeButton:FlxButton = new FlxButton(180, animationIndicesInputText.y + 30, "Remove", function()
@@ -773,7 +773,7 @@ class CharacterEditorState extends MusicBeatState
 					}
 					reloadAnimationDropDown();
 					genBoyOffsets();
-					trace('Removed animation: ' + animationInputText.text);
+					Debug.logTrace('Removed animation: ${animationInputText.text}');
 					break;
 				}
 			}
@@ -1146,7 +1146,7 @@ class CharacterEditorState extends MusicBeatState
 				for (file in FileSystem.readDirectory(directory))
 				{
 					var path = haxe.io.Path.join([directory, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json'))
+					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
 						var charToCheck:String = file.substr(0, file.length - 5);
 						if (!charsLoaded.exists(charToCheck))
@@ -1386,7 +1386,7 @@ class CharacterEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.notice("Successfully saved file.");
+		Debug.logInfo("Successfully saved file.");
 	}
 
 	/**
@@ -1409,7 +1409,7 @@ class CharacterEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving file");
+		Debug.logError("Problem saving file");
 	}
 
 	function saveCharacter()

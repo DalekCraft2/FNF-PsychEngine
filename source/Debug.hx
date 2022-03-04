@@ -8,6 +8,11 @@ import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
 import lime.app.Application;
+#if FEATURE_FILESYSTEM
+import sys.FileSystem;
+import sys.io.File;
+import sys.io.FileOutput;
+#end
 
 using StringTools;
 
@@ -34,7 +39,7 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logError(input:Dynamic, ?pos:haxe.PosInfos):Void
+	public static inline function logError(input:Dynamic, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
@@ -49,7 +54,7 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logWarn(input:Dynamic, ?pos:haxe.PosInfos):Void
+	public static inline function logWarn(input:Dynamic, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
@@ -63,7 +68,7 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logInfo(input:Dynamic, ?pos:haxe.PosInfos):Void
+	public static inline function logInfo(input:Dynamic, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
@@ -78,7 +83,7 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static function logTrace(input:Dynamic, ?pos:haxe.PosInfos):Void
+	public static function logTrace(input:Dynamic, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
@@ -123,10 +128,10 @@ class Debug
 	 * Adds the specified value to the Debug Watch window under the current name.
 	 * A lightweight alternative to watchVariable, since it doesn't update until you call it again.
 	 * 
-	 * @param value 
-	 * @param name 
+	 * @param name
+	 * @param value
 	 */
-	public inline static function quickWatch(value:Dynamic, name:String)
+	public inline static function quickWatch(name:String, value:Dynamic)
 	{
 		#if debug
 		FlxG.watch.addQuick(name == null ? "QuickWatch" : name, value);
@@ -308,6 +313,7 @@ class Debug
 		addConsoleCommand("playSong", function(songName:String, ?difficulty:Int = 1)
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
+			// TODO Reimplement these commands
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
 		addConsoleCommand("chartSong", function(songName:String, ?difficulty:Int = 1)
@@ -358,7 +364,7 @@ class DebugLogWriter
 
 	var active = false;
 	#if FEATURE_FILESYSTEM
-	var file:sys.io.FileOutput;
+	var file:FileOutput;
 	#end
 
 	public function new(logLevelParam:String)
@@ -376,11 +382,11 @@ class DebugLogWriter
 			var lastIndex:Int = logFilePath.lastIndexOf("/");
 			var logFolderPath:String = logFilePath.substr(0, lastIndex);
 			printDebug('Creating log folder $logFolderPath');
-			sys.FileSystem.createDirectory(logFolderPath);
+			FileSystem.createDirectory(logFolderPath);
 		}
 		// Open the file
 		printDebug('Creating log file $logFilePath');
-		file = sys.io.File.write(logFilePath, false);
+		file = File.write(logFilePath, false);
 		active = true;
 		#else
 		printDebug("Won't create log file; no file system access.");
@@ -464,7 +470,7 @@ class DebugLogWriter
 		Sys.println(msg);
 		#else
 		// Pass null to exclude the position.
-		haxe.Log.trace(msg, null);
+		Log.trace(msg, null);
 		#end
 	}
 }

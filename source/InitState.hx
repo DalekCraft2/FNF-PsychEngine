@@ -27,6 +27,8 @@ class InitState extends FlxUIState
 
 	override function create()
 	{
+		FlxG.save.bind('funkin', 'ninjamuffin99');
+
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
@@ -46,7 +48,6 @@ class InitState extends FlxUIState
 		PlayerSettings.init();
 		new OptionsSubState().createDefault(); // Load default options in case any are null
 
-		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();
 
 		FlxG.game.focusLostFramerate = 60;
@@ -74,7 +75,7 @@ class InitState extends FlxUIState
 		if (FlxG.save.data != null && FlxG.save.data.fullscreen)
 		{
 			FlxG.fullscreen = FlxG.save.data.fullscreen;
-			// trace('LOADED FULLSCREEN SETTING!!');
+			Debug.logTrace('Enabled fullscreen');
 		}
 
 		if (FlxG.save.data.weekCompleted != null)

@@ -131,7 +131,7 @@ class GameOverSubState extends MusicBeatSubState
 	{
 		super.beatHit();
 
-		// trace('beat');
+		// Debug.logTrace('Beat');
 	}
 
 	var isEnding:Bool = false;

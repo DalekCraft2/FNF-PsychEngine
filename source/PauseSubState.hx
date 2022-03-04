@@ -241,7 +241,7 @@ class PauseSubState extends MusicBeatSubState
 	{
 		if (!goToOptions)
 		{
-			trace("destroying music for pauseeta");
+			Debug.logTrace("Destroying music for pause menu");
 			pauseMusic.destroy();
 			playingPause = false;
 		}

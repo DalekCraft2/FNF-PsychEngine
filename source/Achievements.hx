@@ -153,7 +153,7 @@ class Achievements
 
 	public static function unlockAchievement(name:String):Void
 	{
-		trace('Completed achievement "' + name + '"');
+		Debug.logTrace('Completed achievement "$name"');
 		achievementsMap.set(name, true);
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 	}
@@ -196,7 +196,7 @@ class Achievements
 			}
 			if (FlxG.save.data.achievementsUnlocked != null)
 			{
-				trace("Trying to load stuff");
+				Debug.logTrace("Trying to load stuff");
 				var savedStuff:Array<String> = FlxG.save.data.achievementsUnlocked;
 				for (i in 0...savedStuff.length)
 				{
@@ -226,6 +226,7 @@ class Achievements
 
 	public static function reloadAchievements()
 	{ // Achievements in game are hardcoded, no need to make a folder for them
+		// TODO Screw hardcoding. I want to make these into JSONs.
 		loadedAchievements.clear();
 
 		#if FEATURE_MODS // Based on Week.hx
@@ -245,14 +246,14 @@ class Achievements
 				else // Sort mod loading order based on modsList.txt file
 				{
 					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
-					// trace('trying to push: ' + splitName[0]);
-					if (sys.FileSystem.isDirectory(path)
+					// Debug.logTrace('Trying to push: ${splitName[0]}');
+					if (FileSystem.isDirectory(path)
 						&& !Paths.ignoreModFolders.contains(splitName[0])
 						&& !disabledMods.contains(splitName[0])
 						&& !directories.contains(path + '/'))
 					{
 						directories.push(path + '/');
-						// trace('pushed Directory: ' + splitName[0]);
+						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
 					}
 				}
 			}
@@ -265,7 +266,7 @@ class Achievements
 			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
 			{
 				directories.push(pathThing);
-				// trace('pushed Directory: ' + folder);
+				// Debug.logTrace('Pushed Directory: $folder');
 			}
 		}
 
@@ -273,7 +274,7 @@ class Achievements
 		{
 			var directory:String = directories[i] + 'achievements/';
 
-			// trace(directory);
+			// Debug.logTrace(directory);
 			if (FileSystem.exists(directory))
 			{
 				var listOfAchievements:Array<String> = CoolUtil.coolTextFile(directory + 'achievementList.txt');
@@ -287,7 +288,7 @@ class Achievements
 						loadedAchievements.set(achievement, getAchievementInfo(path));
 					}
 
-					// trace(path);
+					// Debug.logTrace(path);
 				}
 
 				for (file in FileSystem.readDirectory(directory))
@@ -300,14 +301,14 @@ class Achievements
 						loadedAchievements.set(cutName, getAchievementInfo(path));
 					}
 
-					// trace(file);
+					// Debug.logTrace(file);
 				}
 			}
 		}
 
 		for (json in loadedAchievements)
 		{
-			// trace(json);
+			// Debug.logTrace(json);
 			achievementsStuff.push([json.name, json.description, json.icon, json.unlocksAfter, json.hidden]);
 		}
 		#end
@@ -373,7 +374,7 @@ class AttachedAchievement extends FlxSprite
 			if (isModIcon)
 				index = 0;
 
-			trace(imagePath);
+			// Debug.logTrace(imagePath);
 
 			loadGraphic(imagePath, true, 150, 150);
 			animation.add('icon', [index], 0, false, false);
@@ -435,8 +436,8 @@ class AchievementObject extends FlxSpriteGroup
 		if (isModIcon)
 			index = 0;
 
-		// trace(imagePath);
-		// trace(modsImage);
+		// Debug.logTrace(imagePath);
+		// Debug.logTrace(modsImage);
 
 		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10,
 			achievementBG.y + 10).loadGraphic((isModIcon ? modsImage : imagePath), true, 150, 150);

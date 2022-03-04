@@ -379,7 +379,7 @@ class VlcBitmap extends Bitmap
 				}
 				catch (e:Error)
 				{
-					trace("error: " + e);
+					Debug.logError("Error: " + e);
 					throw new Error("render broke xd");
 				}
 			}
@@ -419,7 +419,7 @@ class VlcBitmap extends Bitmap
 
 	function statusOnBuffering()
 	{
-		trace("buffering");
+		Debug.logTrace("buffering");
 
 		if (onBuffer != null)
 			onBuffer();
@@ -458,7 +458,7 @@ class VlcBitmap extends Bitmap
 		if (isPlaying)
 			isPlaying = false;
 
-		// trace("end reached!");
+		// Debug.logTrace("End reached!");
 		if (onComplete != null)
 			onComplete();
 	}
@@ -495,7 +495,7 @@ class VlcBitmap extends Bitmap
 
 	function statusOnError()
 	{
-		trace("VLC ERROR - File not found?");
+		Debug.logError("VLC ERROR - File not found?");
 
 		if (onError != null)
 			onError();

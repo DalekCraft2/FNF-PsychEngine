@@ -168,7 +168,7 @@ class Note extends FlxSprite
 			}
 		}
 
-		// trace(prevNote);
+		// Debug.logTrace(prevNote);
 
 		if (isSustainNote && prevNote != null)
 		{

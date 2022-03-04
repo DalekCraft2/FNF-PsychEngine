@@ -83,7 +83,7 @@ class ClientPrefs
 	public static function loadDefaultKeys()
 	{
 		defaultKeys = keyBinds.copy();
-		// trace(defaultKeys);
+		// Debug.logTrace(defaultKeys);
 	}
 
 	public static function saveSettings()
@@ -126,7 +126,7 @@ class ClientPrefs
 		save.bind('controls_v2', 'ninjamuffin99'); // Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
 		save.data.customControls = keyBinds;
 		save.flush();
-		trace("Settings saved!");
+		Debug.logTrace("Settings saved!");
 	}
 
 	public static function loadPrefs()

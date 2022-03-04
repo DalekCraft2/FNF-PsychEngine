@@ -98,7 +98,7 @@ class MusicBeatState extends FlxUIState
 				{
 					FlxG.resetState();
 				};
-				// trace('resetted');
+				// Debug.logTrace('Reset state');
 			}
 			else
 			{
@@ -106,7 +106,7 @@ class MusicBeatState extends FlxUIState
 				{
 					FlxG.switchState(nextState);
 				};
-				// trace('changed state');
+				// Debug.logTrace('Changed state');
 			}
 			return;
 		}

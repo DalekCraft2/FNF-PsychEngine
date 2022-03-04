@@ -1,5 +1,6 @@
 package;
 
+#if FEATURE_MODS
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -82,6 +83,7 @@ class ModsMenuState extends MusicBeatState
 		noModsTxt.screenCenter();
 		visibleWhenNoMods.push(noModsTxt);
 
+		#if FEATURE_FILESYSTEM
 		var path:String = 'modsList.txt';
 		if (FileSystem.exists(path))
 		{
@@ -94,7 +96,7 @@ class ModsMenuState extends MusicBeatState
 					if (!Paths.ignoreModFolders.contains(modSplit[0].toLowerCase()))
 					{
 						addToModsList([modSplit[0], (modSplit[1] == '1')]);
-						// trace(modSplit[1]);
+						// Debug.logTrace(modSplit[1]);
 					}
 				}
 			}
@@ -113,6 +115,7 @@ class ModsMenuState extends MusicBeatState
 			}
 		}
 		saveTxt();
+		#end
 
 		selector = new AttachedSprite();
 		selector.xAdd = -205;
@@ -226,8 +229,7 @@ class ModsMenuState extends MusicBeatState
 		// more buttons
 		var startX:Int = 1100;
 
-		/*
-			installButton = new FlxButton(startX, 620, "Install Mod", function()
+		/*installButton = new FlxButton(startX, 620, "Install Mod", function()
 			{
 				installMod();
 			});
@@ -243,12 +245,12 @@ class ModsMenuState extends MusicBeatState
 			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function()
 			{
 				var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
-				if(FileSystem.exists(path) && FileSystem.isDirectory(path))
+				if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 				{
-					trace('Trying to delete directory ' + path);
+					Debug.logTrace('Trying to delete directory $path');
 					try
 					{
-						FileSystem.deleteFile(path); //FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
+						FileSystem.deleteFile(path); // FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
 
 						var icon = mods[curSelected].icon;
 						var alphabet = mods[curSelected].alphabet;
@@ -258,13 +260,14 @@ class ModsMenuState extends MusicBeatState
 						alphabet.destroy();
 						modsList.remove(modsList[curSelected]);
 						mods.remove(mods[curSelected]);
-						
-						if(curSelected >= mods.length) --curSelected;
+
+						if (curSelected >= mods.length)
+							--curSelected;
 						changeSelection();
 					}
-					catch(e)
+					catch (e)
 					{
-						trace('Error deleting directory: ' + e);
+						Debug.logError('Error deleting directory "$path": $e');
 					}
 				}
 			});
@@ -277,7 +280,6 @@ class ModsMenuState extends MusicBeatState
 			add(removeButton);
 			visibleWhenHasMods.push(removeButton); */
 
-		///////
 		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, "", 32);
 		descriptionTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT);
 		descriptionTxt.scrollFactor.set();
@@ -306,11 +308,13 @@ class ModsMenuState extends MusicBeatState
 			add(newMod.alphabet);
 			// Don't ever cache the icons, it's a waste of loaded memory
 			var loadedIcon:BitmapData = null;
+			#if FEATURE_FILESYSTEM
 			var iconToUse:String = Paths.mods('${values[0]}/pack.png');
 			if (FileSystem.exists(iconToUse))
 			{
 				loadedIcon = BitmapData.fromFile(iconToUse);
 			}
+			#end
 
 			newMod.icon = new AttachedSprite();
 			if (loadedIcon != null)
@@ -361,7 +365,7 @@ class ModsMenuState extends MusicBeatState
 		{
 			if (modsList[i][0] == values[0])
 			{
-				// trace(modsList[i][0], values[0]);
+				// Debug.logTrace(modsList[i][0], values[0]);
 				return;
 			}
 		}
@@ -411,6 +415,7 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
+	#if FEATURE_FILESYSTEM
 	function saveTxt()
 	{
 		var fileStr:String = '';
@@ -424,6 +429,7 @@ class ModsMenuState extends MusicBeatState
 		var path:String = 'modsList.txt';
 		File.saveContent(path, fileStr);
 	}
+	#end
 
 	var noModsSine:Float = 0;
 	var canExit:Bool = true;
@@ -444,7 +450,9 @@ class ModsMenuState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.mouse.visible = false;
+			#if FEATURE_FILESYSTEM
 			saveTxt();
+			#end
 			if (needaReset)
 			{
 				// MusicBeatState.switchState(new TitleState());
@@ -660,7 +668,7 @@ class ModsMenuState extends MusicBeatState
 					var uncompressingFile:Bytes = new Uncompress().run(File.getBytes(rawZip));
 					if (uncompressingFile.done)
 					{
-						trace('test');
+						Debug.logTrace('test');
 						_file = null;
 						return;
 					}
@@ -668,7 +676,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			_file = null;
 			canExit = true;
-			trace("File couldn't be loaded! Wtf?");
+			Debug.logError("File couldn't be loaded! Wtf?");
 		}
 
 		function onLoadCancel(_):Void
@@ -678,7 +686,7 @@ class ModsMenuState extends MusicBeatState
 			_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 			_file = null;
 			canExit = true;
-			trace("Cancelled file loading.");
+			Debug.logTrace("Cancelled file loading.");
 		}
 
 		function onLoadError(_):Void
@@ -688,7 +696,7 @@ class ModsMenuState extends MusicBeatState
 			_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 			_file = null;
 			canExit = true;
-			trace("Problem loading file");
+			Debug.logError("Problem loading file");
 	}*/
 }
 
@@ -710,6 +718,7 @@ class ModMetadata
 		this.color = ModsMenuState.defaultColor;
 		this.restart = false;
 
+		#if FEATURE_FILESYSTEM
 		// Try loading json
 		var path = Paths.mods('$folder/pack.json');
 		if (FileSystem.exists(path))
@@ -753,5 +762,7 @@ class ModMetadata
 				}*/
 			}
 		}
+		#end
 	}
 }
+#end

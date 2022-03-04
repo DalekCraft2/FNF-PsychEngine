@@ -106,14 +106,14 @@ class Week
 				else // Sort mod loading order based on modsList.txt file
 				{
 					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
-					// trace('trying to push: ' + splitName[0]);
-					if (sys.FileSystem.isDirectory(path)
+					// Debug.logTrace('Trying to push: ${splitName[0]}');
+					if (FileSystem.isDirectory(path)
 						&& !Paths.ignoreModFolders.contains(splitName[0])
 						&& !disabledMods.contains(splitName[0])
 						&& !directories.contains(path + '/'))
 					{
 						directories.push(path + '/');
-						// trace('pushed Directory: ' + splitName[0]);
+						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
 					}
 				}
 			}
@@ -126,7 +126,7 @@ class Week
 			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
 			{
 				directories.push(pathThing);
-				// trace('pushed Directory: ' + folder);
+				// Debug.logTrace('Pushed Directory: $folder');
 			}
 		}
 		#else
@@ -175,7 +175,7 @@ class Week
 				for (daWeek in listOfWeeks)
 				{
 					var path:String = directory + daWeek + '.json';
-					if (sys.FileSystem.exists(path))
+					if (FileSystem.exists(path))
 					{
 						addWeek(daWeek, path, directories[i], i, originalLength);
 					}
@@ -184,7 +184,7 @@ class Week
 				for (file in FileSystem.readDirectory(directory))
 				{
 					var path = haxe.io.Path.join([directory, file]);
-					if (!sys.FileSystem.isDirectory(path) && file.endsWith('.json'))
+					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
 						addWeek(file.substr(0, file.length - 5), path, directories[i], i, originalLength);
 					}

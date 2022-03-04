@@ -21,7 +21,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
 import options.Options.OptionUtils;
-#if sys
+#if FEATURE_FILESYSTEM
 import sys.io.File;
 #end
 
@@ -541,7 +541,7 @@ class DialogueEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 
-		#if sys
+		#if FEATURE_FILESYSTEM
 		var fullPath:String = null;
 		@:privateAccess
 		if (_file.__path != null)
@@ -556,7 +556,7 @@ class DialogueEditorState extends MusicBeatState
 				if (loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) // Make sure it's really a dialogue file
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
-					trace("Successfully loaded file: " + cutName);
+					Debug.logTrace('Successfully loaded file: $cutName');
 					dialogueFile = loadedDialog;
 					changeText();
 					_file = null;
@@ -566,7 +566,7 @@ class DialogueEditorState extends MusicBeatState
 		}
 		_file = null;
 		#else
-		trace("File couldn't be loaded! You aren't on Desktop, are you?");
+		Debug.logError("File couldn't be loaded! You aren't on Desktop, are you?");
 		#end
 	}
 
@@ -579,7 +579,7 @@ class DialogueEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Cancelled file loading.");
+		Debug.logTrace("Cancelled file loading.");
 	}
 
 	/**
@@ -591,7 +591,7 @@ class DialogueEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Problem loading file");
+		Debug.logError("Problem loading file");
 	}
 
 	function saveDialogue()
@@ -613,7 +613,7 @@ class DialogueEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.notice("Successfully saved file.");
+		Debug.logInfo("Successfully saved file.");
 	}
 
 	/**
@@ -636,6 +636,6 @@ class DialogueEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving file");
+		Debug.logError("Problem saving file");
 	}
 }

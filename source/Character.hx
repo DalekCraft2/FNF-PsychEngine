@@ -235,7 +235,7 @@ class Character extends FlxSprite
 		{
 			quickAnimAdd('idle', 'BF idle dance');
 		}
-		// trace('Loaded file to character ' + curCharacter);
+		Debug.logTrace('Loaded data file for character "$curCharacter"');
 	}
 
 	override function update(elapsed:Float)

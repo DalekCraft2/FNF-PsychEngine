@@ -100,14 +100,14 @@ class LoadingState extends MusicBeatState
 
 	function checkLibrary(library:String)
 	{
-		trace(Assets.hasLibrary(library));
+		Debug.logTrace(Assets.hasLibrary(library));
 		if (Assets.getLibrary(library) == null)
 		{
 			@:privateAccess
 			if (!LimeAssets.libraryPaths.exists(library))
-				throw "Missing library: " + library;
+				throw 'Missing library: $library';
 
-			var callback = callbacks.add("library:" + library);
+			var callback = callbacks.add('library: $library');
 			Assets.loadLibrary(library).onComplete(function(_)
 			{
 				callback();
@@ -166,7 +166,7 @@ class LoadingState extends MusicBeatState
 			directory = weekDir;
 
 		Paths.setCurrentLevel(directory);
-		trace('Setting asset folder to ' + directory);
+		Debug.logTrace('Setting asset folder to $directory');
 
 		#if NO_PRELOAD_ALL
 		var loaded:Bool = false;
@@ -323,7 +323,7 @@ class MultiCallback
 	inline function log(msg):Void
 	{
 		if (logId != null)
-			trace('$logId: $msg');
+			Debug.logTrace('$logId: $msg');
 	}
 
 	public function getFired()

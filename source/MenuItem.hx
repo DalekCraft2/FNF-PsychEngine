@@ -15,7 +15,7 @@ class MenuItem extends FlxSprite
 	{
 		super(x, y);
 		loadGraphic(Paths.image('storymenu/$weekName'));
-		// trace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
+		// Debug.logTrace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
 		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 

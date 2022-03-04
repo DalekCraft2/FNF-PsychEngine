@@ -156,18 +156,18 @@ class FreeplayState extends MusicBeatState
 			FlxMouseEventManager.add(songText, onMouseDown, onMouseUp, onMouseOver, onMouseOut);
 			grpSongs.add(songText);
 
-			// if (songText.width > 980)
-			// {
-			// 	var textScale:Float = 980 / songText.width;
-			// 	songText.scale.x = textScale;
-			// 	for (letter in songText.lettersArray)
-			// 	{
-			// 		letter.x *= textScale;
-			// 		letter.offset.x *= textScale;
-			// 	}
-			// 	//songText.updateHitbox();
-			// 	//trace(songs[i].songName + ' new scale: ' + textScale);
-			// }
+			/*if (songText.width > 980)
+				{
+					var textScale:Float = 980 / songText.width;
+					songText.scale.x = textScale;
+					for (letter in songText.lettersArray)
+					{
+						letter.x *= textScale;
+						letter.offset.x *= textScale;
+					}
+					// songText.updateHitbox();
+					// Debug.logTrace('${songs[i].songName} new scale: $textScale');
+			}*/
 
 			Paths.currentModDirectory = songs[i].folder;
 			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
@@ -226,7 +226,7 @@ class FreeplayState extends MusicBeatState
 
 			// scoreText.textField.htmlText = md;
 
-			trace(md);
+			Debug.logTrace(md);
 		 */
 
 		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, 0xFF000000);
@@ -289,21 +289,21 @@ class FreeplayState extends MusicBeatState
 		var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
 		var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 		#if FEATURE_MODS
-		if (!sys.FileSystem.exists(Paths.modsJson('$songId/$songId$difficulty'))
-			&& !sys.FileSystem.exists(Paths.json('$songId/$songId$difficulty')))
+		if (!FileSystem.exists(Paths.modsJson('$songId/$songId$difficulty'))
+			&& !FileSystem.exists(Paths.json('$songId/$songId$difficulty')))
 		#else
 		if (!OpenFlAssets.exists(Paths.json('$songId/$songId$difficulty')))
 		#end
 		{
+			Debug.logWarn('Couldn\'t find song file "$songId/$songId$difficulty"');
 			difficulty = '';
 			curDifficulty = 1;
-			trace('Couldnt find file');
 		}
-		trace('$songId/$songId$difficulty');
+		Debug.logTrace('$songId/$songId$difficulty');
 		PlayState.song = Song.loadFromJson(songId, difficulty);
 		PlayState.isStoryMode = false;
 		PlayState.storyDifficulty = curDifficulty;
-		trace('CURRENT WEEK: ' + Week.getWeekDataName());
+		Debug.logTrace('Current Week: ${Week.getWeekDataName()}');
 		if (colorTween != null)
 		{
 			colorTween.cancel();
@@ -577,7 +577,7 @@ class FreeplayState extends MusicBeatState
 		}
 
 		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
-		// trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
+		Debug.logTrace('Position of $lastDifficultyName is $newPos');
 		if (newPos > -1)
 		{
 			curDifficulty = newPos;

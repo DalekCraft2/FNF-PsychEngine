@@ -7,7 +7,7 @@ import flixel.util.FlxColor;
 import haxe.Json;
 import openfl.utils.Assets;
 import options.Options.OptionUtils;
-#if sys
+#if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -153,18 +153,18 @@ class DialogueCharacter extends FlxSprite
 			if (playIdle)
 			{
 				offset.set(anim.idle_offsets[0], anim.idle_offsets[1]);
-				// trace('Setting idle offsets: ' + anim.idle_offsets);
+				Debug.logTrace('Setting idle offsets: ${anim.idle_offsets}');
 			}
 			else
 			{
 				offset.set(anim.loop_offsets[0], anim.loop_offsets[1]);
-				// trace('Setting loop offsets: ' + anim.loop_offsets);
+				Debug.logTrace('Setting loop offsets: ${anim.loop_offsets}');
 			}
 		}
 		else
 		{
 			offset.set(0, 0);
-			trace('Offsets not found! Dialogue character is badly formatted, anim: '
+			Debug.logWarn('Offsets not found! Dialogue character is badly formatted, anim: '
 				+ leAnim
 				+ ', '
 				+ (playIdle ? 'idle anim' : 'loop anim'));

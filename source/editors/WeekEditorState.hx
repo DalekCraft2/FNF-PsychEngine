@@ -24,7 +24,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.utils.Assets;
 import options.Options.OptionUtils;
-#if sys
+#if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -516,7 +516,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 
-		#if sys
+		#if FEATURE_FILESYSTEM
 		var fullPath:String = null;
 		@:privateAccess
 		if (_file.__path != null)
@@ -531,7 +531,7 @@ class WeekEditorState extends MusicBeatState
 				if (loadedWeek.weekCharacters != null && loadedWeek.weekName != null) // Make sure it's really a week
 				{
 					var cutName:String = _file.name.substr(0, _file.name.length - 5);
-					trace("Successfully loaded file: " + cutName);
+					Debug.logTrace('Successfully loaded file: $cutName');
 					loadError = false;
 
 					weekDataName = cutName;
@@ -544,7 +544,7 @@ class WeekEditorState extends MusicBeatState
 		loadedWeek = null;
 		_file = null;
 		#else
-		trace("File couldn't be loaded! You aren't on Desktop, are you?");
+		Debug.logError("File couldn't be loaded! You aren't on Desktop, are you?");
 		#end
 	}
 
@@ -557,7 +557,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Cancelled file loading.");
+		Debug.logTrace("Cancelled file loading.");
 	}
 
 	/**
@@ -569,7 +569,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
-		trace("Problem loading file");
+		Debug.logError("Problem loading file");
 	}
 
 	public static function saveWeek(weekData:WeekData)
@@ -591,7 +591,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.notice("Successfully saved file.");
+		Debug.logInfo("Successfully saved file.");
 	}
 
 	/**
@@ -614,7 +614,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		FlxG.log.error("Problem saving file");
+		Debug.logError("Problem saving file");
 	}
 }
 
@@ -840,7 +840,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
-		trace(weekData.songs[curSelected]);
+		Debug.logTrace(weekData.songs[curSelected]);
 		iconInputText.text = weekData.songs[curSelected][1];
 		bgColorStepperR.value = Math.round(weekData.songs[curSelected][2][0]);
 		bgColorStepperG.value = Math.round(weekData.songs[curSelected][2][1]);

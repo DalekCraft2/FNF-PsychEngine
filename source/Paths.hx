@@ -85,7 +85,7 @@ class Paths
 		{
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && key != null)
 			{
-				// trace('test: ' + dumpExclusions, key);
+				// Debug.logTrace('test: $dumpExclusions', key);
 				Assets.cache.clear(key);
 				currentTrackedSounds.remove(key);
 			}
@@ -140,7 +140,7 @@ class Paths
 
 		if (rawJson == null)
 		{
-			#if sys
+			#if FEATURE_FILESYSTEM
 			rawJson = File.getContent(Paths.json(key, library));
 			#else
 			rawJson = OpenFlAssets.getText(Paths.json(key, library));
@@ -269,7 +269,7 @@ class Paths
 
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
 	{
-		#if sys
+		#if FEATURE_FILESYSTEM
 		#if FEATURE_MODS
 		if (!ignoreMods && FileSystem.exists(modFolders(key)))
 			return File.getContent(modFolders(key));
@@ -394,7 +394,7 @@ class Paths
 			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
-		trace('Could not find asset at "${path}"');
+		Debug.logWarn('Could not find asset at "${path}"');
 		return null;
 	}
 
@@ -417,10 +417,10 @@ class Paths
 		// I hate this so god damn much
 		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
+		// Debug.logTrace(gottenPath);
 		if (!currentTrackedSounds.exists(gottenPath))
 			#if FEATURE_MODS
-			currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
+			currentTrackedSounds.set(gottenPath, Sound.fromFile('./$gottenPath'));
 			#else
 			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
 			#end
@@ -506,7 +506,7 @@ class Paths
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
 				var path = haxe.io.Path.join([modsFolder, folder]);
-				if (sys.FileSystem.isDirectory(path) && !Paths.ignoreModFolders.contains(folder) && !list.contains(folder))
+				if (FileSystem.isDirectory(path) && !Paths.ignoreModFolders.contains(folder) && !list.contains(folder))
 				{
 					list.push(folder);
 				}

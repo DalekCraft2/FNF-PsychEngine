@@ -192,7 +192,7 @@ class StoryMenuState extends MusicBeatState
 
 		scoreText.text = "WEEK SCORE:" + lerpScore;
 
-		// FlxG.watch.addQuick('font', scoreText.font);
+		// Debug.quickWatch('font', scoreText.font);
 
 		difficultySelectors.visible = !weekIsLocked(curWeek);
 
@@ -329,7 +329,7 @@ class StoryMenuState extends MusicBeatState
 
 		var diff:String = CoolUtil.difficulties[curDifficulty];
 		var newImage:FlxGraphic = Paths.image('menudifficulties/${Paths.formatToSongPath(diff)}');
-		trace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
+		Debug.logTrace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
 
 		if (sprDifficulty.graphic != newImage)
 		{
@@ -435,7 +435,7 @@ class StoryMenuState extends MusicBeatState
 		}
 
 		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
-		// trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
+		// Debug.logTrace('Position of $lastDifficultyName is $newPos');
 		if (newPos > -1)
 		{
 			curDifficulty = newPos;

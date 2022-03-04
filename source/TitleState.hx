@@ -65,15 +65,15 @@ class TitleState extends MusicBeatState
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		Week.loadTheFirstEnabledMod();
 
-		// trace(path, FileSystem.exists(path));
+		// Debug.logTrace(path, FileSystem.exists(path));
 		titleJSON = Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
 
 		/*#if (polymod && !html5)
-			if (sys.FileSystem.exists('mods/')) {
+			if (FileSystem.exists('mods/')) {
 				var folders:Array<String> = [];
-				for (file in sys.FileSystem.readDirectory('mods/')) {
+				for (file in FileSystem.readDirectory('mods/')) {
 					var path = haxe.io.Path.join(['mods/', file]);
-					if (sys.FileSystem.isDirectory(path)) {
+					if (FileSystem.isDirectory(path)) {
 						folders.push(file);
 					}
 				}
@@ -86,24 +86,24 @@ class TitleState extends MusicBeatState
 		#if CHECK_FOR_UPDATES
 		if (!closedState)
 		{
-			trace('checking for update');
+			Debug.logTrace('Checking for update');
 			var http = new haxe.Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
 
 			http.onData = function(data:String)
 			{
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = MainMenuState.psychEngineVersion.trim();
-				trace('version online: ' + updateVersion + ', your version: ' + curVersion);
+				Debug.logTrace('Version online: ' + updateVersion + ', Your version: ' + curVersion);
 				if (updateVersion != curVersion)
 				{
-					trace('versions arent matching!');
+					Debug.logTrace('Versions aren\'t matching!');
 					mustUpdate = true;
 				}
 			}
 
 			http.onError = function(error)
 			{
-				trace('error: $error');
+				Debug.logError('Error: $error');
 			}
 
 			http.request();
@@ -196,17 +196,17 @@ class TitleState extends MusicBeatState
 		titleText = new FlxSprite(titleJSON.startx, titleJSON.starty);
 		#if (desktop && FEATURE_MODS)
 		var path = "mods/" + Paths.currentModDirectory + "/images/titleEnter.png";
-		// trace(path, FileSystem.exists(path));
+		// Debug.logTrace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path))
 		{
 			path = "mods/images/titleEnter.png";
 		}
-		// trace(path, FileSystem.exists(path));
+		// Debug.logTrace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path))
 		{
 			path = "assets/images/titleEnter.png";
 		}
-		// trace(path, FileSystem.exists(path));
+		// Debug.logTrace(path, FileSystem.exists(path));
 		titleText.frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile(path), File.getContent(path.replace(".png", ".xml")));
 		#else
 		titleText.frames = Paths.getSparrowAtlas('titleEnter');
@@ -278,7 +278,7 @@ class TitleState extends MusicBeatState
 	{
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
-		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
+		// Debug.quickWatch('amp', FlxG.sound.music.amplitude);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 
@@ -358,7 +358,7 @@ class TitleState extends MusicBeatState
 						}
 
 						/*if(!isDifferent) {
-							trace('Easter egg triggered!');
+							Debug.logTrace('Easter egg triggered!');
 							FlxG.save.data.psykaEasterEgg = !FlxG.save.data.psykaEasterEgg;
 							FlxG.sound.play(Paths.sound('secretSound'));
 

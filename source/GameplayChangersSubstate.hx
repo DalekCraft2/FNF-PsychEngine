@@ -255,7 +255,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 											updateTextFrom(oOption);
 										}
 									}
-									// trace(curOption.options[num]);
+									// Debug.logTrace(curOption.options[num]);
 							}
 							updateTextFrom(curOption);
 							curOption.change();

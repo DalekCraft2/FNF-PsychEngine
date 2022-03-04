@@ -78,7 +78,7 @@ class Main extends Sprite
 		#end
 
 		// Run this first so we can see logs.
-		// Debug.onInitProgram();
+		Debug.onInitProgram();
 
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
@@ -98,7 +98,7 @@ class Main extends Sprite
 		#end
 
 		// Finish up loading debug tools.
-		// Debug.onGameStart();
+		Debug.onGameStart();
 	}
 
 	public static function dumpObject(graphic:FlxGraphic)

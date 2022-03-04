@@ -276,7 +276,7 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = true;
 					startComboOffset.x = OptionUtils.options.comboOffset[2];
 					startComboOffset.y = OptionUtils.options.comboOffset[3];
-					// trace('yo bro');
+					// Debug.logTrace('yo bro');
 				}
 				else if (startMousePos.x - rating.x >= 0
 					&& startMousePos.x - rating.x <= rating.width
@@ -286,13 +286,13 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = false;
 					startComboOffset.x = OptionUtils.options.comboOffset[0];
 					startComboOffset.y = OptionUtils.options.comboOffset[1];
-					// trace('heya');
+					// Debug.logTrace('heya');
 				}
 			}
 			if (FlxG.mouse.justReleased)
 			{
 				holdingObjectType = null;
-				// trace('dead');
+				// Debug.logTrace('dead');
 			}
 
 			if (holdingObjectType != null)

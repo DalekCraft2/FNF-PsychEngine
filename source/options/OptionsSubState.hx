@@ -108,14 +108,14 @@ class OptionsSubState extends MusicBeatSubState
 			]),
 			new OptionCategory("Appearance", [
 				new StateOption("Note Colors", new NotesState()),
-				new ToggleOption("showComboCounter", true, "Show combo", "Shows your combo when you hit a note"),
-				new ToggleOption("showRatings", true, "Show judgements", "Shows judgements when you hit a note"),
+				new ToggleOption("showComboCounter", true, "Show Combo", "Shows your combo when you hit a note"),
+				new ToggleOption("showRatings", true, "Show Judgements", "Shows judgements when you hit a note"),
 				new ToggleOption("showMS", false, "Show Hit MS", "Shows millisecond difference when you hit a note"),
-				new ToggleOption("showCounters", true, "Show judgement counters", "Whether judgement counters get shown on the side"),
+				new ToggleOption("showCounters", true, "Show Judgement Counters", "Whether judgement counters get shown on the side"),
 				new ToggleOption("downScroll", false, "Downscroll", "Arrows come from the top down instead of the bottom up."),
 				new ToggleOption("middleScroll", false, "Centered Notes",
 					"Places your notes in the center of the screen and hides the opponent's. \"Middlescroll\""),
-				new ToggleOption("allowNoteModifiers", true, "Allow note modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
+				new ToggleOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
 				new StepOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
 				new ScrollOption("staticCam", 0, "Camera Focus", "Who the camera should focus on", 0, OptionUtils.camFocuses.length - 1,
 					OptionUtils.camFocuses),
@@ -144,12 +144,12 @@ class OptionsSubState extends MusicBeatSubState
 				new ToggleOption("scoreZoom", true, "Score Text Zoom on Hit", "If unchecked, disables the Score text zooming\neverytime you hit a note."),
 				new StepOption("healthBarAlpha", 1, "Health Bar Transparency", "How much transparent should the health bar and icons be.", 0.1, 0, 1, true),
 				new ToggleOption("ratingInHUD", false, "Fixed Judgements", "Fixes judgements, milliseconds and combo to the screen"),
-				new ToggleOption("ratingOverNotes", false, "Judgements over notes", "Places judgements, milliseconds and combo above the playfield"),
+				new ToggleOption("ratingOverNotes", false, "Judgements over Notes", "Places judgements, milliseconds and combo above the playfield"),
 				new ToggleOption("smJudges", false, "Simply Judgements", "Animates judgements like ITG's Simply Love theme"),
 				new ToggleOption("persistentCombo", false, "Simply Combos", "Animates combos like ITG's Simply Love theme"),
-				new ToggleOption("pauseHoldAnims", true, "Holds pause anims", "Whether to pause animations on their first frame"),
-				new ToggleOption("menuFlash", true, "Flashing in menus", "Whether buttons and the background should flash in menus"),
-				new ToggleOption("hitSound", false, "Hit sounds", "Play a click sound when you hit a note"),
+				new ToggleOption("pauseHoldAnims", true, "Holds Pause Animations", "Whether to pause animations on their first frame"),
+				new ToggleOption("menuFlash", true, "Flashing in Menus", "Whether buttons and the background should flash in menus"),
+				new ToggleOption("hitSound", false, "Hit Sounds", "Play a click sound when you hit a note"),
 				new ToggleOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", function(state:Bool)
 				{
 					FPSMem.showFPS = state;
@@ -163,9 +163,9 @@ class OptionsSubState extends MusicBeatSubState
 					{
 						FPSMem.showMemPeak = state;
 					}),
-				new ToggleOption("ghosttapSounds", false, "Ghost-tap hit sounds", "Play a click sound when you ghost-tap"),
-				new StepOption("hitsoundVol", 50, "Hit sound volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
-				// new ToggleOption("freeplayPreview", false, "Song preview in freeplay", "Whether songs get played as you hover over them in Freeplay"),
+				new ToggleOption("ghosttapSounds", false, "Ghost-tap Hit Sounds", "Play a click sound when you ghost-tap"),
+				new StepOption("hitsoundVol", 50, "Hit Sound Volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
+				// new ToggleOption("freeplayPreview", false, "Song Preview in Freeplay", "Whether songs get played as you hover over them in Freeplay"),
 				new ToggleOption("fastTransitions", false, "Fast Transitions", "Makes transitions between states faster"),
 				// new StateOption("Judgement Position", new JudgeCustomizationState())
 			]),
@@ -179,8 +179,8 @@ class OptionsSubState extends MusicBeatSubState
 					"Instead of making a new sprite for each judgement and combo number, objects are reused when possible.\nMay cause layering issues."),
 				new ToggleOption("lowQuality", false, "Low Quality",
 					"If checked, disables some background details,\ndecreases loading times and improves performance."),
-				new ToggleOption("noChars", false, "Hide characters", "Hides characters ingame"),
-				new ToggleOption("noStage", false, "Hide background", "Hides stage ingame"),
+				new ToggleOption("noChars", false, "Hide Characters", "Hides characters ingame"),
+				new ToggleOption("noStage", false, "Hide Background", "Hides stage ingame"),
 				new ToggleOption("globalAntialiasing", true, "Antialiasing", "Toggles the ability for sprites to have antialiasing"),
 				new ToggleOption("allowOrderSorting", true, "Sort notes by order",
 					"Allows notes to go infront and behind other notes. May cause FPS drops on very high note-density charts."),
@@ -332,7 +332,7 @@ class OptionsSubState extends MusicBeatSubState
 					PauseSubState.goBack = true;
 					close();
 				}
-				trace("save options");
+				Debug.logTrace("Save options");
 				OptionUtils.saveOptions(OptionUtils.options);
 			}
 		}
@@ -380,7 +380,7 @@ class OptionsSubState extends MusicBeatSubState
 
 		if (accepted)
 		{
-			trace("shit");
+			Debug.logTrace("shit");
 			if (option.type == 'Category')
 			{
 				category = option;
@@ -391,7 +391,7 @@ class OptionsSubState extends MusicBeatSubState
 				option.createOptionText(curSelected, optionText);
 			}
 			changeSelection();
-			trace("cum");
+			Debug.logTrace("cum");
 		}
 
 		if (option.forceupdate)
