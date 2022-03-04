@@ -43,6 +43,7 @@ class OptionsSubState extends MusicBeatSubState
 				new OptionCategory("Controls",
 					[
 						// TODO: rewrite
+						// TODO Reimplement the ability to change the second keybind
 						new ControlOption(controls, 'note_left', [A, LEFT]),
 						new ControlOption(controls, 'note_down', [S, DOWN]),
 						new ControlOption(controls, 'note_up', [W, UP]),

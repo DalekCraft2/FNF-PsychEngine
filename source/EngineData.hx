@@ -14,7 +14,6 @@ class EngineData
 			shit: -2,
 			miss: -5
 		},
-		judgements: ["sick", "good", "bad", "shit"],
 		judgementAccuracy: {
 			sick: 100,
 			good: 80,
@@ -29,13 +28,14 @@ class EngineData
 			shit: -50,
 			miss: -100
 		},
+		// miss window acts as a sort of "antimash"
 		judgementWindows: {
 			sick: 43,
 			good: 85,
 			bad: 126,
 			shit: 166,
 			miss: 180
-		}
-		// miss window acts as a sort of "antimash"
+		},
+		judgements: ["sick", "good", "bad", "shit"]
 	};
 }

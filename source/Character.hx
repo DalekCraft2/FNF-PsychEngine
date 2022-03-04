@@ -16,7 +16,7 @@ using StringTools;
 
 typedef CharacterData =
 {
-	var animations:Array<AnimArray>;
+	var animations:Array<AnimationData>;
 	var image:String;
 	var scale:Float;
 	var sing_duration:Float;
@@ -29,7 +29,7 @@ typedef CharacterData =
 	var healthbar_colors:Array<Int>;
 }
 
-typedef AnimArray =
+typedef AnimationData =
 {
 	var anim:String;
 	var name:String;
@@ -58,7 +58,7 @@ class Character extends FlxSprite
 	public var danceIdle:Bool = false; // Character use "danceLeft" and "danceRight" instead of "idle"
 
 	public var healthIcon:String = 'face';
-	public var animationsArray:Array<AnimArray> = [];
+	public var animationsArray:Array<AnimationData> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
@@ -86,7 +86,6 @@ class Character extends FlxSprite
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 		antialiasing = OptionUtils.options.globalAntialiasing;
-		var library:String = null;
 		switch (curCharacter)
 		{
 			// case 'your character name in case you want to hardcode them instead':

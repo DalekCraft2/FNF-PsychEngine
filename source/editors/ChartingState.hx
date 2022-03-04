@@ -204,18 +204,18 @@ class ChartingState extends MusicBeatState
 			_song = {
 				songId: 'test',
 				songName: 'Test',
-				notes: [],
-				events: [],
-				bpm: 150.0,
-				needsVoices: true,
-				arrowSkin: '',
-				splashSkin: 'noteSplashes', // idk it would crash if i didn't
 				player1: 'bf',
 				player2: 'dad',
 				gfVersion: 'gf',
-				speed: 1,
 				stage: 'stage',
-				validScore: false
+				bpm: 150.0,
+				speed: 1,
+				needsVoices: true,
+				arrowSkin: '',
+				splashSkin: 'noteSplashes', // idk it would crash if i didn't
+				validScore: false,
+				notes: [],
+				events: []
 			};
 			addSection();
 			PlayState.song = _song;
@@ -2698,13 +2698,13 @@ class ChartingState extends MusicBeatState
 	private function addSection(lengthInSteps:Int = 16):Void
 	{
 		var sec:SectionData = {
+			sectionNotes: [],
 			lengthInSteps: lengthInSteps,
-			bpm: _song.bpm,
-			changeBPM: false,
+			typeOfSection: 0,
 			mustHitSection: true,
 			gfSection: false,
-			sectionNotes: [],
-			typeOfSection: 0,
+			bpm: _song.bpm,
+			changeBPM: false,
 			altAnim: false
 		};
 
@@ -2978,7 +2978,7 @@ class ChartingState extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data.trim(), _song.songId + ".json");
+			_file.save(data.trim(), '${_song.songId}${CoolUtil.getDifficultyFilePath(PlayState.storyDifficulty)}.json');
 		}
 	}
 
@@ -2993,19 +2993,18 @@ class ChartingState extends MusicBeatState
 		var eventsSong:SongData = {
 			songId: _song.songId,
 			songName: _song.songName,
-			notes: [],
-			events: _song.events,
-			bpm: _song.bpm,
-			needsVoices: _song.needsVoices,
-			speed: _song.speed,
-			arrowSkin: _song.arrowSkin,
-			splashSkin: _song.splashSkin,
-
 			player1: _song.player1,
 			player2: _song.player2,
 			gfVersion: _song.gfVersion,
 			stage: _song.stage,
-			validScore: false
+			bpm: _song.bpm,
+			speed: _song.speed,
+			needsVoices: _song.needsVoices,
+			arrowSkin: _song.arrowSkin,
+			splashSkin: _song.splashSkin,
+			validScore: false,
+			notes: [],
+			events: _song.events
 		};
 		var json = {
 			"song": eventsSong

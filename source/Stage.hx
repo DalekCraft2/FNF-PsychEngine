@@ -22,20 +22,52 @@ typedef StageData =
 	var opponent:Array<Dynamic>;
 }
 
+/* TODO Move the hard-coded stage generation to here, 
+	and use a map for storing the sprites (like Kade 1.8) instead of having dedicated variables for each one */
 class Stage
 {
+	/**
+	 * The internal name of the stage, as used in the file system.
+	 */
+	public var id:String;
+
+	public var directory:String;
+	public var defaultZoom:Float;
+	public var isPixelStage:Bool;
+
+	public var boyfriend:Array<Dynamic>;
+	public var girlfriend:Array<Dynamic>;
+	public var opponent:Array<Dynamic>;
+
+	public function new(stageId:String)
+	{
+		id = stageId;
+		var stageData:StageData = getStageFile(stageId);
+		copyDataFields(stageData);
+	}
+
+	public function copyDataFields(stageData:StageData)
+	{
+		directory = stageData.directory;
+		defaultZoom = stageData.defaultZoom;
+		isPixelStage = stageData.isPixelStage;
+		boyfriend = stageData.boyfriend;
+		girlfriend = stageData.girlfriend;
+		opponent = stageData.opponent;
+	}
+
 	public static var forceNextDirectory:String = null;
 
-	public static function loadDirectory(SONG:SongData)
+	public static function loadDirectory(song:SongData)
 	{
 		var stage:String = '';
-		if (SONG.stage != null)
+		if (song.stage != null)
 		{
-			stage = SONG.stage;
+			stage = song.stage;
 		}
-		else if (SONG.songId != null)
+		else if (song.songId != null)
 		{
-			switch (SONG.songId)
+			switch (song.songId)
 			{
 				case 'spookeez' | 'south' | 'monster':
 					stage = 'spooky';

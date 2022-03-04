@@ -1421,7 +1421,7 @@ class PlayState extends MusicBeatState
 	// You don't have to add a song, just saying. You can just do "startDialogue(dialogueJson);" and it should work
 	public function startDialogue(dialogueFile:DialogueData, ?song:String = null):Void
 	{
-		// TO DO: Make this more flexible, maybe?
+		// TODO: Make this more flexible, maybe?
 		if (psychDialogue != null)
 			return;
 
@@ -2209,11 +2209,12 @@ class PlayState extends MusicBeatState
 
 	override public function onFocusLost():Void
 	{
-		if (!paused)
+		if (!paused && !inCutscene)
 		{
 			var ret:Dynamic = callOnLuas('onPause', []);
 			if (ret != FunkinLua.Function_Stop)
 			{
+				boyfriend.stunned = true;
 				persistentUpdate = false;
 				persistentDraw = true;
 				paused = true;

@@ -612,6 +612,7 @@ class ScrollOption extends Option
 	}
 }
 
+// TODO Combine this with Psych's options for directly editing judgements
 class JudgementsOption extends Option
 {
 	private var names:Array<String>;

@@ -1,6 +1,10 @@
 {
-  "offset": 0,
-  "name": "Winter Horrorland",
-  "icon": "monster",
-  "color": [160, 209, 255]
+    "offset": 0,
+    "name": "Winter Horrorland",
+    "icon": "monster",
+    "color": [
+        160,
+        209,
+        255
+    ]
 }

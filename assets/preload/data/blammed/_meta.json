@@ -1,6 +1,10 @@
 {
-  "offset": 0,
-  "name": "Blammed",
-  "icon": "pico",
-  "color": [148, 22, 83]
+    "offset": 0,
+    "name": "Blammed",
+    "icon": "pico",
+    "color": [
+        148,
+        22,
+        83
+    ]
 }

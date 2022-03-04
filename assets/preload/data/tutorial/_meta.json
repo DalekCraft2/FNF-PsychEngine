@@ -1,6 +1,10 @@
 {
-  "offset": 0,
-  "name": "Tutorial",
-  "icon": "gf",
-  "color": [165, 0, 77]
+    "offset": 0,
+    "name": "Tutorial",
+    "icon": "gf",
+    "color": [
+        165,
+        0,
+        77
+    ]
 }

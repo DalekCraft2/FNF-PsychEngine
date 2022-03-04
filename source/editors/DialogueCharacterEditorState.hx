@@ -232,7 +232,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 				ghostIdle.playAnim(anim, true);
 
 				curSelectedAnim = anim;
-				var animShit:DialogueAnimArray = character.dialogueAnimations.get(curSelectedAnim);
+				var animShit:DialogueAnimationData = character.dialogueAnimations.get(curSelectedAnim);
 				offsetLoopText.text = 'Loop: ' + animShit.loop_offsets;
 				offsetIdleText.text = 'Idle: ' + animShit.idle_offsets;
 
@@ -256,7 +256,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 			{
 				for (i in 0...character.jsonFile.animations.length)
 				{
-					var animArray:DialogueAnimArray = character.jsonFile.animations[i];
+					var animArray:DialogueAnimationData = character.jsonFile.animations[i];
 					if (animArray.anim.trim() == theAnim)
 					{
 						animArray.loop_name = loopInputText.text;
@@ -276,7 +276,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 			}
 			else // Add
 			{
-				var newAnim:DialogueAnimArray = {
+				var newAnim:DialogueAnimationData = {
 					anim: theAnim,
 					loop_name: loopInputText.text,
 					loop_offsets: [0, 0],
@@ -298,7 +298,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		{
 			for (i in 0...character.jsonFile.animations.length)
 			{
-				var animArray:DialogueAnimArray = character.jsonFile.animations[i];
+				var animArray:DialogueAnimationData = character.jsonFile.animations[i];
 				if (animArray != null && animArray.anim.trim() == animationInputText.text.trim())
 				{
 					var lastSelected:String = animationDropDown.selectedLabel;
@@ -458,7 +458,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		if (character.jsonFile.animations.length > 0)
 		{
 			curSelectedAnim = character.jsonFile.animations[0].anim;
-			var animShit:DialogueAnimArray = character.dialogueAnimations.get(curSelectedAnim);
+			var animShit:DialogueAnimationData = character.dialogueAnimations.get(curSelectedAnim);
 			ghostLoop.playAnim(animShit.anim);
 			ghostIdle.playAnim(animShit.anim, true);
 			offsetLoopText.text = 'Loop: ' + animShit.loop_offsets;
@@ -609,7 +609,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 				&& character.dialogueAnimations.exists(curSelectedAnim))
 			{
 				var moved:Bool = false;
-				var animShit:DialogueAnimArray = character.dialogueAnimations.get(curSelectedAnim);
+				var animShit:DialogueAnimationData = character.dialogueAnimations.get(curSelectedAnim);
 				var controlArrayLoop:Array<Bool> = [
 					FlxG.keys.justPressed.A,
 					FlxG.keys.justPressed.W,

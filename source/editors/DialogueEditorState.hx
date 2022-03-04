@@ -473,7 +473,7 @@ class DialogueEditorState extends MusicBeatState
 		{
 			for (i in 0...leLength)
 			{
-				var leAnim:DialogueAnimArray = character.jsonFile.animations[i];
+				var leAnim:DialogueAnimationData = character.jsonFile.animations[i];
 				if (leAnim != null && leAnim.anim == curDialogue.expression)
 				{
 					curAnim = i;

@@ -14,20 +14,23 @@ typedef SectionData =
 
 class Section
 {
-	public var sectionNotes:Array<Dynamic> = [];
-
+	public var notes:Array<Dynamic> = [];
 	public var lengthInSteps:Int = 16;
-	public var gfSection:Bool = false;
 	public var typeOfSection:Int = 0;
 	public var mustHitSection:Bool = true;
+	public var gfSection:Bool = false;
 
 	/**
 	 *	Copies the first section into the second section!
 	 */
 	public static var COPYCAT:Int = 0;
 
-	public function new(lengthInSteps:Int = 16)
+	public function new(sectionData:SectionData)
 	{
-		this.lengthInSteps = lengthInSteps;
+		notes = sectionData.sectionNotes;
+		lengthInSteps = sectionData.lengthInSteps;
+		typeOfSection = sectionData.typeOfSection;
+		mustHitSection = sectionData.mustHitSection;
+		gfSection = sectionData.gfSection;
 	}
 }

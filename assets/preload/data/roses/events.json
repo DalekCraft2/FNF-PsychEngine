@@ -1,10 +1,13 @@
 {
 	"song": {
-		"speed": 1.5,
-		"stage": null,
 		"player1": "bf-pixel",
 		"player2": "senpai-angry",
 		"gfVersion": "gf-pixel",
+		"stage": "school",
+		"bpm": 120,
+		"speed": 1.5,
+		"needsVoices": true,
+		"validScore": true,
 		"notes": [
 			{
 				"lengthInSteps": 16,
@@ -455,11 +458,6 @@
 				"changeBPM": false,
 				"mustHitSection": false
 			}
-		],
-		"splashSkin": null,
-		"validScore": false,
-		"bpm": 120,
-		"arrowSkin": null,
-		"needsVoices": true
+		]
 	}
 }

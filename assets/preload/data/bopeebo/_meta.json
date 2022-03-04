@@ -1,6 +1,10 @@
 {
-  "offset": 0,
-  "name": "Bopeebo",
-  "icon": "dad",
-  "color": [146, 113, 253]
+    "offset": 0,
+    "name": "Bopeebo",
+    "icon": "dad",
+    "color": [
+        146,
+        113,
+        253
+    ]
 }

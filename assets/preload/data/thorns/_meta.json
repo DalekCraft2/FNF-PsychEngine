@@ -1,6 +1,10 @@
 {
-  "offset": 0,
-  "name": "Thorns",
-  "icon": "spirit-pixel",
-  "color": [255, 120, 191]
+    "offset": 0,
+    "name": "Thorns",
+    "icon": "spirit-pixel",
+    "color": [
+        255,
+        120,
+        191
+    ]
 }

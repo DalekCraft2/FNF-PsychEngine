@@ -634,7 +634,7 @@ class CharacterEditorState extends MusicBeatState
 			function(pressed:String)
 			{
 				var selectedAnimation:Int = Std.parseInt(pressed);
-				var anim:AnimArray = char.animationsArray[selectedAnimation];
+				var anim:AnimationData = char.animationsArray[selectedAnimation];
 				animationInputText.text = anim.anim;
 				animationNameInputText.text = anim.name;
 				animationLoopCheckBox.checked = anim.loop;
@@ -694,7 +694,7 @@ class CharacterEditorState extends MusicBeatState
 				}
 			}
 
-			var newAnim:AnimArray = {
+			var newAnim:AnimationData = {
 				anim: animationInputText.text,
 				name: animationNameInputText.text,
 				fps: Math.round(animationNameFramerate.value),
@@ -880,7 +880,7 @@ class CharacterEditorState extends MusicBeatState
 		{
 			lastAnim = char.animation.curAnim.name;
 		}
-		var anims:Array<AnimArray> = char.animationsArray.copy();
+		var anims:Array<AnimationData> = char.animationsArray.copy();
 		if (Paths.fileExists('images/${char.imageFile}/Animation.json', TEXT))
 		{
 			char.frames = AtlasFrameMaker.construct(char.imageFile);
@@ -1005,7 +1005,7 @@ class CharacterEditorState extends MusicBeatState
 		/* THIS FUNCTION WAS USED TO PUT THE .TXT OFFSETS INTO THE .JSON
 
 			for (anim => offset in char.animOffsets) {
-				var leAnim:AnimArray = findAnimationByName(anim);
+				var leAnim:AnimationData = findAnimationByName(anim);
 				if(leAnim != null) {
 					leAnim.offsets = [offset[0], offset[1]];
 				}
@@ -1039,7 +1039,7 @@ class CharacterEditorState extends MusicBeatState
 		cameraFollowPointer.setPosition(x, y);
 	}
 
-	function findAnimationByName(name:String):AnimArray
+	function findAnimationByName(name:String):AnimationData
 	{
 		for (anim in char.animationsArray)
 		{

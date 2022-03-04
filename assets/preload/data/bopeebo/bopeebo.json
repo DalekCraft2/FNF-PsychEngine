@@ -2,6 +2,12 @@
 	"song": {
 		"player1": "bf",
 		"player2": "dad",
+		"gfVersion": "gf",
+		"stage": "stage",
+		"bpm": 100,
+		"speed": 1,
+		"needsVoices": true,
+		"validScore": true,
 		"notes": [
 			{
 				"lengthInSteps": 16,
@@ -839,11 +845,6 @@
 				"changeBPM": false,
 				"mustHitSection": true
 			}
-		],
-		"gfVersion": "gf",
-		"needsVoices": true,
-		"validScore": true,
-		"speed": 1,
-		"bpm": 100
+		]
 	}
 }

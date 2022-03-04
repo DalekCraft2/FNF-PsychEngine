@@ -19,12 +19,12 @@ typedef DialogueCharacterData =
 	var image:String;
 	var dialogue_pos:String;
 
-	var animations:Array<DialogueAnimArray>;
+	var animations:Array<DialogueAnimationData>;
 	var position:Array<Float>;
 	var scale:Float;
 }
 
-typedef DialogueAnimArray =
+typedef DialogueAnimationData =
 {
 	var anim:String;
 	var loop_name:String;
@@ -59,9 +59,9 @@ class DialogueCharacter extends FlxSprite
 
 	public var jsonFile:DialogueCharacterData = null;
 	#if (haxe >= "4.0.0")
-	public var dialogueAnimations:Map<String, DialogueAnimArray> = new Map();
+	public var dialogueAnimations:Map<String, DialogueAnimationData> = new Map();
 	#else
-	public var dialogueAnimations:Map<String, DialogueAnimArray> = new Map<String, DialogueAnimArray>();
+	public var dialogueAnimations:Map<String, DialogueAnimationData> = new Map<String, DialogueAnimationData>();
 	#end
 
 	public var startingPos:Float = 0; // For center characters, it works as the starting Y, for everything else it works as starting X
@@ -149,7 +149,7 @@ class DialogueCharacter extends FlxSprite
 
 		if (dialogueAnimations.exists(leAnim))
 		{
-			var anim:DialogueAnimArray = dialogueAnimations.get(leAnim);
+			var anim:DialogueAnimationData = dialogueAnimations.get(leAnim);
 			if (playIdle)
 			{
 				offset.set(anim.idle_offsets[0], anim.idle_offsets[1]);
