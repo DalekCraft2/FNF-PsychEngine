@@ -2070,7 +2070,7 @@ class ChartingState extends MusicBeatState
 					{
 						if ((playSoundBf.checked && note.mustPress) || (playSoundDad.checked && !note.mustPress))
 						{
-							var soundToPlay = 'ChartingTick';
+							var soundToPlay = 'hitsound';
 							if (_song.player1 == 'gf')
 							{ // Easter egg
 								soundToPlay = 'GF_' + Std.string(data + 1);

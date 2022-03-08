@@ -11,6 +11,8 @@ import sys.thread.Thread;
 
 class DiscordClient
 {
+	public static var isInitialized:Bool = false;
+
 	public static function shutdown()
 	{
 		DiscordRpc.shutdown();
@@ -47,6 +49,8 @@ class DiscordClient
 		});
 		Debug.logTrace("Discord Client started.");
 
+		DiscordRpc.shutdown();
+
 		Thread.create(() ->
 		{
 			while (true)
@@ -56,7 +60,8 @@ class DiscordClient
 				sleep(2);
 			}
 		});
-		Debug.logTrace("Discord Client initialized.");
+		Debug.logTrace("Discord Client initialized");
+		isInitialized = true;
 	}
 
 	public static function changePresence(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float)

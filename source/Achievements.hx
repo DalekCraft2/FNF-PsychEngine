@@ -3,21 +3,11 @@ package;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import haxe.Json;
-import lime.utils.Assets;
-import openfl.utils.Assets as OpenFlAssets;
 import options.Options.OptionUtils;
-#if FEATURE_MODS
-import sys.FileSystem;
-import sys.io.File;
-#end
-
-using StringTools;
 
 typedef AchievementData =
 {
@@ -31,9 +21,8 @@ typedef AchievementData =
 
 class Achievements
 {
-	public static var achievementShits:Array<AchievementData> = [
-		// Name, Description, Achievement save tag, Unlocks after, Hidden achievement
-		// Set unlock after to "null" if it doesnt unlock after a week!!
+	public static var achievementsStuff:Array<AchievementData> = [
+		// Name, Description, Achievement save tag, Hidden achievement
 		{
 			name: "Freaky on a Friday Night",
 			description: "Play on a Friday... Night.",
@@ -163,13 +152,7 @@ class Achievements
 			customGoal: false
 		}
 	];
-
-	public static var achievementsStuff:Array<AchievementData> = [
-		// Gets filled when loading achievements
-	];
-
 	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
-	public static var loadedAchievements:Map<String, AchievementData> = new Map<String, AchievementData>();
 
 	public static var henchmenDeath:Int = 0;
 
@@ -185,9 +168,9 @@ class Achievements
 
 	public static function isAchievementUnlocked(name:String)
 	{
-		if (achievementsMap.exists(name))
+		if (achievementsMap.exists(name) && achievementsMap.get(name))
 		{
-			return achievementsMap.get(name);
+			return true;
 		}
 		return false;
 	}
@@ -206,13 +189,6 @@ class Achievements
 
 	public static function loadAchievements():Void
 	{
-		achievementsStuff = [];
-		achievementsStuff = achievementShits;
-
-		#if FEATURE_MODS
-		// reloadAchievements(); //custom achievements do not work. will add once it doesn't do the duplication bug -bb
-		#end
-
 		if (FlxG.save.data != null)
 		{
 			if (FlxG.save.data.achievementsMap != null)
@@ -248,125 +224,6 @@ class Achievements
 
 		// EDIT 2: Uhh this is weird, this message was written for MInd Games, so it doesn't apply logically for Psych Engine LOL
 	}
-
-	public static function reloadAchievements()
-	{ // Achievements in game are hardcoded, no need to make a folder for them
-		// TODO Screw hardcoding. I want to make these into JSONs.
-		loadedAchievements.clear();
-
-		#if FEATURE_MODS // Based on Week.hx
-		var disabledMods:Array<String> = [];
-		var modsListPath:String = 'modsList.txt';
-		var directories:Array<String> = [Paths.mods()];
-		if (FileSystem.exists(modsListPath))
-		{
-			var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);
-			for (i in 0...stuff.length)
-			{
-				var splitName:Array<String> = stuff[i].trim().split('|');
-				if (splitName[1] == '0') // Disable mod
-				{
-					disabledMods.push(splitName[0]);
-				}
-				else // Sort mod loading order based on modsList.txt file
-				{
-					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
-					// Debug.logTrace('Trying to push: ${splitName[0]}');
-					if (FileSystem.isDirectory(path)
-						&& !Paths.ignoreModFolders.contains(splitName[0])
-						&& !disabledMods.contains(splitName[0])
-						&& !directories.contains(path + '/'))
-					{
-						directories.push(path + '/');
-						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
-					}
-				}
-			}
-		}
-
-		var modsDirectories:Array<String> = Paths.getModDirectories();
-		for (folder in modsDirectories)
-		{
-			var pathThing:String = haxe.io.Path.join([Paths.mods(), folder]) + '/';
-			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
-			{
-				directories.push(pathThing);
-				// Debug.logTrace('Pushed Directory: $folder');
-			}
-		}
-
-		for (i in 0...directories.length)
-		{
-			var directory:String = directories[i] + 'achievements/';
-
-			// Debug.logTrace(directory);
-			if (FileSystem.exists(directory))
-			{
-				var listOfAchievements:Array<String> = CoolUtil.coolTextFile(directory + 'achievementList.txt');
-
-				for (achievement in listOfAchievements)
-				{
-					var path:String = directory + achievement + '.json';
-
-					if (FileSystem.exists(path) && !loadedAchievements.exists(achievement) && achievement != PlayState.othersCodeName)
-					{
-						loadedAchievements.set(achievement, getAchievementInfo(path));
-					}
-
-					// Debug.logTrace(path);
-				}
-
-				for (file in FileSystem.readDirectory(directory))
-				{
-					var path = haxe.io.Path.join([directory, file]);
-
-					var cutName:String = file.substr(0, file.length - 5);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json') && !loadedAchievements.exists(cutName) && cutName != PlayState.othersCodeName)
-					{
-						loadedAchievements.set(cutName, getAchievementInfo(path));
-					}
-
-					// Debug.logTrace(file);
-				}
-			}
-		}
-
-		for (json in loadedAchievements)
-		{
-			// Debug.logTrace(json);
-			achievementsStuff.push({
-				name: json.name,
-				description: json.description,
-				icon: json.icon,
-				unlocksAfter: json.unlocksAfter,
-				hidden: json.hidden,
-				customGoal: json.customGoal
-			});
-		}
-		#end
-	}
-
-	private static function getAchievementInfo(path:String):AchievementData
-	{
-		var rawJson:String = null;
-		#if FEATURE_MODS
-		if (FileSystem.exists(path))
-		{
-			rawJson = File.getContent(path);
-		}
-		#else
-		if (OpenFlAssets.exists(path))
-		{
-			rawJson = Assets.getText(path);
-		}
-		#end
-
-		if (rawJson != null && rawJson.length > 0)
-		{
-			return cast Json.parse(rawJson);
-		}
-		return null;
-	}
 }
 
 class AttachedAchievement extends FlxSprite
@@ -393,23 +250,8 @@ class AttachedAchievement extends FlxSprite
 	{
 		if (Achievements.isAchievementUnlocked(tag))
 		{
-			var imagePath:FlxGraphic = Paths.image('achievementgrid');
-			var isModIcon:Bool = false;
-
-			if (Achievements.loadedAchievements.exists(tag))
-			{
-				isModIcon = true;
-				imagePath = Paths.image(Achievements.loadedAchievements.get(tag).icon);
-			}
-
-			var index:Int = Achievements.getAchievementIndex(tag);
-			if (isModIcon)
-				index = 0;
-
-			// Debug.logTrace(imagePath);
-
-			loadGraphic(imagePath, true, 150, 150);
-			animation.add('icon', [index], 0, false, false);
+			loadGraphic(Paths.image('achievementgrid'), true, 150, 150);
+			animation.add('icon', [Achievements.getAchievementIndex(tag)], 0, false, false);
 			animation.play('icon');
 		}
 		else
@@ -441,50 +283,23 @@ class Achievement extends FlxSpriteGroup
 		OptionUtils.saveOptions(OptionUtils.options);
 
 		var id:Int = Achievements.getAchievementIndex(name);
-		var achieveName:String = Achievements.achievementsStuff[id].name;
-		var text:String = Achievements.achievementsStuff[id].description;
-
-		if (Achievements.loadedAchievements.exists(name))
-		{
-			id = 0;
-			achieveName = Achievements.loadedAchievements.get(name).name;
-			text = Achievements.loadedAchievements.get(name).description;
-		}
-
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
-		var imagePath = Paths.image('achievementgrid');
-		var modsImage = null;
-		var isModIcon:Bool = false;
-
-		// fucking hell bro
-		/*if (Achievements.loadedAchievements.exists(name)) {
-			isModIcon = true;
-			modsImage = Paths.image(Achievements.loadedAchievements.get(name).icon);
-		}*/
-
-		var index:Int = Achievements.getAchievementIndex(name);
-		if (isModIcon)
-			index = 0;
-
-		// Debug.logTrace(imagePath);
-		// Debug.logTrace(modsImage);
-
-		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10,
-			achievementBG.y + 10).loadGraphic((isModIcon ? modsImage : imagePath), true, 150, 150);
-		achievementIcon.animation.add('icon', [index], 0, false, false);
+		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.image('achievementgrid'), true, 150, 150);
+		achievementIcon.animation.add('icon', [id], 0, false, false);
 		achievementIcon.animation.play('icon');
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = OptionUtils.options.globalAntialiasing;
 
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achieveName, 16);
+		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280,
+			Achievements.achievementsStuff[id].name, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, text, 16);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementsStuff[id].description, 16);
 		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementText.scrollFactor.set();
 

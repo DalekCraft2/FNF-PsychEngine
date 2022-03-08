@@ -231,7 +231,7 @@ class Paths
 		return 'assets/videos/$key.$VIDEO_EXT';
 	}
 
-	static public function sound(key:String, ?library:String)
+	static public function sound(key:String, ?library:String):Sound
 	{
 		return returnSound('sounds', key, library);
 	}
@@ -241,7 +241,7 @@ class Paths
 		return sound('$key${FlxG.random.int(min, max)}', library);
 	}
 
-	inline static public function music(key:String, ?library:String)
+	inline static public function music(key:String, ?library:String):Sound
 	{
 		return returnSound('music', key, library);
 	}

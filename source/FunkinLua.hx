@@ -264,11 +264,20 @@ class FunkinLua
 			luaTrace('The script "$cervix" doesn\'t exist!');
 		});
 
-		// stuff 4 noobz like you B)
-
-		Lua_helper.add_callback(lua, "loadGraphic", function(variable:String, image:String)
+		Lua_helper.add_callback(lua, "loadSong", function(?name:String = null, ?difficultyNum:Int = -1)
 		{
-			var spr:FlxSprite = getObjectDirectly(variable);
+			if (name == null || name.length < 1)
+				name = PlayState.song.songId;
+			if (difficultyNum == -1)
+				difficultyNum = PlayState.storyDifficulty;
+
+			var poop = Highscore.formatSong(name, difficultyNum);
+			PlayState.song = Song.loadFromJson(poop, name);
+			PlayState.storyDifficulty = difficultyNum;
+			PlayState.instance.persistentUpdate = false;
+			LoadingState.loadAndSwitchState(new PlayState());
+
+			FlxG.sound.music.volume = 0;
 			if (spr != null && image != null && image.length > 0)
 			{
 				spr.loadGraphic(Paths.image(image));
@@ -1108,7 +1117,7 @@ class FunkinLua
 					if (PlayState.instance.opponent.animOffsets.exists(anim))
 						PlayState.instance.opponent.playAnim(anim, forced);
 				case 'gf' | 'girlfriend':
-					if (PlayState.instance.gf.animOffsets.exists(anim))
+					if (PlayState.instance.gf != null && PlayState.instance.gf.animOffsets.exists(anim))
 						PlayState.instance.gf.playAnim(anim, forced);
 				default:
 					if (PlayState.instance.boyfriend.animOffsets.exists(anim))
@@ -1122,7 +1131,8 @@ class FunkinLua
 				case 'dad' | 'opponent':
 					PlayState.instance.opponent.dance();
 				case 'gf' | 'girlfriend':
-					PlayState.instance.gf.dance();
+					if (PlayState.instance.gf != null)
+						PlayState.instance.gf.dance();
 				default:
 					PlayState.instance.boyfriend.dance();
 			}

@@ -21,6 +21,7 @@ typedef WeekData =
 	var weekName:String;
 	var freeplayColor:Array<Int>;
 	var startUnlocked:Bool;
+	var hiddenUntilUnlocked:Bool;
 	var hideStoryMode:Bool;
 	var hideFreeplay:Bool;
 	var difficulties:String;
@@ -42,9 +43,12 @@ class Week
 	public var weekName:String;
 	public var freeplayColor:Array<Int>;
 	public var startUnlocked:Bool;
+	public var hiddenUntilUnlocked:Bool;
 	public var hideStoryMode:Bool;
 	public var hideFreeplay:Bool;
 	public var difficulties:String;
+
+	public var fileName:String;
 
 	public static function createWeekData():WeekData
 	{
@@ -61,6 +65,7 @@ class Week
 			weekName: 'Custom Week',
 			freeplayColor: [146, 113, 253],
 			startUnlocked: true,
+			hiddenUntilUnlocked: false,
 			hideStoryMode: false,
 			hideFreeplay: false,
 			difficulties: ''
@@ -69,7 +74,7 @@ class Week
 	}
 
 	// HELP: Is there any way to convert a WeekData to Week without having to put all variables there manually? I'm kind of a noob in haxe lmao
-	public function new(weekData:WeekData)
+	public function new(weekData:WeekData, fileName:String)
 	{
 		songs = weekData.songs;
 		weekCharacters = weekData.weekCharacters;
@@ -79,9 +84,12 @@ class Week
 		weekName = weekData.weekName;
 		freeplayColor = weekData.freeplayColor;
 		startUnlocked = weekData.startUnlocked;
+		hiddenUntilUnlocked = weekData.hiddenUntilUnlocked;
 		hideStoryMode = weekData.hideStoryMode;
 		hideFreeplay = weekData.hideFreeplay;
 		difficulties = weekData.difficulties;
+
+		this.fileName = fileName;
 	}
 
 	public static function reloadWeekData(isStoryMode:Null<Bool> = false)
@@ -145,7 +153,7 @@ class Week
 					var weekData:WeekData = getWeekData(fileToCheck);
 					if (weekData != null)
 					{
-						var week:Week = new Week(weekData);
+						var week:Week = new Week(weekData, sexList[i]);
 
 						#if FEATURE_MODS
 						if (j >= originalLength)
@@ -201,7 +209,7 @@ class Week
 			var weekData:WeekData = getWeekData(path);
 			if (weekData != null)
 			{
-				var week:Week = new Week(weekData);
+				var week:Week = new Week(weekData, weekToCheck);
 				if (i >= originalLength)
 				{
 					#if FEATURE_MODS

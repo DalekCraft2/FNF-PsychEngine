@@ -109,6 +109,7 @@ class Character extends FlxSprite
 	function parseDataFile()
 	{
 		var characterPath:String = 'characters/$curCharacter.json';
+
 		#if FEATURE_MODS
 		var path:String = Paths.modFolders(characterPath);
 		if (!FileSystem.exists(path))
@@ -122,7 +123,8 @@ class Character extends FlxSprite
 		if (!Assets.exists(path))
 		#end
 		{
-			path = Paths.getPreloadPath('characters/$DEFAULT_CHARACTER.json'); // If a character couldn't be found, change him to BF just to prevent a crash
+			// If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getPreloadPath('characters/$DEFAULT_CHARACTER.json');
 		}
 
 		#if FEATURE_MODS
@@ -177,7 +179,6 @@ class Character extends FlxSprite
 			case "texture":
 				frames = AtlasFrameMaker.construct(json.image);
 		}
-
 		imageFile = json.image;
 
 		if (json.scale != 1)
@@ -342,9 +343,30 @@ class Character extends FlxSprite
 		PlayState.instance.updateDirectionalCamera();
 	}
 
+	public var danceEveryNumBeats:Int = 2;
+
+	private var settingCharacterUp:Bool = true;
+
 	public function recalculateDanceIdle()
 	{
+		var lastDanceIdle:Bool = danceIdle;
 		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
+
+		if (settingCharacterUp)
+		{
+			danceEveryNumBeats = (danceIdle ? 1 : 2);
+		}
+		else if (lastDanceIdle != danceIdle)
+		{
+			var calc:Float = danceEveryNumBeats;
+			if (danceIdle)
+				calc /= 2;
+			else
+				calc *= 2;
+
+			danceEveryNumBeats = Math.round(Math.max(calc, 1));
+		}
+		settingCharacterUp = false;
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)

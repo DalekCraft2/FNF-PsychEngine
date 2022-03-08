@@ -59,6 +59,8 @@
 	<define name="FEATURE_VIDEOS" if="web || windows" unless="32bits" />
 	<!-- Defines whether watermarks should display on the title screen. -->
 	<define name="PSYCH_WATERMARKS" />
+	<!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
+	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild"/>
 
 	<!-- DON'T ENABLE THIS -->
 	<define name="CHECK_FOR_UPDATES" if="desktop officialBuild" />
@@ -87,6 +89,10 @@
 		<library name="week6" preload="false" />
 	</section>
 
+	<section if="TITLE_SCREEN_EASTER_EGG">
+		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web"/>
+		<assets path="assets/secrets" rename="assets" exclude="*.mp3"  unless="web"/>
+	</section>
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
 	<assets path="assets/songs" library="songs" exclude="*.ogg" if="web" />

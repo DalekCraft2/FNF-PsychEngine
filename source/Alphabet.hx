@@ -1,5 +1,6 @@
 package;
 
+import flash.media.Sound;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
@@ -214,7 +215,19 @@ class Alphabet extends FlxSpriteGroup
 	public var curRow:Int = 0;
 
 	var dialogueSound:FlxSound = null;
+
+	private static var soundDialog:Sound = null;
+
 	var consecutiveSpaces:Int = 0;
+
+	public static function setDialogueSound(name:String = '')
+	{
+		if (name == null || name.trim() == '')
+			name = 'dialogue';
+		soundDialog = Paths.sound(name);
+		if (soundDialog == null)
+			soundDialog = Paths.sound('dialogue');
+	}
 
 	var typeTimer:FlxTimer = null;
 
@@ -225,6 +238,11 @@ class Alphabet extends FlxSpriteGroup
 
 		// Debug.logTrace(arrayShit);
 
+		if (soundDialog == null)
+		{
+			Alphabet.setDialogueSound();
+		}
+
 		if (speed <= 0)
 		{
 			while (!finishedText)
@@ -233,7 +251,7 @@ class Alphabet extends FlxSpriteGroup
 			}
 			if (dialogueSound != null)
 				dialogueSound.stop();
-			dialogueSound = FlxG.sound.play(Paths.sound('dialogue'));
+			dialogueSound = FlxG.sound.play(soundDialog);
 		}
 		else
 		{
@@ -346,7 +364,7 @@ class Alphabet extends FlxSpriteGroup
 				{
 					if (dialogueSound != null)
 						dialogueSound.stop();
-					dialogueSound = FlxG.sound.play(Paths.sound('dialogue'));
+					dialogueSound = FlxG.sound.play(soundDialog);
 				}
 
 				add(letter);

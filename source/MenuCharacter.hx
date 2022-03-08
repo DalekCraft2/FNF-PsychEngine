@@ -16,11 +16,13 @@ typedef MenuCharacterData =
 	var position:Array<Int>;
 	var idle_anim:String;
 	var confirm_anim:String;
+	var flipX:Bool;
 }
 
 class MenuCharacter extends FlxSprite
 {
 	public var character:String;
+	public var hasConfirmAnimation:Bool = false;
 
 	private static var DEFAULT_CHARACTER:String = 'bf';
 
@@ -46,6 +48,7 @@ class MenuCharacter extends FlxSprite
 		scale.set(1, 1);
 		updateHitbox();
 
+		hasConfirmAnimation = false;
 		switch (character)
 		{
 			case '':
@@ -79,7 +82,16 @@ class MenuCharacter extends FlxSprite
 				var charFile:MenuCharacterData = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/${charFile.image}');
 				animation.addByPrefix('idle', charFile.idle_anim, 24);
-				animation.addByPrefix('confirm', charFile.confirm_anim, 24, false);
+
+				var confirmAnim:String = charFile.confirm_anim;
+				if (confirmAnim != null && confirmAnim != charFile.idle_anim)
+				{
+					animation.addByPrefix('confirm', confirmAnim, 24, false);
+					if (animation.getByName('confirm') != null) // check for invalid animation
+						hasConfirmAnimation = true;
+				}
+
+				flipX = (charFile.flipX == true);
 
 				if (charFile.scale != 1)
 				{
