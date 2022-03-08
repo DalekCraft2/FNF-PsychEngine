@@ -238,7 +238,7 @@ class TitleState extends MusicBeatState
 				gfDance.animation.addByIndices('danceLeft', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
 				gfDance.animation.addByIndices('danceRight', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
 		}
-		gfDance.antialiasing = ClientPrefs.globalAntialiasing;
+		gfDance.antialiasing = OptionUtils.options.globalAntialiasing;
 
 		add(gfDance);
 		gfDance.shader = swagShader.shader;
@@ -398,14 +398,14 @@ class TitleState extends MusicBeatState
 					easterEggKeysBuffer += keyName;
 					if (easterEggKeysBuffer.length >= 32)
 						easterEggKeysBuffer = easterEggKeysBuffer.substring(1);
-					// trace('Test! Allowed Key pressed!!! Buffer: ' + easterEggKeysBuffer);
+					// Debug.logTrace('Test! Allowed Key pressed!!! Buffer: $easterEggKeysBuffer');
 
 					for (wordRaw in easterEggKeys)
 					{
 						var word:String = wordRaw.toUpperCase(); // just for being sure you're doing it right
 						if (easterEggKeysBuffer.contains(word))
 						{
-							// trace('YOOO! ' + word);
+							// Debug.logTrace('YOOO! $word');
 							if (FlxG.save.data.psychDevsEasterEgg == word)
 								FlxG.save.data.psychDevsEasterEgg = '';
 							else
@@ -628,6 +628,8 @@ class TitleState extends MusicBeatState
 			}
 			else // Default! Edit this one!!
 			{
+				Debug.logInfo("Skipping intro...");
+
 				remove(ngSpr);
 				remove(credGroup);
 				FlxG.camera.flash(FlxColor.WHITE, 4);
@@ -642,6 +644,10 @@ class TitleState extends MusicBeatState
 					FlxG.sound.music.fadeOut();
 				}
 				#end
+
+				// It always bugged me that it didn't do this before.
+				// Skip ahead in the song to the drop.
+				FlxG.sound.music.time = 9400; // 9.4 seconds
 			}
 			skippedIntro = true;
 		}

@@ -28,7 +28,7 @@ class SMHeader
 			readHeaderLine(i);
 		}
 
-		trace(BPMS);
+		Debug.logTrace(BPMS);
 
 		MUSIC = StringTools.replace(MUSIC, " ", "_");
 
@@ -82,7 +82,7 @@ class SMHeader
 				currentIndex++;
 			}
 
-			trace(changeEvents.length + " - BPM CHANGES");
+			Debug.logTrace('${changeEvents.length} - BPM CHANGES');
 			return 0.0;
 		}
 		var returningBPM = Std.parseFloat(bpmSplit[0].split('=')[1]);

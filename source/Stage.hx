@@ -20,6 +20,11 @@ typedef StageData =
 	var boyfriend:Array<Dynamic>;
 	var girlfriend:Array<Dynamic>;
 	var opponent:Array<Dynamic>;
+	var hide_girlfriend:Bool;
+	var camera_boyfriend:Array<Float>;
+	var camera_opponent:Array<Float>;
+	var camera_girlfriend:Array<Float>;
+	var camera_speed:Null<Float>;
 }
 
 /* TODO Move the hard-coded stage generation to here, 
@@ -34,15 +39,19 @@ class Stage
 	public var directory:String;
 	public var defaultZoom:Float;
 	public var isPixelStage:Bool;
-
 	public var boyfriend:Array<Dynamic>;
 	public var girlfriend:Array<Dynamic>;
 	public var opponent:Array<Dynamic>;
+	public var hide_girlfriend:Bool;
+	public var camera_boyfriend:Array<Float>;
+	public var camera_opponent:Array<Float>;
+	public var camera_girlfriend:Array<Float>;
+	public var camera_speed:Null<Float>;
 
 	public function new(stageId:String)
 	{
 		id = stageId;
-		var stageData:StageData = getStageFile(stageId);
+		var stageData:StageData = getStageData(stageId);
 		copyDataFields(stageData);
 	}
 
@@ -54,6 +63,11 @@ class Stage
 		boyfriend = stageData.boyfriend;
 		girlfriend = stageData.girlfriend;
 		opponent = stageData.opponent;
+		hide_girlfriend = stageData.hide_girlfriend;
+		camera_boyfriend = stageData.camera_boyfriend;
+		camera_opponent = stageData.camera_opponent;
+		camera_girlfriend = stageData.camera_girlfriend;
+		camera_speed = stageData.camera_speed;
 	}
 
 	public static var forceNextDirectory:String = null;
@@ -92,7 +106,7 @@ class Stage
 			stage = 'stage';
 		}
 
-		var stageData:StageData = getStageFile(stage);
+		var stageData:StageData = getStageData(stage);
 		if (stageData == null)
 		{ // preventing crashes
 			forceNextDirectory = '';
@@ -103,7 +117,7 @@ class Stage
 		}
 	}
 
-	public static function getStageFile(stage:String):StageData
+	public static function getStageData(stage:String):StageData
 	{
 		var rawJson:String = null;
 		var path:String = Paths.getPreloadPath('stages/$stage.json');

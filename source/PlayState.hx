@@ -1812,7 +1812,7 @@ class PlayState extends MusicBeatState
 								countdownGo.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('introGo$introSoundsSuffix'), 0.6);
 					case 4:
 				}
 
@@ -1919,7 +1919,7 @@ class PlayState extends MusicBeatState
 
 		if (paused)
 		{
-			// trace('Oopsie doopsie! Paused sound');
+			// Debug.logTrace('Oopsie doopsie! Paused sound');
 			FlxG.sound.music.pause();
 			vocals.pause();
 		}
@@ -2182,8 +2182,8 @@ class PlayState extends MusicBeatState
 			if (player < 1 && OptionUtils.options.middleScroll)
 				targetAlpha = 0.35;
 
-			var babyArrow:StrumNote = new StrumNote(ClientPrefs.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
-			babyArrow.downScroll = ClientPrefs.downScroll;
+			var babyArrow:StrumNote = new StrumNote(OptionUtils.options.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
+			babyArrow.downScroll = OptionUtils.options.downScroll;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
 				// babyArrow.y -= 10;
@@ -3549,7 +3549,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
 		vocals.pause();
-		if (ClientPrefs.noteOffset <= 0 || ignoreNoteOffset)
+		if (OptionUtils.options.noteOffset <= 0 || ignoreNoteOffset)
 		{
 			finishCallback();
 		}
@@ -3923,9 +3923,9 @@ class PlayState extends MusicBeatState
 		rating.acceleration.y = 550;
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
-		rating.visible = (!ClientPrefs.hideHud && showRating);
-		rating.x += ClientPrefs.comboOffset[0];
-		rating.y -= ClientPrefs.comboOffset[1];
+		rating.visible = (!OptionUtils.options.hideHud && showRating);
+		rating.x += OptionUtils.options.comboOffset[0];
+		rating.y -= OptionUtils.options.comboOffset[1];
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
 		comboSpr.cameras = [camHUD];
@@ -3933,9 +3933,9 @@ class PlayState extends MusicBeatState
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
 		comboSpr.velocity.y -= 150;
-		comboSpr.visible = (!ClientPrefs.hideHud && showCombo);
-		comboSpr.x += ClientPrefs.comboOffset[0];
-		comboSpr.y -= ClientPrefs.comboOffset[1];
+		comboSpr.visible = (!OptionUtils.options.hideHud && showCombo);
+		comboSpr.x += OptionUtils.options.comboOffset[0];
+		comboSpr.y -= OptionUtils.options.comboOffset[1];
 
 		comboSpr.velocity.x += FlxG.random.int(1, 10);
 		insert(members.indexOf(strumLineNotes), rating);
@@ -5201,7 +5201,9 @@ class PlayState extends MusicBeatState
 							}
 						}
 					case 'toastie':
-						if (/*ClientPrefs.framerate <= 60 &&*/ ClientPrefs.lowQuality && !ClientPrefs.globalAntialiasing && !ClientPrefs.imagesPersist)
+						if (/*OptionUtils.options.framerate <= 60 &&*/ OptionUtils.options.lowQuality
+							&& !OptionUtils.options.globalAntialiasing
+							&& !OptionUtils.options.imagesPersist)
 						{
 							unlock = true;
 						}

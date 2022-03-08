@@ -248,7 +248,7 @@ class WeekEditorState extends MusicBeatState
 		hiddenUntilUnlockCheckbox = new FlxUICheckBox(10, lockedCheckbox.y + 25, null, null, "Hidden until Unlocked", 110);
 		hiddenUntilUnlockCheckbox.callback = function()
 		{
-			weekFile.hiddenUntilUnlocked = hiddenUntilUnlockCheckbox.checked;
+			weekData.hiddenUntilUnlocked = hiddenUntilUnlockCheckbox.checked;
 		};
 		hiddenUntilUnlockCheckbox.alpha = 0.4;
 
@@ -296,8 +296,8 @@ class WeekEditorState extends MusicBeatState
 
 		lockedCheckbox.checked = !weekData.startUnlocked;
 		lock.visible = lockedCheckbox.checked;
-		
-		hiddenUntilUnlockCheckbox.checked = weekFile.hiddenUntilUnlocked;
+
+		hiddenUntilUnlockCheckbox.checked = weekData.hiddenUntilUnlocked;
 		hiddenUntilUnlockCheckbox.alpha = 0.4 + 0.6 * (lockedCheckbox.checked ? 1 : 0);
 
 		reloadBG();

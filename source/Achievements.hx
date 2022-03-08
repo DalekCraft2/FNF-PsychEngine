@@ -19,6 +19,7 @@ typedef AchievementData =
 	var customGoal:Bool;
 }
 
+// TODO I think that they removed the JSON stuff for achievements. I'll need to reimplement that.
 class Achievements
 {
 	public static var achievementsStuff:Array<AchievementData> = [

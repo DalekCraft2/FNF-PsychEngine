@@ -95,12 +95,14 @@ class InitState extends FlxUIState
 		super.create();
 
 		#if FEATURE_DISCORD
-		DiscordClient.initialize();
-
-		Application.current.onExit.add(function(exitCode)
+		if (!DiscordClient.isInitialized)
 		{
-			DiscordClient.shutdown();
-		});
+			DiscordClient.initialize();
+			Application.current.onExit.add(function(exitCode)
+			{
+				DiscordClient.shutdown();
+			});
+		}
 		#end
 
 		var canCache = false;

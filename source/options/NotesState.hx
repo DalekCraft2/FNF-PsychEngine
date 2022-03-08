@@ -27,11 +27,23 @@ class NotesState extends MusicBeatState
 	{
 		super();
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xFFea71fd;
-		bg.screenCenter();
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
-		add(bg);
+		if (OptionsSubState.isInPause)
+		{
+			var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+			bg.alpha = 0.6;
+			bg.scrollFactor.set();
+			add(bg);
+
+			// cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+		}
+		else
+		{
+			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+			bg.color = 0xFFea71fd;
+			bg.screenCenter();
+			bg.antialiasing = OptionUtils.options.globalAntialiasing;
+			add(bg);
+		}
 
 		blackBG = new FlxSprite(posX - 25).makeGraphic(870, 200, FlxColor.BLACK);
 		blackBG.alpha = 0.4;

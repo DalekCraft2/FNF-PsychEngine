@@ -49,8 +49,6 @@ class DiscordClient
 		});
 		Debug.logTrace("Discord Client started.");
 
-		DiscordRpc.shutdown();
-
 		Thread.create(() ->
 		{
 			while (true)

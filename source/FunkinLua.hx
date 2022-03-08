@@ -277,10 +277,12 @@ class FunkinLua
 			PlayState.instance.persistentUpdate = false;
 			LoadingState.loadAndSwitchState(new PlayState());
 
+			FlxG.sound.music.pause();
 			FlxG.sound.music.volume = 0;
-			if (spr != null && image != null && image.length > 0)
+			if (PlayState.instance.vocals != null)
 			{
-				spr.loadGraphic(Paths.image(image));
+				PlayState.instance.vocals.pause();
+				PlayState.instance.vocals.volume = 0;
 			}
 		});
 		Lua_helper.add_callback(lua, "loadFrames", function(variable:String, image:String, spriteType:String = "sparrow")

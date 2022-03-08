@@ -403,6 +403,10 @@ class StoryMenuState extends MusicBeatState
 		{
 			bgSprite.visible = false;
 		}
+		else
+		{
+			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_$assetName'));
+		}
 		PlayState.storyWeek = curWeek;
 
 		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
