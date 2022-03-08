@@ -27,8 +27,6 @@ class InitState extends FlxUIState
 
 	override function create()
 	{
-		FlxG.save.bind('funkin', 'ninjamuffin99');
-
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
@@ -43,11 +41,16 @@ class InitState extends FlxUIState
 		ClientPrefs.loadDefaultKeys();
 
 		if (currentOptions.keyBinds == null)
+		{
+			Debug.logInfo('Keybinds are null; setting them to defaults (${ClientPrefs.defaultKeys})');
 			currentOptions.keyBinds = ClientPrefs.defaultKeys.copy();
+		}
 
 		PlayerSettings.init();
 		new OptionsSubState().createDefault(); // Load default options in case any are null
+		OptionUtils.saveOptions(currentOptions); // Save initialized options
 
+		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();
 
 		FlxG.game.focusLostFramerate = 60;

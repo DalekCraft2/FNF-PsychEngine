@@ -1,6 +1,6 @@
 package;
 
-import Achievements.AchievementObject;
+import Achievements.Achievement;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -151,9 +151,9 @@ class MainMenuState extends MusicBeatState
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 		{
 			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
-			if (!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID][2]))
+			if (!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID].icon))
 			{ // It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID][2], true);
+				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID].icon, true);
 				giveAchievement();
 				OptionUtils.saveOptions(OptionUtils.options);
 			}
@@ -167,7 +167,7 @@ class MainMenuState extends MusicBeatState
 	// Unlocks "Freaky on a Friday Night" achievement
 	function giveAchievement()
 	{
-		add(new AchievementObject('friday_night_play', camAchievement));
+		add(new Achievement('friday_night_play', camAchievement));
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 		Debug.logTrace('Giving achievement "friday_night_play"');
 	}

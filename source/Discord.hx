@@ -11,18 +11,6 @@ import sys.thread.Thread;
 
 class DiscordClient
 {
-	public function new()
-	{
-		Debug.logTrace("Discord Client starting...");
-		DiscordRpc.start({
-			clientID: "863222024192262205",
-			onReady: onReady,
-			onError: onError,
-			onDisconnected: onDisconnected
-		});
-		Debug.logTrace("Discord Client started.");
-	}
-
 	public static function shutdown()
 	{
 		DiscordRpc.shutdown();
@@ -50,7 +38,15 @@ class DiscordClient
 
 	public static function initialize()
 	{
-		new DiscordClient();
+		Debug.logTrace("Discord Client starting...");
+		DiscordRpc.start({
+			clientID: "863222024192262205",
+			onReady: onReady,
+			onError: onError,
+			onDisconnected: onDisconnected
+		});
+		Debug.logTrace("Discord Client started.");
+
 		Thread.create(() ->
 		{
 			while (true)

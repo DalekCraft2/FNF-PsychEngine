@@ -26,43 +26,43 @@ class Option extends FlxTypedGroup<FlxSprite>
 
 	public function keyPressed(key:FlxKey):Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function keyReleased(key:FlxKey):Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function accept():Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function right():Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function left():Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function selected():Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 
 	public function deselected():Bool
 	{
-		Debug.logTrace("Unset");
+		// Debug.logTrace("Unset");
 		return false;
 	}
 

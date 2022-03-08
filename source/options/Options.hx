@@ -31,7 +31,7 @@ class OptionUtils
 		for (f in fields)
 		{
 			var shit = Reflect.field(options, f);
-			Debug.logTrace('$f, $shit');
+			// Debug.logTrace('$f, $shit');
 			Reflect.setField(save.data, f, shit);
 		}
 		save.flush();
@@ -43,8 +43,8 @@ class OptionUtils
 		var fields = Reflect.fields(save.data);
 		for (f in fields)
 		{
-			Debug.logTrace('$f, ${Reflect.getProperty(options, f)}');
-			if (Reflect.getProperty(options, f) != null)
+			// Debug.logTrace('$f, ${Reflect.field(options, f)}');
+			if (Reflect.field(options, f) != null)
 				Reflect.setField(options, f, Reflect.field(save.data, f));
 		}
 	}

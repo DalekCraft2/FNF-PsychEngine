@@ -21,128 +21,150 @@ using StringTools;
 
 typedef AchievementData =
 {
-	var unlocksAfter:String;
-	var icon:String;
 	var name:String;
 	var description:String;
+	var icon:String;
+	var unlocksAfter:String;
 	var hidden:Bool;
 	var customGoal:Bool;
 }
 
 class Achievements
 {
-	public static var achievementShits:Array<Dynamic> = [
+	public static var achievementShits:Array<AchievementData> = [
 		// Name, Description, Achievement save tag, Unlocks after, Hidden achievement
 		// Set unlock after to "null" if it doesnt unlock after a week!!
-		[
-			"Freaky on a Friday Night",
-			"Play on a Friday... Night.",
-			'friday_night_play',
-			null,
-			true
-		],
-		[
-			"She Calls Me Daddy Too",
-			"Beat Week 1 on Hard with no Misses.",
-			'week1_nomiss',
-			'week1',
-			false
-		],
-		[
-			"No More Tricks",
-			"Beat Week 2 on Hard with no Misses.",
-			'week2_nomiss',
-			'week2',
-			false
-		],
-		[
-			"Call Me The Hitman",
-			"Beat Week 3 on Hard with no Misses.",
-			'week3_nomiss',
-			'week3',
-			false
-		],
-		[
-			"Lady Killer",
-			"Beat Week 4 on Hard with no Misses.",
-			'week4_nomiss',
-			'week4',
-			false
-		],
-		[
-			"Missless Christmas",
-			"Beat Week 5 on Hard with no Misses.",
-			'week5_nomiss',
-			'week5',
-			false
-		],
-		[
-			"Highscore!!",
-			"Beat Week 6 on Hard with no Misses.",
-			'week6_nomiss',
-			'week6',
-			false
-		],
-		[
-			"You'll Pay For That...",
-			"Beat Week 7 on Hard with no Misses.",
-			'week7_nomiss',
-			'week7',
-			true
-		],
-		[
-			"What a Funkin' Disaster!",
-			"Complete a Song with a rating lower than 20%.",
-			'ur_bad',
-			null,
-			false
-		],
-		[
-			"Perfectionist",
-			"Complete a Song with a rating of 100%.",
-			'ur_good',
-			null,
-			false
-		],
-		[
-			"Roadkill Enthusiast",
-			"Watch the Henchmen die over 100 times.",
-			'roadkill_enthusiast',
-			null,
-			false
-		],
-		[
-			"Oversinging Much...?",
-			"Hold down a note for 10 seconds.",
-			'oversinging',
-			null,
-			false
-		],
-		["Hyperactive", "Finish a Song without going Idle.", 'hype', null, false],
-		[
-			"Just the Two of Us",
-			"Finish a Song pressing only two keys.",
-			'two_keys',
-			null,
-			false
-		],
-		[
-			"Toaster Gamer",
-			"Have you tried to run the game on a toaster?",
-			'toastie',
-			null,
-			false
-		],
-		[
-			"Debugger",
-			"Beat the \"Test\" Stage from the Chart Editor.",
-			'debugger',
-			null,
-			true
-		]
+		{
+			name: "Freaky on a Friday Night",
+			description: "Play on a Friday... Night.",
+			icon: 'friday_night_play',
+			unlocksAfter: null,
+			hidden: true,
+			customGoal: false
+		},
+		{
+			name: "She Calls Me Daddy Too",
+			description: "Beat Week 1 on Hard with no Misses.",
+			icon: 'week1_nomiss',
+			unlocksAfter: 'week1',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "No More Tricks",
+			description: "Beat Week 2 on Hard with no Misses.",
+			icon: 'week2_nomiss',
+			unlocksAfter: 'week2',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Call Me The Hitman",
+			description: "Beat Week 3 on Hard with no Misses.",
+			icon: 'week3_nomiss',
+			unlocksAfter: 'week3',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Lady Killer",
+			description: "Beat Week 4 on Hard with no Misses.",
+			icon: 'week4_nomiss',
+			unlocksAfter: 'week4',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Missless Christmas",
+			description: "Beat Week 5 on Hard with no Misses.",
+			icon: 'week5_nomiss',
+			unlocksAfter: 'week5',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Highscore!!",
+			description: "Beat Week 6 on Hard with no Misses.",
+			icon: 'week6_nomiss',
+			unlocksAfter: 'week6',
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "You'll Pay For That...",
+			description: "Beat Week 7 on Hard with no Misses.",
+			icon: 'week7_nomiss',
+			unlocksAfter: 'week7',
+			hidden: true,
+			customGoal: false
+		},
+		{
+			name: "What a Funkin' Disaster!",
+			description: "Complete a Song with a rating lower than 20%.",
+			icon: 'ur_bad',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Perfectionist",
+			description: "Complete a Song with a rating of 100%.",
+			icon: 'ur_good',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Roadkill Enthusiast",
+			description: "Watch the Henchmen die over 100 times.",
+			icon: 'roadkill_enthusiast',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Oversinging Much...?",
+			description: "Hold down a note for 10 seconds.",
+			icon: 'oversinging',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Hyperactive",
+			description: "Finish a Song without going Idle.",
+			icon: 'hype',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Just the Two of Us",
+			description: "Finish a Song pressing only two keys.",
+			icon: 'two_keys',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Toaster Gamer",
+			description: "Have you tried to run the game on a toaster?",
+			icon: 'toastie',
+			unlocksAfter: null,
+			hidden: false,
+			customGoal: false
+		},
+		{
+			name: "Debugger",
+			description: "Beat the \"Test\" Stage from the Chart Editor.",
+			icon: 'debugger',
+			unlocksAfter: null,
+			hidden: true,
+			customGoal: false
+		}
 	];
 
-	public static var achievementsStuff:Array<Dynamic> = [
+	public static var achievementsStuff:Array<AchievementData> = [
 		// Gets filled when loading achievements
 	];
 
@@ -156,6 +178,9 @@ class Achievements
 		Debug.logTrace('Completed achievement "$name"');
 		achievementsMap.set(name, true);
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
+		// TODO Stop relying on FlxG.save for so much stuff.
+		FlxG.save.data.achievementsMap = achievementsMap;
+		FlxG.save.flush();
 	}
 
 	public static function isAchievementUnlocked(name:String)
@@ -171,7 +196,7 @@ class Achievements
 	{
 		for (i in 0...achievementsStuff.length)
 		{
-			if (achievementsStuff[i][2] == name)
+			if (achievementsStuff[i].icon == name)
 			{
 				return i;
 			}
@@ -309,7 +334,14 @@ class Achievements
 		for (json in loadedAchievements)
 		{
 			// Debug.logTrace(json);
-			achievementsStuff.push([json.name, json.description, json.icon, json.unlocksAfter, json.hidden]);
+			achievementsStuff.push({
+				name: json.name,
+				description: json.description,
+				icon: json.icon,
+				unlocksAfter: json.unlocksAfter,
+				hidden: json.hidden,
+				customGoal: json.customGoal
+			});
 		}
 		#end
 	}
@@ -397,7 +429,7 @@ class AttachedAchievement extends FlxSprite
 	}
 }
 
-class AchievementObject extends FlxSpriteGroup
+class Achievement extends FlxSpriteGroup
 {
 	public var onFinish:Void->Void = null;
 
@@ -409,8 +441,8 @@ class AchievementObject extends FlxSpriteGroup
 		OptionUtils.saveOptions(OptionUtils.options);
 
 		var id:Int = Achievements.getAchievementIndex(name);
-		var achieveName:String = Achievements.achievementsStuff[id][0];
-		var text:String = Achievements.achievementsStuff[id][1];
+		var achieveName:String = Achievements.achievementsStuff[id].name;
+		var text:String = Achievements.achievementsStuff[id].description;
 
 		if (Achievements.loadedAchievements.exists(name))
 		{
