@@ -11,6 +11,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import openfl.utils.Assets;
 #if FEATURE_MODS
 import sys.FileSystem;
 import sys.io.File;
@@ -18,6 +19,15 @@ import sys.io.File;
 
 using StringTools;
 
+// TODO Use JSON for credits because who doesn't love JSON
+/*typedef CreditData = {
+	var name:String;
+	var icon:String;
+	var description:String;
+	var link:String;
+	var color:String; // Will be changed to Int
+	var modDirectory:String;
+}*/
 class CreditsState extends MusicBeatState
 {
 	var curSelected:Int = -1;
@@ -60,7 +70,7 @@ class CreditsState extends MusicBeatState
 				for (i in firstarray)
 				{
 					var arr:Array<String> = i.replace('\\n', '\n').split("::");
-					if (arr.length >= 5)
+					if (arr.length > 5)
 						arr.push(folder);
 					creditsStuff.push(arr);
 				}
@@ -75,7 +85,7 @@ class CreditsState extends MusicBeatState
 			for (i in firstarray)
 			{
 				var arr:Array<String> = i.replace('\\n', '\n').split("::");
-				if (arr.length >= 5)
+				if (arr.length > 5)
 					arr.push(folder);
 				creditsStuff.push(arr);
 			}
@@ -83,117 +93,24 @@ class CreditsState extends MusicBeatState
 		}
 		#end
 
-		var pisspoop:Array<Array<String>> = [
-			// Name - Icon name - Description - Link - BG Color
-			['Psych Engine Team'],
-			[
-				'Shadow Mario',
-				'shadowmario',
-				'Main Programmer of Psych Engine',
-				'https://twitter.com/Shadow_Mario_',
-				'444444'
-			],
-			[
-				'RiverOaken',
-				'riveroaken',
-				'Main Artist/Animator of Psych Engine',
-				'https://twitter.com/RiverOaken',
-				'C30085'
-			],
-			[
-				'shubs',
-				'shubs',
-				'Additional Programmer of Psych Engine',
-				'https://twitter.com/yoshubs',
-				'279ADC'
-			],
-			[''],
-			['Former Engine Members'],
-			[
-				'bb-panzu',
-				'bb-panzu',
-				'Ex-Programmer of Psych Engine',
-				'https://twitter.com/bbsub3',
-				'389A58'
-			],
-			[''],
-			['Engine Contributors'],
-			[
-				'iFlicky',
-				'iflicky',
-				'Delay/Combo Menu Song Composer\nand Dialogue Sounds',
-				'https://twitter.com/flicky_i',
-				'AA32FE'
-			],
-			[
-				'SqirraRNG',
-				'gedehari',
-				'Chart Editor\'s Sound Waveform base',
-				'https://twitter.com/gedehari',
-				'FF9300'
-			],
-			[
-				'PolybiusProxy',
-				'polybiusproxy',
-				'.MP4 Video Loader Extension',
-				'https://twitter.com/polybiusproxy',
-				'FFEAA6'
-			],
-			[
-				'Keoiki',
-				'keoiki',
-				'Note Splash Animations',
-				'https://twitter.com/Keoiki_',
-				'FFFFFF'
-			],
-			[
-				'Smokey',
-				'smokey',
-				'Spritemap Texture Support',
-				'https://twitter.com/Smokey_5_',
-				'4D5DBD'
-			],
-			[''],
-			["Funkin' Crew"],
-			[
-				'ninjamuffin99',
-				'ninjamuffin99',
-				"Programmer of Friday Night Funkin'",
-				'https://twitter.com/ninja_muffin99',
-				'F73838'
-			],
-			[
-				'PhantomArcade',
-				'phantomarcade',
-				"Animator of Friday Night Funkin'",
-				'https://twitter.com/PhantomArcade3K',
-				'FFBB1B'
-			],
-			[
-				'evilsk8r',
-				'evilsk8r',
-				"Artist of Friday Night Funkin'",
-				'https://twitter.com/evilsk8r',
-				'53E52C'
-			],
-			[
-				'kawaisprite',
-				'kawaisprite',
-				"Composer of Friday Night Funkin'",
-				'https://twitter.com/kawaisprite',
-				'6475F3'
-			]
-		];
-
-		for (i in pisspoop)
+		var creditsFile:String = Paths.txt('credits');
+		if (Assets.exists(creditsFile))
 		{
-			creditsStuff.push(i);
+			var firstarray:Array<String> = CoolUtil.coolTextFile(creditsFile);
+			for (i in firstarray)
+			{
+				var arr:Array<String> = i.replace('\\n', '\n').split("::");
+				if (arr.length > 5)
+					arr.push('');
+				creditsStuff.push(arr);
+			}
 		}
 
 		for (i in 0...creditsStuff.length)
 		{
 			var isSelectable:Bool = !unselectableCheck(i);
 			var optionText:Alphabet = new Alphabet(0, 70 * i, creditsStuff[i][0], !isSelectable, false);
+
 			optionText.isMenuItem = true;
 			optionText.screenCenter(X);
 			optionText.yAdd -= 70;
@@ -205,28 +122,23 @@ class CreditsState extends MusicBeatState
 			// optionText.yMult = 90;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
-
 			if (isSelectable)
 			{
 				if (creditsStuff[i][5] != null)
 				{
 					Paths.currentModDirectory = creditsStuff[i][5];
 				}
-
 				var icon:AttachedSprite = new AttachedSprite('credits/${creditsStuff[i][1]}');
 				icon.xAdd = optionText.width + 10;
 				icon.sprTracker = optionText;
-
 				// using a FlxGroup is too much fuss!
 				iconArray.push(icon);
 				add(icon);
 				Paths.currentModDirectory = '';
-
 				if (curSelected == -1)
 					curSelected = i;
 			}
 		}
-
 		descBox = new AttachedSprite();
 		descBox.makeGraphic(1, 1, FlxColor.BLACK);
 		descBox.xAdd = -10;
@@ -234,15 +146,14 @@ class CreditsState extends MusicBeatState
 		descBox.alphaMult = 0.6;
 		descBox.alpha = 0.6;
 		add(descBox);
-
 		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
 		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER /*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 		descText.scrollFactor.set();
 		// descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
 		add(descText);
-
-		bg.color = getCurrentBGColor();
+		if (creditsStuff[curSelected] != null && creditsStuff[curSelected].length > 1)
+			bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
 		changeSelection();
 		super.create();

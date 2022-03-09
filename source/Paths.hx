@@ -311,7 +311,7 @@ class Paths
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
 	{
 		#if FEATURE_MODS
-		if (FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key)))
+		if (FileSystem.exists(mods('$currentModDirectory/key')) || FileSystem.exists(mods(key)))
 		{
 			return true;
 		}
