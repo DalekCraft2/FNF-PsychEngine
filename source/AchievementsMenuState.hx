@@ -45,18 +45,19 @@ class AchievementsMenuState extends MusicBeatState
 		Achievements.loadAchievements();
 		for (i in 0...Achievements.achievementList.length)
 		{
-			if (!Achievements.achievementList[i].hidden || Achievements.achievementsMap.exists(Achievements.achievementList[i].icon))
+			var achievement = Achievements.achievementList[i];
+			if (!achievement.hidden || Achievements.achievementsMap.exists(achievement.icon))
 			{
-				options.push(Achievements.achievementList[i].name);
+				options.push(achievement.name);
 				achievementIndex.push(i);
 			}
 		}
 
 		for (i in 0...options.length)
 		{
-			var achieveName:String = Achievements.achievementList[achievementIndex[i]].icon;
-			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210,
-				Achievements.isAchievementUnlocked(achieveName) ? Achievements.achievementList[achievementIndex[i]].name : '?', false, false);
+			var achievement = Achievements.achievementList[achievementIndex[i]];
+			var achieveName:String = achievement.icon;
+			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210, Achievements.isAchievementUnlocked(achieveName) ? achievement.name : '?', false, false);
 			optionText.isMenuItem = true;
 			optionText.x += 280;
 			optionText.xAdd = 200;
@@ -123,10 +124,11 @@ class AchievementsMenuState extends MusicBeatState
 
 		for (i in 0...achievementArray.length)
 		{
-			achievementArray[i].alpha = 0.6;
+			var achievement = achievementArray[i];
+			achievement.alpha = 0.6;
 			if (i == curSelected)
 			{
-				achievementArray[i].alpha = 1;
+				achievement.alpha = 1;
 			}
 		}
 		descText.text = Achievements.achievementList[achievementIndex[curSelected]].description;

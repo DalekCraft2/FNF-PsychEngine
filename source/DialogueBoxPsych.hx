@@ -244,11 +244,11 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		#else
 		var charsMap:Map<String, Bool> = new Map<String, Bool>();
 		#end
-		for (i in 0...dialogueList.dialogue.length)
+		for (dialogueLine in dialogueList.dialogue)
 		{
-			if (dialogueList.dialogue[i] != null)
+			if (dialogueLine != null)
 			{
-				var charToAdd:String = dialogueList.dialogue[i].portrait;
+				var charToAdd:String = dialogueLine.portrait;
 				if (!charsMap.exists(charToAdd) || !charsMap.get(charToAdd))
 				{
 					charsMap.set(charToAdd, true);
@@ -333,15 +333,15 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				else if (currentText >= dialogueList.dialogue.length)
 				{
 					dialogueEnded = true;
-					for (i in 0...textBoxTypes.length)
+					for (textBoxType in 0...textBoxTypes.length)
 					{
 						var checkArray:Array<String> = ['', 'center-'];
 						var animName:String = box.animation.curAnim.name;
-						for (j in 0...checkArray.length)
+						for (prefix in checkArray)
 						{
-							if (animName == checkArray[j] + textBoxTypes[i] || animName == checkArray[j] + textBoxTypes[i] + 'Open')
+							if (animName == prefix + textBoxType || animName == prefix + textBoxType + 'Open')
 							{
-								box.animation.play(checkArray[j] + textBoxTypes[i] + 'Open', true);
+								box.animation.play(prefix + textBoxType + 'Open', true);
 							}
 						}
 					}
@@ -380,15 +380,15 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 			if (box.animation.curAnim.finished)
 			{
-				for (i in 0...textBoxTypes.length)
+				for (textBoxType in textBoxTypes)
 				{
 					var checkArray:Array<String> = ['', 'center-'];
 					var animName:String = box.animation.curAnim.name;
-					for (j in 0...checkArray.length)
+					for (prefix in checkArray)
 					{
-						if (animName == checkArray[j] + textBoxTypes[i] || animName == checkArray[j] + textBoxTypes[i] + 'Open')
+						if (animName == prefix + textBoxType || animName == prefix + textBoxType + 'Open')
 						{
-							box.animation.play(checkArray[j] + textBoxTypes[i], true);
+							box.animation.play(prefix + textBoxType, true);
 						}
 					}
 				}
@@ -470,21 +470,20 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				}
 			}
 
-			for (i in 0...arrayCharacters.length)
+			for (character in arrayCharacters)
 			{
-				var leChar:DialogueCharacter = arrayCharacters[i];
-				if (leChar != null)
+				if (character != null)
 				{
-					switch (arrayCharacters[i].jsonFile.dialogue_pos)
+					switch (character.jsonFile.dialogue_pos)
 					{
 						case 'left':
-							leChar.x -= scrollSpeed * elapsed;
+							character.x -= scrollSpeed * elapsed;
 						case 'center':
-							leChar.y += scrollSpeed * elapsed;
+							character.y += scrollSpeed * elapsed;
 						case 'right':
-							leChar.x += scrollSpeed * elapsed;
+							character.x += scrollSpeed * elapsed;
 					}
-					leChar.alpha -= elapsed * 10;
+					character.alpha -= elapsed * 10;
 				}
 			}
 
@@ -529,9 +528,9 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 		var animName:String = curDialogue.boxState;
 		var boxType:String = textBoxTypes[0];
-		for (i in 0...textBoxTypes.length)
+		for (textBoxType in textBoxTypes)
 		{
-			if (textBoxTypes[i] == animName)
+			if (textBoxType == animName)
 			{
 				boxType = animName;
 			}
@@ -541,7 +540,8 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		box.visible = true;
 		for (i in 0...arrayCharacters.length)
 		{
-			if (arrayCharacters[i].curCharacter == curDialogue.portrait)
+			var char = arrayCharacters[i];
+			if (char.curCharacter == curDialogue.portrait)
 			{
 				character = i;
 				break;

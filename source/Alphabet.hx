@@ -85,6 +85,12 @@ class Alphabet extends FlxSpriteGroup
 			remove(letter);
 			lettersArray.remove(letter);
 		}
+		/*for (letter in lettersArray)
+			{
+				letter.destroy();
+				remove(letter);
+				lettersArray.remove(letter);
+		}*/
 		lettersArray = [];
 		splitWords = [];
 		loopNum = 0;
@@ -129,10 +135,6 @@ class Alphabet extends FlxSpriteGroup
 		var xPos:Float = 0;
 		for (character in splitWords)
 		{
-			// if (character.fastCodeAt() == " ")
-			// {
-			// }
-
 			var spaceChar:Bool = (character == " " || (isBold && character == "_"));
 			if (spaceChar)
 			{

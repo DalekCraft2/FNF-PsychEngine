@@ -59,7 +59,8 @@ class Achievements
 	{
 		for (i in 0...achievementList.length)
 		{
-			if (achievementList[i].icon == name)
+			var achievement = achievementList[i];
+			if (achievement.icon == name)
 			{
 				return i;
 			}
@@ -121,9 +122,9 @@ class Achievements
 		if (FileSystem.exists(modsListPath))
 		{
 			var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);
-			for (modEntry in stuff)
+			for (mod in stuff)
 			{
-				var splitName:Array<String> = modEntry.trim().split('|');
+				var splitName:Array<String> = mod.trim().split('|');
 				if (splitName[1] == '0') // Disable mod
 				{
 					disabledMods.push(splitName[0]);

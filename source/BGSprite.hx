@@ -14,9 +14,8 @@ class BGSprite extends FlxSprite
 		if (animArray != null)
 		{
 			frames = Paths.getSparrowAtlas(image);
-			for (i in 0...animArray.length)
+			for (anim in animArray)
 			{
-				var anim:String = animArray[i];
 				animation.addByPrefix(anim, anim, 24, loop);
 				if (idleAnim == null)
 				{

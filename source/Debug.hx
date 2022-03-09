@@ -191,9 +191,9 @@ class Debug
 			{
 				if (info.customParams != null)
 				{
-					for (i in info.customParams)
+					for (param in info.customParams)
 					{
-						paramArray.push(i);
+						paramArray.push(param);
 					}
 				}
 			}

@@ -67,9 +67,9 @@ class CreditsState extends MusicBeatState
 			if (FileSystem.exists(creditsFile))
 			{
 				var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
-				for (i in firstarray)
+				for (creditLine in firstarray)
 				{
-					var arr:Array<String> = i.replace('\\n', '\n').split("::");
+					var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
 					if (arr.length > 5)
 						arr.push(folder);
 					creditsStuff.push(arr);
@@ -82,9 +82,9 @@ class CreditsState extends MusicBeatState
 		if (FileSystem.exists(creditsFile))
 		{
 			var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
-			for (i in firstarray)
+			for (creditLine in firstarray)
 			{
-				var arr:Array<String> = i.replace('\\n', '\n').split("::");
+				var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
 				if (arr.length > 5)
 					arr.push(folder);
 				creditsStuff.push(arr);
@@ -97,9 +97,9 @@ class CreditsState extends MusicBeatState
 		if (Assets.exists(creditsFile))
 		{
 			var firstarray:Array<String> = CoolUtil.coolTextFile(creditsFile);
-			for (i in firstarray)
+			for (creditLine in firstarray)
 			{
-				var arr:Array<String> = i.replace('\\n', '\n').split("::");
+				var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
 				if (arr.length > 5)
 					arr.push('');
 				creditsStuff.push(arr);
@@ -108,8 +108,9 @@ class CreditsState extends MusicBeatState
 
 		for (i in 0...creditsStuff.length)
 		{
+			var credit = creditsStuff[i];
 			var isSelectable:Bool = !unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(0, 70 * i, creditsStuff[i][0], !isSelectable, false);
+			var optionText:Alphabet = new Alphabet(0, 70 * i, credit[0], !isSelectable, false);
 
 			optionText.isMenuItem = true;
 			optionText.screenCenter(X);
@@ -124,11 +125,11 @@ class CreditsState extends MusicBeatState
 			grpOptions.add(optionText);
 			if (isSelectable)
 			{
-				if (creditsStuff[i][5] != null)
+				if (credit[5] != null)
 				{
-					Paths.currentModDirectory = creditsStuff[i][5];
+					Paths.currentModDirectory = credit[5];
 				}
-				var icon:AttachedSprite = new AttachedSprite('credits/${creditsStuff[i][1]}');
+				var icon:AttachedSprite = new AttachedSprite('credits/${credit[1]}');
 				icon.xAdd = optionText.width + 10;
 				icon.sprTracker = optionText;
 				// using a FlxGroup is too much fuss!
