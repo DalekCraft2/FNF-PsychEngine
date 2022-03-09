@@ -1142,9 +1142,9 @@ class CharacterEditorState extends MusicBeatState
 		#if FEATURE_MODS
 		characterList = [];
 		var directories:Array<String> = [
-			Paths.mods('characters/'),
-			Paths.mods('${Paths.currentModDirectory}/characters/'),
-			Paths.getPreloadPath('characters/')
+			Paths.mods('data/characters/'),
+			Paths.mods('${Paths.currentModDirectory}/data/characters/'),
+			Paths.getPreloadPath('data/characters/')
 		];
 		for (i in 0...directories.length)
 		{
@@ -1445,7 +1445,7 @@ class CharacterEditorState extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data, daAnim + ".json");
+			_file.save(data, '$daAnim.json');
 		}
 	}
 

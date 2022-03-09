@@ -31,12 +31,11 @@ import flixel.util.FlxSort;
 import haxe.Json;
 import haxe.io.Bytes;
 import lime.media.AudioBuffer;
-import lime.utils.Assets;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.media.Sound;
 import openfl.net.FileReference;
-import openfl.utils.Assets as OpenFlAssets;
+import openfl.utils.Assets;
 #if FEATURE_MODS
 import sys.FileSystem;
 import sys.io.File;
@@ -446,11 +445,11 @@ class ChartingState extends MusicBeatState
 
 		var loadEventJson:FlxButton = new FlxButton(loadAutosaveBtn.x, loadAutosaveBtn.y + 30, 'Load Events', function()
 		{
-			var file:String = Paths.json('${_song.songId}/events');
+			var file:String = Paths.json('songs/${_song.songId}/events');
 			#if FEATURE_FILESYSTEM
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson('${_song.songId}/events')) || #end FileSystem.exists(file))
+			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson('songs/${_song.songId}/events')) || #end FileSystem.exists(file))
 			#else
-			if (OpenFlAssets.exists(file))
+			if (Assets.exists(file))
 			#end
 			{
 				clearEvents();
@@ -498,12 +497,12 @@ class ChartingState extends MusicBeatState
 
 		#if FEATURE_MODS
 		var directories:Array<String> = [
-			Paths.mods('characters/'),
-			Paths.mods('${Paths.currentModDirectory}/characters/'),
-			Paths.getPreloadPath('characters/')
+			Paths.mods('data/characters/'),
+			Paths.mods('${Paths.currentModDirectory}/data/characters/'),
+			Paths.getPreloadPath('data/characters/')
 		];
 		#else
-		var directories:Array<String> = [Paths.getPreloadPath('characters/')];
+		var directories:Array<String> = [Paths.getPreloadPath('data/characters/')];
 		#end
 
 		var tempMap:Map<String, Bool> = new Map<String, Bool>();
@@ -565,12 +564,12 @@ class ChartingState extends MusicBeatState
 
 		#if FEATURE_MODS
 		var directories:Array<String> = [
-			Paths.mods('stages/'),
-			Paths.mods('${Paths.currentModDirectory}/stages/'),
-			Paths.getPreloadPath('stages/')
+			Paths.mods('data/stages/'),
+			Paths.mods('${Paths.currentModDirectory}/data/stages/'),
+			Paths.getPreloadPath('data/stages/')
 		];
 		#else
-		var directories:Array<String> = [Paths.getPreloadPath('stages/')];
+		var directories:Array<String> = [Paths.getPreloadPath('data/stages/')];
 		#end
 
 		tempMap.clear();
@@ -1361,7 +1360,7 @@ class ChartingState extends MusicBeatState
 
 		var file:Dynamic = Paths.voices(currentSongName);
 		vocals = new FlxSound();
-		if (Std.isOfType(file, Sound) || OpenFlAssets.exists(file))
+		if (Std.isOfType(file, Sound) || Assets.exists(file))
 		{
 			vocals.loadEmbedded(file);
 			FlxG.sound.list.add(vocals);
@@ -2128,7 +2127,7 @@ class ChartingState extends MusicBeatState
 		{
 		#end
 			var leVocals:String = Paths.getPath('$currentSongName/Inst.${Paths.SOUND_EXT}', SOUND, 'songs');
-			if (OpenFlAssets.exists(leVocals))
+			if (Assets.exists(leVocals))
 			{ // Vanilla inst
 				audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
 				// Debug.logTrace('Inst found');
@@ -2152,7 +2151,7 @@ class ChartingState extends MusicBeatState
 		{
 		#end
 			var leVocals:String = Paths.getPath('$currentSongName/Voices.${Paths.SOUND_EXT}', SOUND, 'songs');
-			if (OpenFlAssets.exists(leVocals))
+			if (Assets.exists(leVocals))
 			{ // Vanilla voices
 				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
 				// Debug.logTrace('Voices found');
@@ -2417,31 +2416,16 @@ class ChartingState extends MusicBeatState
 
 	function loadHealthIconFromCharacter(char:String)
 	{
-		var characterPath:String = 'characters/$char.json';
-		#if FEATURE_MODS
-		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path))
+		var characterPath:String = 'characters/$char';
+
+		var rawJson = Paths.loadJson(characterPath);
+		if (rawJson == null)
 		{
-			path = Paths.getPreloadPath(characterPath);
+			rawJson = Paths.loadJson('characters/${Character.DEFAULT_CHARACTER}');
 		}
 
-		if (!FileSystem.exists(path))
-		#else
-		var path:String = Paths.getPreloadPath(characterPath);
-		if (!OpenFlAssets.exists(path))
-		#end
-		{
-			path = Paths.getPreloadPath('characters/${Character.DEFAULT_CHARACTER}.json'); // If a character couldn't be found, change him to BF just to prevent a crash
-		}
-
-		#if FEATURE_MODS
-		var rawJson = File.getContent(path);
-		#else
-		var rawJson = OpenFlAssets.getText(path);
-		#end
-
-		var json:Character.CharacterData = cast Json.parse(rawJson);
-		return json.healthicon;
+		var characterData:Character.CharacterData = cast rawJson;
+		return characterData.healthicon;
 	}
 
 	function updateNoteUI():Void

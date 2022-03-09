@@ -1,13 +1,6 @@
 package;
 
 import Song.SongData;
-import haxe.Json;
-#if FEATURE_MODS
-import sys.FileSystem;
-import sys.io.File;
-#else
-import openfl.utils.Assets;
-#end
 
 using StringTools;
 
@@ -119,29 +112,12 @@ class Stage
 
 	public static function getStageData(stage:String):StageData
 	{
-		var rawJson:String = null;
-		var path:String = Paths.getPreloadPath('stages/$stage.json');
+		var stagePath:String = 'stages/$stage';
 
-		#if FEATURE_MODS
-		var modPath:String = Paths.modFolders('stages/$stage.json');
-		if (FileSystem.exists(modPath))
-		{
-			rawJson = File.getContent(modPath);
-		}
-		else if (FileSystem.exists(path))
-		{
-			rawJson = File.getContent(path);
-		}
-		#else
-		if (Assets.exists(path))
-		{
-			rawJson = Assets.getText(path);
-		}
-		#end
-	else
-	{
-		return null;
-	}
-		return cast Json.parse(rawJson);
+		var rawJson = Paths.loadJson(stagePath);
+
+		var stageData:StageData = cast rawJson;
+
+		return stageData;
 	}
 }

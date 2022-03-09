@@ -4,13 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
-import haxe.Json;
-import openfl.utils.Assets;
 import options.Options.OptionUtils;
-#if FEATURE_FILESYSTEM
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 using StringTools;
 
@@ -89,27 +83,15 @@ class DialogueCharacter extends FlxSprite
 
 	public function reloadCharacterJson(character:String)
 	{
-		var characterPath:String = 'images/dialogue/$character.json';
-		var rawJson = null;
+		var characterPath:String = 'dialogue/$curCharacter';
 
-		#if FEATURE_MODS
-		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path))
+		var rawJson = Paths.loadJson(characterPath);
+		if (rawJson == null)
 		{
-			path = Paths.getPreloadPath(characterPath);
+			rawJson = Paths.loadJson('dialogue/$DEFAULT_CHARACTER');
 		}
 
-		if (!FileSystem.exists(path))
-		{
-			path = Paths.getPreloadPath('images/dialogue/$DEFAULT_CHARACTER.json');
-		}
-		rawJson = File.getContent(path);
-		#else
-		var path:String = Paths.getPreloadPath(characterPath);
-		rawJson = Assets.getText(path);
-		#end
-
-		jsonFile = cast Json.parse(rawJson);
+		var characterData:DialogueCharacterData = cast rawJson;
 	}
 
 	public function reloadAnimations()
@@ -621,13 +603,11 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	public static function parseDialogue(path:String):DialogueData
 	{
-		#if FEATURE_MODS
-		if (FileSystem.exists(path))
-		{
-			return cast Json.parse(File.getContent(path));
-		}
-		#end
-		return cast Json.parse(Assets.getText(path));
+		var rawJson = Paths.loadJson(path);
+
+		var dialogueData:DialogueData = cast rawJson;
+
+		return dialogueData;
 	}
 
 	public static function updateBoxOffsets(box:FlxSprite)

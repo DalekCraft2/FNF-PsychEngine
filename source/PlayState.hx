@@ -38,9 +38,8 @@ import flixel.util.FlxSave;
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
 import flixel.util.FlxTimer;
-import lime.utils.Assets;
 import openfl.events.KeyboardEvent;
-import openfl.utils.Assets as OpenFlAssets;
+import openfl.utils.Assets;
 import options.Options.OptionUtils;
 import options.OptionsSubState;
 #if FEATURE_FILESYSTEM
@@ -951,14 +950,14 @@ class PlayState extends MusicBeatState
 				PlayStateChangeables.botPlay = true;
 		}*/
 
-		var file:String = Paths.json('${song.songId}/dialogue'); // Checks for json/Psych Engine dialogue
-		if (OpenFlAssets.exists(file))
+		var file:String = Paths.json('songs/${song.songId}/dialogue'); // Checks for json/Psych Engine dialogue
+		if (Assets.exists(file))
 		{
 			dialogueJson = DialogueBoxPsych.parseDialogue(file);
 		}
 
 		var file:String = Paths.txt('${song.songId}/${song.songId}Dialogue'); // Checks for vanilla/Senpai dialogue
-		if (OpenFlAssets.exists(file))
+		if (Assets.exists(file))
 		{
 			dialogue = CoolUtil.coolTextFile(file);
 		}
@@ -1189,12 +1188,12 @@ class PlayState extends MusicBeatState
 		// SONG SPECIFIC SCRIPTS
 		#if FEATURE_LUA
 		var filesPushed:Array<String> = [];
-		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/${song.songId}/')];
+		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/songs/${song.songId}/')];
 
 		#if FEATURE_MODS
 		foldersToCheck.insert(0, Paths.mods('data/${song.songId}/'));
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods('${Paths.currentModDirectory}/data/${song.songId}/'));
+			foldersToCheck.insert(0, Paths.mods('${Paths.currentModDirectory}/data/songs/${song.songId}/'));
 		#end
 
 		for (folder in foldersToCheck)
@@ -1471,7 +1470,7 @@ class PlayState extends MusicBeatState
 		if (FileSystem.exists(fileName))
 		{
 		#else
-		if (OpenFlAssets.exists(fileName))
+		if (Assets.exists(fileName))
 		{
 		#end
 			foundFile = true;
@@ -1982,12 +1981,12 @@ class PlayState extends MusicBeatState
 
 		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 
-		var file:String = Paths.json('${song.songId}/events');
+		var file:String = Paths.json('songs/${song.songId}/events');
 		#if FEATURE_FILESYSTEM
-		if (FileSystem.exists(Paths.modsJson('${song.songId}/events')) || FileSystem.exists(file))
+		if (FileSystem.exists(Paths.modsJson('songs/${song.songId}/events')) || FileSystem.exists(file))
 		{
 		#else
-		if (OpenFlAssets.exists(file))
+		if (Assets.exists(file))
 		{
 		#end
 			var eventsData:Array<Dynamic> = Song.loadFromJson('events', '', song.songId).events;

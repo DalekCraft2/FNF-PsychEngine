@@ -1,13 +1,7 @@
 package;
 
 import flixel.FlxSprite;
-import haxe.Json;
-import openfl.utils.Assets;
 import options.Options.OptionUtils;
-#if FEATURE_MODS
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 typedef MenuCharacterData =
 {
@@ -55,50 +49,34 @@ class MenuCharacter extends FlxSprite
 				visible = false;
 				dontPlayAnim = true;
 			default:
-				var characterPath:String = 'images/menucharacters/$character.json';
-				var rawJson = null;
+				var characterPath:String = 'menucharacters/$character';
 
-				#if FEATURE_MODS
-				var path:String = Paths.modFolders(characterPath);
-				if (!FileSystem.exists(path))
+				var rawJson = Paths.loadJson(characterPath);
+				if (rawJson == null)
 				{
-					path = Paths.getPreloadPath(characterPath);
+					rawJson = Paths.loadJson('menucharacters/$DEFAULT_CHARACTER');
 				}
 
-				if (!FileSystem.exists(path))
-				{
-					path = Paths.getPreloadPath('images/menucharacters/$DEFAULT_CHARACTER.json');
-				}
-				rawJson = File.getContent(path);
-				#else
-				var path:String = Paths.getPreloadPath(characterPath);
-				if (!Assets.exists(path))
-				{
-					path = Paths.getPreloadPath('images/menucharacters/$DEFAULT_CHARACTER.json');
-				}
-				rawJson = Assets.getText(path);
-				#end
+				var menuCharacterData:MenuCharacterData = cast rawJson;
+				frames = Paths.getSparrowAtlas('menucharacters/${menuCharacterData.image}');
+				animation.addByPrefix('idle', menuCharacterData.idle_anim, 24);
 
-				var charFile:MenuCharacterData = cast Json.parse(rawJson);
-				frames = Paths.getSparrowAtlas('menucharacters/${charFile.image}');
-				animation.addByPrefix('idle', charFile.idle_anim, 24);
-
-				var confirmAnim:String = charFile.confirm_anim;
-				if (confirmAnim != null && confirmAnim != charFile.idle_anim)
+				var confirmAnim:String = menuCharacterData.confirm_anim;
+				if (confirmAnim != null && confirmAnim != menuCharacterData.idle_anim)
 				{
 					animation.addByPrefix('confirm', confirmAnim, 24, false);
 					if (animation.getByName('confirm') != null) // check for invalid animation
 						hasConfirmAnimation = true;
 				}
 
-				flipX = (charFile.flipX == true);
+				flipX = (menuCharacterData.flipX == true);
 
-				if (charFile.scale != 1)
+				if (menuCharacterData.scale != 1)
 				{
-					scale.set(charFile.scale, charFile.scale);
+					scale.set(menuCharacterData.scale, menuCharacterData.scale);
 					updateHitbox();
 				}
-				offset.set(charFile.position[0], charFile.position[1]);
+				offset.set(menuCharacterData.position[0], menuCharacterData.position[1]);
 				animation.play('idle');
 		}
 	}

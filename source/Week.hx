@@ -1,8 +1,5 @@
 package;
 
-import haxe.Json;
-import lime.utils.Assets;
-import openfl.utils.Assets as OpenFlAssets;
 #if FEATURE_MODS
 import sys.FileSystem;
 import sys.io.File;
@@ -142,12 +139,12 @@ class Week
 		var originalLength:Int = directories.length;
 		#end
 
-		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.getPreloadPath('weeks/weekList.txt'));
+		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.txt('weeks/weekList.txt'));
 		for (i in 0...sexList.length)
 		{
 			for (j in 0...directories.length)
 			{
-				var fileToCheck:String = directories[j] + 'weeks/' + sexList[i] + '.json';
+				var fileToCheck:String = '${directories[j]}data/weeks/${sexList[i]}';
 				if (!weeksLoaded.exists(sexList[i]))
 				{
 					var weekData:WeekData = getWeekData(fileToCheck);
@@ -176,13 +173,13 @@ class Week
 		#if FEATURE_MODS
 		for (i in 0...directories.length)
 		{
-			var directory:String = directories[i] + 'weeks/';
+			var directory:String = directories[i] + 'data/weeks/';
 			if (FileSystem.exists(directory))
 			{
 				var listOfWeeks:Array<String> = CoolUtil.coolTextFile(directory + 'weekList.txt');
 				for (daWeek in listOfWeeks)
 				{
-					var path:String = directory + daWeek + '.json';
+					var path:String = '$directory$daWeek.json';
 					if (FileSystem.exists(path))
 					{
 						addWeek(daWeek, path, directories[i], i, originalLength);
@@ -225,26 +222,15 @@ class Week
 		}
 	}
 
-	private static function getWeekData(path:String):WeekData
+	private static function getWeekData(week:String):WeekData
 	{
-		var rawJson:String = null;
-		#if FEATURE_MODS
-		if (FileSystem.exists(path))
-		{
-			rawJson = File.getContent(path);
-		}
-		#else
-		if (OpenFlAssets.exists(path))
-		{
-			rawJson = Assets.getText(path);
-		}
-		#end
+		var weekPath:String = 'weeks/$week';
 
-		if (rawJson != null && rawJson.length > 0)
-		{
-			return cast Json.parse(rawJson);
-		}
-		return null;
+		var rawJson = Paths.loadJson(weekPath);
+
+		var weekData:WeekData = cast rawJson;
+
+		return weekData;
 	}
 
 	//   FUNCTIONS YOU WILL PROBABLY NEVER NEED TO USE

@@ -5,9 +5,8 @@ import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import haxe.Json;
-import lime.utils.Assets;
 import openfl.system.System;
-import openfl.utils.Assets as OpenFlAssets;
+import openfl.utils.Assets;
 import openfl.utils.AssetType;
 #if FEATURE_MODS
 import openfl.display.BitmapData;
@@ -24,8 +23,7 @@ class Paths
 
 	#if FEATURE_MODS
 	public static var ignoreModFolders:Array<String> = [
-		'characters', 'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'stages', 'weeks', 'fonts',
-		'scripts', 'achievements'
+		'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'fonts', 'scripts', 'achievements'
 	];
 	#end
 
@@ -51,7 +49,7 @@ class Paths
 				@:privateAccess
 				if (obj != null)
 				{
-					openfl.Assets.cache.removeBitmapData(key);
+					Assets.cache.removeBitmapData(key);
 					FlxG.bitmap._cache.remove(key);
 					obj.destroy();
 					currentTrackedAssets.remove(key);
@@ -74,7 +72,7 @@ class Paths
 			var obj = FlxG.bitmap._cache.get(key);
 			if (obj != null && !currentTrackedAssets.exists(key))
 			{
-				openfl.Assets.cache.removeBitmapData(key);
+				Assets.cache.removeBitmapData(key);
 				FlxG.bitmap._cache.remove(key);
 				obj.destroy();
 			}
@@ -92,7 +90,7 @@ class Paths
 		}
 		// flags everything to be cleared out next unused memory clear
 		localTrackedAssets = [];
-		openfl.Assets.cache.clear("songs");
+		Assets.cache.clear("songs");
 	}
 
 	static public var currentModDirectory:String = '';
@@ -114,12 +112,12 @@ class Paths
 			if (currentLevel != 'shared')
 			{
 				levelPath = getLibraryPathForce(file, currentLevel);
-				if (OpenFlAssets.exists(levelPath, type))
+				if (Assets.exists(levelPath, type))
 					return levelPath;
 			}
 
 			levelPath = getLibraryPathForce(file, "shared");
-			if (OpenFlAssets.exists(levelPath, type))
+			if (Assets.exists(levelPath, type))
 				return levelPath;
 		}
 
@@ -143,7 +141,7 @@ class Paths
 			#if FEATURE_FILESYSTEM
 			rawJson = File.getContent(Paths.json(key, library));
 			#else
-			rawJson = OpenFlAssets.getText(Paths.json(key, library));
+			rawJson = Assets.getText(Paths.json(key, library));
 			#end
 		}
 
@@ -317,7 +315,7 @@ class Paths
 		}
 		#end
 
-		if (OpenFlAssets.exists(Paths.getPath(key, type)))
+		if (Assets.exists(Paths.getPath(key, type)))
 		{
 			return true;
 		}
@@ -384,7 +382,7 @@ class Paths
 		#end
 
 		var path = getPath('images/$key.png', IMAGE, library);
-		if (OpenFlAssets.exists(path, IMAGE))
+		if (Assets.exists(path, IMAGE))
 		{
 			if (!currentTrackedAssets.exists(path))
 			{
@@ -422,7 +420,7 @@ class Paths
 			#if FEATURE_MODS
 			currentTrackedSounds.set(gottenPath, Sound.fromFile('./$gottenPath'));
 			#else
-			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
+			currentTrackedSounds.set(gottenPath, Assets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
 			#end
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
@@ -477,11 +475,6 @@ class Paths
 	inline static public function modsShaderVertex(key:String)
 	{
 		return modFolders('shaders/$key.vert');
-	}
-
-	inline static public function modsAchievements(key:String)
-	{
-		return modFolders('achievements/$key.json');
 	}
 
 	static public function modFolders(key:String)

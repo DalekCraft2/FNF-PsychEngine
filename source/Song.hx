@@ -1,7 +1,6 @@
 package;
 
 import Section.SectionData;
-import haxe.Json;
 
 using StringTools;
 
@@ -119,17 +118,6 @@ class Song
 				}
 			}
 		}
-	}
-
-	public static function loadFromJsonRaw(rawJson:String)
-	{
-		while (!rawJson.endsWith("}"))
-		{
-			rawJson = rawJson.substr(0, rawJson.length - 1);
-		}
-		var jsonData = Json.parse(rawJson);
-
-		return parseJson("rawsong", jsonData, ["name" => jsonData.name]);
 	}
 
 	public static function loadFromJson(songId:String, difficulty:String, ?folder:String):SongData

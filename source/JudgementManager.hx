@@ -2,7 +2,6 @@ package;
 
 import haxe.Json;
 import haxe.macro.Type.AnonType;
-import lime.utils.Assets;
 import options.Options.OptionUtils;
 
 typedef JudgementInfo =

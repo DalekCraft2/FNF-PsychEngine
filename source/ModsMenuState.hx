@@ -15,7 +15,6 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import haxe.Json;
 // import haxe.zip.Uncompress;
-import lime.utils.Assets;
 import openfl.display.BitmapData;
 import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM

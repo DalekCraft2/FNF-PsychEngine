@@ -3,13 +3,10 @@ package;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxSprite;
 import flixel.tweens.FlxTween;
-import haxe.Json;
 import openfl.utils.Assets;
-import openfl.utils.AssetType;
 import options.Options.OptionUtils;
 #if FEATURE_MODS
 import sys.FileSystem;
-import sys.io.File;
 #end
 
 using StringTools;
@@ -108,61 +105,44 @@ class Character extends FlxSprite
 
 	function parseDataFile()
 	{
-		var characterPath:String = 'characters/$curCharacter.json';
+		var characterPath:String = 'characters/$curCharacter';
 
-		#if FEATURE_MODS
-		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path))
+		var rawJson = Paths.loadJson(characterPath);
+		if (rawJson == null)
 		{
-			path = Paths.getPreloadPath(characterPath);
+			rawJson = Paths.loadJson('characters/$DEFAULT_CHARACTER');
 		}
 
-		if (!FileSystem.exists(path))
-		#else
-		var path:String = Paths.getPreloadPath(characterPath);
-		if (!Assets.exists(path))
-		#end
-		{
-			// If a character couldn't be found, change him to BF just to prevent a crash
-			path = Paths.getPreloadPath('characters/$DEFAULT_CHARACTER.json');
-		}
-
-		#if FEATURE_MODS
-		var rawJson = File.getContent(path);
-		#else
-		var rawJson = Assets.getText(path);
-		#end
-
-		var json:CharacterData = cast Json.parse(rawJson);
+		var characterData:CharacterData = cast rawJson;
 		var spriteType = "sparrow";
 		// sparrow
 		// packer
 		// texture
 		#if FEATURE_MODS
-		var modTxtToFind:String = Paths.modsTxt(json.image);
-		var txtToFind:String = Paths.getPath('images/${json.image}.txt', TEXT);
+		var modTxtToFind:String = Paths.modsTxt(characterData.image);
+		var txtToFind:String = Paths.getPath('images/${characterData.image}.txt', TEXT);
 
-		// var modTextureToFind:String = Paths.modFolders('images/${json.image}');
-		// var textureToFind:String = Paths.getPath('images/${json.image}', new AssetType());
+		// var modTextureToFind:String = Paths.modFolders('images/${characterData.image}');
+		// var textureToFind:String = Paths.getPath('images/${characterData.image}', new AssetType());
 
 		if (FileSystem.exists(modTxtToFind) || FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
 		#else
-		if (Assets.exists(Paths.getPath('images/${json.image}.txt', TEXT)))
+		if (Assets.exists(Paths.getPath('images/${characterData.image}.txt', TEXT)))
 		#end
 		{
 			spriteType = "packer";
 		}
 
 		#if FEATURE_MODS
-		var modAnimToFind:String = Paths.modFolders('images/${json.image}/Animation.json');
-		var animToFind:String = Paths.getPath('images/${json.image}/Animation.json', TEXT);
+		var modAnimToFind:String = Paths.modFolders('images/${characterData.image}/Animation.json');
+		var animToFind:String = Paths.getPath('images/${characterData.image}/Animation.json', TEXT);
 
-		// var modTextureToFind:String = Paths.modFolders('images/${json.image}');
-		// var textureToFind:String = Paths.getPath('images/${json.image}', new AssetType());
+		// var modTextureToFind:String = Paths.modFolders('images/${characterData.image}');
+		// var textureToFind:String = Paths.getPath('images/${characterData.image}', new AssetType());
 
 		if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
 		#else
-		if (Assets.exists(Paths.getPath('images/${json.image}/Animation.json', TEXT)))
+		if (Assets.exists(Paths.getPath('images/${characterData.image}/Animation.json', TEXT)))
 		#end
 		{
 			spriteType = "texture";
@@ -171,43 +151,43 @@ class Character extends FlxSprite
 		switch (spriteType)
 		{
 			case "packer":
-				frames = Paths.getPackerAtlas(json.image);
+				frames = Paths.getPackerAtlas(characterData.image);
 
 			case "sparrow":
-				frames = Paths.getSparrowAtlas(json.image);
+				frames = Paths.getSparrowAtlas(characterData.image);
 
 			case "texture":
-				frames = AtlasFrameMaker.construct(json.image);
+				frames = AtlasFrameMaker.construct(characterData.image);
 		}
-		imageFile = json.image;
+		imageFile = characterData.image;
 
-		if (json.scale != 1)
+		if (characterData.scale != 1)
 		{
-			jsonScale = json.scale;
+			jsonScale = characterData.scale;
 			setGraphicSize(Std.int(width * jsonScale));
 			updateHitbox();
 		}
 
-		positionArray = json.position;
-		cameraPosition = json.camera_position;
+		positionArray = characterData.position;
+		cameraPosition = characterData.camera_position;
 
-		healthIcon = json.healthicon;
-		singDuration = json.sing_duration;
-		flipX = !!json.flip_x;
-		if (json.no_antialiasing)
+		healthIcon = characterData.healthicon;
+		singDuration = characterData.sing_duration;
+		flipX = !!characterData.flip_x;
+		if (characterData.no_antialiasing)
 		{
 			antialiasing = false;
 			noAntialiasing = true;
 		}
 
-		if (json.healthbar_colors != null && json.healthbar_colors.length > 2)
-			healthColorArray = json.healthbar_colors;
+		if (characterData.healthbar_colors != null && characterData.healthbar_colors.length > 2)
+			healthColorArray = characterData.healthbar_colors;
 
 		antialiasing = !noAntialiasing;
 		if (!OptionUtils.options.globalAntialiasing)
 			antialiasing = false;
 
-		animationsArray = json.animations;
+		animationsArray = characterData.animations;
 		if (animationsArray != null && animationsArray.length > 0)
 		{
 			for (anim in animationsArray)
@@ -340,7 +320,8 @@ class Character extends FlxSprite
 		}
 
 		// I'm frickin' cheating.
-		PlayState.instance.updateDirectionalCamera();
+		if (PlayState.instance != null)
+			PlayState.instance.updateDirectionalCamera();
 	}
 
 	public var danceEveryNumBeats:Int = 2;

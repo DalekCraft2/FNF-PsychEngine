@@ -16,8 +16,7 @@ import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import lime.utils.Assets;
-import openfl.utils.Assets as OpenFlAssets;
+import openfl.utils.Assets;
 import options.Options.OptionUtils;
 #if FEATURE_MODS
 import sys.FileSystem;
@@ -300,14 +299,14 @@ class FreeplayState extends MusicBeatState
 		persistentUpdate = false;
 		var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
 		var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
+		var songPath:String = 'songs/$songId/$songId$difficulty';
 		#if FEATURE_MODS
-		if (!FileSystem.exists(Paths.modsJson('$songId/$songId$difficulty'))
-			&& !FileSystem.exists(Paths.json('$songId/$songId$difficulty')))
+		if (!FileSystem.exists(Paths.modsJson(songPath)) && !FileSystem.exists(Paths.json(songPath)))
 		#else
-		if (!OpenFlAssets.exists(Paths.json('$songId/$songId$difficulty')))
+		if (!Assets.exists(Paths.json(songPath)))
 		#end
 		{
-			Debug.logWarn('Couldn\'t find song file "$songId/$songId$difficulty"');
+			Debug.logWarn('Couldn\'t find song file "$songPath"');
 			difficulty = '';
 			curDifficulty = 1;
 		}

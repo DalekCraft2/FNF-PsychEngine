@@ -1,1 +1,1 @@
-Drop your Menu characters shit here
+Put your menu character's image and .xml file here!

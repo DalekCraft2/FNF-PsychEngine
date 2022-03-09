@@ -1,1 +1,1 @@
-Put your custom character image and .xml/.txt files here!
+Put your character's image and .xml/.txt file here!
