@@ -23,7 +23,7 @@ class Paths
 
 	#if FEATURE_MODS
 	public static var ignoreModFolders:Array<String> = [
-		'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'fonts', 'scripts', 'achievements'
+		'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'fonts', 'scripts'
 	];
 	#end
 
