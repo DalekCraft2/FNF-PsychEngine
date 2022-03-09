@@ -2,6 +2,7 @@ package;
 
 import haxe.Json;
 import haxe.macro.Type.AnonType;
+import openfl.utils.Assets;
 import options.Options.OptionUtils;
 
 typedef JudgementInfo =
