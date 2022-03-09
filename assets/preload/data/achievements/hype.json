@@ -1,0 +1,8 @@
+{
+    "name": "Hyperactive",
+    "description": "Finish a Song without going Idle.",
+    "icon": "hype",
+    "unlocksAfter": null,
+    "hidden": false,
+    "customGoal": false
+}

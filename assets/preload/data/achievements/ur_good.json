@@ -1,0 +1,8 @@
+{
+    "name": "Perfectionist",
+    "description": "Complete a Song with a rating of 100%.",
+    "icon": "ur_good",
+    "unlocksAfter": null,
+    "hidden": false,
+    "customGoal": false
+}

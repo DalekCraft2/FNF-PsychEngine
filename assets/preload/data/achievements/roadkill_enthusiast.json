@@ -1,0 +1,8 @@
+{
+    "name": "Roadkill Enthusiast",
+    "description": "Watch the Henchmen die over 100 times.",
+    "icon": "roadkill_enthusiast",
+    "unlocksAfter": null,
+    "hidden": false,
+    "customGoal": false
+}

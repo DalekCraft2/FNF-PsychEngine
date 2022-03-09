@@ -1,0 +1,8 @@
+{
+    "name": "Oversinging Much...?",
+    "description": "Hold down a note for 10 seconds.",
+    "icon": "oversinging",
+    "unlocksAfter": null,
+    "hidden": false,
+    "customGoal": false
+}

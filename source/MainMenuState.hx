@@ -151,9 +151,9 @@ class MainMenuState extends MusicBeatState
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 		{
 			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
-			if (!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID].icon))
+			if (!Achievements.isAchievementUnlocked(Achievements.achievementList[achieveID].icon))
 			{ // It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID].icon, true);
+				Achievements.achievementsMap.set(Achievements.achievementList[achieveID].icon, true);
 				giveAchievement();
 				OptionUtils.saveOptions(OptionUtils.options);
 			}

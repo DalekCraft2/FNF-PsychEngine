@@ -8,6 +8,12 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import options.Options.OptionUtils;
+#if FEATURE_MODS
+import sys.FileSystem;
+import sys.io.File;
+#end
+
+using StringTools;
 
 typedef AchievementData =
 {
@@ -22,138 +28,11 @@ typedef AchievementData =
 // TODO I think that they removed the JSON stuff for achievements. I'll need to reimplement that.
 class Achievements
 {
-	public static var achievementsStuff:Array<AchievementData> = [
-		// Name, Description, Achievement save tag, Hidden achievement
-		{
-			name: "Freaky on a Friday Night",
-			description: "Play on a Friday... Night.",
-			icon: 'friday_night_play',
-			unlocksAfter: null,
-			hidden: true,
-			customGoal: false
-		},
-		{
-			name: "She Calls Me Daddy Too",
-			description: "Beat Week 1 on Hard with no Misses.",
-			icon: 'week1_nomiss',
-			unlocksAfter: 'week1',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "No More Tricks",
-			description: "Beat Week 2 on Hard with no Misses.",
-			icon: 'week2_nomiss',
-			unlocksAfter: 'week2',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Call Me The Hitman",
-			description: "Beat Week 3 on Hard with no Misses.",
-			icon: 'week3_nomiss',
-			unlocksAfter: 'week3',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Lady Killer",
-			description: "Beat Week 4 on Hard with no Misses.",
-			icon: 'week4_nomiss',
-			unlocksAfter: 'week4',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Missless Christmas",
-			description: "Beat Week 5 on Hard with no Misses.",
-			icon: 'week5_nomiss',
-			unlocksAfter: 'week5',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Highscore!!",
-			description: "Beat Week 6 on Hard with no Misses.",
-			icon: 'week6_nomiss',
-			unlocksAfter: 'week6',
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "You'll Pay For That...",
-			description: "Beat Week 7 on Hard with no Misses.",
-			icon: 'week7_nomiss',
-			unlocksAfter: 'week7',
-			hidden: true,
-			customGoal: false
-		},
-		{
-			name: "What a Funkin' Disaster!",
-			description: "Complete a Song with a rating lower than 20%.",
-			icon: 'ur_bad',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Perfectionist",
-			description: "Complete a Song with a rating of 100%.",
-			icon: 'ur_good',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Roadkill Enthusiast",
-			description: "Watch the Henchmen die over 100 times.",
-			icon: 'roadkill_enthusiast',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Oversinging Much...?",
-			description: "Hold down a note for 10 seconds.",
-			icon: 'oversinging',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Hyperactive",
-			description: "Finish a Song without going Idle.",
-			icon: 'hype',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Just the Two of Us",
-			description: "Finish a Song pressing only two keys.",
-			icon: 'two_keys',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Toaster Gamer",
-			description: "Have you tried to run the game on a toaster?",
-			icon: 'toastie',
-			unlocksAfter: null,
-			hidden: false,
-			customGoal: false
-		},
-		{
-			name: "Debugger",
-			description: "Beat the \"Test\" Stage from the Chart Editor.",
-			icon: 'debugger',
-			unlocksAfter: null,
-			hidden: true,
-			customGoal: false
-		}
+	public static var achievementList:Array<AchievementData> = [
+		// Gets filled when loading achievements
 	];
 	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
+	public static var achievementsLoaded:Map<String, AchievementData> = new Map<String, AchievementData>();
 
 	public static var henchmenDeath:Int = 0;
 
@@ -178,9 +57,9 @@ class Achievements
 
 	public static function getAchievementIndex(name:String)
 	{
-		for (i in 0...achievementsStuff.length)
+		for (i in 0...achievementList.length)
 		{
-			if (achievementsStuff[i].icon == name)
+			if (achievementList[i].icon == name)
 			{
 				return i;
 			}
@@ -190,6 +69,10 @@ class Achievements
 
 	public static function loadAchievements():Void
 	{
+		#if FEATURE_MODS
+		reloadAchievementData();
+		#end
+
 		if (FlxG.save.data != null)
 		{
 			if (FlxG.save.data.achievementsMap != null)
@@ -200,9 +83,9 @@ class Achievements
 			{
 				Debug.logTrace("Trying to load stuff");
 				var savedStuff:Array<String> = FlxG.save.data.achievementsUnlocked;
-				for (i in 0...savedStuff.length)
+				for (achievementId in savedStuff)
 				{
-					achievementsMap.set(savedStuff[i], true);
+					achievementsMap.set(achievementId, true);
 				}
 			}
 			if (henchmenDeath == 0 && FlxG.save.data.henchmenDeath != null)
@@ -223,7 +106,115 @@ class Achievements
 
 		// buffoon
 
-		// EDIT 2: Uhh this is weird, this message was written for MInd Games, so it doesn't apply logically for Psych Engine LOL
+		// EDIT 2: Uhh this is weird, this message was written for Mind Games, so it doesn't apply logically for Psych Engine LOL
+	}
+
+	public static function reloadAchievementData()
+	{
+		achievementList = [];
+		achievementsLoaded.clear();
+		#if FEATURE_MODS
+		var disabledMods:Array<String> = [];
+		var modsListPath:String = 'modsList.txt';
+		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
+		var originalLength:Int = directories.length;
+		if (FileSystem.exists(modsListPath))
+		{
+			var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);
+			for (modEntry in stuff)
+			{
+				var splitName:Array<String> = modEntry.trim().split('|');
+				if (splitName[1] == '0') // Disable mod
+				{
+					disabledMods.push(splitName[0]);
+				}
+				else // Sort mod loading order based on modsList.txt file
+				{
+					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
+					// Debug.logTrace('Trying to push: ${splitName[0]}');
+					if (FileSystem.isDirectory(path)
+						&& !Paths.ignoreModFolders.contains(splitName[0])
+						&& !disabledMods.contains(splitName[0])
+						&& !directories.contains(path + '/'))
+					{
+						directories.push(path + '/');
+						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
+					}
+				}
+			}
+		}
+
+		var modsDirectories:Array<String> = Paths.getModDirectories();
+		for (folder in modsDirectories)
+		{
+			var pathThing:String = haxe.io.Path.join([Paths.mods(), folder]) + '/';
+			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
+			{
+				directories.push(pathThing);
+				// Debug.logTrace('Pushed Directory: $folder');
+			}
+		}
+		#end
+
+		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.txt('achievements/achievementList.txt'));
+		for (achievement in sexList)
+		{
+			if (Paths.fileExists('$achievement.json', TEXT, true, ''))
+				addAchievement(achievement);
+		}
+
+		#if FEATURE_MODS
+		for (folder in directories)
+		{
+			var directory:String = '${folder}data/achievements/';
+			if (FileSystem.exists(directory))
+			{
+				var listOfAchievements:Array<String> = CoolUtil.coolTextFile(directory + 'achievementsList.txt');
+				for (daAchievement in listOfAchievements)
+				{
+					var path:String = '$directory$daAchievement.json';
+					if (FileSystem.exists(path))
+					{
+						addAchievement(daAchievement);
+					}
+				}
+
+				for (file in FileSystem.readDirectory(directory))
+				{
+					var path = haxe.io.Path.join([directory, file]);
+					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
+					{
+						var cutName:String = file.substr(0, file.length - '.json'.length);
+						addAchievement(cutName);
+					}
+				}
+			}
+		}
+		#end
+
+		Debug.logTrace('List: $achievementList');
+		Debug.logTrace('Loaded: $achievementsLoaded');
+	}
+
+	private static function addAchievement(achievement:String)
+	{
+		if (!achievementsLoaded.exists(achievement))
+		{
+			var achievementData:AchievementData = getAchievementData(achievement);
+			if (achievementData != null)
+			{
+				achievementsLoaded.set(achievement, achievementData);
+				achievementList.push(achievementData);
+			}
+		}
+	}
+
+	private static function getAchievementData(achievement:String):AchievementData
+	{
+		var achievementPath:String = 'achievements/$achievement';
+		var rawJson = Paths.loadJson(achievementPath);
+		var achievementData:AchievementData = cast rawJson;
+		return achievementData;
 	}
 }
 
@@ -288,20 +279,18 @@ class Achievement extends FlxSpriteGroup
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
-		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.image('achievementgrid'), true, 150, 150);
-		achievementIcon.animation.add('icon', [id], 0, false, false);
-		achievementIcon.animation.play('icon');
+		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.image('achievements/$name'));
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = OptionUtils.options.globalAntialiasing;
 
 		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280,
-			Achievements.achievementsStuff[id].name, 16);
+			Achievements.achievementList[id].name, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementsStuff[id].description, 16);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementList[id].description, 16);
 		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementText.scrollFactor.set();
 

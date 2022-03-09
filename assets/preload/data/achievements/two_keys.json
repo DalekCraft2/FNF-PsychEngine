@@ -1,0 +1,8 @@
+{
+    "name": "Just the Two of Us",
+    "description": "Finish a Song pressing only two keys.",
+    "icon": "two_keys",
+    "unlocksAfter": null,
+    "hidden": false,
+    "customGoal": false
+}

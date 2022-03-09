@@ -1,0 +1,8 @@
+{
+    "name": "You'll pay for that...",
+    "description": "Beat Week 7 on Hard with no Misses.",
+    "icon": "week7_nomiss",
+    "unlocksAfter": "week7",
+    "hidden": true,
+    "customGoal": false
+}

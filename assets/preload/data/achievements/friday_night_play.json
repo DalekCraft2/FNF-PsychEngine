@@ -1,0 +1,8 @@
+{
+    "name": "Freaky on a Friday Night",
+    "description": "Play on a Friday... Night.",
+    "icon": "friday_night_play",
+    "unlocksAfter": null,
+    "hidden": true,
+    "customGoal": false
+}

@@ -1,0 +1,8 @@
+{
+    "name": "Debugger",
+    "description": "Beat the \"Test\" Stage from the Chart Editor.",
+    "icon": "debugger",
+    "unlocksAfter": null,
+    "hidden": true,
+    "customGoal": false
+}

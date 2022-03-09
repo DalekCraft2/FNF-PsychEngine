@@ -506,7 +506,7 @@ class ChartingState extends MusicBeatState
 		#end
 
 		var tempMap:Map<String, Bool> = new Map<String, Bool>();
-		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characters/characterList'));
 		for (i in 0...characters.length)
 		{
 			tempMap.set(characters[i], true);
@@ -573,7 +573,7 @@ class ChartingState extends MusicBeatState
 		#end
 
 		tempMap.clear();
-		var stageFile:Array<String> = CoolUtil.coolTextFile(Paths.txt('stageList'));
+		var stageFile:Array<String> = CoolUtil.coolTextFile(Paths.txt('stages/stageList'));
 		var stages:Array<String> = [];
 		for (i in 0...stageFile.length)
 		{ // Prevent duplicates

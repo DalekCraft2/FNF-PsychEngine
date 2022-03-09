@@ -1,0 +1,8 @@
+{
+    "name": "Call Me The Hitman",
+    "description": "Beat Week 3 on Hard with no Misses.",
+    "icon": "week3_nomiss",
+    "unlocksAfter": "week3",
+    "hidden": false,
+    "customGoal": false
+}

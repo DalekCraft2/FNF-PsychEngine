@@ -1,0 +1,8 @@
+{
+    "name": "Highscore!!",
+    "description": "Beat Week 6 on Hard with no Misses.",
+    "icon": "week6_nomiss",
+    "unlocksAfter": "week6",
+    "hidden": false,
+    "customGoal": false
+}

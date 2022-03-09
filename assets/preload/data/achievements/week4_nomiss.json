@@ -1,0 +1,8 @@
+{
+    "name": "Lady Killer",
+    "description": "Beat Week 4 on Hard with no Misses.",
+    "icon": "week4_nomiss",
+    "unlocksAfter": "week4",
+    "hidden": false,
+    "customGoal": false
+}

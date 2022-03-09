@@ -127,8 +127,8 @@ class Song
 			folder = songId;
 		}
 
-		var songPath = '$folder/$songId$difficulty';
-		var songMetaPath = '$folder/_meta';
+		var songPath = 'songs/$folder/$songId$difficulty';
+		var songMetaPath = 'songs/$folder/_meta';
 
 		var rawJson = Paths.loadJson(songPath);
 		var rawMetaJson = Paths.loadJson(songMetaPath);

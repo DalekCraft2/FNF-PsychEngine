@@ -144,10 +144,9 @@ class Week
 		{
 			for (j in 0...directories.length)
 			{
-				var fileToCheck:String = '${directories[j]}data/weeks/${sexList[i]}';
 				if (!weeksLoaded.exists(sexList[i]))
 				{
-					var weekData:WeekData = getWeekData(fileToCheck);
+					var weekData:WeekData = getWeekData(sexList[i]);
 					if (weekData != null)
 					{
 						var week:Week = new Week(weekData, sexList[i]);
@@ -182,7 +181,7 @@ class Week
 					var path:String = '$directory$daWeek.json';
 					if (FileSystem.exists(path))
 					{
-						addWeek(daWeek, path, directories[i], i, originalLength);
+						addWeek(daWeek, directories[i], i, originalLength);
 					}
 				}
 
@@ -191,7 +190,8 @@ class Week
 					var path = haxe.io.Path.join([directory, file]);
 					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
-						addWeek(file.substr(0, file.length - 5), path, directories[i], i, originalLength);
+						var cutName:String = file.substr(0, file.length - '.json'.length);
+						addWeek(cutName, directories[i], i, originalLength);
 					}
 				}
 			}
@@ -199,11 +199,11 @@ class Week
 		#end
 	}
 
-	private static function addWeek(weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int)
+	private static function addWeek(weekToCheck:String, directory:String, i:Int, originalLength:Int)
 	{
 		if (!weeksLoaded.exists(weekToCheck))
 		{
-			var weekData:WeekData = getWeekData(path);
+			var weekData:WeekData = getWeekData(weekToCheck);
 			if (weekData != null)
 			{
 				var week:Week = new Week(weekData, weekToCheck);
@@ -225,11 +225,8 @@ class Week
 	private static function getWeekData(week:String):WeekData
 	{
 		var weekPath:String = 'weeks/$week';
-
 		var rawJson = Paths.loadJson(weekPath);
-
 		var weekData:WeekData = cast rawJson;
-
 		return weekData;
 	}
 

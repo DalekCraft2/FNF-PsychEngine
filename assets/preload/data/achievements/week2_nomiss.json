@@ -1,0 +1,8 @@
+{
+    "name": "No More Tricks",
+    "description": "Beat Week 2 on Hard with no Misses.",
+    "icon": "week2_nomiss",
+    "unlocksAfter": "week2",
+    "hidden": false,
+    "customGoal": false
+}

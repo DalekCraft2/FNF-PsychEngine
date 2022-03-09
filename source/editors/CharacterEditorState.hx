@@ -1167,7 +1167,7 @@ class CharacterEditorState extends MusicBeatState
 			}
 		}
 		#else
-		characterList = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		characterList = CoolUtil.coolTextFile(Paths.txt('characters/characterList'));
 		#end
 
 		charDropDown.setData(FlxUIDropDownMenuCustom.makeStrIdLabelArray(characterList, true));
