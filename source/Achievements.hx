@@ -251,13 +251,14 @@ class AttachedAchievement extends FlxSprite
 	{
 		if (Achievements.isAchievementUnlocked(tag))
 		{
-			loadGraphic(Paths.image('achievementgrid'), true, 150, 150);
-			animation.add('icon', [Achievements.getAchievementIndex(tag)], 0, false, false);
-			animation.play('icon');
+			var graphic = Paths.image('achievements/$tag');
+			if (graphic == null)
+				graphic = Paths.image('achievements/missing');
+			loadGraphic(graphic);
 		}
 		else
 		{
-			loadGraphic(Paths.image('lockedachievement'));
+			loadGraphic(Paths.image('achievements/locked'));
 		}
 		scale.set(0.7, 0.7);
 		updateHitbox();
