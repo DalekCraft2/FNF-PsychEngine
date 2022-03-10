@@ -9,6 +9,7 @@ import openfl.system.System;
 import openfl.utils.Assets;
 import openfl.utils.AssetType;
 #if FEATURE_MODS
+import haxe.io.Path;
 import openfl.display.BitmapData;
 import sys.FileSystem;
 import sys.io.File;
@@ -138,16 +139,19 @@ class Paths
 
 		if (rawJson == null)
 		{
+			var path:String = Paths.json(key, library);
 			#if FEATURE_FILESYSTEM
-			rawJson = File.getContent(Paths.json(key, library));
+			if (FileSystem.exists(path))
+				rawJson = File.getContent(path);
 			#else
-			rawJson = Assets.getText(Paths.json(key, library));
+			if (Assets.exists(path))
+				rawJson = Assets.getText(path);
 			#end
 		}
 
 		// Perform cleanup on files that have bad data at the end.
 		rawJson = rawJson.trim();
-		while (!rawJson.endsWith("}"))
+		while (rawJson.length > 0 && !rawJson.endsWith("}"))
 		{
 			rawJson = rawJson.substr(0, rawJson.length - 1);
 		}
@@ -159,10 +163,8 @@ class Paths
 		}
 		catch (e)
 		{
-			Debug.logError("AN ERROR OCCURRED parsing a JSON file.");
-			Debug.logError(e.message);
-
-			// Return null.
+			Debug.logError('Error parsing a JSON file with name "$key" and library "$library": $e');
+			Debug.logError(e.stack);
 			return null;
 		}
 	}
@@ -309,13 +311,13 @@ class Paths
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
 	{
 		#if FEATURE_MODS
-		if (FileSystem.exists(mods('$currentModDirectory/key')) || FileSystem.exists(mods(key)))
+		if (FileSystem.exists(mods('$currentModDirectory/$key')) || FileSystem.exists(mods(key)))
 		{
 			return true;
 		}
 		#end
 
-		if (Assets.exists(Paths.getPath(key, type)))
+		if (Assets.exists(getPath(key, type)))
 		{
 			return true;
 		}
@@ -392,7 +394,7 @@ class Paths
 			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
-		Debug.logWarn('Could not find asset at "${path}"');
+		Debug.logWarn('Could not find asset at "$path"');
 		return null;
 	}
 
@@ -417,12 +419,16 @@ class Paths
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
 		// Debug.logTrace(gottenPath);
 		if (!currentTrackedSounds.exists(gottenPath))
+		{
 			#if FEATURE_MODS
 			currentTrackedSounds.set(gottenPath, Sound.fromFile('./$gottenPath'));
 			#else
 			currentTrackedSounds.set(gottenPath, Assets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
 			#end
+		}
 		localTrackedAssets.push(gottenPath);
+		if (currentTrackedSounds.get(gottenPath) == null)
+			Debug.logWarn('Could not find sound at "$file"');
 		return currentTrackedSounds.get(gottenPath);
 	}
 
@@ -498,7 +504,7 @@ class Paths
 		{
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
-				var path = haxe.io.Path.join([modsFolder, folder]);
+				var path = Path.join([modsFolder, folder]);
 				if (FileSystem.isDirectory(path) && !Paths.ignoreModFolders.contains(folder) && !list.contains(folder))
 				{
 					list.push(folder);

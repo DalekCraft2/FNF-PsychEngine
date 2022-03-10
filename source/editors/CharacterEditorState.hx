@@ -28,6 +28,7 @@ import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
 import options.Options.OptionUtils;
 #if FEATURE_MODS
+import haxe.io.Path;
 import sys.FileSystem;
 #end
 
@@ -1153,7 +1154,7 @@ class CharacterEditorState extends MusicBeatState
 			{
 				for (file in FileSystem.readDirectory(directory))
 				{
-					var path = haxe.io.Path.join([directory, file]);
+					var path = Path.join([directory, file]);
 					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
 						var charToCheck:String = file.substr(0, file.length - 5);

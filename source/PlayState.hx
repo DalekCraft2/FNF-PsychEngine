@@ -819,7 +819,7 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		#if (FEATURE_MODS && FEATURE_LUA)
 		var doPush:Bool = false;
-		var luaFile:String = 'stages/$curStage.lua';
+		var luaFile:String = 'data/stages/$curStage.lua';
 		if (FileSystem.exists(Paths.modFolders(luaFile)))
 		{
 			luaFile = Paths.modFolders(luaFile);
@@ -950,22 +950,26 @@ class PlayState extends MusicBeatState
 				PlayStateChangeables.botPlay = true;
 		}*/
 
-		var file:String = Paths.json('songs/${song.songId}/dialogue'); // Checks for json/Psych Engine dialogue
-		if (Assets.exists(file))
+		var doof:DialogueBox = null;
+		if (isStoryMode)
 		{
-			dialogueJson = DialogueBoxPsych.parseDialogue(file);
-		}
+			var file:String = Paths.json('songs/${song.songId}/dialogue'); // Checks for json/Psych Engine dialogue
+			if (Assets.exists(file))
+			{
+				dialogueJson = DialogueBoxPsych.parseDialogue(file);
+			}
 
-		var file:String = Paths.txt('${song.songId}/${song.songId}Dialogue'); // Checks for vanilla/Senpai dialogue
-		if (Assets.exists(file))
-		{
-			dialogue = CoolUtil.coolTextFile(file);
+			var file:String = Paths.txt('songs/${song.songId}/${song.songId}Dialogue'); // Checks for vanilla/Senpai dialogue
+			if (Assets.exists(file))
+			{
+				dialogue = CoolUtil.coolTextFile(file);
+			}
+			doof = new DialogueBox(false, dialogue);
+			// doof.x += 70;
+			// doof.y = FlxG.height * 0.5;
+			doof.scrollFactor.set();
+			doof.finishThing = startCountdown;
 		}
-		var doof:DialogueBox = new DialogueBox(false, dialogue);
-		// doof.x += 70;
-		// doof.y = FlxG.height * 0.5;
-		doof.scrollFactor.set();
-		doof.finishThing = startCountdown;
 
 		Conductor.songPosition = -5000;
 
@@ -1176,7 +1180,8 @@ class PlayState extends MusicBeatState
 		timeBar.cameras = [camHUD];
 		timeBarBG.cameras = [camHUD];
 		timeTxt.cameras = [camHUD];
-		doof.cameras = [camHUD];
+		if (isStoryMode)
+			doof.cameras = [camHUD];
 
 		// if (song.song == 'South')
 		// FlxG.camera.alpha = 0.7;
@@ -1191,7 +1196,7 @@ class PlayState extends MusicBeatState
 		var foldersToCheck:Array<String> = [Paths.getPreloadPath('data/songs/${song.songId}/')];
 
 		#if FEATURE_MODS
-		foldersToCheck.insert(0, Paths.mods('data/${song.songId}/'));
+		foldersToCheck.insert(0, Paths.mods('data/songs/${song.songId}/'));
 		if (Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
 			foldersToCheck.insert(0, Paths.mods('${Paths.currentModDirectory}/data/songs/${song.songId}/'));
 		#end
@@ -1275,7 +1280,6 @@ class PlayState extends MusicBeatState
 					if (song.songId == 'roses')
 						FlxG.sound.play(Paths.sound('ANGRY'));
 					schoolIntro(doof);
-
 				default:
 					startCountdown();
 			}
@@ -1412,7 +1416,7 @@ class PlayState extends MusicBeatState
 	{
 		#if FEATURE_LUA
 		var doPush:Bool = false;
-		var luaFile:String = 'characters/$name.lua';
+		var luaFile:String = 'data/characters/$name.lua';
 		if (FileSystem.exists(Paths.modFolders(luaFile)))
 		{
 			luaFile = Paths.modFolders(luaFile);
@@ -2372,7 +2376,9 @@ class PlayState extends MusicBeatState
 			var ret:Dynamic = callOnLuas('onPause', []);
 			if (ret != FunkinLua.Function_Stop)
 			{
-				boyfriend.stunned = true;
+				Debug.logTrace("Lost Focus");
+				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+				// boyfriend.stunned = true;
 				persistentUpdate = false;
 				persistentDraw = true;
 				paused = true;
@@ -2380,9 +2386,11 @@ class PlayState extends MusicBeatState
 				if (FlxG.sound.music != null)
 				{
 					FlxG.sound.music.pause();
+				}
+				if (vocals != null)
+				{
 					vocals.pause();
 				}
-				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
 				#if FEATURE_DISCORD
 				DiscordClient.changePresence(detailsPausedText, song.songName + " (" + storyDifficultyText + ")", iconP2.getCharacter());
@@ -2923,6 +2931,8 @@ class PlayState extends MusicBeatState
 			{ // Go 10 seconds into the future :O
 				setSongTime(Conductor.songPosition + 10000);
 				clearNotesBefore(Conductor.songPosition);
+				if (Conductor.songPosition >= songLength)
+					endSong();
 			}
 		}
 		#end
@@ -3619,7 +3629,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 
-		#if LUA_ALLOWED
+		#if FEATURE_LUA
 		var ret:Dynamic = callOnLuas('onEndSong', []);
 		#else
 		var ret:Dynamic = FunkinLua.Function_Continue;
@@ -3727,6 +3737,7 @@ class PlayState extends MusicBeatState
 
 					song = Song.loadFromJson(storyPlaylist[0], difficulty);
 					FlxG.sound.music.stop();
+					vocals.stop();
 
 					if (winterHorrorlandNext)
 					{
@@ -5117,17 +5128,21 @@ class PlayState extends MusicBeatState
 	#if FEATURE_ACHIEVEMENTS
 	private function checkForAchievement(achievesToCheck:Array<String> = null):String
 	{
+		if (achievesToCheck == null)
+		{
+			achievesToCheck = Achievements.achievementList;
+		}
+
 		if (chartingMode)
 			return null;
 
 		var usedPractice:Bool = (ClientPrefs.getGameplaySetting('practice', false) || ClientPrefs.getGameplaySetting('botPlay', false));
-		for (i in 0...achievesToCheck.length)
+		for (achievementId in achievesToCheck)
 		{
-			var achievementName:String = achievesToCheck[i];
-			if (!Achievements.isAchievementUnlocked(achievementName) && !cpuControlled)
+			if (!Achievements.isAchievementUnlocked(achievementId) && !cpuControlled)
 			{
 				var unlock:Bool = false;
-				switch (achievementName)
+				switch (achievementId)
 				{
 					case 'week1_nomiss' | 'week2_nomiss' | 'week3_nomiss' | 'week4_nomiss' | 'week5_nomiss' | 'week6_nomiss' | 'week7_nomiss':
 						if (isStoryMode
@@ -5141,19 +5156,19 @@ class PlayState extends MusicBeatState
 							switch (weekName) // I know this is a lot of duplicated code, but it's easier readable and you can add weeks with different names than the achievement tag
 							{
 								case 'week1':
-									if (achievementName == 'week1_nomiss') unlock = true;
+									if (achievementId == 'week1_nomiss') unlock = true;
 								case 'week2':
-									if (achievementName == 'week2_nomiss') unlock = true;
+									if (achievementId == 'week2_nomiss') unlock = true;
 								case 'week3':
-									if (achievementName == 'week3_nomiss') unlock = true;
+									if (achievementId == 'week3_nomiss') unlock = true;
 								case 'week4':
-									if (achievementName == 'week4_nomiss') unlock = true;
+									if (achievementId == 'week4_nomiss') unlock = true;
 								case 'week5':
-									if (achievementName == 'week5_nomiss') unlock = true;
+									if (achievementId == 'week5_nomiss') unlock = true;
 								case 'week6':
-									if (achievementName == 'week6_nomiss') unlock = true;
+									if (achievementId == 'week6_nomiss') unlock = true;
 								case 'week7':
-									if (achievementName == 'week7_nomiss') unlock = true;
+									if (achievementId == 'week7_nomiss') unlock = true;
 							}
 						}
 					case 'ur_bad':
@@ -5204,7 +5219,7 @@ class PlayState extends MusicBeatState
 							unlock = true;
 						}
 					case 'debugger':
-						if (Paths.formatToSongPath(song.songId) == 'test' && !usedPractice)
+						if (song.songId == 'test' && !usedPractice)
 						{
 							unlock = true;
 						}
@@ -5212,8 +5227,8 @@ class PlayState extends MusicBeatState
 
 				if (unlock)
 				{
-					Achievements.unlockAchievement(achievementName);
-					return achievementName;
+					Achievements.unlockAchievement(achievementId);
+					return achievementId;
 				}
 			}
 		}

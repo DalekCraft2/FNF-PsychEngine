@@ -7,8 +7,11 @@ import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import haxe.Json;
+import openfl.utils.Assets;
 import options.Options.OptionUtils;
 #if FEATURE_MODS
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -25,10 +28,9 @@ typedef AchievementData =
 	var customGoal:Bool;
 }
 
-// TODO I think that they removed the JSON stuff for achievements. I'll need to reimplement that.
 class Achievements
 {
-	public static var achievementList:Array<AchievementData> = [
+	public static var achievementList:Array<String> = [
 		// Gets filled when loading achievements
 	];
 	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
@@ -57,15 +59,7 @@ class Achievements
 
 	public static function getAchievementIndex(name:String)
 	{
-		for (i in 0...achievementList.length)
-		{
-			var achievement = achievementList[i];
-			if (achievement.icon == name)
-			{
-				return i;
-			}
-		}
-		return -1;
+		return achievementList.indexOf(name);
 	}
 
 	public static function loadAchievements():Void
@@ -118,11 +112,10 @@ class Achievements
 		var disabledMods:Array<String> = [];
 		var modsListPath:String = 'modsList.txt';
 		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
-		var originalLength:Int = directories.length;
 		if (FileSystem.exists(modsListPath))
 		{
-			var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);
-			for (mod in stuff)
+			var modList:Array<String> = CoolUtil.coolTextFile(modsListPath);
+			for (mod in modList)
 			{
 				var splitName:Array<String> = mod.trim().split('|');
 				if (splitName[1] == '0') // Disable mod
@@ -131,14 +124,14 @@ class Achievements
 				}
 				else // Sort mod loading order based on modsList.txt file
 				{
-					var path = haxe.io.Path.join([Paths.mods(), splitName[0]]);
+					var path = Path.join([Paths.mods(), splitName[0]]);
 					// Debug.logTrace('Trying to push: ${splitName[0]}');
 					if (FileSystem.isDirectory(path)
 						&& !Paths.ignoreModFolders.contains(splitName[0])
 						&& !disabledMods.contains(splitName[0])
-						&& !directories.contains(path + '/'))
+						&& !directories.contains('$path/'))
 					{
-						directories.push(path + '/');
+						directories.push('$path/');
 						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
 					}
 				}
@@ -146,76 +139,112 @@ class Achievements
 		}
 
 		var modsDirectories:Array<String> = Paths.getModDirectories();
-		for (folder in modsDirectories)
+		for (modDirectory in modsDirectories)
 		{
-			var pathThing:String = haxe.io.Path.join([Paths.mods(), folder]) + '/';
-			if (!disabledMods.contains(folder) && !directories.contains(pathThing))
+			var pathThing:String = '${Path.join([Paths.mods(), modDirectory])}/';
+			if (!disabledMods.contains(modDirectory) && !directories.contains(modDirectory))
 			{
 				directories.push(pathThing);
-				// Debug.logTrace('Pushed Directory: $folder');
+				// Debug.logTrace('Pushed Directory: $modDirectory');
 			}
 		}
+		#else
+		var directories:Array<String> = [Paths.getPreloadPath()];
 		#end
 
-		var sexList:Array<String> = CoolUtil.coolTextFile(Paths.txt('achievements/achievementList.txt'));
-		for (achievement in sexList)
+		var achievementList:Array<String> = CoolUtil.coolTextFile(Paths.txt('achievements/achievementList'));
+		// for (achievement in achievementList)
+		// {
+		// 	if (Paths.fileExists('$achievement.json', TEXT, true, ''))
+		// 		addAchievement(achievement);
+		// }
+		for (achievementId in achievementList)
 		{
-			if (Paths.fileExists('$achievement.json', TEXT, true, ''))
-				addAchievement(achievement);
+			for (directory in directories)
+			{
+				var fileToCheck:String = '${directory}data/achievements/${achievementId}.json';
+				if (!achievementsLoaded.exists(achievementId))
+				{
+					var achievementData:AchievementData = getAchievementData(fileToCheck);
+					if (achievementData != null)
+					{
+						achievementsLoaded.set(achievementId, achievementData);
+						Achievements.achievementList.push(achievementId);
+					}
+				}
+			}
 		}
 
 		#if FEATURE_MODS
-		for (folder in directories)
+		for (directory in directories)
 		{
-			var directory:String = '${folder}data/achievements/';
-			if (FileSystem.exists(directory))
+			var achievementDirectory:String = '${directory}data/achievements/';
+			if (FileSystem.exists(achievementDirectory))
 			{
-				var listOfAchievements:Array<String> = CoolUtil.coolTextFile(directory + 'achievementsList.txt');
-				for (daAchievement in listOfAchievements)
+				var listOfAchievements:Array<String> = CoolUtil.coolTextFile('${achievementDirectory}achievementsList.txt');
+				for (achievementId in listOfAchievements)
 				{
-					var path:String = '$directory$daAchievement.json';
+					var path:String = '$achievementDirectory$achievementId.json';
 					if (FileSystem.exists(path))
 					{
-						addAchievement(daAchievement);
+						addAchievement(achievementId);
 					}
 				}
 
-				for (file in FileSystem.readDirectory(directory))
+				for (file in FileSystem.readDirectory(achievementDirectory))
 				{
-					var path = haxe.io.Path.join([directory, file]);
+					var path:String = Path.join([achievementDirectory, file]);
 					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
-						var cutName:String = file.substr(0, file.length - '.json'.length);
-						addAchievement(cutName);
+						var achievementId:String = file.substr(0, file.length - '.json'.length);
+						addAchievement(achievementId);
 					}
 				}
 			}
 		}
 		#end
-
-		Debug.logTrace('List: $achievementList');
-		Debug.logTrace('Loaded: $achievementsLoaded');
 	}
 
-	private static function addAchievement(achievement:String)
+	private static function addAchievement(achievementId:String)
 	{
-		if (!achievementsLoaded.exists(achievement))
+		if (!achievementsLoaded.exists(achievementId))
 		{
-			var achievementData:AchievementData = getAchievementData(achievement);
+			var achievementData:AchievementData = getAchievementData(achievementId);
 			if (achievementData != null)
 			{
-				achievementsLoaded.set(achievement, achievementData);
-				achievementList.push(achievementData);
+				achievementsLoaded.set(achievementId, achievementData);
+				achievementList.push(achievementId);
 			}
 		}
 	}
 
-	private static function getAchievementData(achievement:String):AchievementData
+	/*private static function getAchievementData(achievement:String):AchievementData
+		{
+			var achievementPath:String = 'achievements/$achievement';
+			var rawJson:Dynamic = Paths.loadJson(achievementPath);
+			var achievementData:AchievementData = cast rawJson;
+			return achievementData;
+	}*/
+	private static function getAchievementData(achievementPath:String):AchievementData
 	{
-		var achievementPath:String = 'achievements/$achievement';
-		var rawJson = Paths.loadJson(achievementPath);
-		var achievementData:AchievementData = cast rawJson;
-		return achievementData;
+		var rawJson:String = null;
+		#if FEATURE_MODS
+		if (FileSystem.exists(achievementPath))
+		{
+			rawJson = File.getContent(achievementPath);
+		}
+		#else
+		if (Assets.exists(achievementPath))
+		{
+			rawJson = Assets.getText(achievementPath);
+		}
+		#end
+
+		if (rawJson != null && rawJson.length > 0)
+		{
+			return cast Json.parse(rawJson);
+		}
+		return null;
 	}
 }
 
@@ -286,12 +315,14 @@ class Achievement extends FlxSpriteGroup
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = OptionUtils.options.globalAntialiasing;
 
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280,
-			Achievements.achievementList[id].name, 16);
+		var achievementId:String = Achievements.achievementList[id];
+		var achievement:AchievementData = Achievements.achievementsLoaded.get(achievementId);
+
+		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievement.name, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, Achievements.achievementList[id].description, 16);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievement.description, 16);
 		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
 		achievementText.scrollFactor.set();
 

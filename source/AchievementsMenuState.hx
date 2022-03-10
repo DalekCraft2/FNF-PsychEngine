@@ -1,5 +1,6 @@
 package;
 
+import Achievements.AchievementData;
 import Achievements.AttachedAchievement;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
@@ -45,26 +46,28 @@ class AchievementsMenuState extends MusicBeatState
 		Achievements.loadAchievements();
 		for (i in 0...Achievements.achievementList.length)
 		{
-			var achievement = Achievements.achievementList[i];
-			if (!achievement.hidden || Achievements.achievementsMap.exists(achievement.icon))
+			var achievementId:String = Achievements.achievementList[i];
+			var achievementData:AchievementData = Achievements.achievementsLoaded.get(achievementId);
+			if (!achievementData.hidden || Achievements.achievementsMap.exists(achievementData.icon))
 			{
-				options.push(achievement.name);
+				options.push(achievementData.name);
 				achievementIndex.push(i);
 			}
 		}
 
 		for (i in 0...options.length)
 		{
-			var achievement = Achievements.achievementList[achievementIndex[i]];
-			var achieveName:String = achievement.icon;
-			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210, Achievements.isAchievementUnlocked(achieveName) ? achievement.name : '?', false, false);
+			var achievementId:String = Achievements.achievementList[achievementIndex[i]];
+			var achievementData:AchievementData = Achievements.achievementsLoaded.get(achievementId);
+			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210, Achievements.isAchievementUnlocked(achievementId) ? achievementData.name : '?', false,
+				false);
 			optionText.isMenuItem = true;
 			optionText.x += 280;
 			optionText.xAdd = 200;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
 
-			var icon:AttachedAchievement = new AttachedAchievement(optionText.x - 105, optionText.y, achieveName);
+			var icon:AttachedAchievement = new AttachedAchievement(optionText.x - 105, optionText.y, achievementId);
 			icon.sprTracker = optionText;
 			achievementArray.push(icon);
 			add(icon);
@@ -131,7 +134,9 @@ class AchievementsMenuState extends MusicBeatState
 				achievement.alpha = 1;
 			}
 		}
-		descText.text = Achievements.achievementList[achievementIndex[curSelected]].description;
+		var achievementId:String = Achievements.achievementList[achievementIndex[curSelected]];
+		var achievementData:AchievementData = Achievements.achievementsLoaded.get(achievementId);
+		descText.text = achievementData.description;
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 	}
 	#end

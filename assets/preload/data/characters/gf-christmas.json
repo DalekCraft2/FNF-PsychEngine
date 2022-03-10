@@ -3,7 +3,7 @@
 		{
 			"loop": false,
 			"offsets": [
-				1,
+				0,
 				0
 			],
 			"anim": "cheer",
@@ -58,7 +58,7 @@
 		{
 			"loop": false,
 			"offsets": [
-				-2,
+				0,
 				-21
 			],
 			"anim": "sad",
@@ -162,7 +162,7 @@
 		{
 			"loop": true,
 			"offsets": [
-				-2,
+				0,
 				-17
 			],
 			"anim": "scared",

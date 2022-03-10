@@ -3,6 +3,7 @@ package options;
 import flixel.FlxSprite;
 import options.Options.OptionUtils;
 
+// FIXME Transition to this menu has no fade-in
 class OptionsState extends MusicBeatState
 {
 	override function create()
