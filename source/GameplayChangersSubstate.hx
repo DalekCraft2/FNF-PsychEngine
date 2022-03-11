@@ -13,7 +13,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 {
 	private var curOption:GameplayOption = null;
 	private var curSelected:Int = 0;
-	private var optionsArray:Array<Dynamic> = [];
+	private var optionsArray:Array<GameplayOption> = [];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
@@ -76,9 +76,8 @@ class GameplayChangersSubState extends MusicBeatSubState
 
 	public function getOptionByName(name:String)
 	{
-		for (i in optionsArray)
+		for (opt in optionsArray)
 		{
-			var opt:GameplayOption = i;
 			if (opt.name == name)
 				return opt;
 		}
@@ -190,7 +189,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 					{
 						if (pressed)
 						{
-							var add:Dynamic = null;
+							var add:Float = null;
 							if (curOption.type != 'string')
 							{
 								add = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
@@ -413,9 +412,9 @@ class GameplayOption
 
 	public var curOption:Int = 0; // Don't change this
 	public var options:Array<String> = null; // Only used in string type
-	public var changeValue:Dynamic = 1; // Only used in int/float/percent type, how much is changed when you PRESS
-	public var minValue:Dynamic = null; // Only used in int/float/percent type
-	public var maxValue:Dynamic = null; // Only used in int/float/percent type
+	public var changeValue:Float = 1; // Only used in int/float/percent type, how much is changed when you PRESS
+	public var minValue:Float = null; // Only used in int/float/percent type
+	public var maxValue:Float = null; // Only used in int/float/percent type
 	public var decimals:Int = 1; // Only used in float/percent type
 
 	public var displayFormat:String = '%v'; // How String/Float/Percent/Int values are shown, %v = Current value, %d = Default value

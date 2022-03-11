@@ -38,7 +38,7 @@ typedef AnimationData =
 
 class Character extends FlxSprite
 {
-	public var animOffsets:Map<String, Array<Dynamic>>;
+	public var animOffsets:Map<String, Array<Float>>;
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
@@ -78,7 +78,7 @@ class Character extends FlxSprite
 		#if (haxe >= "4.0.0")
 		animOffsets = new Map();
 		#else
-		animOffsets = new Map<String, Array<Dynamic>>();
+		animOffsets = new Map<String, Array<Float>>();
 		#end
 		curCharacter = character;
 		this.isPlayer = isPlayer;

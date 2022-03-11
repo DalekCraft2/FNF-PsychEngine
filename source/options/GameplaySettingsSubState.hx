@@ -1,4 +1,4 @@
-/*package options;
+package options;
 
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
@@ -77,4 +77,4 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 
 		super();
 	}
-}*/
+}

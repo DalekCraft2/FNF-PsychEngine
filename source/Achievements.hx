@@ -153,11 +153,6 @@ class Achievements
 		#end
 
 		var achievementList:Array<String> = CoolUtil.coolTextFile(Paths.txt('achievements/achievementList'));
-		// for (achievement in achievementList)
-		// {
-		// 	if (Paths.fileExists('$achievement.json', TEXT, true, ''))
-		// 		addAchievement(achievement);
-		// }
 		for (achievementId in achievementList)
 		{
 			for (directory in directories)

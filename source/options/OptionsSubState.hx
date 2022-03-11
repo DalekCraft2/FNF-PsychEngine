@@ -100,7 +100,7 @@ class OptionsSubState extends MusicBeatSubState
 					#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
 						"The judgement windows to use"), new ToggleOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
 					#end
-					new ScrollOption("accuracySystem", 0, "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
+					new ScrollOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
 					// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
 				]
 				),
@@ -117,8 +117,8 @@ class OptionsSubState extends MusicBeatSubState
 					"Places your notes in the center of the screen and hides the opponent's. \"Middlescroll\""),
 				new ToggleOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
 				new StepOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
-				new ScrollOption("staticCam", 0, "Camera Focus", "Who the camera should focus on", 0, OptionUtils.camFocuses.length - 1,
-					OptionUtils.camFocuses),
+				new ScrollOption("staticCam", OptionUtils.camFocuses[0], "Camera Focus", "Who the camera should focus on", 0,
+					OptionUtils.camFocuses.length - 1, OptionUtils.camFocuses),
 				// new ToggleOption("oldMenus", false, "Vanilla Menus", "Forces the vanilla menus to be used"),
 				// new ToggleOption("oldTitle", false, "Vanilla Title Screen", "Forces the vanilla title to be used"),
 				new ToggleOption("healthBarColors", true, "Healthbar Colours", "Whether the healthbar colour changes with the character"),
@@ -130,14 +130,14 @@ class OptionsSubState extends MusicBeatSubState
 				new OptionCategory("Effects", [
 					new ToggleOption("picoCamshake", true, "Train camera shake", "Whether the train in week 3's background shakes the camera"),
 					// new ToggleOption("senpaiShaders", true, "Week 6 shaders","Is the CRT effect active in week 6"),
-					new ScrollOption("senpaiShaderStrength", 2, "Week 6 shaders", "How strong the week 6 shaders are", 0, 2, ["Off", "CRT", "All"])
+					new ScrollOption("senpaiShaderStrength", "All", "Week 6 shaders", "How strong the week 6 shaders are", 0, 2, ["Off", "CRT", "All"])
 				])
 			]),
 			new OptionCategory("Preferences", [
 				new ToggleOption("noteSplashes", true, "Show NoteSplashes", "Notesplashes showing up on sicks and above."),
 				new ToggleOption("camFollowsAnims", false, "Directional Camera", "Camera moving depending on a character's animations"),
 				new ToggleOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
-				new ScrollOption("timeBarType", 0, "Time Bar", "What should the Time Bar display?", 0, 3,
+				new ScrollOption("timeBarType", "Time Left", "Time Bar", "What should the Time Bar display?", 0, 3,
 					['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']),
 				new ToggleOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
 				new ToggleOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),
@@ -162,6 +162,17 @@ class OptionsSubState extends MusicBeatSubState
 					function(state:Bool)
 					{
 						FPSMem.showMemPeak = state;
+					}),
+				new ScrollOption("pauseMusic", "Tea Time", "Pause Screen Song", "What song do you prefer for the Pause Screen?", 0, 2,
+					["None", "Breakfast", "Tea Time"],
+					function(index:Int, name:String, indexAdd:Int)
+					{
+						if (name == 'None')
+							FlxG.sound.music.volume = 0;
+						else
+							FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(name)));
+
+						// changedMusic = true;
 					}),
 				new ToggleOption("ghosttapSounds", false, "Ghost-tap Hit Sounds", "Play a click sound when you ghost-tap"),
 				new StepOption("hitsoundVol", 50, "Hit Sound Volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),

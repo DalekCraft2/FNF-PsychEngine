@@ -33,7 +33,7 @@ class HitGraph extends Sprite
 
 	public var graphColor:FlxColor;
 
-	public var history:Array<Dynamic> = [];
+	public var history:Array<Array<Dynamic>> = [];
 
 	public var bitmap:Bitmap;
 
@@ -265,7 +265,7 @@ class HitGraph extends Sprite
 	{
 		var sum:Float = 0;
 		for (value in history)
-			sum += value;
+			sum += value[0];
 		return sum / history.length;
 	}
 

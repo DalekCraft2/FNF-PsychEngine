@@ -2425,6 +2425,7 @@ class ChartingState extends MusicBeatState
 			rawJson = Paths.loadJson('characters/${Character.DEFAULT_CHARACTER}');
 		}
 
+		// FIXME This crashes the game if the save window is open
 		var characterData:Character.CharacterData = cast rawJson;
 		return characterData.healthicon;
 	}

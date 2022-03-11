@@ -451,7 +451,7 @@ class ScrollOption extends Option
 	// i wish there was a better way to do this ^
 	// if there is and you're reading this and know a better way, PR please!
 
-	public function new(property:String, defaultValue:Int, label:String, description:String, ?min:Int = 0, ?max:Int = -1, ?names:Array<String>,
+	public function new(property:String, defaultValue:String, label:String, description:String, ?min:Int = 0, ?max:Int = -1, ?names:Array<String>,
 			?callback:Int->String->Int->Void)
 	{
 		super();
@@ -558,55 +558,58 @@ class ScrollOption extends Option
 
 	public override function left():Bool
 	{
-		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) - 1);
+		var value:String = Std.string(Reflect.field(OptionUtils.options, property));
+		var index:Int = names.indexOf(value) - 1;
 
-		if (value < min)
-			value = max;
+		if (index < min)
+			index = max;
 
-		if (value > max)
-			value = min;
-
-		Reflect.setField(OptionUtils.options, property, value);
+		if (index > max)
+			index = min;
 
 		if (names != null)
 		{
-			name = names[value];
+			name = names[index];
 		}
 		else
 		{
-			name = Std.string(value);
+			name = Std.string(index);
 		}
+
+		Reflect.setField(OptionUtils.options, property, name);
 
 		if (callback != null)
 		{
-			callback(value, name, -1);
+			callback(index, name, -1);
 		}
 		return true;
 	}
 
 	public override function right():Bool
 	{
-		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) + 1);
+		var value:String = Std.string(Reflect.field(OptionUtils.options, property));
+		var index:Int = names.indexOf(value) + 1;
 
-		if (value < min)
-			value = max;
-		if (value > max)
-			value = min;
+		if (index < min)
+			index = max;
 
-		Reflect.setField(OptionUtils.options, property, value);
+		if (index > max)
+			index = min;
 
 		if (names != null)
 		{
-			name = names[value];
+			name = names[index];
 		}
 		else
 		{
-			name = Std.string(value);
+			name = Std.string(index);
 		}
+
+		Reflect.setField(OptionUtils.options, property, name);
 
 		if (callback != null)
 		{
-			callback(value, name, 1);
+			callback(index, name, 1);
 		}
 		return true;
 	}
