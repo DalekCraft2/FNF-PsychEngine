@@ -10,6 +10,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
+import options.Options.OptionUtils;
 
 class PauseSubState extends MusicBeatSubState
 {
@@ -32,6 +33,7 @@ class PauseSubState extends MusicBeatSubState
 	var curTime:Float = Math.max(0, Conductor.songPosition);
 
 	// var botplayText:FlxText;
+	public static var songName:String = '';
 
 	public function new(x:Float, y:Float)
 	{
@@ -64,8 +66,17 @@ class PauseSubState extends MusicBeatSubState
 
 		if (!playingPause)
 		{
-			playingPause = true;
-			pauseMusic = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
+			pauseMusic = new FlxSound();
+			if (songName != null)
+			{
+				Debug.logTrace('songName: $songName');
+				pauseMusic.loadEmbedded(Paths.music(songName), true, true);
+			}
+			else if (OptionUtils.options.pauseMusic != 'None')
+			{
+				Debug.logTrace('pauseMusic: ${OptionUtils.options.pauseMusic}');
+				pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(OptionUtils.options.pauseMusic)), true, true);
+			}
 			pauseMusic.volume = 0;
 			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
 			pauseMusic.ID = 9000;
@@ -207,8 +218,8 @@ class PauseSubState extends MusicBeatSubState
 				if (menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected))
 				{
 					var name:String = PlayState.song.songId;
-					var poop = Highscore.formatSong(name, curSelected);
-					PlayState.song = Song.loadFromJson(poop, name);
+					var difficulty = CoolUtil.getDifficultyFilePath(curSelected);
+					PlayState.song = Song.loadFromJson(name, difficulty);
 					PlayState.storyDifficulty = curSelected;
 					MusicBeatState.resetState();
 					FlxG.sound.music.volume = 0;

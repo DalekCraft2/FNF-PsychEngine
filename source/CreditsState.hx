@@ -60,36 +60,31 @@ class CreditsState extends MusicBeatState
 		add(grpOptions);
 
 		#if FEATURE_MODS
-		// Debug.logTrace("Finding mod credits");
-		for (folder in Paths.getModDirectories())
+		var path:String = 'modsList.txt';
+		if (FileSystem.exists(path))
 		{
-			var creditsFile:String = Paths.mods('$folder/data/credits.txt');
-			if (FileSystem.exists(creditsFile))
+			var leMods:Array<String> = CoolUtil.coolTextFile(path);
+			for (i in 0...leMods.length)
 			{
-				var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
-				for (creditLine in firstarray)
+				if (leMods.length > 1 && leMods[0].length > 0)
 				{
-					var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
-					if (arr.length > 5)
-						arr.push(folder);
-					creditsStuff.push(arr);
+					var modSplit:Array<String> = leMods[i].split('|');
+					if (!Paths.ignoreModFolders.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
+					{
+						if (modSplit[1] == '1')
+							pushModCreditsToList(modSplit[0]);
+						else
+							modsAdded.push(modSplit[0]);
+					}
 				}
-				creditsStuff.push(['']);
 			}
 		}
-		var folder = "";
-		var creditsFile:String = Paths.mods('data/credits.txt');
-		if (FileSystem.exists(creditsFile))
+
+		var arrayOfFolders:Array<String> = Paths.getModDirectories();
+		arrayOfFolders.push('');
+		for (folder in arrayOfFolders)
 		{
-			var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
-			for (creditLine in firstarray)
-			{
-				var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
-				if (arr.length > 5)
-					arr.push(folder);
-				creditsStuff.push(arr);
-			}
-			creditsStuff.push(['']);
+			pushModCreditsToList(folder);
 		}
 		#end
 
@@ -301,6 +296,36 @@ class CreditsState extends MusicBeatState
 		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
 		descBox.updateHitbox();
 	}
+
+	#if FEATURE_MODS
+	private var modsAdded:Array<String> = [];
+
+	function pushModCreditsToList(folder:String)
+	{
+		if (modsAdded.contains(folder))
+			return;
+
+		var creditsFile:String = null;
+		if (folder != null && folder.trim().length > 0)
+			creditsFile = Paths.mods('$folder/data/credits.txt');
+		else
+			creditsFile = Paths.mods('data/credits.txt');
+
+		if (FileSystem.exists(creditsFile))
+		{
+			var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
+			for (i in firstarray)
+			{
+				var arr:Array<String> = i.replace('\\n', '\n').split("::");
+				if (arr.length >= 5)
+					arr.push(folder);
+				creditsStuff.push(arr);
+			}
+			creditsStuff.push(['']);
+		}
+		modsAdded.push(folder);
+	}
+	#end
 
 	function getCurrentBGColor()
 	{

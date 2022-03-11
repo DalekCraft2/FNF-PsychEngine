@@ -310,7 +310,7 @@ class PlayState extends MusicBeatState
 
 		debugKeysChart = ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('debug_2'));
-		Achievements.loadAchievements();
+		PauseSubState.songName = null; // Reset to default
 
 		keysArray = [
 			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_left')),
@@ -1297,7 +1297,15 @@ class PlayState extends MusicBeatState
 		CoolUtil.precacheSound('missnote1');
 		CoolUtil.precacheSound('missnote2');
 		CoolUtil.precacheSound('missnote3');
-		CoolUtil.precacheMusic('breakfast');
+
+		if (PauseSubState.songName != null)
+		{
+			CoolUtil.precacheMusic(PauseSubState.songName);
+		}
+		else if (OptionUtils.options.pauseMusic != 'None')
+		{
+			CoolUtil.precacheMusic(Paths.formatToSongPath(OptionUtils.options.pauseMusic));
+		}
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence.
@@ -5122,8 +5130,6 @@ class PlayState extends MusicBeatState
 		setOnLuas('ratingName', ratingName);
 		setOnLuas('ratingFC', ratingFC);
 	}
-
-	public static var othersCodeName:String = 'otherAchievements';
 
 	#if FEATURE_ACHIEVEMENTS
 	private function checkForAchievement(achievesToCheck:Array<String> = null):String

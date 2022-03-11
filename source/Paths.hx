@@ -34,7 +34,11 @@ class Paths
 			dumpExclusions.push(key);
 	}
 
-	public static var dumpExclusions:Array<String> = ['assets/music/freakyMenu.$SOUND_EXT', 'assets/shared/music/breakfast.$SOUND_EXT'];
+	public static var dumpExclusions:Array<String> = [
+		'assets/music/freakyMenu.$SOUND_EXT',
+		'assets/shared/music/breakfast.$SOUND_EXT',
+		'assets/shared/music/tea-time.$SOUND_EXT',
+	];
 
 	/// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory()
@@ -127,10 +131,10 @@ class Paths
 
 	static public function loadJson(key:String, ?library:String):Dynamic
 	{
-		var rawJson = null;
+		var rawJson:String = null;
 
 		#if FEATURE_MODS
-		var modPath:String = Paths.modsJson(key);
+		var modPath:String = modsJson(key);
 		if (FileSystem.exists(modPath))
 		{
 			rawJson = File.getContent(modPath);
@@ -139,7 +143,7 @@ class Paths
 
 		if (rawJson == null)
 		{
-			var path:String = Paths.json(key, library);
+			var path:String = json(key, library);
 			#if FEATURE_FILESYSTEM
 			if (FileSystem.exists(path))
 				rawJson = File.getContent(path);
@@ -499,13 +503,13 @@ class Paths
 	static public function getModDirectories():Array<String>
 	{
 		var list:Array<String> = [];
-		var modsFolder:String = Paths.mods();
+		var modsFolder:String = mods();
 		if (FileSystem.exists(modsFolder))
 		{
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
 				var path = Path.join([modsFolder, folder]);
-				if (FileSystem.isDirectory(path) && !Paths.ignoreModFolders.contains(folder) && !list.contains(folder))
+				if (FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder) && !list.contains(folder))
 				{
 					list.push(folder);
 				}

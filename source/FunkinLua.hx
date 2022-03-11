@@ -60,12 +60,16 @@ class FunkinLua
 		Debug.logTrace('Lua version: ${Lua.version()}');
 		Debug.logTrace('LuaJIT version: ${Lua.versionJIT()}');
 
+		LuaL.dostring(lua, CLENSE);
 		var result:Dynamic = LuaL.dofile(lua, script);
 		var resultStr:String = Lua.tostring(lua, result);
 		if (resultStr != null && result != 0)
 		{
-			lime.app.Application.current.window.alert(resultStr, 'Error on .LUA script!');
-			Debug.logError('Error on .LUA script! ' + resultStr);
+			Debug.logError('Error on lua script! $resultStr');
+			luaTrace('Error loading lua script: "$script"\n$resultStr', true, false);
+			#if windows
+			lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
+			#end
 			lua = null;
 			return;
 		}
@@ -105,7 +109,6 @@ class FunkinLua
 
 		// Block require and os, Should probably have a proper function but this should be good enough for now until someone smarter comes along and recreates a safe version of the OS library
 		set('require', false);
-		set('os', false);
 
 		// Camera poo
 		set('cameraX', 0);
@@ -2519,6 +2522,16 @@ class FunkinLua
 	{
 		return PlayState.instance.isDead ? GameOverSubState.instance : PlayState.instance;
 	}
+
+	static inline var CLENSE:String = "
+	os.execute = nil;
+	os.exit = nil;
+	package.loaded.os.execute = nil;
+	package.loaded.os.exit = nil;
+	process = nil;
+	package.loaded.process = nil;
+
+	"; // Fuck this, I can't figure out linc_lua, so I'mma set everything in Lua itself - Super
 }
 
 class ModchartSprite extends FlxSprite
