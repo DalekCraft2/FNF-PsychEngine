@@ -15,7 +15,7 @@ class ControlsSubState extends MusicBeatSubState
 
 	private var bindLength:Int = 0;
 
-	var optionShit:Array<Dynamic> = [
+	var optionShit:Array<Array<String>> = [
 		['NOTES'], ['Left', 'note_left'], ['Down', 'note_down'], ['Up', 'note_up'], ['Right', 'note_right'], [''], ['UI'], ['Left', 'ui_left'],
 		['Down', 'ui_down'], ['Up', 'ui_up'], ['Right', 'ui_right'], [''], ['Reset', 'reset'], ['Accept', 'accept'], ['Back', 'back'], ['Pause', 'pause'],
 		[''], ['VOLUME'], ['Mute', 'volume_mute'], ['Up', 'volume_up'], ['Down', 'volume_down'], [''], ['DEBUG'], ['Key 1', 'debug_1'], ['Key 2', 'debug_2']];
@@ -81,7 +81,7 @@ class ControlsSubState extends MusicBeatSubState
 	var leaving:Bool = false;
 	var bindingTime:Float = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (!rebindingKey)
 		{
@@ -174,7 +174,7 @@ class ControlsSubState extends MusicBeatSubState
 		super.update(elapsed);
 	}
 
-	function getInputTextNum()
+	function getInputTextNum():Int
 	{
 		var num:Int = 0;
 		for (i in 0...curSelected)
@@ -187,7 +187,7 @@ class ControlsSubState extends MusicBeatSubState
 		return num;
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		do
 		{
@@ -249,7 +249,7 @@ class ControlsSubState extends MusicBeatSubState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	function changeAlt()
+	function changeAlt():Void
 	{
 		curAlt = !curAlt;
 		for (i in 0...grpInputs.length)
@@ -288,9 +288,9 @@ class ControlsSubState extends MusicBeatSubState
 		return optionShit[num].length < 2 && optionShit[num][0] != defaultKey;
 	}
 
-	private function addBindTexts(optionText:Alphabet, num:Int)
+	private function addBindTexts(optionText:Alphabet, num:Int):Void
 	{
-		var keys:Array<Dynamic> = OptionUtils.options.keyBinds.get(optionShit[num][1]);
+		var keys:Array<FlxKey> = OptionUtils.options.keyBinds.get(optionShit[num][1]);
 		var text1:AttachedText = new AttachedText(InputFormatter.getKeyName(keys[0]), 400, -55);
 		text1.setPosition(optionText.x + 400, optionText.y - 55);
 		text1.sprTracker = optionText;
@@ -304,7 +304,7 @@ class ControlsSubState extends MusicBeatSubState
 		add(text2);
 	}
 
-	function reloadKeys()
+	function reloadKeys():Void
 	{
 		while (grpInputs.length > 0)
 		{

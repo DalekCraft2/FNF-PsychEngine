@@ -12,7 +12,7 @@ class OutdatedState extends MusicBeatState
 
 	var warnText:FlxText;
 
-	override function create()
+	override function create():Void
 	{
 		super.create();
 
@@ -34,7 +34,7 @@ class OutdatedState extends MusicBeatState
 		add(warnText);
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (!leftState)
 		{
@@ -52,9 +52,9 @@ class OutdatedState extends MusicBeatState
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxTween.tween(warnText, {alpha: 0}, 1, {
-					onComplete: function(twn:FlxTween)
+					onComplete: function(twn:FlxTween):Void
 					{
-						MusicBeatState.switchState(new MainMenuState());
+						FlxG.switchState(new MainMenuState());
 					}
 				});
 			}

@@ -4,10 +4,8 @@ import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
 import flixel.graphics.FlxGraphic;
-import flixel.util.FlxColor;
 import openfl.Assets;
 import openfl.Lib;
-import openfl.display.FPS;
 import openfl.display.FPSMem;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
@@ -80,9 +78,12 @@ class Main extends Sprite
 		// Run this first so we can see logs.
 		Debug.onInitProgram();
 
+		// TODO The fade transition only works properly if image persistence is off, but the entire game breaks when it's off, so I need to completely remake the Psych cache system
+		// This probably means using the Kade cache system, which is possibly unoptimized, but I don't care; I can probably improve it later
+
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
-		// the reason for this is we're going to be handling our own cache smartly
+		// // the reason for this is we're going to be handling our own cache smartly
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
@@ -101,12 +102,12 @@ class Main extends Sprite
 		Debug.onGameStart();
 	}
 
-	public static function dumpObject(graphic:FlxGraphic)
+	public static function dumpObject(graphic:FlxGraphic):Void
 	{
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
-			var obj = FlxG.bitmap._cache.get(key);
+			var obj:FlxGraphic = FlxG.bitmap._cache.get(key);
 			if (obj != null)
 			{
 				if (obj == graphic)
@@ -120,13 +121,13 @@ class Main extends Sprite
 		}
 	}
 
-	public static function dumpCache()
+	public static function dumpCache():Void
 	{
 		///* SPECIAL THANKS TO HAYA
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
-			var obj = FlxG.bitmap._cache.get(key);
+			var obj:FlxGraphic = FlxG.bitmap._cache.get(key);
 			if (obj != null)
 			{
 				Assets.cache.removeBitmapData(key);
@@ -137,14 +138,14 @@ class Main extends Sprite
 		Assets.cache.clear("songs");
 	}
 
-	public static function setFPSCap(cap:Float)
+	public static function setFPSCap(cap:Float):Void
 	{
-		openfl.Lib.current.stage.frameRate = cap;
+		Lib.current.stage.frameRate = cap;
 	}
 
 	public static function getFPSCap():Float
 	{
-		return openfl.Lib.current.stage.frameRate;
+		return Lib.current.stage.frameRate;
 	}
 
 	public static function adjustFPS(num:Float):Float

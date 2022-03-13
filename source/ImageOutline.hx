@@ -18,10 +18,6 @@ class ImageOutline
 	private static var _brush:Float = 4;
 	private static var m:Matrix;
 
-	public function new()
-	{
-	}
-
 	/**
 	 * Renders a Bitmap display of any DisplayObject with an outline drawn around it.
 	 * @note: see param descriptions on "outline" method below.

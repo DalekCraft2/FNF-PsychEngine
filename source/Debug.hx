@@ -43,7 +43,7 @@ class Debug
 	{
 		if (input == null)
 			return;
-		var output = formatOutput(input, pos);
+		var output:Array<Dynamic> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_ERROR);
 		writeToLogFile(output, 'ERROR');
 	}
@@ -58,7 +58,7 @@ class Debug
 	{
 		if (input == null)
 			return;
-		var output = formatOutput(input, pos);
+		var output:Array<Dynamic> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_WARN);
 		writeToLogFile(output, 'WARN');
 	}
@@ -72,7 +72,7 @@ class Debug
 	{
 		if (input == null)
 			return;
-		var output = formatOutput(input, pos);
+		var output:Array<Dynamic> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_INFO);
 		writeToLogFile(output, 'INFO');
 	}
@@ -87,7 +87,7 @@ class Debug
 	{
 		if (input == null)
 			return;
-		var output = formatOutput(input, pos);
+		var output:Array<Dynamic> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_TRACE);
 		writeToLogFile(output, 'TRACE');
 	}
@@ -131,7 +131,7 @@ class Debug
 	 * @param name
 	 * @param value
 	 */
-	public inline static function quickWatch(name:String, value:Dynamic)
+	public inline static function quickWatch(name:String, value:Dynamic):Void
 	{
 		#if debug
 		FlxG.watch.addQuick(name == null ? "QuickWatch" : name, value);
@@ -143,7 +143,7 @@ class Debug
 	 * The Console window already supports most hScript, meaning you can do most things you could already do in Haxe.
 	 		* However, you can also add custom commands using this function.
 	 */
-	public inline static function addConsoleCommand(name:String, callbackFn:Dynamic)
+	public inline static function addConsoleCommand(name:String, callbackFn:Dynamic):Void
 	{
 		FlxG.console.registerFunction(name, callbackFn);
 	}
@@ -151,7 +151,7 @@ class Debug
 	/**
 	 * Add an object with a custom alias so that it can be accessed via the console.
 	 */
-	public inline static function addObject(name:String, object:Dynamic)
+	public inline static function addObject(name:String, object:Dynamic):Void
 	{
 		FlxG.console.registerObject(name, object);
 	}
@@ -163,7 +163,7 @@ class Debug
 	 * 
 	 * @param obj The object to display.
 	 */
-	public inline static function trackObject(obj:Dynamic)
+	public inline static function trackObject(obj:Dynamic):Void
 	{
 		if (obj == null)
 		{
@@ -177,13 +177,13 @@ class Debug
 	 * The game runs this function immediately when it starts.
 	 		* Use onGameStart() if it can wait until a little later.
 	 */
-	public static function onInitProgram()
+	public static function onInitProgram():Void
 	{
 		// Initialize logging tools.
 		trace('Initializing Debug tools...');
 
 		// Override Haxe's vanilla trace() calls to use the Flixel console.
-		Log.trace = function(data:Dynamic, ?info:PosInfos)
+		Log.trace = function(data:Dynamic, ?info:PosInfos):Void
 		{
 			var paramArray:Array<Dynamic> = [data];
 
@@ -220,7 +220,7 @@ class Debug
 	/**
 	 * The game runs this function when it starts, but after Flixel is initialized.
 	 */
-	public static function onGameStart()
+	public static function onGameStart():Void
 	{
 		// Add the mouse position to the debug Watch window.
 		FlxG.watch.addMouse();
@@ -235,7 +235,7 @@ class Debug
 		logFileWriter.setLogLevel(FlxG.save.data.debugLogLevel);
 	}
 
-	static function writeToFlxGLog(data:Array<Dynamic>, logStyle:LogStyle)
+	static function writeToFlxGLog(data:Array<Dynamic>, logStyle:LogStyle):Void
 	{
 		if (FlxG != null && FlxG.game != null && FlxG.log != null)
 		{
@@ -243,7 +243,7 @@ class Debug
 		}
 	}
 
-	static function writeToLogFile(data:Array<Dynamic>, logLevel:String = "TRACE")
+	static function writeToLogFile(data:Array<Dynamic>, logLevel:String = "TRACE"):Void
 	{
 		if (logFileWriter != null && logFileWriter.isActive())
 		{
@@ -254,7 +254,7 @@ class Debug
 	/**
 	 * Defines what properties will be displayed in tracker windows for all these classes.
 	 */
-	static function defineTrackerProfiles()
+	static function defineTrackerProfiles():Void
 	{
 		// Example: This will display all the properties that FlxSprite does, along with curCharacter and barColor.
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(Character, ["curCharacter", "isPlayer", "barColor"], [FlxSprite]));
@@ -276,26 +276,26 @@ class Debug
 	 * Defines some commands you can run in the console for easy use of important debugging functions.
 	 * Feel free to add your own!
 	 */
-	inline static function defineConsoleCommands()
+	inline static function defineConsoleCommands():Void
 	{
 		// Example: This will display Boyfriend's sprite properties in a debug window.
-		addConsoleCommand("trackBoyfriend", function()
+		addConsoleCommand("trackBoyfriend", function():Void
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Boyfriend...");
 			trackObject(PlayState.instance.boyfriend);
 		});
-		addConsoleCommand("trackGirlfriend", function()
+		addConsoleCommand("trackGirlfriend", function():Void
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Girlfriend...");
 			trackObject(PlayState.instance.gf);
 		});
-		addConsoleCommand("trackDad", function()
+		addConsoleCommand("trackDad", function():Void
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Dad...");
 			trackObject(PlayState.instance.opponent);
 		});
 
-		addConsoleCommand("setLogLevel", function(logLevel:String)
+		addConsoleCommand("setLogLevel", function(logLevel:String):Void
 		{
 			if (!DebugLogWriter.LOG_LEVELS.contains(logLevel))
 			{
@@ -310,13 +310,13 @@ class Debug
 		});
 
 		// Console commands let you do WHATEVER you want.
-		addConsoleCommand("playSong", function(songName:String, ?difficulty:Int = 1)
+		addConsoleCommand("playSong", function(songName:String, ?difficulty:Int = 1):Void
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
 			// TODO Reimplement these commands
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
-		addConsoleCommand("chartSong", function(songName:String, ?difficulty:Int = 1)
+		addConsoleCommand("chartSong", function(songName:String, ?difficulty:Int = 1):Void
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Chart Editor...');
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, true, true);
@@ -362,7 +362,7 @@ class DebugLogWriter
 
 	var logLevel:Int;
 
-	var active = false;
+	var active:Bool = false;
 	#if FEATURE_FILESYSTEM
 	var file:FileOutput;
 	#end
@@ -374,7 +374,7 @@ class DebugLogWriter
 		#if FEATURE_FILESYSTEM
 		printDebug("Initializing log file...");
 
-		var logFilePath = '$LOG_FOLDER/${Sys.time()}.log';
+		var logFilePath:String = '$LOG_FOLDER/${Sys.time()}.log';
 
 		// Make sure that the path exists
 		if (logFilePath.indexOf("/") != -1)
@@ -397,7 +397,7 @@ class DebugLogWriter
 		startTime = getTime(true);
 	}
 
-	public function isActive()
+	public function isActive():Bool
 	{
 		return active;
 	}
@@ -419,7 +419,7 @@ class DebugLogWriter
 
 	function shouldLog(input:String):Bool
 	{
-		var levelIndex = LOG_LEVELS.indexOf(input);
+		var levelIndex:Int = LOG_LEVELS.indexOf(input);
 		// Could not find this log level.
 		if (levelIndex == -1)
 			return false;
@@ -428,7 +428,7 @@ class DebugLogWriter
 
 	public function setLogLevel(input:String):Void
 	{
-		var levelIndex = LOG_LEVELS.indexOf(input);
+		var levelIndex:Int = LOG_LEVELS.indexOf(input);
 		// Could not find this log level.
 		if (levelIndex == -1)
 			return;
@@ -442,8 +442,8 @@ class DebugLogWriter
 	 */
 	public function write(input:Array<Dynamic>, logLevel = 'TRACE'):Void
 	{
-		var ts = FlxStringUtil.formatTime(getTime(), true);
-		var msg = '$ts [${logLevel.rpad(' ', 5)}] ${input.join('')}';
+		var ts:String = FlxStringUtil.formatTime(getTime(), true);
+		var msg:String = '$ts [${logLevel.rpad(' ', 5)}] ${input.join('')}';
 
 		#if FEATURE_FILESYSTEM
 		if (active && file != null)
@@ -464,7 +464,7 @@ class DebugLogWriter
 		}
 	}
 
-	function printDebug(msg:String)
+	function printDebug(msg:String):Void
 	{
 		#if sys
 		Sys.println(msg);

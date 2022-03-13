@@ -9,8 +9,10 @@ import animateatlas.JSONData.FilterData;
 import animateatlas.JSONData.LayerData;
 import animateatlas.JSONData.LayerFrameData;
 import animateatlas.JSONData.Matrix3DData;
+import animateatlas.JSONData.SpriteData;
 import animateatlas.JSONData.SymbolData;
 import animateatlas.JSONData.SymbolInstanceData;
+import haxe.Exception;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.FrameLabel;
@@ -18,12 +20,12 @@ import openfl.display.PixelSnapping;
 import openfl.display.Sprite;
 import openfl.errors.ArgumentError;
 import openfl.errors.Error;
+import openfl.filters.BlurFilter;
+import openfl.filters.GlowFilter;
 import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
-import openfl.filters.BlurFilter;
-import openfl.filters.GlowFilter;
 
 class SpriteSymbol extends Sprite
 {
@@ -80,11 +82,11 @@ class SpriteSymbol extends Sprite
 			if (layer.FrameMap != null)
 				return;
 
-			var map = new Map();
+			var map:Map<Int, LayerFrameData> = new Map();
 
 			for (i in 0...layer.Frames.length)
 			{
-				var frame = layer.Frames[i];
+				var frame:LayerFrameData = layer.Frames[i];
 				for (j in 0...frame.duration)
 				{
 					map.set(i + j, frame);
@@ -140,7 +142,7 @@ class SpriteSymbol extends Sprite
 			for (e in 0...numElements)
 			{
 				(try cast(layer.getChildAt(e), SpriteSymbol)
-				catch (e:Dynamic) null).moveMovieclip_MovieClips(direction);
+				catch (e:Exception) null).moveMovieclip_MovieClips(direction);
 			}
 		}
 	}
@@ -174,7 +176,7 @@ class SpriteSymbol extends Sprite
 			// this is confusing but needed :(
 			var oldSymbol:SpriteSymbol = (layer.numChildren > i) ? try
 				cast(layer.getChildAt(i), SpriteSymbol)
-			catch (e:Dynamic)
+			catch (e:Exception)
 				null : null;
 
 			var newSymbol:SpriteSymbol = null;
@@ -236,11 +238,11 @@ class SpriteSymbol extends Sprite
 		{
 			try
 			{
-				var oldSymbol = cast(layer.removeChildAt(numElements), SpriteSymbol);
+				var oldSymbol:SpriteSymbol = cast(layer.removeChildAt(numElements), SpriteSymbol);
 				if (oldSymbol != null)
 					_library.putSymbol(oldSymbol);
 			}
-			catch (e:Dynamic)
+			catch (e:Exception)
 			{
 			}
 		}
@@ -276,7 +278,7 @@ class SpriteSymbol extends Sprite
 	{
 		if (data != null)
 		{
-			var spriteData = _library.getSpriteData(data.name + "");
+			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
 
 			if (_bitmap == null)
 			{
@@ -286,7 +288,7 @@ class SpriteSymbol extends Sprite
 
 			if (_tempRect.x != spriteData.x || _tempRect.y != spriteData.y || _tempRect.width != spriteData.w || _tempRect.height != spriteData.h)
 			{
-				var clippedTexture = new BitmapData(spriteData.w, spriteData.h);
+				var clippedTexture:BitmapData = new BitmapData(spriteData.w, spriteData.h);
 				_tempRect.setTo(spriteData.x, spriteData.y, spriteData.w, spriteData.h);
 				clippedTexture.copyPixels(_texture, _tempRect, _zeroPoint);
 				_bitmap.bitmapData = clippedTexture;
@@ -358,7 +360,7 @@ class SpriteSymbol extends Sprite
 
 	private function setColor(data:ColorData):Void
 	{
-		var newTransform = new ColorTransform();
+		var newTransform:ColorTransform = new ColorTransform();
 		if (data != null)
 		{
 			newTransform.redOffset = (data.redOffset == null ? 0 : data.redOffset);
@@ -400,7 +402,7 @@ class SpriteSymbol extends Sprite
 
 		for (i in 0..._numLayers)
 		{
-			var layer = getLayerData(i);
+			var layer:LayerData = getLayerData(i);
 			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 			var layerNumFrames:Int = (numFrameDates != 0) ? frameDates[0].index : 0;
@@ -425,7 +427,7 @@ class SpriteSymbol extends Sprite
 
 		for (i in 0..._numLayers)
 		{
-			var layer = getLayerData(i);
+			var layer:LayerData = getLayerData(i);
 			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 
@@ -449,8 +451,8 @@ class SpriteSymbol extends Sprite
 
 	function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
 	{
-		var f1 = i1.frame;
-		var f2 = i2.frame;
+		var f1:Int = i1.frame;
+		var f2:Int = i2.frame;
 		if (f1 < f2)
 		{
 			return -1;
@@ -617,7 +619,7 @@ class SpriteSymbol extends Sprite
 
 	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
 	{
-		var layer = getLayerData(layerIndex);
+		var layer:LayerData = getLayerData(layerIndex);
 		if (layer == null)
 			return null;
 

@@ -10,7 +10,7 @@ class Option extends FlxTypedGroup<FlxSprite>
 	public var parent:OptionCategory;
 	public var name:String = "Option";
 	public var description:String = "";
-	public var allowMultiKeyInput = false;
+	public var allowMultiKeyInput:Bool = false;
 	public var text:Alphabet;
 	public var isSelected:Bool = false;
 
@@ -66,7 +66,7 @@ class Option extends FlxTypedGroup<FlxSprite>
 		return false;
 	}
 
-	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (text == null)
 		{
@@ -82,7 +82,7 @@ class Option extends FlxTypedGroup<FlxSprite>
 		return text;
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 	}

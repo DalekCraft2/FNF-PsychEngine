@@ -4,7 +4,6 @@ import Song.SongData;
 import options.Options.OptionUtils;
 
 /**
- * ...
  * @author
  */
 typedef BPMChangeEvent =
@@ -27,12 +26,8 @@ class Conductor
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
-	{
-	}
-
 	public static function judgeNote(note:Note,
-			diff:Float = 0) // STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
+			diff:Float = 0):String // STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
 	{
 		// tryna do MS based judgment due to popular demand
 		var timingWindows:Array<Int> = [
@@ -42,7 +37,7 @@ class Conductor
 		];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 
-		// var diff = Math.abs(note.strumTime - Conductor.songPosition) / (PlayState.songMultiplier >= 1 ? PlayState.songMultiplier : 1);
+		// var diff:Float = Math.abs(note.strumTime - Conductor.songPosition) / (PlayState.songMultiplier >= 1 ? PlayState.songMultiplier : 1);
 		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
 			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
@@ -53,7 +48,7 @@ class Conductor
 		return 'shit';
 	}
 
-	public static function mapBPMChanges(song:SongData)
+	public static function mapBPMChanges(song:SongData):Void
 	{
 		bpmChangeMap = [];
 
@@ -80,7 +75,7 @@ class Conductor
 		Debug.logTrace("Created BPM map: " + bpmChangeMap);
 	}
 
-	public static function changeBPM(newBpm:Float)
+	public static function changeBPM(newBpm:Float):Void
 	{
 		bpm = newBpm;
 

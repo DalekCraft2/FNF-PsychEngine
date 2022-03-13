@@ -67,7 +67,7 @@ class FPSMem extends TextField
 		times = [];
 
 		#if flash
-		addEventListener(Event.ENTER_FRAME, function(e)
+		addEventListener(Event.ENTER_FRAME, function(e):Void
 		{
 			__enterFrame(Timer.stamp() - lastUpdate);
 		});
@@ -87,7 +87,7 @@ class FPSMem extends TextField
 		while (times[0] < currentTime - 1)
 			times.shift();
 
-		var currentCount = times.length;
+		var currentCount:Int = times.length;
 		currentFPS = currentCount;
 		currentMem = Math.abs(Math.round(System.totalMemory / (1e+6)));
 

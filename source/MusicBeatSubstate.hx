@@ -5,11 +5,6 @@ import flixel.FlxSubState;
 
 class MusicBeatSubState extends FlxSubState
 {
-	public function new()
-	{
-		super();
-	}
-
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
@@ -20,7 +15,7 @@ class MusicBeatSubState extends FlxSubState
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		var oldStep:Int = curStep;
 

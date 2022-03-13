@@ -26,7 +26,7 @@ class ModsMenuState extends MusicBeatState
 {
 	var mods:Array<ModMetadata> = [];
 
-	static var changedAThing = false;
+	static var changedAThing:Bool = false;
 
 	var bg:FlxSprite;
 	var intendedColor:Int;
@@ -35,7 +35,7 @@ class ModsMenuState extends MusicBeatState
 	var noModsTxt:FlxText;
 	var selector:AttachedSprite;
 	var descriptionTxt:FlxText;
-	var needaReset = false;
+	var needaReset:Bool = false;
 
 	private static var curSelected:Int = 0;
 	public static var defaultColor:FlxColor = 0xFF665AFF;
@@ -56,7 +56,7 @@ class ModsMenuState extends MusicBeatState
 	var visibleWhenNoMods:Array<FlxBasic> = [];
 	var visibleWhenHasMods:Array<FlxBasic> = [];
 
-	override function create()
+	override function create():Void
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
@@ -102,7 +102,7 @@ class ModsMenuState extends MusicBeatState
 		}
 
 		// FIND MOD FOLDERS
-		var boolshit = true;
+		var boolshit:Bool = true;
 		if (FileSystem.exists("modsList.txt"))
 		{
 			for (folder in Paths.getModDirectories())
@@ -127,7 +127,7 @@ class ModsMenuState extends MusicBeatState
 		// attached buttons
 		var startX:Int = 1120;
 
-		buttonToggle = new FlxButton(startX, 0, "ON", function()
+		buttonToggle = new FlxButton(startX, 0, "ON", function():Void
 		{
 			if (mods[curSelected].restart)
 			{
@@ -147,7 +147,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonToggle, -15, 10);
 		startX -= 70;
 
-		buttonUp = new FlxButton(startX, 0, "/\\", function()
+		buttonUp = new FlxButton(startX, 0, "/\\", function():Void
 		{
 			moveMod(-1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
@@ -161,7 +161,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonUp, -15, 10);
 		startX -= 70;
 
-		buttonDown = new FlxButton(startX, 0, "\\/", function()
+		buttonDown = new FlxButton(startX, 0, "\\/", function():Void
 		{
 			moveMod(1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
@@ -175,7 +175,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonDown, -15, 10);
 
 		startX -= 100;
-		buttonTop = new FlxButton(startX, 0, "TOP", function()
+		buttonTop = new FlxButton(startX, 0, "TOP", function():Void
 		{
 			var doRestart:Bool = (mods[0].restart || mods[curSelected].restart);
 			for (i in 0...curSelected) // so it shifts to the top instead of replacing the top one
@@ -198,7 +198,7 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(buttonTop);
 
 		startX -= 190;
-		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", function()
+		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", function():Void
 		{
 			for (i in modsList)
 			{
@@ -225,7 +225,7 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(buttonDisableAll);
 
 		startX -= 190;
-		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", function()
+		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", function():Void
 		{
 			for (i in modsList)
 			{
@@ -254,7 +254,7 @@ class ModsMenuState extends MusicBeatState
 		// more buttons
 		var startX:Int = 1100;
 
-		/*installButton = new FlxButton(startX, 620, "Install Mod", function()
+		/*installButton = new FlxButton(startX, 620, "Install Mod", function():Void
 			{
 				installMod();
 			});
@@ -267,9 +267,9 @@ class ModsMenuState extends MusicBeatState
 			add(installButton);
 			startX -= 180;
 
-			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function()
+			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function():Void
 			{
-				var path = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
+				var path:String = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
 				if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 				{
 					Debug.logTrace('Trying to delete directory $path');
@@ -277,8 +277,8 @@ class ModsMenuState extends MusicBeatState
 					{
 						FileSystem.deleteFile(path); // FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
 
-						var icon = mods[curSelected].icon;
-						var alphabet = mods[curSelected].alphabet;
+						var icon:AttachedSprite = mods[curSelected].icon;
+						var alphabet:Alphabet = mods[curSelected].alphabet;
 						remove(icon);
 						remove(alphabet);
 						icon.destroy();
@@ -312,15 +312,16 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(descriptionTxt);
 
 		var i:Int = 0;
-		var len:Int = modsList.length;
 		while (i < modsList.length)
 		{
 			var values:Array<Dynamic> = modsList[i];
+			#if FEATURE_FILESYSTEM
 			if (!FileSystem.exists(Paths.mods(values[0])))
 			{
 				modsList.remove(modsList[i]);
 				continue;
 			}
+			#end
 
 			var newMod:ModMetadata = new ModMetadata(values[0]);
 			mods.push(newMod);
@@ -345,7 +346,7 @@ class ModsMenuState extends MusicBeatState
 			if (loadedIcon != null)
 			{
 				newMod.icon.loadGraphic(loadedIcon, true, 150, 150); // animated icon support
-				var totalFrames = Math.floor(loadedIcon.width / 150) * Math.floor(loadedIcon.height / 150);
+				var totalFrames:Int = Math.floor(loadedIcon.width / 150) * Math.floor(loadedIcon.height / 150);
 				newMod.icon.animation.add("icon", [for (i in 0...totalFrames) i], 10);
 				newMod.icon.animation.play("icon");
 			}
@@ -378,14 +379,16 @@ class ModsMenuState extends MusicBeatState
 		super.create();
 	}
 
-	/*function getIntArray(max:Int):Array<Int>{
-		var arr:Array<Int> = [];
-		for (i in 0...max) {
-			arr.push(i);
-		}
-		return arr;
+	/*function getIntArray(max:Int):Array<Int>
+		{
+			var arr:Array<Int> = [];
+			for (i in 0...max)
+			{
+				arr.push(i);
+			}
+			return arr;
 	}*/
-	function addToModsList(values:Array<Dynamic>)
+	function addToModsList(values:Array<Dynamic>):Void
 	{
 		for (i in 0...modsList.length)
 		{
@@ -398,7 +401,7 @@ class ModsMenuState extends MusicBeatState
 		modsList.push(values);
 	}
 
-	function updateButtonToggle()
+	function updateButtonToggle():Void
 	{
 		if (modsList[curSelected][1])
 		{
@@ -412,7 +415,7 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	function moveMod(change:Int, skipResetCheck:Bool = false)
+	function moveMod(change:Int, skipResetCheck:Bool = false):Void
 	{
 		if (mods.length > 1)
 		{
@@ -449,7 +452,7 @@ class ModsMenuState extends MusicBeatState
 	}
 
 	#if FEATURE_FILESYSTEM
-	function saveTxt()
+	function saveTxt():Void
 	{
 		var fileStr:String = '';
 		for (values in modsList)
@@ -467,7 +470,7 @@ class ModsMenuState extends MusicBeatState
 	var noModsSine:Float = 0;
 	var canExit:Bool = true;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (noModsTxt.visible)
 		{
@@ -488,7 +491,6 @@ class ModsMenuState extends MusicBeatState
 			#end
 			if (needaReset)
 			{
-				// MusicBeatState.switchState(new TitleState());
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
@@ -496,7 +498,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(new MainMenuState());
 			}
 		}
 
@@ -514,7 +516,7 @@ class ModsMenuState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function setAllLabelsOffset(button:FlxButton, x:Float, y:Float)
+	function setAllLabelsOffset(button:FlxButton, x:Float, y:Float):Void
 	{
 		for (point in button.labelOffsets)
 		{
@@ -522,7 +524,7 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		if (mods.length < 1)
 		{
@@ -561,7 +563,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			intendedColor = newColor;
 			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
-				onComplete: function(twn:FlxTween)
+				onComplete: function(twn:FlxTween):Void
 				{
 					colorTween = null;
 				}
@@ -605,7 +607,7 @@ class ModsMenuState extends MusicBeatState
 		updateButtonToggle();
 	}
 
-	function updatePosition(elapsed:Float = -1)
+	function updatePosition(elapsed:Float = -1):Void
 	{
 		var i:Int = 0;
 		for (mod in mods)
@@ -636,7 +638,7 @@ class ModsMenuState extends MusicBeatState
 
 	var cornerSize:Int = 11;
 
-	function makeSelectorGraphic()
+	function makeSelectorGraphic():Void
 	{
 		selector.makeGraphic(1100, 450, FlxColor.BLACK);
 		selector.pixels.fillRect(new Rectangle(0, 190, selector.width, 5), 0x0);
@@ -653,7 +655,7 @@ class ModsMenuState extends MusicBeatState
 		drawCircleCornerOnSelector(true, true);
 	}
 
-	function drawCircleCornerOnSelector(flipX:Bool, flipY:Bool)
+	function drawCircleCornerOnSelector(flipX:Bool, flipY:Bool):Void
 	{
 		var antiX:Float = (selector.width - cornerSize);
 		var antiY:Float = flipY ? (selector.height - 1) : 0;
@@ -672,7 +674,9 @@ class ModsMenuState extends MusicBeatState
 		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)), 3, 1), FlxColor.BLACK);
 	}
 	/*var _file:FileReference = null;
-		function installMod() {
+
+		function installMod():Void
+		{
 			var zipFilter:FileFilter = new FileFilter('ZIP', 'zip');
 			_file = new FileReference();
 			_file.addEventListener(Event.SELECT, onLoadComplete);
@@ -690,14 +694,15 @@ class ModsMenuState extends MusicBeatState
 
 			var fullPath:String = null;
 			@:privateAccess
-			if(_file.__path != null) fullPath = _file.__path;
+			if (_file.__path != null)
+				fullPath = _file.__path;
 
-			if(fullPath != null)
+			if (fullPath != null)
 			{
 				var rawZip:String = File.getContent(fullPath);
-				if(rawZip != null)
+				if (rawZip != null)
 				{
-					MusicBeatState.resetState();
+					FlxG.resetState();
 					var uncompressingFile:Bytes = new Uncompress().run(File.getBytes(rawZip));
 					if (uncompressingFile.done)
 					{
@@ -753,18 +758,17 @@ class ModMetadata
 
 		#if FEATURE_FILESYSTEM
 		// Try loading json
-		var path = Paths.mods('$folder/pack.json');
+		var path:String = Paths.mods('$folder/pack.json');
 		if (FileSystem.exists(path))
 		{
 			var rawJson:String = File.getContent(path);
 			if (rawJson != null && rawJson.length > 0)
 			{
 				var stuff:Dynamic = Json.parse(rawJson);
-				// using reflects cuz for some odd reason my haxe hates the stuff.var shit
-				var colors:Array<Int> = Reflect.getProperty(stuff, "color");
-				var description:String = Reflect.getProperty(stuff, "description");
-				var name:String = Reflect.getProperty(stuff, "name");
-				var restart:Bool = Reflect.getProperty(stuff, "restart");
+				var colors:Array<Int> = stuff.colors;
+				var description:String = stuff.description;
+				var name:String = stuff.name;
+				var restart:Bool = stuff.restart;
 
 				if (name != null && name.length > 0)
 				{

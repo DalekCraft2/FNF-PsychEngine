@@ -79,7 +79,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 		t.currentLabel = animation;
 		var bitMapArray:Array<BitmapData> = [];
 		var daFramez:Array<FlxFrame> = [];
-		var firstPass = true;
+		var firstPass:Bool = true;
 		var frameSize:FlxPoint = new FlxPoint(0, 0);
 
 		for (i in t.getFrame(animation)...t.numFrames)
@@ -104,8 +104,8 @@ class AtlasFrameMaker extends FlxFramesCollection
 
 		for (i in 0...bitMapArray.length)
 		{
-			var b = FlxGraphic.fromBitmapData(bitMapArray[i]);
-			var theFrame = new FlxFrame(b);
+			var b:FlxGraphic = FlxGraphic.fromBitmapData(bitMapArray[i]);
+			var theFrame:FlxFrame = new FlxFrame(b);
 			theFrame.parent = b;
 			theFrame.name = animation + i;
 			theFrame.sourceSize.set(frameSize.x, frameSize.y);

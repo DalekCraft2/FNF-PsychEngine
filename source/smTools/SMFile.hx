@@ -1,11 +1,16 @@
-#if FEATURE_STEPMANIA
 package smTools;
 
-import sys.io.File;
+#if FEATURE_STEPMANIA
+import Section.SectionData;
+import Song.SongData;
 import haxe.Exception;
-import lime.app.Application;
-import Section.SwagSection;
 import haxe.Json;
+import lime.app.Application;
+#if FEATURE_FILESYSTEM
+import sys.io.File;
+#end
+
+using StringTools;
 
 class SMFile
 {
@@ -32,9 +37,9 @@ class SMFile
 			_fileData = data;
 
 			// Gather header data
-			var headerData = "";
-			var inc = 0;
-			while (!StringTools.contains(data[inc + 1], "//"))
+			var headerData:String = "";
+			var inc:Int = 0;
+			while (!data[inc + 1].contains("//"))
 			{
 				headerData += data[inc];
 				inc++;
@@ -54,7 +59,7 @@ class SMFile
 				return;
 			}
 
-			if (!StringTools.contains(header.MUSIC.toLowerCase(), "ogg"))
+			if (!header.MUSIC.toLowerCase().contains("ogg"))
 			{
 				Application.current.window.alert("The music MUST be an OGG File, make sure the sm file has the right music property.",
 					"SM File loading (" + header.TITLE + ")");
@@ -64,14 +69,14 @@ class SMFile
 
 			// check if this is a valid file, it should be a dance double file.
 			inc += 3; // skip three lines down
-			if (!StringTools.contains(data[inc], "dance-double:") && !StringTools.contains(data[inc], "dance-single"))
+			if (!data[inc].contains("dance-double:") && !data[inc].contains("dance-single"))
 			{
 				Application.current.window.alert("The file you are loading is neither a Dance Double chart or a Dance Single chart",
 					"SM File loading (" + header.TITLE + ")");
 				isValid = false;
 				return;
 			}
-			if (StringTools.contains(data[inc], "dance-double:"))
+			if (data[inc].contains("dance-double:"))
 				isDouble = true;
 			if (isDouble)
 				Debug.logTrace('this is dance double');
@@ -80,14 +85,14 @@ class SMFile
 
 			measures = [];
 
-			var measure = "";
+			var measure:String = "";
 
 			Debug.logTrace(data[inc - 1]);
 
 			for (ii in inc...data.length)
 			{
-				var i = data[ii];
-				if (StringTools.contains(i, ",") || StringTools.contains(i, ";"))
+				var i:String = data[ii];
+				if (i.contains(",") || i.contains(";"))
 				{
 					measures.push(new SMMeasure(measure.split('\n')));
 					// Debug.logTrace(measures.length);
@@ -100,7 +105,7 @@ class SMFile
 		}
 		catch (e:Exception)
 		{
-			Application.current.window.alert("Failure to load file.\n" + e, "SM File loading");
+			Application.current.window.alert('Failure to load file.\n$e', 'SM File loading');
 		}
 	}
 
@@ -116,33 +121,34 @@ class SMFile
 
 		// variables
 
-		var measureIndex = 0;
+		var measureIndex:Int = 0;
 		var currentBeat:Float = 0;
-		var output = "";
+		var output:String = "";
 
 		// init a fnf song
 
-		var song = {
-			song: header.TITLE,
-			notes: [],
-			eventObjects: [],
-			bpm: header.getBPM(0),
-			needsVoices: true,
+		var song:SongData = {
+			songId: header.TITLE, // TODO What should be here?
+			songName: header.TITLE,
 			player1: 'bf',
 			player2: 'gf',
 			gfVersion: 'gf',
-			noteStyle: 'normal',
 			stage: 'stage',
+			bpm: header.getBPM(0),
 			speed: 1.0,
+			needsVoices: true,
+			arrowSkin: '',
+			splashSkin: 'noteSplashes',
 			validScore: false,
-			chartVersion: "",
+			notes: [],
+			events: []
 		};
 
 		// lets check if the sm loading was valid
 
 		if (!isValid)
 		{
-			var json = {
+			var json:{song:SongData} = {
 				"song": song
 			};
 
@@ -159,19 +165,18 @@ class SMFile
 		{
 			// private access since _measure is private
 			@:privateAccess
-			var lengthInRows = 192 / (measure._measure.length - 1);
+			var lengthInRows:Float = 192 / (measure._measure.length - 1);
 
-			var rowIndex = 0;
+			var rowIndex:Int = 0;
 
 			// section declaration
 
-			var section = {
+			var section:SectionData = {
 				sectionNotes: [],
 				lengthInSteps: 16,
 				typeOfSection: 0,
-				startTime: 0.0,
-				endTime: 0.0,
 				mustHitSection: false,
+				gfSection: false,
 				bpm: header.getBPM(0),
 				changeBPM: false,
 				altAnim: false
@@ -185,7 +190,7 @@ class SMFile
 			@:privateAccess
 			for (i in 0...measure._measure.length - 1)
 			{
-				var noteRow = (measureIndex * 192) + (lengthInRows * rowIndex);
+				var noteRow:Float = (measureIndex * 192) + (lengthInRows * rowIndex);
 
 				var notes:Array<String> = [];
 
@@ -205,9 +210,8 @@ class SMFile
 						sectionNotes: [],
 						lengthInSteps: 16,
 						typeOfSection: 0,
-						startTime: 0.0,
-						endTime: 0.0,
 						mustHitSection: false,
+						gfSection: false,
 						bpm: header.getBPM(0),
 						changeBPM: false,
 						altAnim: false
@@ -216,15 +220,15 @@ class SMFile
 						section.mustHitSection = true;
 				}
 
-				var seg = TimingStruct.getTimingAtBeat(currentBeat);
+				var seg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
 
 				var timeInSec:Float = (seg.startTime + ((currentBeat - seg.startBeat) / (seg.bpm / 60)));
 
-				var rowTime = timeInSec * 1000;
+				var rowTime:Float = timeInSec * 1000;
 
 				// output += " - Row " + noteRow + " - Time: " + rowTime + " (" + timeInSec + ") - Beat: " + currentBeat + " - Current BPM: " + header.getBPM(currentBeat) + "\n";
 
-				var index = 0;
+				var index:Int = 0;
 
 				for (i in notes)
 				{
@@ -236,8 +240,8 @@ class SMFile
 					}
 
 					// get the lane and note type
-					var lane = index;
-					var numba = Std.parseInt(i);
+					var lane:Int = index;
+					var numba:Int = Std.parseInt(i);
 
 					// switch through the type and add the note
 
@@ -248,8 +252,8 @@ class SMFile
 						case 2: // held head
 							heldNotes[lane] = [rowTime, lane, 0, 0, currentBeat];
 						case 3: // held tail
-							var data = heldNotes[lane];
-							var timeDiff = rowTime - data[0];
+							var data:Array<Dynamic> = heldNotes[lane];
+							var timeDiff:Float = rowTime - data[0];
 							section.sectionNotes.push([data[0], lane, timeDiff, 0, data[4]]);
 							heldNotes[index] = [];
 						case 4: // roll head
@@ -272,32 +276,32 @@ class SMFile
 
 		for (i in 0...song.notes.length) // loops through sections
 		{
-			var section = song.notes[i];
+			var section:SectionData = song.notes[i];
 
-			var currentBeat = 4 * i;
+			var currentBeat:Int = 4 * i;
 
-			var currentSeg = TimingStruct.getTimingAtBeat(currentBeat);
+			var currentSeg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
 
 			var start:Float = (currentBeat - currentSeg.startBeat) / (currentSeg.bpm / 60);
 
-			section.startTime = (currentSeg.startTime + start) * 1000;
+			// section.startTime = (currentSeg.startTime + start) * 1000;
 
-			if (i != 0)
-				song.notes[i - 1].endTime = section.startTime;
-			section.endTime = Math.POSITIVE_INFINITY;
+			// if (i != 0)
+			// 	song.notes[i - 1].endTime = section.startTime;
+			// section.endTime = Math.POSITIVE_INFINITY;
 		}
 
 		// File.saveContent("fuac" + header.TITLE,output);
 
 		if (header.changeEvents.length != 0)
 		{
-			song.eventObjects = header.changeEvents;
+			song.events = header.changeEvents;
 		}
-		/*var newSections = [];
+		/*var newSections:Array<SectionData> = [];
 
 			for(s in 0...song.notes.length) // lets go ahead and make sure each note is actually in their own section haha
 			{
-				var sec:SwagSection = {
+				var sec:SectionData = {
 					startTime: song.notes[s].startTime,
 					endTime: song.notes[s].endTime,
 					lengthInSteps: 16,
@@ -325,9 +329,9 @@ class SMFile
 
 		// save da song
 
-		song.chartVersion = Song.latestChart;
+		// song.chartVersion = Song.latestChart;
 
-		var json = {
+		var json:{song:SongData} = {
 			"song": song
 		};
 

@@ -82,13 +82,13 @@ class ClientPrefs
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 
-	public static function loadDefaultKeys()
+	public static function loadDefaultKeys():Void
 	{
 		defaultKeys = keyBinds.copy();
 		// Debug.logTrace(defaultKeys);
 	}
 
-	public static function saveSettings()
+	public static function saveSettings():Void
 	{
 		FlxG.save.data.downScroll = downScroll;
 		FlxG.save.data.middleScroll = middleScroll;
@@ -133,7 +133,7 @@ class ClientPrefs
 		Debug.logTrace("Settings saved!");
 	}
 
-	public static function loadPrefs()
+	public static function loadPrefs():Void
 	{
 		if (FlxG.save.data.downScroll != null)
 		{
@@ -294,9 +294,9 @@ class ClientPrefs
 		return /*PlayState.isStoryMode ? defaultValue : */ (gameplaySettings.exists(name) ? gameplaySettings.get(name) : defaultValue);
 	}
 
-	public static function reloadControls()
+	public static function reloadControls():Void
 	{
-		PlayerSettings.player1.controls.setKeyboardScheme(KeyboardScheme.Solo);
+		PlayerSettings.player1.controls.setKeyboardScheme(CUSTOM);
 
 		InitState.muteKeys = copyKey(keyBinds.get('volume_mute'));
 		InitState.volumeDownKeys = copyKey(keyBinds.get('volume_down'));

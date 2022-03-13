@@ -47,7 +47,7 @@ class StrumNote extends FlxSprite
 		scrollFactor.set();
 	}
 
-	public function reloadNote()
+	public function reloadNote():Void
 	{
 		var lastAnim:String = null;
 		if (animation.curAnim != null)
@@ -126,7 +126,7 @@ class StrumNote extends FlxSprite
 		}
 	}
 
-	public function postAddedToGroup()
+	public function postAddedToGroup():Void
 	{
 		playAnim('static');
 		x += Note.swagWidth * noteData;
@@ -135,7 +135,7 @@ class StrumNote extends FlxSprite
 		ID = noteData;
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (resetAnim > 0)
 		{
@@ -156,7 +156,7 @@ class StrumNote extends FlxSprite
 		super.update(elapsed);
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false)
+	public function playAnim(anim:String, ?force:Bool = false):Void
 	{
 		animation.play(anim, force);
 		centerOffsets();

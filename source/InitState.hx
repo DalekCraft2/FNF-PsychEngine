@@ -5,9 +5,14 @@ import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.TransitionData;
 import flixel.addons.ui.FlxUIState;
 import flixel.graphics.FlxGraphic;
 import flixel.input.keyboard.FlxKey;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.util.FlxColor;
 import lime.app.Application;
 import openfl.display.FPSMem;
 import options.Options.OptionUtils;
@@ -19,20 +24,25 @@ class InitState extends FlxUIState
 	public static var volumeDownKeys:Array<FlxKey> = [NUMPADMINUS, MINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [NUMPADPLUS, PLUS];
 
-	public static function initTransition()
-	{ // TRANS RIGHTS
-		// FlxTransitionableState.defaultTransIn = FadeTransitionSubState;
-		// FlxTransitionableState.defaultTransOut = FadeTransitionSubState;
+	public static function initTransition():Void
+	{
+		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+		diamond.persist = true;
+		diamond.destroyOnNoUse = false;
+		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
+			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
+		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1), {asset: diamond, width: 32, height: 32},
+			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 	}
 
-	override function create()
+	override function create():Void
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
 		OptionUtils.bindSave();
 		OptionUtils.loadOptions(OptionUtils.options);
-		var currentOptions = OptionUtils.options;
+		var currentOptions:Dynamic = OptionUtils.options;
 
 		FPSMem.showFPS = currentOptions.showFPS;
 		FPSMem.showMem = currentOptions.showMem;
@@ -57,12 +67,23 @@ class InitState extends FlxUIState
 		FlxG.sound.muteKeys = muteKeys;
 		FlxG.sound.volumeDownKeys = volumeDownKeys;
 		FlxG.sound.volumeUpKeys = volumeUpKeys;
-		FlxG.sound.volume = FlxG.save.data.volume;
 		FlxG.keys.preventDefaultKeys = [TAB];
 
-		FlxG.sound.volumeHandler = function(volume:Float)
+		FlxG.sound.volumeHandler = function(volume:Float):Void
 		{
 			FlxG.save.data.volume = volume;
+		}
+		if (FlxG.save.data.volume != null)
+		{
+			FlxG.sound.volume = FlxG.save.data.volume;
+		}
+		if (FlxG.save.data.mute != null)
+		{
+			FlxG.sound.muted = FlxG.save.data.mute;
+		}
+		if (FlxG.save.data.fullscreen != null)
+		{
+			FlxG.fullscreen = FlxG.save.data.fullscreen;
 		}
 
 		// #if !FORCED_JUDGE
@@ -72,14 +93,6 @@ class InitState extends FlxUIState
 		// 	OptionUtils.saveOptions(OptionUtils.options);
 		// }
 		// #end
-
-		// FlxGraphic.defaultPersist = currentOptions.cacheUsedImages;
-
-		if (FlxG.save.data != null && FlxG.save.data.fullscreen)
-		{
-			FlxG.fullscreen = FlxG.save.data.fullscreen;
-			Debug.logTrace('Enabled fullscreen');
-		}
 
 		if (FlxG.save.data.weekCompleted != null)
 		{
@@ -98,14 +111,18 @@ class InitState extends FlxUIState
 		if (!DiscordClient.isInitialized)
 		{
 			DiscordClient.initialize();
-			Application.current.onExit.add(function(exitCode)
+			Application.current.onExit.add(function(exitCode):Void
 			{
 				DiscordClient.shutdown();
 			});
 		}
 		#end
 
-		var canCache = false;
+		// FlxGraphic.defaultPersist = currentOptions.persistentImages;
+
+		FlxG.fixedTimestep = false;
+
+		var canCache:Bool = false;
 		#if sys
 		#if cpp // IDK IF YOU CAN DO "#IF SYS AND CPP" OR THIS'LL WORK I THINK
 		canCache = true;
@@ -117,22 +134,23 @@ class InitState extends FlxUIState
 				canCache = false;
 		}
 
-		FlxG.fixedTimestep = false;
-
 		var nextState:FlxUIState = new TitleState();
-		// if (currentOptions.shouldCache && canCache)
-		// {
-		// 	nextState = new CachingState(nextState);
-		// }
-		// else
+		// TODO Implement caching
+		/*#if sys
+			if (currentOptions.shouldCache && canCache)
+			{
+				nextState = new Caching(nextState);
+			}
+			else
+			#end */
 		{
 			initTransition();
 		}
 
 		#if FREEPLAY
-		MusicBeatState.switchState(new FreeplayState());
+		FlxG.switchState(new FreeplayState());
 		#elseif CHARTING
-		MusicBeatState.switchState(new ChartingState());
+		FlxG.switchState(new ChartingState());
 		#elseif CHARACTER
 		FlxG.switchState(new CharacterEditorState('bf', nextState));
 		#else

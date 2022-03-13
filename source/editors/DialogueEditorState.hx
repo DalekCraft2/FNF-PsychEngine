@@ -39,7 +39,7 @@ class DialogueEditorState extends MusicBeatState
 	var defaultLine:DialogueLine;
 	var dialogueFile:DialogueData = null;
 
-	override function create()
+	override function create():Void
 	{
 		persistentUpdate = persistentDraw = true;
 		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
@@ -98,9 +98,9 @@ class DialogueEditorState extends MusicBeatState
 
 	var UI_box:FlxUITabMenu;
 
-	function addEditorBox()
+	function addEditorBox():Void
 	{
-		var tabs = [{name: 'Dialogue Line', label: 'Dialogue Line'},];
+		var tabs:Array<{name:String, label:String}> = [{name: 'Dialogue Line', label: 'Dialogue Line'},];
 		UI_box = new FlxUITabMenu(null, tabs, true);
 		UI_box.resize(250, 210);
 		UI_box.x = FlxG.width - UI_box.width - 10;
@@ -117,9 +117,9 @@ class DialogueEditorState extends MusicBeatState
 	var speedStepper:FlxUINumericStepper;
 	var soundInputText:FlxUIInputText;
 
-	function addDialogueLineUI()
+	function addDialogueLineUI():Void
 	{
-		var tab_group = new FlxUI(null, UI_box);
+		var tab_group:FlxUI = new FlxUI(null, UI_box);
 		tab_group.name = "Dialogue Line";
 
 		characterInputText = new FlxUIInputText(10, 20, 80, DialogueCharacter.DEFAULT_CHARACTER, 8);
@@ -128,7 +128,7 @@ class DialogueEditorState extends MusicBeatState
 		speedStepper = new FlxUINumericStepper(10, characterInputText.y + 40, 0.005, 0.05, 0, 0.5, 3);
 
 		angryCheckbox = new FlxUICheckBox(speedStepper.x + 120, speedStepper.y, null, null, "Angry Textbox", 200);
-		angryCheckbox.callback = function()
+		angryCheckbox.callback = function():Void
 		{
 			updateTextBox();
 			dialogueFile.dialogue[curSelected].boxState = (angryCheckbox.checked ? 'angry' : 'normal');
@@ -140,11 +140,11 @@ class DialogueEditorState extends MusicBeatState
 		lineInputText = new FlxUIInputText(10, soundInputText.y + 35, 200, DEFAULT_TEXT, 8);
 		blockPressWhileTypingOn.push(lineInputText);
 
-		var loadButton:FlxButton = new FlxButton(20, lineInputText.y + 25, "Load Dialogue", function()
+		var loadButton:FlxButton = new FlxButton(20, lineInputText.y + 25, "Load Dialogue", function():Void
 		{
 			loadDialogue();
 		});
-		var saveButton:FlxButton = new FlxButton(loadButton.x + 120, loadButton.y, "Save Dialogue", function()
+		var saveButton:FlxButton = new FlxButton(loadButton.x + 120, loadButton.y, "Save Dialogue", function():Void
 		{
 			saveDialogue();
 		});
@@ -176,7 +176,7 @@ class DialogueEditorState extends MusicBeatState
 		return copyLine;
 	}
 
-	function updateTextBox()
+	function updateTextBox():Void
 	{
 		box.flipX = false;
 		var isAngry:Bool = angryCheckbox.checked;
@@ -200,7 +200,7 @@ class DialogueEditorState extends MusicBeatState
 		DialogueBoxPsych.updateBoxOffsets(box);
 	}
 
-	function reloadCharacter()
+	function reloadCharacter():Void
 	{
 		character.frames = Paths.getSparrowAtlas('dialogue/${character.jsonFile.image}');
 		character.jsonFile = character.jsonFile;
@@ -244,7 +244,7 @@ class DialogueEditorState extends MusicBeatState
 	private static var DEFAULT_SPEED:Float = 0.05;
 	private static var DEFAULT_BUBBLETYPE:String = "normal";
 
-	function reloadText(speed:Float = 0.05)
+	function reloadText(speed:Float = 0.05):Void
 	{
 		if (daText != null)
 		{
@@ -285,7 +285,7 @@ class DialogueEditorState extends MusicBeatState
 		#end
 	}
 
-	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)
+	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>):Void
 	{
 		if (id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText))
 		{
@@ -346,7 +346,7 @@ class DialogueEditorState extends MusicBeatState
 	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 	var transitioning:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (transitioning)
 		{
@@ -412,7 +412,7 @@ class DialogueEditorState extends MusicBeatState
 			}
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				MusicBeatState.switchState(new editors.MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenu());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'), 1);
 				transitioning = true;
 			}
@@ -462,7 +462,7 @@ class DialogueEditorState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function changeText(add:Int = 0)
+	function changeText(add:Int = 0):Void
 	{
 		curSelected += add;
 		if (curSelected < 0)
@@ -512,7 +512,7 @@ class DialogueEditorState extends MusicBeatState
 		selectedText.text = 'Line: (' + (curSelected + 1) + ' / ' + dialogueFile.dialogue.length + ') - Press A or D to scroll';
 	}
 
-	function characterAnimSpeed()
+	function characterAnimSpeed():Void
 	{
 		if (character.animation.curAnim != null)
 		{
@@ -539,7 +539,7 @@ class DialogueEditorState extends MusicBeatState
 
 	var _file:FileReference = null;
 
-	function loadDialogue()
+	function loadDialogue():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
 		_file = new FileReference();
@@ -608,7 +608,7 @@ class DialogueEditorState extends MusicBeatState
 		Debug.logError("Problem loading file");
 	}
 
-	function saveDialogue()
+	function saveDialogue():Void
 	{
 		var data:String = Json.stringify(dialogueFile, "\t");
 		if (data.length > 0)

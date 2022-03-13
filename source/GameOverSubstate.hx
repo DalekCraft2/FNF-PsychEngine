@@ -24,7 +24,7 @@ class GameOverSubState extends MusicBeatSubState
 
 	public static var instance:GameOverSubState;
 
-	public static function resetVariables()
+	public static function resetVariables():Void
 	{
 		characterName = 'bf';
 		deathSoundName = 'fnf_loss_sfx';
@@ -32,7 +32,7 @@ class GameOverSubState extends MusicBeatSubState
 		endSoundName = 'gameOverEnd';
 	}
 
-	override function create()
+	override function create():Void
 	{
 		instance = this;
 		PlayState.instance.callOnLuas('onGameOverStart', []);
@@ -64,8 +64,6 @@ class GameOverSubState extends MusicBeatSubState
 
 		boyfriend.playAnim('firstDeath');
 
-		var exclude:Array<Int> = [];
-
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
 		add(camFollowPos);
@@ -73,7 +71,7 @@ class GameOverSubState extends MusicBeatSubState
 
 	var isFollowingAlready:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -96,10 +94,12 @@ class GameOverSubState extends MusicBeatSubState
 			PlayState.seenCutscene = false;
 
 			if (PlayState.isStoryMode)
-				MusicBeatState.switchState(new StoryMenuState());
+				FlxG.switchState(new StoryMenuState());
 			else
-				MusicBeatState.switchState(new FreeplayState());
+				FlxG.switchState(new FreeplayState());
 
+			PlayState.loadRep = false;
+			PlayState.stageTesting = false;
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
 		}
@@ -127,7 +127,7 @@ class GameOverSubState extends MusicBeatSubState
 		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
 	}
 
-	override function beatHit()
+	override function beatHit():Void
 	{
 		super.beatHit();
 
@@ -153,7 +153,8 @@ class GameOverSubState extends MusicBeatSubState
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
-					MusicBeatState.resetState();
+					FlxG.resetState();
+					PlayState.stageTesting = false;
 				});
 			});
 			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);

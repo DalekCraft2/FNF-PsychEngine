@@ -44,7 +44,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		alphabetArray.push(text);
 		text.alpha = 0;
 		add(text);
-		var text:Alphabet = new Alphabet(0, text.y + 90, name, true, false, 0.05, tooLong);
+		text = new Alphabet(0, text.y + 90, name, true, false, 0.05, tooLong);
 		text.screenCenter(X);
 		if (week == -1)
 			text.x += 60 * tooLong;
@@ -72,7 +72,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		updateOptions();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		bg.alpha += elapsed * 1.5;
 		if (bg.alpha > 0.6)
@@ -80,7 +80,7 @@ class ResetScoreSubState extends MusicBeatSubState
 
 		for (i in 0...alphabetArray.length)
 		{
-			var spr = alphabetArray[i];
+			var spr:Alphabet = alphabetArray[i];
 			spr.alpha += elapsed * 2.5;
 		}
 		if (week == -1)
@@ -116,7 +116,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		super.update(elapsed);
 	}
 
-	function updateOptions()
+	function updateOptions():Void
 	{
 		var scales:Array<Float> = [0.75, 1];
 		var alphas:Array<Float> = [0.6, 1.25];

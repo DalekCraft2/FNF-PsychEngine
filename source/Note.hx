@@ -12,6 +12,15 @@ typedef EventNote =
 	value2:String
 }
 
+// TODO Use the below typedef
+
+/*typedef NoteData =
+	{
+	strumTime:Float,
+	noteData:Int,
+	sustainLength:Float,
+	noteType:String
+}*/
 class Note extends FlxSprite
 {
 	public var strumTime:Float = 0;
@@ -252,7 +261,7 @@ class Note extends FlxSprite
 
 	public var originalHeightForCalcs:Float = 6;
 
-	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = '')
+	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = ''):Void
 	{
 		if (prefix == null)
 			prefix = '';
@@ -339,7 +348,7 @@ class Note extends FlxSprite
 		}
 	}
 
-	function loadNoteAnims()
+	function loadNoteAnims():Void
 	{
 		animation.addByPrefix('purpleScroll', 'purple alone');
 		animation.addByPrefix('blueScroll', 'blue alone');
@@ -363,7 +372,7 @@ class Note extends FlxSprite
 		updateHitbox();
 	}
 
-	function loadPixelNoteAnims()
+	function loadPixelNoteAnims():Void
 	{
 		if (isSustainNote)
 		{
@@ -386,7 +395,7 @@ class Note extends FlxSprite
 		}
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 

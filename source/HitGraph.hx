@@ -1,5 +1,6 @@
 package;
 
+import Replay.Ana;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
@@ -11,6 +12,7 @@ import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
+import options.Options.OptionUtils;
 
 /**
  * stolen from https://github.com/HaxeFlixel/flixel/blob/master/flixel/system/debug/stats/StatsGraph.hx
@@ -29,7 +31,7 @@ class HitGraph extends Sprite
 	public var minValue:Float = -(Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95);
 	public var maxValue:Float = Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95;
 
-	public var showInput:Bool = FlxG.save.data.inputShow;
+	public var showInput:Bool = OptionUtils.options.inputShow;
 
 	public var graphColor:FlxColor;
 
@@ -54,7 +56,7 @@ class HitGraph extends Sprite
 		_width = Width;
 		_height = Height;
 
-		var bm = new BitmapData(Width, Height);
+		var bm:BitmapData = new BitmapData(Width, Height);
 		bm.draw(this);
 		bitmap = new Bitmap(bm);
 
@@ -63,8 +65,8 @@ class HitGraph extends Sprite
 
 		ts = Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166;
 
-		var early = createTextField(10, 10, FlxColor.WHITE, 12);
-		var late = createTextField(10, _height - 20, FlxColor.WHITE, 12);
+		var early:TextField = createTextField(10, 10, FlxColor.WHITE, 12);
+		var late:TextField = createTextField(10, _height - 20, FlxColor.WHITE, 12);
 
 		early.text = "Early (" + -166 * ts + "ms)";
 		late.text = "Late (" + 166 * ts + "ms)";
@@ -82,7 +84,7 @@ class HitGraph extends Sprite
 	 */
 	function drawAxes():Void
 	{
-		var gfx = _axis.graphics;
+		var gfx:Graphics = _axis.graphics;
 		gfx.clear();
 		gfx.lineStyle(1, AXIS_COLOR, AXIS_ALPHA);
 
@@ -127,19 +129,19 @@ class HitGraph extends Sprite
 
 		gfx.lineStyle(1, graphColor, 0.3);
 
-		var ts = Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166;
+		var ts:Float = Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166;
 		var range:Float = Math.max(maxValue - minValue, maxValue * 0.1);
 
-		var value = ((ms * ts) - minValue) / range;
+		var value:Float = ((ms * ts) - minValue) / range;
 
-		var pointY = _axis.y + ((-value * _height - 1) + _height);
+		var pointY:Float = _axis.y + ((-value * _height - 1) + _height);
 
-		var graphX = _axis.x + 1;
+		var graphX:Float = _axis.x + 1;
 
 		if (ms == 45)
 			gfx.moveTo(graphX, _axis.y + pointY);
 
-		var graphX = _axis.x + 1;
+		graphX = _axis.x + 1;
 
 		gfx.drawRect(graphX, pointY, _width, 1);
 
@@ -188,15 +190,15 @@ class HitGraph extends Sprite
 		gfx.endFill();
 
 		var range:Float = Math.max(maxValue - minValue, maxValue * 0.1);
-		var graphX = _axis.x + 1;
+		var graphX:Float = _axis.x + 1;
 
 		if (showInput)
 		{
 			for (i in 0...PlayState.rep.replay.ana.anaArray.length)
 			{
-				var ana = PlayState.rep.replay.ana.anaArray[i];
+				var ana:Ana = PlayState.rep.replay.ana.anaArray[i];
 
-				var value = (ana.key * 25 - minValue) / range;
+				var value:Float = (ana.key * 25 - minValue) / range;
 
 				if (ana.hit)
 					gfx.beginFill(0xFFFF00);
@@ -206,7 +208,7 @@ class HitGraph extends Sprite
 				if (ana.hitTime < 0)
 					continue;
 
-				var pointY = (-value * _height - 1) + _height;
+				var pointY:Float = (-value * _height - 1) + _height;
 				gfx.drawRect(graphX + fitX(ana.hitTime), pointY, 2, 2);
 				gfx.endFill();
 			}
@@ -214,8 +216,8 @@ class HitGraph extends Sprite
 
 		for (i in 0...history.length)
 		{
-			var value = (history[i][0] - minValue) / range;
-			var judge = history[i][1];
+			var value:Float = (history[i][0] - minValue) / range;
+			var judge:String = history[i][1];
 
 			switch (judge)
 			{
@@ -232,7 +234,7 @@ class HitGraph extends Sprite
 				default:
 					gfx.beginFill(0xFFFFFF);
 			}
-			var pointY = ((-value * _height - 1) + _height);
+			var pointY:Float = ((-value * _height - 1) + _height);
 
 			/*if (i == 0)
 				gfx.moveTo(graphX, _axis.y + pointY); */
@@ -241,17 +243,17 @@ class HitGraph extends Sprite
 			gfx.endFill();
 		}
 
-		var bm = new BitmapData(_width, _height);
+		var bm:BitmapData = new BitmapData(_width, _height);
 		bm.draw(this);
 		bitmap = new Bitmap(bm);
 	}
 
-	public function fitX(x:Float)
+	public function fitX(x:Float):Float
 	{
 		return ((x / (FlxG.sound.music.length / PlayState.songMultiplier)) * width) * PlayState.songMultiplier;
 	}
 
-	public function addToHistory(diff:Float, judge:String, time:Float)
+	public function addToHistory(diff:Float, judge:String, time:Float):Void
 	{
 		history.push([diff, judge, time]);
 	}

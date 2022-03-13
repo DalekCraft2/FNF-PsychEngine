@@ -41,13 +41,13 @@ class JudgementData
 		}
 		for (name in ["Health", "Accuracy", "Scores", "Windows"])
 		{
-			var data = Reflect.field(info, 'judgement${name}');
-			var thisData = Reflect.field(this, 'judgement${name}');
+			var data:Dynamic = Reflect.field(info, 'judgement${name}');
+			var thisData:Dynamic = Reflect.field(this, 'judgement${name}');
 			for (field in Reflect.fields(data))
 			{
 				if (judgements.contains(field) || field == 'miss')
 				{
-					var val = Reflect.field(data, field);
+					var val:Dynamic = Reflect.field(data, field);
 					thisData.set(field, val);
 				}
 			}
@@ -78,11 +78,11 @@ class JudgementManager
 	var highestAcc:Float = 0;
 
 	public static var rawJudgements:AnonType;
-	public static var defaultJudgement = new JudgementData(EngineData.defaultJudgementData);
+	public static var defaultJudgement:JudgementData = new JudgementData(EngineData.defaultJudgementData);
 
 	public var judgementCounter:Map<String, Int> = [];
 
-	public static function dataExists(name:String)
+	public static function dataExists(name:String):Bool
 	{
 		rawJudgements = Json.parse(Assets.getText(Paths.json("judgements")));
 		if (rawJudgements != null)
@@ -92,17 +92,17 @@ class JudgementManager
 		return false;
 	}
 
-	public function hasJudge(name:String)
+	public function hasJudge(name:String):Bool
 	{
 		return judgeData.judgementWindows.exists(name);
 	}
 
-	public function getWifeZero()
+	public function getWifeZero():Float
 	{
 		return judgeData.wifeZeroPoint;
 	}
 
-	public static function getDataByName(name:String)
+	public static function getDataByName(name:String):JudgementData
 	{
 		rawJudgements = Json.parse(Assets.getText(Paths.json("judgements")));
 		if (rawJudgements != null)
@@ -115,23 +115,23 @@ class JudgementManager
 		return defaultJudgement;
 	}
 
-	public function getHighestWindow()
+	public function getHighestWindow():Float
 	{
 		return getJudgementWindow(judgeData.judgementWindowsOrder[judgeData.judgementWindowsOrder.length - 1]);
 	}
 
-	public function getLowestWindow()
+	public function getLowestWindow():Float
 	{
 		return getJudgementWindow(judgeData.judgementWindowsOrder[0]);
 	}
 
-	public function getHighestAccJudgement()
+	public function getHighestAccJudgement():String
 	{
 		var n:Null<Float> = null;
 		var name:String = 'epic';
 		for (judgement in judgeData.judgementAccuracy.keys())
 		{
-			var acc = judgeData.judgementAccuracy.get(judgement);
+			var acc:Int = judgeData.judgementAccuracy.get(judgement);
 			if (n == null || acc > n)
 			{
 				n = acc;
@@ -211,11 +211,11 @@ class JudgementManager
 
 	public function determine(noteDiff:Float):String
 	{
-		var noteDiff = Math.abs(noteDiff);
+		var noteDiff:Float = Math.abs(noteDiff);
 		for (judgeOrder in 0...judgeData.judgementWindowsOrder.length)
 		{
-			var judgement = judgeData.judgementWindowsOrder[judgeOrder];
-			var window = judgeData.judgementWindows.get(judgement);
+			var judgement:String = judgeData.judgementWindowsOrder[judgeOrder];
+			var window:Int = judgeData.judgementWindows.get(judgement);
 			if (noteDiff <= window)
 			{
 				return judgement;

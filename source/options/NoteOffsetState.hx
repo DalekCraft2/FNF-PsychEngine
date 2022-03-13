@@ -46,7 +46,7 @@ class NoteOffsetState extends MusicBeatState
 			OptionUtils.options.comboOffset = [0, 0, 0, 0];
 	}
 
-	override public function create()
+	override public function create():Void
 	{
 		// Cameras
 		camGame = new FlxCamera();
@@ -60,7 +60,6 @@ class NoteOffsetState extends MusicBeatState
 		FlxG.cameras.add(camOther);
 
 		FlxCamera.defaultCameras = [camGame];
-		CustomFadeTransition.nextCamera = camOther;
 		FlxG.camera.scroll.set(120, 130);
 
 		persistentUpdate = true;
@@ -80,7 +79,7 @@ class NoteOffsetState extends MusicBeatState
 			stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
 			stageLight.updateHitbox();
 			add(stageLight);
-			var stageLight:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
+			stageLight = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
 			stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
 			stageLight.updateHitbox();
 			stageLight.flipX = true;
@@ -213,7 +212,7 @@ class NoteOffsetState extends MusicBeatState
 	var startMousePos:FlxPoint = new FlxPoint();
 	var startComboOffset:FlxPoint = new FlxPoint();
 
-	override public function update(elapsed:Float)
+	override public function update(elapsed:Float):Void
 	{
 		var addNum:Int = 1;
 		if (FlxG.keys.pressed.SHIFT)
@@ -369,8 +368,7 @@ class NoteOffsetState extends MusicBeatState
 				beatTween.cancel();
 
 			persistentUpdate = false;
-			CustomFadeTransition.nextCamera = camOther;
-			MusicBeatState.switchState(new options.OptionsState());
+			FlxG.switchState(new OptionsState());
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
 			FlxG.mouse.visible = false;
 		}
@@ -382,7 +380,7 @@ class NoteOffsetState extends MusicBeatState
 	var zoomTween:FlxTween;
 	var lastBeatHit:Int = -1;
 
-	override public function beatHit()
+	override public function beatHit():Void
 	{
 		super.beatHit();
 
@@ -405,7 +403,7 @@ class NoteOffsetState extends MusicBeatState
 				zoomTween.cancel();
 			zoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, 1, {
 				ease: FlxEase.circOut,
-				onComplete: function(twn:FlxTween)
+				onComplete: function(twn:FlxTween):Void
 				{
 					zoomTween = null;
 				}
@@ -418,7 +416,7 @@ class NoteOffsetState extends MusicBeatState
 				beatTween.cancel();
 			beatTween = FlxTween.tween(beatText, {alpha: 0}, 1, {
 				ease: FlxEase.sineIn,
-				onComplete: function(twn:FlxTween)
+				onComplete: function(twn:FlxTween):Void
 				{
 					beatTween = null;
 				}
@@ -428,7 +426,7 @@ class NoteOffsetState extends MusicBeatState
 		lastBeatHit = curBeat;
 	}
 
-	function repositionCombo()
+	function repositionCombo():Void
 	{
 		rating.screenCenter();
 		rating.x = coolText.x - 40 + OptionUtils.options.comboOffset[0];
@@ -440,7 +438,7 @@ class NoteOffsetState extends MusicBeatState
 		reloadTexts();
 	}
 
-	function createTexts()
+	function createTexts():Void
 	{
 		for (i in 0...4)
 		{
@@ -458,7 +456,7 @@ class NoteOffsetState extends MusicBeatState
 		}
 	}
 
-	function reloadTexts()
+	function reloadTexts():Void
 	{
 		for (i in 0...dumbTexts.length)
 		{
@@ -476,13 +474,13 @@ class NoteOffsetState extends MusicBeatState
 		}
 	}
 
-	function updateNoteDelay()
+	function updateNoteDelay():Void
 	{
 		OptionUtils.options.noteOffset = Math.round(barPercent);
 		timeTxt.text = 'Current offset: ' + Math.floor(barPercent) + ' ms';
 	}
 
-	function updateMode()
+	function updateMode():Void
 	{
 		rating.visible = onComboMenu;
 		comboNums.visible = onComboMenu;

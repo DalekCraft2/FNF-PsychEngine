@@ -1,13 +1,12 @@
 package vlc;
 
+#if cpp
 import cpp.Pointer;
 import cpp.UInt8;
 
 /**
- * ...
  * @author Tommy S
  */
-//
 @:buildXml('<include name="../../../../source/vlc/LibVLCBuild.xml" />')
 @:include("LibVLC.h")
 @:unreflective
@@ -118,3 +117,4 @@ extern class LibVLC
 		untyped __cpp__('::delete this');
 	}
 }
+#end

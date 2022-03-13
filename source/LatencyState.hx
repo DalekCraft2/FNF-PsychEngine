@@ -12,7 +12,7 @@ class LatencyState extends FlxState
 	var noteGrp:FlxTypedGroup<Note>;
 	var strumLine:FlxSprite;
 
-	override function create()
+	override function create():Void
 	{
 		FlxG.sound.playMusic(Paths.sound('soundTest'));
 
@@ -37,7 +37,7 @@ class LatencyState extends FlxState
 		super.create();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		offsetText.text = "Offset: " + Conductor.offset + "ms";
 
@@ -60,7 +60,7 @@ class LatencyState extends FlxState
 			FlxG.resetState();
 		}
 
-		noteGrp.forEach(function(daNote:Note)
+		noteGrp.forEach(function(daNote:Note):Void
 		{
 			daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * 0.45);
 			daNote.x = strumLine.x + 30;

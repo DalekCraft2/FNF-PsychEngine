@@ -1,5 +1,6 @@
 package animateatlas.tilecontainer;
 
+import haxe.Exception;
 import animateatlas.HelperEnums.LoopMode;
 import animateatlas.HelperEnums.SymbolType;
 import animateatlas.JSONData.BitmapPosData;
@@ -8,6 +9,7 @@ import animateatlas.JSONData.ElementData;
 import animateatlas.JSONData.LayerData;
 import animateatlas.JSONData.LayerFrameData;
 import animateatlas.JSONData.Matrix3DData;
+import animateatlas.JSONData.SpriteData;
 import animateatlas.JSONData.SymbolData;
 import animateatlas.JSONData.SymbolInstanceData;
 import openfl.display.FrameLabel;
@@ -65,11 +67,11 @@ class TileContainerSymbol extends TileContainer
 			if (layer.FrameMap != null)
 				return;
 
-			var map = new Map();
+			var map:Map<Int, LayerFrameData> = new Map();
 
 			for (i in 0...layer.Frames.length)
 			{
-				var frame = layer.Frames[i];
+				var frame:LayerFrameData = layer.Frames[i];
 				for (j in 0...frame.duration)
 				{
 					map.set(i + j, frame);
@@ -131,7 +133,7 @@ class TileContainerSymbol extends TileContainer
 			for (e in 0...numElements)
 			{
 				(try cast(layer.getTileAt(e), TileContainerSymbol)
-				catch (e:Dynamic) null).moveMovieclip_MovieClips(direction);
+				catch (e:Exception) null).moveMovieclip_MovieClips(direction);
 			}
 		}
 	}
@@ -163,7 +165,7 @@ class TileContainerSymbol extends TileContainer
 			// this is confusing but needed :(
 			var oldSymbol:TileContainerSymbol = (layer.numTiles > i) ? try
 				cast(layer.getTileAt(i), TileContainerSymbol)
-			catch (e:Dynamic)
+			catch (e:Exception)
 				null : null;
 
 			var newSymbol:TileContainerSymbol = null;
@@ -223,11 +225,11 @@ class TileContainerSymbol extends TileContainer
 		{
 			try
 			{
-				var oldSymbol = cast(layer.removeTileAt(numElements), TileContainerSymbol);
+				var oldSymbol:TileContainerSymbol = cast(layer.removeTileAt(numElements), TileContainerSymbol);
 				if (oldSymbol != null)
 					_library.putSymbol(oldSymbol);
 			}
-			catch (e:Dynamic)
+			catch (e:Exception)
 			{
 			}
 		}
@@ -270,7 +272,7 @@ class TileContainerSymbol extends TileContainer
 	{
 		if (data != null)
 		{
-			var spriteData = _library.getSpriteData(data.name + "");
+			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
 
 			if (_bitmap == null)
 			{
@@ -321,7 +323,7 @@ class TileContainerSymbol extends TileContainer
 
 	private function setColor(data:ColorData):Void
 	{
-		var newTransform = new ColorTransform();
+		var newTransform:ColorTransform = new ColorTransform();
 		if (data != null)
 		{
 			newTransform.redOffset = (data.redOffset == null ? 0 : data.redOffset);
@@ -363,7 +365,7 @@ class TileContainerSymbol extends TileContainer
 
 		for (i in 0..._numLayers)
 		{
-			var layer = getLayerData(i);
+			var layer:LayerData = getLayerData(i);
 			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 			var layerNumFrames:Int = (numFrameDates != 0) ? frameDates[0].index : 0;
@@ -388,7 +390,7 @@ class TileContainerSymbol extends TileContainer
 
 		for (i in 0..._numLayers)
 		{
-			var layer = getLayerData(i);
+			var layer:LayerData = getLayerData(i);
 			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 
@@ -412,8 +414,8 @@ class TileContainerSymbol extends TileContainer
 
 	function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
 	{
-		var f1 = i1.frame;
-		var f2 = i2.frame;
+		var f1:Int = i1.frame;
+		var f2:Int = i2.frame;
 		if (f1 < f2)
 		{
 			return -1;
@@ -574,7 +576,7 @@ class TileContainerSymbol extends TileContainer
 
 	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
 	{
-		var layer = getLayerData(layerIndex);
+		var layer:LayerData = getLayerData(layerIndex);
 		if (layer == null)
 			return null;
 

@@ -175,7 +175,7 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 
 		if (dropPanel == null)
 		{
-			var rect = new Rectangle(0, 0, header.background.width, header.background.height);
+			var rect:Rectangle = new Rectangle(0, 0, header.background.width, header.background.height);
 			dropPanel = new FlxUI9SliceSprite(0, 0, FlxUIAssets.IMG_BOX, rect, [1, 1, 14, 14]);
 		}
 
@@ -183,7 +183,7 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 		{
 			for (i in 0...DataList.length)
 			{
-				var data = DataList[i];
+				var data:StrNameLabel = DataList[i];
 				list.push(makeListButton(i, data.label, data.name));
 			}
 			selectSomething(DataList[0].name, DataList[0].label);
@@ -216,14 +216,14 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 
 	private function updateButtonPositions():Void
 	{
-		var buttonHeight = header.background.height;
+		var buttonHeight:Float = header.background.height;
 		dropPanel.y = header.background.y;
 		if (dropsUp())
 			dropPanel.y -= getPanelHeight();
 		else
 			dropPanel.y += buttonHeight;
 
-		var offset = dropPanel.y;
+		var offset:Float = dropPanel.y;
 		for (i in 0...currentScroll)
 		{ // Hides buttons that goes before the current scroll
 			var button:FlxUIButton = list[i];
@@ -245,8 +245,8 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 
 	override function set_visible(Value:Bool):Bool
 	{
-		var vDropPanel = dropPanel.visible;
-		var vButtons = [];
+		var vDropPanel:Bool = dropPanel.visible;
+		var vButtons:Array<Bool> = [];
 		for (i in 0...list.length)
 		{
 			if (list[i] != null)

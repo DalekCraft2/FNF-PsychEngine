@@ -23,7 +23,7 @@ class HealthIcon extends FlxSprite
 		scrollFactor.set();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -31,7 +31,7 @@ class HealthIcon extends FlxSprite
 			setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y - 30);
 	}
 
-	public function swapOldIcon()
+	public function swapOldIcon():Void
 	{
 		if (isOldIcon = !isOldIcon)
 			changeIcon('bf-old');
@@ -41,7 +41,7 @@ class HealthIcon extends FlxSprite
 
 	private var iconOffsets:Array<Float> = [0, 0];
 
-	public function changeIcon(char:String)
+	public function changeIcon(char:String):Void
 	{
 		if (this.char != char)
 		{
@@ -70,7 +70,7 @@ class HealthIcon extends FlxSprite
 		}
 	}
 
-	override function updateHitbox()
+	override function updateHitbox():Void
 	{
 		super.updateHitbox();
 		offset.x = iconOffsets[0];

@@ -7,6 +7,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.input.keyboard.FlxKey;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.display.FPSMem;
@@ -24,9 +25,9 @@ class OptionsSubState extends MusicBeatSubState
 	private var optionDesc:FlxText;
 	private var curSelected:Int = 0;
 
-	public static var category:Dynamic;
+	public static var category:OptionCategory;
 
-	public static var isInPause = false;
+	public static var isInPause:Bool = false;
 
 	public function new(pauseMenu:Bool = false)
 	{
@@ -36,7 +37,7 @@ class OptionsSubState extends MusicBeatSubState
 	}
 
 	// TODO Make some of these not changeable whilst in PlayState, like in Kade Engine
-	public function createDefault()
+	public function createDefault():Void
 	{
 		defCat = new OptionCategory("Default", [
 			new OptionCategory("Gameplay", [
@@ -72,10 +73,25 @@ class OptionsSubState extends MusicBeatSubState
 				#if !FORCE_LUA_MODCHARTS new ToggleOption("loadModcharts", true, "Load Lua modcharts", "Toggles lua modcharts"),
 				#end
 				new ToggleOption("ghostTapping", true, "Ghost-Tapping", "Allows you to press keys while no notes are able to be hit."),
+				// TODO Finish the descriptions of these
+				new ScrollOption("scrollType", 'multiplicative', "Scroll Type", "", 0, 1,
+					["multiplicative", "constant"] /*,
+						(i1, s, i2) ->
+						{
+							if (defCat != null)
+							{
+								var gameplayCategory:OptionCategory = defCat.options[0];
+
+							}
+					}*/),
+
+				new StepOption("scrollSpeed", 1, "Scroll Speed", 0.1, 0.5, (OptionUtils.options.scrollType == 'multiplicative' ? 3 : 6),
+					(OptionUtils.options.scrollType == 'multiplicative' ? "X" : "")),
+				new StepOption("healthGain", 1, "Health Gain Multiplier", 0.1, 0, 5, "X"),
+				new StepOption("healthLoss", 1, "Health Loss Multiplier", 0.1, 0.5, 5, "X"),
 				new ToggleOption("instakill", false, "Instakill on Miss", "FC or die"),
-				#if !NO_BOTPLAY new ToggleOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
-				// TODO Finish the description of this
 				new ToggleOption("practice ", false, "Practice Mode", ""),
+				#if !NO_BOTPLAY new ToggleOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
 				// new StepOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
 				// 	1, 0, 500, "ms", ""),
 				new StepOption("ratingOffset", 0, "Rating Offset",
@@ -88,22 +104,23 @@ class OptionsSubState extends MusicBeatSubState
 					"ms"),
 				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
 				#if !NO_FREEPLAY_MODS
-				new OptionCategory("Freeplay Modifiers", [
-					new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0, 10, "",
-						"", true),
-					new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
-					new StepOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
-					new ToggleOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
-				]), new StateOption("Delay and Combo Offset", new NoteOffsetState()),
+				/*new OptionCategory("Freeplay Modifiers", [
+						new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0,
+							10, "", "", true),
+						new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
+						new StepOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
+						new ToggleOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
+					]), */
+				new StateOption("Delay and Combo Offset", new NoteOffsetState()),
 				#end
-				new OptionCategory("Advanced", [
-					#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
-						"The judgement windows to use"), new ToggleOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
-					#end
-					new ScrollOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
-					// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
-				]
-				),
+				/*new OptionCategory("Advanced", [
+						#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
+							"The judgement windows to use"), new ToggleOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
+						#end
+						new ScrollOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
+						// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
+					]
+					), */
 				new StateOption("Calibrate Offset", new SoundOffsetState()) // TODO: make a better 'calibrate offset'
 			]),
 			new OptionCategory("Appearance", [
@@ -117,8 +134,7 @@ class OptionsSubState extends MusicBeatSubState
 					"Places your notes in the center of the screen and hides the opponent's. \"Middlescroll\""),
 				new ToggleOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
 				new StepOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
-				new ScrollOption("staticCam", OptionUtils.camFocuses[0], "Camera Focus", "Who the camera should focus on", 0,
-					OptionUtils.camFocuses.length - 1, OptionUtils.camFocuses),
+				new ScrollOption("staticCam", "Default", "Camera Focus", "Who the camera should focus on", 0, 3, ["Default", "BF", "Dad", "Center"]),
 				// new ToggleOption("oldMenus", false, "Vanilla Menus", "Forces the vanilla menus to be used"),
 				// new ToggleOption("oldTitle", false, "Vanilla Title Screen", "Forces the vanilla title to be used"),
 				new ToggleOption("healthBarColors", true, "Healthbar Colours", "Whether the healthbar colour changes with the character"),
@@ -139,6 +155,10 @@ class OptionsSubState extends MusicBeatSubState
 				new ToggleOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
 				new ScrollOption("timeBarType", "Time Left", "Time Bar", "What should the Time Bar display?", 0, 3,
 					['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']),
+				new ToggleOption("scoreScreen", false, "Score Screen", "Show the score screen after the end of a song"),
+				new ToggleOption("inputShow", false, "Score Screen Debug", "Display every single input on the score screen."),
+				new ToggleOption("accuracyDisplay", true, "Accuracy Display", "Display accuracy information on the info bar."),
+				new ToggleOption("npsDisplay", false, "NPS Display", "Shows your current Notes Per Second on the info bar."),
 				new ToggleOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
 				new ToggleOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),
 				new ToggleOption("scoreZoom", true, "Score Text Zoom on Hit", "If unchecked, disables the Score text zooming\neverytime you hit a note."),
@@ -150,22 +170,22 @@ class OptionsSubState extends MusicBeatSubState
 				new ToggleOption("pauseHoldAnims", true, "Holds Pause Animations", "Whether to pause animations on their first frame"),
 				new ToggleOption("menuFlash", true, "Flashing in Menus", "Whether buttons and the background should flash in menus"),
 				new ToggleOption("hitSound", false, "Hit Sounds", "Play a click sound when you hit a note"),
-				new ToggleOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", function(state:Bool)
+				new ToggleOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", function(state:Bool):Void
 				{
 					FPSMem.showFPS = state;
 				}),
-				new ToggleOption("showMem", false, "Show Memory", "Shows memory usage in the top left", function(state:Bool)
+				new ToggleOption("showMem", false, "Show Memory", "Shows memory usage in the top left", function(state:Bool):Void
 				{
 					FPSMem.showMem = state;
 				}),
 				new ToggleOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
-					function(state:Bool)
+					function(state:Bool):Void
 					{
 						FPSMem.showMemPeak = state;
 					}),
 				new ScrollOption("pauseMusic", "Tea Time", "Pause Screen Song", "What song do you prefer for the Pause Screen?", 0, 2,
 					["None", "Breakfast", "Tea Time"],
-					function(index:Int, name:String, indexAdd:Int)
+					function(index:Int, name:String, indexAdd:Int):Void
 					{
 						if (name == 'None')
 							FlxG.sound.music.volume = 0;
@@ -182,7 +202,7 @@ class OptionsSubState extends MusicBeatSubState
 			]),
 			new OptionCategory("Performance", [
 				new StepOption("framerate", 120, "FPS Cap", "The FPS the game tries to run at", 30, 30, 360, "", "", true,
-					function(value:Float, step:Float)
+					function(value:Float, step:Float):Void
 					{
 						Main.setFPSCap(Std.int(value));
 					}),
@@ -195,22 +215,21 @@ class OptionsSubState extends MusicBeatSubState
 				new ToggleOption("globalAntialiasing", true, "Antialiasing", "Toggles the ability for sprites to have antialiasing"),
 				new ToggleOption("allowOrderSorting", true, "Sort notes by order",
 					"Allows notes to go infront and behind other notes. May cause FPS drops on very high note-density charts."),
-				new OptionCategory("Loading", [
-					new ToggleOption("shouldCache", false, "Cache on startup", "Whether the engine caches stuff when the game starts"),
-					new ToggleOption("cacheCharacters", false, "Cache characters", "Whether the engine caches characters if it caches on startup"),
-					new ToggleOption("cacheSongs", false, "Cache songs", "Whether the engine caches songs if it caches on startup"),
-					new ToggleOption("cacheSounds", false, "Cache sounds", "Whether the engine caches misc sounds if it caches on startup"),
-					new ToggleOption("cachePreload", false, "Cache misc images", "Whether the engine caches misc images if it caches on startup"),
-					new ToggleOption("cacheUsedImages", false, "Persistent Images", "Whether images should persist in memory", function(state:Bool)
-					{
-						FlxGraphic.defaultPersist = state;
-					}),
-				])
+				/*new OptionCategory("Caching", [
+						new ToggleOption("shouldCache", false, "Cache on startup", "Whether the engine caches stuff when the game starts"),
+						new ToggleOption("cacheSongs", false, "Cache songs", "Whether the engine caches songs if it caches on startup"),
+						new ToggleOption("cacheSounds", false, "Cache sounds", "Whether the engine caches misc sounds if it caches on startup"),
+						new ToggleOption("cacheImages", false, "Cache images", "Whether the engine caches misc images if it caches on startup"),
+						new ToggleOption("persistentImages", false, "Persistent Images", "Whether images should persist in memory", function(state:Bool):Void
+						{
+							FlxGraphic.defaultPersist = state;
+						})
+					]) */
 			])
 		]);
 	}
 
-	override function create()
+	override function create():Void
 	{
 		super.create();
 		#if FEATURE_DISCORD
@@ -242,21 +261,21 @@ class OptionsSubState extends MusicBeatSubState
 		add(optionDesc);
 	}
 
-	function refresh()
+	function refresh():Void
 	{
 		curSelected = category.curSelected;
 		optionText.clear();
 		for (i in 0...category.options.length)
 		{
 			optionText.add(category.options[i]);
-			var text = category.options[i].createOptionText(curSelected, optionText);
+			var text:Alphabet = category.options[i].createOptionText(curSelected, optionText);
 			text.targetY = i;
 		}
 
 		changeSelection(0);
 	}
 
-	function changeSelection(?diff:Int = 0)
+	function changeSelection(?diff:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		curSelected += diff;
@@ -268,10 +287,10 @@ class OptionsSubState extends MusicBeatSubState
 
 		for (i in 0...optionText.length)
 		{
-			var item = optionText.members[i];
+			var item:Option = optionText.members[i];
 			item.text.targetY = i - curSelected;
 			item.text.alpha = 0.6;
-			var wasSelected = item.isSelected;
+			var wasSelected:Bool = item.isSelected;
 			item.isSelected = item.text.targetY == 0;
 			if (item.isSelected)
 			{
@@ -296,15 +315,15 @@ class OptionsSubState extends MusicBeatSubState
 		category.curSelected = curSelected;
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
-		var upP = false;
-		var downP = false;
-		var leftP = false;
-		var rightP = false;
-		var accepted = false;
-		var back = false;
-		if (controls.keyboardScheme != None)
+		var upP:Bool = false;
+		var downP:Bool = false;
+		var leftP:Bool = false;
+		var rightP:Bool = false;
+		var accepted:Bool = false;
+		var back:Bool = false;
+		if (controls.keyboardScheme != NONE)
 		{
 			upP = controls.UI_UP_P;
 			downP = controls.UI_DOWN_P;
@@ -324,7 +343,7 @@ class OptionsSubState extends MusicBeatSubState
 			changeSelection(1);
 		}
 
-		var option = category.options[curSelected];
+		var option:Option = category.options[curSelected];
 
 		if (back)
 		{
@@ -369,9 +388,9 @@ class OptionsSubState extends MusicBeatSubState
 
 		if (option.allowMultiKeyInput)
 		{
-			var pressed = FlxG.keys.firstJustPressed();
-			var released = FlxG.keys.firstJustReleased();
-			if (pressed != -1)
+			var pressed:FlxKey = FlxG.keys.firstJustPressed();
+			var released:FlxKey = FlxG.keys.firstJustReleased();
+			if (pressed != NONE)
 			{
 				if (option.keyPressed(pressed))
 				{
@@ -379,7 +398,7 @@ class OptionsSubState extends MusicBeatSubState
 					changeSelection();
 				}
 			}
-			if (released != -1)
+			if (released != NONE)
 			{
 				if (option.keyReleased(released))
 				{
@@ -394,7 +413,7 @@ class OptionsSubState extends MusicBeatSubState
 			Debug.logTrace("shit");
 			if (option.type == 'Category')
 			{
-				category = option;
+				category = cast(option, OptionCategory);
 				refresh();
 			}
 			else if (option.accept())
@@ -405,12 +424,16 @@ class OptionsSubState extends MusicBeatSubState
 			Debug.logTrace("cum");
 		}
 
-		if (option.forceupdate)
+		if (Std.isOfType(option, ControlOption))
 		{
-			option.forceupdate = false;
-			// optionText.remove(optionText.members[curSelected]);
-			option.createOptionText(curSelected, optionText);
-			changeSelection();
+			var controlOption:ControlOption = cast(option, ControlOption);
+			if (controlOption.forceUpdate)
+			{
+				controlOption.forceUpdate = false;
+				// optionText.remove(optionText.members[curSelected]);
+				controlOption.createOptionText(curSelected, optionText);
+				changeSelection();
+			}
 		}
 		super.update(elapsed);
 	}

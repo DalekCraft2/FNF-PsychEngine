@@ -36,7 +36,7 @@ class BGSprite extends FlxSprite
 		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 
-	public function dance(?forceplay:Bool = false)
+	public function dance(?forceplay:Bool = false):Void
 	{
 		if (idleAnim != null)
 		{

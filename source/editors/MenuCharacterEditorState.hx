@@ -33,7 +33,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	var txtOffsets:FlxText;
 	var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
 
-	override function create()
+	override function create():Void
 	{
 		characterFile = {
 			image: 'Menu_Dad',
@@ -82,9 +82,9 @@ class MenuCharacterEditorState extends MusicBeatState
 	var UI_mainbox:FlxUITabMenu;
 	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 
-	function addEditorBox()
+	function addEditorBox():Void
 	{
-		var tabs = [{name: 'Character Type', label: 'Character Type'},];
+		var tabs:Array<{name:String, label:String}> = [{name: 'Character Type', label: 'Character Type'},];
 		UI_typebox = new FlxUITabMenu(null, tabs, true);
 		UI_typebox.resize(120, 180);
 		UI_typebox.x = 100;
@@ -93,7 +93,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		addTypeUI();
 		add(UI_typebox);
 
-		var tabs = [{name: 'Character', label: 'Character'},];
+		var tabs:Array<{name:String, label:String}> = [{name: 'Character', label: 'Character'},];
 		UI_mainbox = new FlxUITabMenu(null, tabs, true);
 		UI_mainbox.resize(240, 180);
 		UI_mainbox.x = FlxG.width - UI_mainbox.width - 100;
@@ -102,7 +102,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		addCharacterUI();
 		add(UI_mainbox);
 
-		var loadButton:FlxButton = new FlxButton(0, 480, "Load Character", function()
+		var loadButton:FlxButton = new FlxButton(0, 480, "Load Character", function():Void
 		{
 			loadCharacter();
 		});
@@ -110,7 +110,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		loadButton.x -= 60;
 		add(loadButton);
 
-		var saveButton:FlxButton = new FlxButton(0, 480, "Save Character", function()
+		var saveButton:FlxButton = new FlxButton(0, 480, "Save Character", function():Void
 		{
 			saveCharacter();
 		});
@@ -124,27 +124,27 @@ class MenuCharacterEditorState extends MusicBeatState
 	var girlfriendCheckbox:FlxUICheckBox;
 	var curTypeSelected:Int = 0; // 0 = Dad, 1 = BF, 2 = GF
 
-	function addTypeUI()
+	function addTypeUI():Void
 	{
-		var tab_group = new FlxUI(null, UI_typebox);
+		var tab_group:FlxUI = new FlxUI(null, UI_typebox);
 		tab_group.name = "Character Type";
 
 		opponentCheckbox = new FlxUICheckBox(10, 20, null, null, "Opponent", 100);
-		opponentCheckbox.callback = function()
+		opponentCheckbox.callback = function():Void
 		{
 			curTypeSelected = 0;
 			updateCharTypeBox();
 		};
 
 		boyfriendCheckbox = new FlxUICheckBox(opponentCheckbox.x, opponentCheckbox.y + 40, null, null, "Boyfriend", 100);
-		boyfriendCheckbox.callback = function()
+		boyfriendCheckbox.callback = function():Void
 		{
 			curTypeSelected = 1;
 			updateCharTypeBox();
 		};
 
 		girlfriendCheckbox = new FlxUICheckBox(boyfriendCheckbox.x, boyfriendCheckbox.y + 40, null, null, "Girlfriend", 100);
-		girlfriendCheckbox.callback = function()
+		girlfriendCheckbox.callback = function():Void
 		{
 			curTypeSelected = 2;
 			updateCharTypeBox();
@@ -163,9 +163,9 @@ class MenuCharacterEditorState extends MusicBeatState
 	var scaleStepper:FlxUINumericStepper;
 	var flipXCheckbox:FlxUICheckBox;
 
-	function addCharacterUI()
+	function addCharacterUI():Void
 	{
-		var tab_group = new FlxUI(null, UI_mainbox);
+		var tab_group:FlxUI = new FlxUI(null, UI_mainbox);
 		tab_group.name = "Character";
 
 		imageInputText = new FlxUIInputText(10, 20, 80, characterFile.image, 8);
@@ -176,13 +176,13 @@ class MenuCharacterEditorState extends MusicBeatState
 		blockPressWhileTypingOn.push(confirmInputText);
 
 		flipXCheckbox = new FlxUICheckBox(10, confirmInputText.y + 30, null, null, "Flip X", 100);
-		flipXCheckbox.callback = function()
+		flipXCheckbox.callback = function():Void
 		{
 			grpWeekCharacters.members[curTypeSelected].flipX = flipXCheckbox.checked;
 			characterFile.flipX = flipXCheckbox.checked;
 		};
 
-		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, "Reload Char", function()
+		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, "Reload Char", function():Void
 		{
 			reloadSelectedCharacter();
 		});
@@ -203,7 +203,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		UI_mainbox.addGroup(tab_group);
 	}
 
-	function updateCharTypeBox()
+	function updateCharTypeBox():Void
 	{
 		opponentCheckbox.checked = false;
 		boyfriendCheckbox.checked = false;
@@ -222,7 +222,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		updateCharacters();
 	}
 
-	function updateCharacters()
+	function updateCharacters():Void
 	{
 		for (i in 0...3)
 		{
@@ -234,7 +234,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		reloadSelectedCharacter();
 	}
 
-	function reloadSelectedCharacter()
+	function reloadSelectedCharacter():Void
 	{
 		var char:MenuCharacter = grpWeekCharacters.members[curTypeSelected];
 
@@ -259,7 +259,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		#end
 	}
 
-	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>)
+	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>):Void
 	{
 		if (id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText))
 		{
@@ -286,7 +286,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		var blockInput:Bool = false;
 		for (inputText in blockPressWhileTypingOn)
@@ -311,7 +311,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				MusicBeatState.switchState(new editors.MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenu());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 
@@ -355,7 +355,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function updateOffset()
+	function updateOffset():Void
 	{
 		var char:MenuCharacter = grpWeekCharacters.members[curTypeSelected];
 		char.offset.set(characterFile.position[0], characterFile.position[1]);
@@ -364,7 +364,7 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	var _file:FileReference = null;
 
-	function loadCharacter()
+	function loadCharacter():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
 		_file = new FileReference();
@@ -438,13 +438,13 @@ class MenuCharacterEditorState extends MusicBeatState
 		Debug.logError("Problem loading file");
 	}
 
-	function saveCharacter()
+	function saveCharacter():Void
 	{
 		var data:String = Json.stringify(characterFile, "\t");
 		if (data.length > 0)
 		{
-			var splittedImage:Array<String> = imageInputText.text.trim().split('_');
-			var characterName:String = splittedImage[splittedImage.length - 1].toLowerCase().replace(' ', '');
+			var splitImage:Array<String> = imageInputText.text.trim().split('_');
+			var characterName:String = splitImage[splitImage.length - 1].toLowerCase().replace(' ', '');
 
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);

@@ -19,8 +19,8 @@ using StringTools;
 
 class EditorLua
 {
-	public static var Function_Stop = 1;
-	public static var Function_Continue = 0;
+	public static var Function_Stop:Int = 1;
+	public static var Function_Continue:Int = 0;
 
 	#if FEATURE_LUA
 	public var lua:State = null;
@@ -76,7 +76,7 @@ class EditorLua
 		set('middlescroll', OptionUtils.options.middleScroll);
 
 		// stuff 4 noobz like you B)
-		Lua_helper.add_callback(lua, "getProperty", function(variable:String)
+		Lua_helper.add_callback(lua, "getProperty", function(variable:String):Dynamic
 		{
 			var killMe:Array<String> = variable.split('.');
 			if (killMe.length > 1)
@@ -91,7 +91,7 @@ class EditorLua
 			}
 			return Reflect.getProperty(EditorPlayState.instance, variable);
 		});
-		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic)
+		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic):Void
 		{
 			var killMe:Array<String> = variable.split('.');
 			if (killMe.length > 1)
@@ -106,7 +106,7 @@ class EditorLua
 			}
 			return Reflect.setProperty(EditorPlayState.instance, variable, value);
 		});
-		Lua_helper.add_callback(lua, "getPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic)
+		Lua_helper.add_callback(lua, "getPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic):Dynamic
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
@@ -124,7 +124,7 @@ class EditorLua
 			}
 			return null;
 		});
-		Lua_helper.add_callback(lua, "setPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic, value:Dynamic)
+		Lua_helper.add_callback(lua, "setPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic, value:Dynamic):Void
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
@@ -141,11 +141,11 @@ class EditorLua
 				return Reflect.setProperty(leArray, variable, value);
 			}
 		});
-		Lua_helper.add_callback(lua, "removeFromGroup", function(obj:String, index:Int, dontDestroy:Bool = false)
+		Lua_helper.add_callback(lua, "removeFromGroup", function(obj:String, index:Int, dontDestroy:Bool = false):Void
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
-				var sex = Reflect.getProperty(EditorPlayState.instance, obj).members[index];
+				var sex:Dynamic = Reflect.getProperty(EditorPlayState.instance, obj).members[index];
 				if (!dontDestroy)
 					sex.kill();
 				Reflect.getProperty(EditorPlayState.instance, obj).remove(sex, true);
@@ -156,14 +156,14 @@ class EditorLua
 			Reflect.getProperty(EditorPlayState.instance, obj).remove(Reflect.getProperty(EditorPlayState.instance, obj)[index]);
 		});
 
-		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String)
+		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String):Int
 		{
 			if (!color.startsWith('0x'))
 				color = '0xff' + color;
 			return Std.parseInt(color);
 		});
 
-		Lua_helper.add_callback(lua, "setGraphicSize", function(obj:String, x:Int, y:Int = 0)
+		Lua_helper.add_callback(lua, "setGraphicSize", function(obj:String, x:Int, y:Int = 0):Void
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)
@@ -173,7 +173,7 @@ class EditorLua
 				return;
 			}
 		});
-		Lua_helper.add_callback(lua, "scaleObject", function(obj:String, x:Float, y:Float)
+		Lua_helper.add_callback(lua, "scaleObject", function(obj:String, x:Float, y:Float):Void
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)
@@ -183,7 +183,7 @@ class EditorLua
 				return;
 			}
 		});
-		Lua_helper.add_callback(lua, "updateHitbox", function(obj:String)
+		Lua_helper.add_callback(lua, "updateHitbox", function(obj:String):Void
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)
@@ -238,7 +238,7 @@ class EditorLua
 	}
 
 	#if FEATURE_LUA
-	function resultIsAllowed(leLua:State, leResult:Null<Int>)
+	function resultIsAllowed(leLua:State, leResult:Null<Int>):Bool
 	{ // Makes it ignore warnings
 		switch (Lua.type(leLua, leResult))
 		{
@@ -249,7 +249,7 @@ class EditorLua
 	}
 	#end
 
-	public function set(variable:String, data:Dynamic)
+	public function set(variable:String, data:Dynamic):Void
 	{
 		#if FEATURE_LUA
 		if (lua == null)
@@ -263,7 +263,7 @@ class EditorLua
 	}
 
 	#if FEATURE_LUA
-	public function getBool(variable:String)
+	public function getBool(variable:String):Bool
 	{
 		var result:String = null;
 		Lua.getglobal(lua, variable);
@@ -281,7 +281,7 @@ class EditorLua
 	}
 	#end
 
-	public function stop()
+	public function stop():Void
 	{
 		#if FEATURE_LUA
 		if (lua == null)

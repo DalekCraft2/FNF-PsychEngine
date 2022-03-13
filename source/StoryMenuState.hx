@@ -6,6 +6,7 @@ import Discord.DiscordClient;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
@@ -51,6 +52,16 @@ class StoryMenuState extends MusicBeatState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
+		#if FEATURE_DISCORD
+		// Updating Discord Rich Presence
+		DiscordClient.changePresence("In the Menus", null);
+		#end
+
+		if (!FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
+
 		PlayState.isStoryMode = true;
 		Week.reloadWeekData(true);
 		if (curWeek >= Week.weeksList.length)
@@ -70,7 +81,7 @@ class StoryMenuState extends MusicBeatState
 		rankText.size = scoreText.size;
 		rankText.screenCenter(X);
 
-		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
+		var ui_tex:FlxAtlasFrames = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 		bgSprite = new FlxSprite(0, 56);
 		bgSprite.antialiasing = OptionUtils.options.globalAntialiasing;
@@ -85,11 +96,6 @@ class StoryMenuState extends MusicBeatState
 
 		grpLocks = new FlxTypedGroup<FlxSprite>();
 		add(grpLocks);
-
-		#if FEATURE_DISCORD
-		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
-		#end
 
 		var num:Int = 0;
 		for (i in 0...Week.weeksList.length)
@@ -206,8 +212,8 @@ class StoryMenuState extends MusicBeatState
 
 		if (!movedBack && !selectedWeek)
 		{
-			var upP = controls.UI_UP_P;
-			var downP = controls.UI_DOWN_P;
+			var upP:Bool = controls.UI_UP_P;
+			var downP:Bool = controls.UI_DOWN_P;
 			if (upP)
 			{
 				changeWeek(-1);
@@ -258,7 +264,7 @@ class StoryMenuState extends MusicBeatState
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			movedBack = true;
-			MusicBeatState.switchState(new MainMenuState());
+			FlxG.switchState(new MainMenuState());
 		}
 
 		super.update(elapsed);
@@ -303,7 +309,7 @@ class StoryMenuState extends MusicBeatState
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
-			var difficulty = CoolUtil.getDifficultyFilePath(curDifficulty);
+			var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 			if (difficulty == null)
 				difficulty = '';
 
@@ -311,6 +317,10 @@ class StoryMenuState extends MusicBeatState
 
 			PlayState.song = Song.loadFromJson(PlayState.storyPlaylist[0], difficulty);
 			PlayState.campaignScore = 0;
+			PlayState.campaignSicks = 0;
+			PlayState.campaignGoods = 0;
+			PlayState.campaignBads = 0;
+			PlayState.campaignShits = 0;
 			PlayState.campaignMisses = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{

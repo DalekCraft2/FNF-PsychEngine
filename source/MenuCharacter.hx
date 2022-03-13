@@ -27,7 +27,7 @@ class MenuCharacter extends FlxSprite
 		changeCharacter(character);
 	}
 
-	public function changeCharacter(?character:String = 'bf')
+	public function changeCharacter(?character:String = 'bf'):Void
 	{
 		if (character == null)
 			character = '';
@@ -51,7 +51,7 @@ class MenuCharacter extends FlxSprite
 			default:
 				var characterPath:String = 'menucharacters/$character';
 
-				var rawJson = Paths.loadJson(characterPath);
+				var rawJson:Dynamic = Paths.loadJson(characterPath);
 				if (rawJson == null)
 				{
 					rawJson = Paths.loadJson('menucharacters/$DEFAULT_CHARACTER');

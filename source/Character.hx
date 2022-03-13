@@ -48,6 +48,7 @@ class Character extends FlxSprite
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
+	// TODO Figure out what the below variable is
 	public var animationNotes:Array<Dynamic> = [];
 	public var stunned:Bool = false;
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose
@@ -103,18 +104,18 @@ class Character extends FlxSprite
 		}
 	}
 
-	function parseDataFile()
+	function parseDataFile():Void
 	{
 		var characterPath:String = 'characters/$curCharacter';
 
-		var rawJson = Paths.loadJson(characterPath);
+		var rawJson:Dynamic = Paths.loadJson(characterPath);
 		if (rawJson == null)
 		{
 			rawJson = Paths.loadJson('characters/$DEFAULT_CHARACTER');
 		}
 
 		var characterData:CharacterData = cast rawJson;
-		var spriteType = "sparrow";
+		var spriteType:String = "sparrow";
 		// sparrow
 		// packer
 		// texture
@@ -219,7 +220,7 @@ class Character extends FlxSprite
 		Debug.logTrace('Loaded data file for character "$curCharacter"');
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (!debugMode && animation.curAnim != null)
 		{
@@ -269,7 +270,7 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance()
+	public function dance():Void
 	{
 		if (!debugMode && !specialAnim)
 		{
@@ -294,7 +295,7 @@ class Character extends FlxSprite
 		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
 
-		var daOffset = animOffsets.get(AnimName);
+		var daOffset:Array<Float> = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
 		{
 			offset.set(daOffset[0], daOffset[1]);
@@ -328,7 +329,7 @@ class Character extends FlxSprite
 
 	private var settingCharacterUp:Bool = true;
 
-	public function recalculateDanceIdle()
+	public function recalculateDanceIdle():Void
 	{
 		var lastDanceIdle:Bool = danceIdle;
 		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
@@ -350,12 +351,12 @@ class Character extends FlxSprite
 		settingCharacterUp = false;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
+	public function addOffset(name:String, x:Float = 0, y:Float = 0):Void
 	{
 		animOffsets[name] = [x, y];
 	}
 
-	public function quickAnimAdd(name:String, anim:String)
+	public function quickAnimAdd(name:String, anim:String):Void
 	{
 		animation.addByPrefix(name, anim, 24, false);
 	}

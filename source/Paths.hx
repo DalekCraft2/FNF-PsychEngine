@@ -4,6 +4,7 @@ import flash.media.Sound;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.system.FlxAssets.FlxSoundAsset;
 import haxe.Json;
 import openfl.system.System;
 import openfl.utils.Assets;
@@ -19,8 +20,8 @@ using StringTools;
 
 class Paths
 {
-	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
-	inline public static var VIDEO_EXT = "mp4";
+	inline public static var SOUND_EXT:String = #if web "mp3" #else "ogg" #end;
+	inline public static var VIDEO_EXT:String = "mp4";
 
 	#if FEATURE_MODS
 	public static var ignoreModFolders:Array<String> = [
@@ -28,7 +29,7 @@ class Paths
 	];
 	#end
 
-	public static function excludeAsset(key:String)
+	public static function excludeAsset(key:String):Void
 	{
 		if (!dumpExclusions.contains(key))
 			dumpExclusions.push(key);
@@ -41,7 +42,7 @@ class Paths
 	];
 
 	/// haya I love you for the base cache dump I took to the max
-	public static function clearUnusedMemory()
+	public static function clearUnusedMemory():Void
 	{
 		// clear non local assets in the tracked assets list
 		for (key in currentTrackedAssets.keys())
@@ -50,7 +51,7 @@ class Paths
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
 			{
 				// get rid of it
-				var obj = currentTrackedAssets.get(key);
+				var obj:FlxGraphic = currentTrackedAssets.get(key);
 				@:privateAccess
 				if (obj != null)
 				{
@@ -68,13 +69,13 @@ class Paths
 	// define the locally tracked assets
 	public static var localTrackedAssets:Array<String> = [];
 
-	public static function clearStoredMemory(?cleanUnused:Bool = false)
+	public static function clearStoredMemory(?cleanUnused:Bool = false):Void
 	{
 		// clear anything not in the tracked assets list
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
-			var obj = FlxG.bitmap._cache.get(key);
+			var obj:FlxGraphic = FlxG.bitmap._cache.get(key);
 			if (obj != null && !currentTrackedAssets.exists(key))
 			{
 				Assets.cache.removeBitmapData(key);
@@ -101,12 +102,12 @@ class Paths
 	static public var currentModDirectory:String = '';
 	static public var currentLevel:String;
 
-	static public function setCurrentLevel(name:String)
+	static public function setCurrentLevel(name:String):Void
 	{
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null)
+	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null):String
 	{
 		if (library != null)
 			return getLibraryPath(file, library);
@@ -173,57 +174,57 @@ class Paths
 		}
 	}
 
-	static public function getLibraryPath(file:String, library = "preload")
+	static public function getLibraryPath(file:String, library = "preload"):String
 	{
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
 	}
 
-	inline static function getLibraryPathForce(file:String, library:String)
+	inline static function getLibraryPathForce(file:String, library:String):String
 	{
 		return '$library:assets/$library/$file';
 	}
 
-	inline public static function getPreloadPath(file:String = '')
+	inline public static function getPreloadPath(file:String = ''):String
 	{
 		return 'assets/$file';
 	}
 
-	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
+	inline static public function file(file:String, type:AssetType = TEXT, ?library:String):String
 	{
 		return getPath(file, type, library);
 	}
 
-	inline static public function txt(key:String, ?library:String)
+	inline static public function txt(key:String, ?library:String):String
 	{
 		return getPath('data/$key.txt', TEXT, library);
 	}
 
-	inline static public function xml(key:String, ?library:String)
+	inline static public function xml(key:String, ?library:String):String
 	{
 		return getPath('data/$key.xml', TEXT, library);
 	}
 
-	inline static public function json(key:String, ?library:String)
+	inline static public function json(key:String, ?library:String):String
 	{
 		return getPath('data/$key.json', TEXT, library);
 	}
 
-	inline static public function shaderFragment(key:String, ?library:String)
+	inline static public function shaderFragment(key:String, ?library:String):String
 	{
 		return getPath('shaders/$key.frag', TEXT, library);
 	}
 
-	inline static public function shaderVertex(key:String, ?library:String)
+	inline static public function shaderVertex(key:String, ?library:String):String
 	{
 		return getPath('shaders/$key.vert', TEXT, library);
 	}
 
-	inline static public function lua(key:String, ?library:String)
+	inline static public function lua(key:String, ?library:String):String
 	{
 		return getPath('$key.lua', TEXT, library);
 	}
 
-	static public function video(key:String)
+	static public function video(key:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsVideo(key);
@@ -235,40 +236,40 @@ class Paths
 		return 'assets/videos/$key.$VIDEO_EXT';
 	}
 
-	static public function sound(key:String, ?library:String):Sound
+	// Whose idea was it to make the sound and music methods return actual sound objects instead of paths like almost every other method?
+	static public function sound(key:String, ?library:String):FlxSoundAsset
 	{
+		// return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
 		return returnSound('sounds', key, library);
 	}
 
-	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
+	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
 	{
-		return sound('$key${FlxG.random.int(min, max)}', library);
+		return returnSound('$key${FlxG.random.int(min, max)}', library);
 	}
 
-	inline static public function music(key:String, ?library:String):Sound
+	inline static public function music(key:String, ?library:String):FlxSoundAsset
 	{
+		// return getPath('music/$key.$SOUND_EXT', MUSIC, library);
 		return returnSound('music', key, library);
 	}
 
-	inline static public function voices(song:String):Any
+	inline static public function voices(song:String):FlxSoundAsset
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
-		var voices = returnSound('songs', songKey);
-		return voices;
+		return returnSound('songs', songKey);
 	}
 
-	inline static public function inst(song:String):Any
+	inline static public function inst(song:String):FlxSoundAsset
 	{
 		var songKey:String = '${formatToSongPath(song)}/Inst';
-		var inst = returnSound('songs', songKey);
-		return inst;
+		return returnSound('songs', songKey);
 	}
 
 	inline static public function image(key:String, ?library:String):FlxGraphic
 	{
 		// streamlined the assets process more
-		var returnAsset:FlxGraphic = returnGraphic(key, library);
-		return returnAsset;
+		return returnGraphic(key, library);
 	}
 
 	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
@@ -300,7 +301,7 @@ class Paths
 		return Assets.getText(getPath(key, TEXT));
 	}
 
-	inline static public function font(key:String)
+	inline static public function font(key:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsFont(key);
@@ -312,7 +313,7 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String):Bool
 	{
 		#if FEATURE_MODS
 		if (FileSystem.exists(mods('$currentModDirectory/$key')) || FileSystem.exists(mods(key)))
@@ -345,7 +346,7 @@ class Paths
 		#end
 	}
 
-	inline static public function getPackerAtlas(key:String, ?library:String)
+	inline static public function getPackerAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if FEATURE_MODS
 		var imageLoaded:FlxGraphic = returnGraphic(key);
@@ -362,7 +363,7 @@ class Paths
 		#end
 	}
 
-	inline static public function formatToSongPath(path:String)
+	inline static public function formatToSongPath(path:String):String
 	{
 		return path.toLowerCase().replace(' ', '-');
 	}
@@ -370,7 +371,7 @@ class Paths
 	// completely rewritten asset loading? fuck!
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
 
-	public static function returnGraphic(key:String, ?library:String)
+	public static function returnGraphic(key:String, ?library:String):FlxGraphic
 	{
 		#if FEATURE_MODS
 		var modKey:String = modsImages(key);
@@ -387,7 +388,7 @@ class Paths
 		}
 		#end
 
-		var path = getPath('images/$key.png', IMAGE, library);
+		var path:String = getPath('images/$key.png', IMAGE, library);
 		if (Assets.exists(path, IMAGE))
 		{
 			if (!currentTrackedAssets.exists(path))
@@ -402,9 +403,9 @@ class Paths
 		return null;
 	}
 
-	public static var currentTrackedSounds:Map<String, Sound> = [];
+	public static var currentTrackedSounds:Map<String, FlxSoundAsset> = [];
 
-	public static function returnSound(path:String, key:String, ?library:String)
+	public static function returnSound(path:String, key:String, ?library:String):FlxSoundAsset
 	{
 		#if FEATURE_MODS
 		var file:String = modsSounds(path, key);
@@ -437,57 +438,57 @@ class Paths
 	}
 
 	#if FEATURE_MODS
-	inline static public function mods(key:String = '')
+	inline static public function mods(key:String = ''):String
 	{
 		return 'mods/$key';
 	}
 
-	inline static public function modsFont(key:String)
+	inline static public function modsFont(key:String):String
 	{
 		return modFolders('fonts/$key');
 	}
 
-	inline static public function modsJson(key:String)
+	inline static public function modsJson(key:String):String
 	{
 		return modFolders('data/$key.json');
 	}
 
-	inline static public function modsVideo(key:String)
+	inline static public function modsVideo(key:String):String
 	{
 		return modFolders('videos/$key.$VIDEO_EXT');
 	}
 
-	inline static public function modsSounds(path:String, key:String)
+	inline static public function modsSounds(path:String, key:String):String
 	{
 		return modFolders('$path/$key.$SOUND_EXT');
 	}
 
-	inline static public function modsImages(key:String)
+	inline static public function modsImages(key:String):String
 	{
 		return modFolders('images/$key.png');
 	}
 
-	inline static public function modsXml(key:String)
+	inline static public function modsXml(key:String):String
 	{
 		return modFolders('images/$key.xml');
 	}
 
-	inline static public function modsTxt(key:String)
+	inline static public function modsTxt(key:String):String
 	{
 		return modFolders('images/$key.txt');
 	}
 
-	inline static public function modsShaderFragment(key:String)
+	inline static public function modsShaderFragment(key:String):String
 	{
 		return modFolders('shaders/$key.frag');
 	}
 
-	inline static public function modsShaderVertex(key:String)
+	inline static public function modsShaderVertex(key:String):String
 	{
 		return modFolders('shaders/$key.vert');
 	}
 
-	static public function modFolders(key:String)
+	static public function modFolders(key:String):String
 	{
 		if (currentModDirectory != null && currentModDirectory.length > 0)
 		{
@@ -508,7 +509,7 @@ class Paths
 		{
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
-				var path = Path.join([modsFolder, folder]);
+				var path:String = Path.join([modsFolder, folder]);
 				if (FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder) && !list.contains(folder))
 				{
 					list.push(folder);

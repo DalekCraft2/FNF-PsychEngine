@@ -18,7 +18,7 @@ class AttachedText extends Alphabet
 		this.offsetY = offsetY;
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (sprTracker != null)
 		{

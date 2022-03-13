@@ -5,7 +5,7 @@ class OptionCategory extends Option
 	public var options:Array<Option> = new Array<Option>();
 	public var curSelected:Int = 0;
 
-	public function addOption(opt:Option)
+	public function addOption(opt:Option):Void
 	{
 		if (opt.parent != null)
 		{
@@ -15,7 +15,7 @@ class OptionCategory extends Option
 		options.push(opt);
 	}
 
-	public function delOption(opt:Option)
+	public function delOption(opt:Option):Void
 	{
 		opt.parent = null;
 		options.remove(opt);

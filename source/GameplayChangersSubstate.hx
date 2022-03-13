@@ -19,7 +19,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
-	function getOptions()
+	function getOptions():Void
 	{
 		var goption:GameplayOption = new GameplayOption('Scroll Type', 'scrollType', 'string', 'multiplicative', ["multiplicative", "constant"]);
 		optionsArray.push(goption);
@@ -74,7 +74,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		optionsArray.push(option);
 	}
 
-	public function getOptionByName(name:String)
+	public function getOptionByName(name:String):GameplayOption
 	{
 		for (opt in optionsArray)
 		{
@@ -144,7 +144,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 	var holdTime:Float = 0;
 	var holdValue:Float = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (controls.UI_UP_P)
 		{
@@ -189,7 +189,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 					{
 						if (pressed)
 						{
-							var add:Float = null;
+							var add:Null<Float> = null;
 							if (curOption.type != 'string')
 							{
 								add = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
@@ -331,7 +331,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		super.update(elapsed);
 	}
 
-	function updateTextFrom(option:GameplayOption)
+	function updateTextFrom(option:GameplayOption):Void
 	{
 		var text:String = option.displayFormat;
 		var val:Dynamic = option.getValue();
@@ -341,7 +341,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
-	function clearHold()
+	function clearHold():Void
 	{
 		if (holdTime > 0.5)
 		{
@@ -350,7 +350,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		holdTime = 0;
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -383,7 +383,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	function reloadCheckboxes()
+	function reloadCheckboxes():Void
 	{
 		for (checkbox in checkboxGroup)
 		{
@@ -413,8 +413,8 @@ class GameplayOption
 	public var curOption:Int = 0; // Don't change this
 	public var options:Array<String> = null; // Only used in string type
 	public var changeValue:Float = 1; // Only used in int/float/percent type, how much is changed when you PRESS
-	public var minValue:Float = null; // Only used in int/float/percent type
-	public var maxValue:Float = null; // Only used in int/float/percent type
+	public var minValue:Null<Float> = null; // Only used in int/float/percent type
+	public var maxValue:Null<Float> = null; // Only used in int/float/percent type
 	public var decimals:Int = 1; // Only used in float/percent type
 
 	public var displayFormat:String = '%v'; // How String/Float/Percent/Int values are shown, %v = Current value, %d = Default value
@@ -471,7 +471,7 @@ class GameplayOption
 		}
 	}
 
-	public function change()
+	public function change():Void
 	{
 		// nothing lol
 		if (onChange != null)
@@ -485,17 +485,17 @@ class GameplayOption
 		return ClientPrefs.gameplaySettings.get(variable);
 	}
 
-	public function setValue(value:Dynamic)
+	public function setValue(value:Dynamic):Void
 	{
 		ClientPrefs.gameplaySettings.set(variable, value);
 	}
 
-	public function setChild(child:Alphabet)
+	public function setChild(child:Alphabet):Void
 	{
 		this.child = child;
 	}
 
-	private function get_text()
+	private function get_text():String
 	{
 		if (child != null)
 		{
@@ -504,16 +504,17 @@ class GameplayOption
 		return null;
 	}
 
-	private function set_text(newValue:String = '')
+	private function set_text(newValue:String = ''):String
 	{
 		if (child != null)
 		{
 			child.changeText(newValue);
+			return child.text;
 		}
 		return null;
 	}
 
-	private function get_type()
+	private function get_type():String
 	{
 		var newValue:String = 'bool';
 		switch (type.toLowerCase().trim())

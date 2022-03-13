@@ -2,23 +2,24 @@ package;
 
 import Controls;
 import flixel.FlxG;
+import flixel.input.gamepad.FlxGamepad;
 import flixel.util.FlxSignal.FlxTypedSignal;
 
 // import ui.DeviceManager;
 // import props.Player;
 class PlayerSettings
 {
-	static public var numPlayers(default, null) = 0;
-	static public var numAvatars(default, null) = 0;
+	static public var numPlayers(default, null):Int = 0;
+	static public var numAvatars(default, null):Int = 0;
 	static public var player1(default, null):PlayerSettings;
 	static public var player2(default, null):PlayerSettings;
 
 	#if (haxe >= "4.0.0")
-	static public final onAvatarAdd = new FlxTypedSignal<PlayerSettings->Void>();
-	static public final onAvatarRemove = new FlxTypedSignal<PlayerSettings->Void>();
+	static public final onAvatarAdd:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
+	static public final onAvatarRemove:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
 	#else
-	static public var onAvatarAdd = new FlxTypedSignal<PlayerSettings->Void>();
-	static public var onAvatarRemove = new FlxTypedSignal<PlayerSettings->Void>();
+	static public var onAvatarAdd:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
+	static public var onAvatarRemove:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
 	#end
 
 	public var id(default, null):Int;
@@ -38,7 +39,7 @@ class PlayerSettings
 		this.controls = new Controls('player$id', scheme);
 	}
 
-	public function setKeyboardScheme(scheme)
+	public function setKeyboardScheme(scheme):Void
 	{
 		controls.setKeyboardScheme(scheme);
 	}
@@ -118,14 +119,14 @@ class PlayerSettings
 	{
 		if (player1 == null)
 		{
-			player1 = new PlayerSettings(0, Custom);
+			player1 = new PlayerSettings(0, CUSTOM);
 			++numPlayers;
 		}
 
-		var numGamepads = FlxG.gamepads.numActiveGamepads;
+		var numGamepads:Int = FlxG.gamepads.numActiveGamepads;
 		if (numGamepads > 0)
 		{
-			var gamepad = FlxG.gamepads.getByID(0);
+			var gamepad:FlxGamepad = FlxG.gamepads.getByID(0);
 			if (gamepad == null)
 				throw 'Unexpected null gamepad. id:0';
 
@@ -136,11 +137,11 @@ class PlayerSettings
 		{
 			if (player2 == null)
 			{
-				player2 = new PlayerSettings(1, None);
+				player2 = new PlayerSettings(1, NONE);
 				++numPlayers;
 			}
 
-			var gamepad = FlxG.gamepads.getByID(1);
+			var gamepad:FlxGamepad = FlxG.gamepads.getByID(1);
 			if (gamepad == null)
 				throw 'Unexpected null gamepad. id:0';
 
@@ -150,7 +151,7 @@ class PlayerSettings
 		// DeviceManager.init();
 	}
 
-	static public function reset()
+	static public function reset():Void
 	{
 		player1 = null;
 		player2 = null;

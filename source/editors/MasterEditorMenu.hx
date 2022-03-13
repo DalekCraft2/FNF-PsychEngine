@@ -24,11 +24,11 @@ class MasterEditorMenu extends MusicBeatState
 	private var grpTexts:FlxTypedGroup<Alphabet>;
 	private var directories:Array<String> = [null];
 
-	private var curSelected = 0;
-	private var curDirectory = 0;
+	private var curSelected:Int = 0;
+	private var curDirectory:Int = 0;
 	private var directoryTxt:FlxText;
 
-	override function create()
+	override function create():Void
 	{
 		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if FEATURE_DISCORD
@@ -78,7 +78,7 @@ class MasterEditorMenu extends MusicBeatState
 		super.create();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (controls.UI_UP_P)
 		{
@@ -101,7 +101,7 @@ class MasterEditorMenu extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			MusicBeatState.switchState(new MainMenuState());
+			FlxG.switchState(new MainMenuState());
 		}
 
 		if (controls.ACCEPT)
@@ -111,9 +111,9 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
 				case 'Week Editor':
-					MusicBeatState.switchState(new WeekEditorState());
+					FlxG.switchState(new WeekEditorState());
 				case 'Menu Character Editor':
-					MusicBeatState.switchState(new MenuCharacterEditorState());
+					FlxG.switchState(new MenuCharacterEditorState());
 				case 'Dialogue Portrait Editor':
 					LoadingState.loadAndSwitchState(new DialogueCharacterEditorState(), false);
 				case 'Dialogue Editor':
@@ -145,7 +145,7 @@ class MasterEditorMenu extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
@@ -158,7 +158,7 @@ class MasterEditorMenu extends MusicBeatState
 	}
 
 	#if FEATURE_MODS
-	function changeDirectory(change:Int = 0)
+	function changeDirectory(change:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 

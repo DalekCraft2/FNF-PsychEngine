@@ -1,23 +1,26 @@
-#if FEATURE_STEPMANIA
 package smTools;
 
+using StringTools;
+
+#if FEATURE_STEPMANIA
 class SMHeader
 {
 	private var _header:Array<String>;
 
-	public var TITLE = "";
-	public var SUBTITLE = "";
-	public var ARTIST = "";
-	public var GENRE = "";
-	public var CREDIT = "";
-	public var MUSIC = "";
-	public var BANNER = "";
-	public var BACKGROUND = "";
-	public var CDTITLE = "";
-	public var OFFSET = "";
-	public var BPMS = ""; // time=bpm
+	public var TITLE:String = "";
+	public var SUBTITLE:String = "";
+	public var ARTIST:String = "";
+	public var GENRE:String = "";
+	public var CREDIT:String = "";
+	public var MUSIC:String = "";
+	public var BANNER:String = "";
+	public var BACKGROUND:String = "";
+	public var CDTITLE:String = "";
+	public var OFFSET:String = "";
+	public var BPMS:String = ""; // time=bpm
 
-	public var changeEvents:Array<Song.Event>;
+	// public var changeEvents:Array<Song.Event>;
+	public var changeEvents:Array<Dynamic>;
 
 	public function new(headerData:Array<String>)
 	{
@@ -30,7 +33,7 @@ class SMHeader
 
 		Debug.logTrace(BPMS);
 
-		MUSIC = StringTools.replace(MUSIC, " ", "_");
+		MUSIC = MUSIC.replace(" ", "_");
 
 		changeEvents = [];
 
@@ -39,27 +42,27 @@ class SMHeader
 
 	public function getBeatFromBPMIndex(index):Float
 	{
-		var bpmSplit = BPMS.split(',');
-		var beat = 0;
+		var bpmSplit:Array<String> = BPMS.split(',');
+		var beat:Int = 0;
 		for (ii in 0...bpmSplit.length)
 		{
 			if (ii == index)
-				return Std.parseFloat(StringTools.replace(bpmSplit[ii].split('=')[0], ",", ""));
+				return Std.parseFloat(bpmSplit[ii].split('=')[0].replace(",", ""));
 		}
 		return 0.0;
 	}
 
 	public function getBPM(beat:Float, printAllBpms:Bool = false)
 	{
-		var bpmSplit = BPMS.split(',');
+		var bpmSplit:Array<String> = BPMS.split(',');
 		if (printAllBpms)
 		{
 			TimingStruct.clearTimings();
-			var currentIndex = 0;
+			var currentIndex:Int = 0;
 			for (i in bpmSplit)
 			{
 				var bpm:Float = Std.parseFloat(i.split('=')[1]);
-				var beat:Float = Std.parseFloat(StringTools.replace(i.split('=')[0], ",", ""));
+				var beat:Float = Std.parseFloat(i.split('=')[0].replace(",", ""));
 
 				var endBeat:Float = Math.POSITIVE_INFINITY;
 
@@ -67,15 +70,16 @@ class SMHeader
 
 				if (changeEvents.length != 0)
 				{
-					var data = TimingStruct.AllTimings[currentIndex - 1];
+					var data:TimingStruct = TimingStruct.AllTimings[currentIndex - 1];
 					data.endBeat = beat;
 					data.length = (data.endBeat - data.startBeat) / (data.bpm / 60);
-					var step = ((60 / data.bpm) * 1000) / 4;
+					var step:Float = ((60 / data.bpm) * 1000) / 4;
 					TimingStruct.AllTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.bpm / 60)) * 1000) / step);
 					TimingStruct.AllTimings[currentIndex].startTime = data.startTime + data.length;
 				}
 
-				changeEvents.push(new Song.Event(HelperFunctions.truncateFloat(beat, 0) + "SM", beat, bpm, "BPM Change"));
+				// TODO Maybe make an Event object so it's easier to do stuff like this
+				// changeEvents.push(new Song.Event(HelperFunctions.truncateFloat(beat, 0) + "SM", beat, bpm, "BPM Change"));
 
 				if (bpmSplit.length == 1)
 					break;
@@ -85,11 +89,11 @@ class SMHeader
 			Debug.logTrace('${changeEvents.length} - BPM CHANGES');
 			return 0.0;
 		}
-		var returningBPM = Std.parseFloat(bpmSplit[0].split('=')[1]);
+		var returningBPM:Float = Std.parseFloat(bpmSplit[0].split('=')[1]);
 		for (i in bpmSplit)
 		{
 			var bpm:Float = Std.parseFloat(i.split('=')[1]);
-			var beatt:Float = Std.parseFloat(StringTools.replace(i.split('=')[0], ",", ""));
+			var beatt:Float = Std.parseFloat(i.split('=')[0].replace(",", ""));
 			if (beatt <= beat)
 				returningBPM = bpm;
 		}
@@ -98,9 +102,9 @@ class SMHeader
 
 	function readHeaderLine(line:String)
 	{
-		var propName = line.split('#')[1].split(':')[0];
-		var value = line.split(':')[1].split(';')[0];
-		var prop = Reflect.getProperty(this, propName);
+		var propName:String = line.split('#')[1].split(':')[0];
+		var value:String = line.split(':')[1].split(';')[0];
+		var prop:Dynamic = Reflect.getProperty(this, propName);
 
 		if (prop != null)
 		{

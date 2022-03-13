@@ -29,7 +29,7 @@ class TileContainerMovieClip extends TileContainer
 		addTile(this.symbol);
 	}
 
-	public function update(dt:Int)
+	public function update(dt:Int):Void
 	{
 		var frameDuration:Float = 1000 / framerate;
 		frameElapsed += dt;

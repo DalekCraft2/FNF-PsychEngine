@@ -18,14 +18,14 @@ class JudgeCustomizationState extends MusicBeatState
 	var defaultPos:FlxPoint;
 	var draggingJudge:Bool = false;
 
-	override function destroy()
+	override function destroy():Void
 	{
 		defaultPos.put();
 		judgePlacementPos.put();
 		return super.destroy();
 	}
 
-	override function create()
+	override function create():Void
 	{
 		super.create();
 		FlxG.mouse.visible = true;
@@ -90,7 +90,7 @@ class JudgeCustomizationState extends MusicBeatState
 	var prevComboNums:Array<String> = [];
 	var comboSprites:Array<FlxSprite> = [];
 
-	private function showCombo(combo:Int = 100)
+	private function showCombo(combo:Int = 100):Void
 	{
 		var seperatedScore:Array<String> = Std.string(combo).split("");
 
@@ -141,7 +141,7 @@ class JudgeCustomizationState extends MusicBeatState
 
 			add(numScore);
 			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
-				onComplete: function(tween:FlxTween)
+				onComplete: function(tween:FlxTween):Void
 				{
 					numScore.destroy();
 				},
@@ -160,10 +160,10 @@ class JudgeCustomizationState extends MusicBeatState
 	var mouseX:Float;
 	var mouseY:Float;
 
-	override function update(elapsed)
+	override function update(elapsed):Void
 	{
-		var deltaX = mouseX - FlxG.mouse.screenX;
-		var deltaY = mouseY - FlxG.mouse.screenY;
+		var deltaX:Float = mouseX - FlxG.mouse.screenX;
+		var deltaY:Float = mouseY - FlxG.mouse.screenY;
 		mouseX = FlxG.mouse.screenX;
 		mouseY = FlxG.mouse.screenY;
 		if (FlxG.keys.justPressed.ESCAPE || FlxG.keys.justPressed.ENTER)

@@ -44,7 +44,7 @@ class CreditsState extends MusicBeatState
 
 	var offsetThing:Float = -75;
 
-	override function create()
+	override function create():Void
 	{
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
@@ -103,7 +103,7 @@ class CreditsState extends MusicBeatState
 
 		for (i in 0...creditsStuff.length)
 		{
-			var credit = creditsStuff[i];
+			var credit:Array<String> = creditsStuff[i];
 			var isSelectable:Bool = !unselectableCheck(i);
 			var optionText:Alphabet = new Alphabet(0, 70 * i, credit[0], !isSelectable, false);
 
@@ -158,7 +158,7 @@ class CreditsState extends MusicBeatState
 	var quitting:Bool = false;
 	var holdTime:Float = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (FlxG.sound.music.volume < 0.7)
 		{
@@ -173,8 +173,8 @@ class CreditsState extends MusicBeatState
 				if (FlxG.keys.pressed.SHIFT)
 					shiftMult = 3;
 
-				var upP = controls.UI_UP_P;
-				var downP = controls.UI_DOWN_P;
+				var upP:Bool = controls.UI_UP_P;
+				var downP:Bool = controls.UI_DOWN_P;
 
 				if (upP)
 				{
@@ -211,7 +211,7 @@ class CreditsState extends MusicBeatState
 					colorTween.cancel();
 				}
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(new MainMenuState());
 				quitting = true;
 			}
 		}
@@ -240,7 +240,7 @@ class CreditsState extends MusicBeatState
 
 	var moveTween:FlxTween = null;
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 		do
@@ -262,7 +262,7 @@ class CreditsState extends MusicBeatState
 			}
 			intendedColor = newColor;
 			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
-				onComplete: function(twn:FlxTween)
+				onComplete: function(twn:FlxTween):Void
 				{
 					colorTween = null;
 				}
@@ -300,7 +300,7 @@ class CreditsState extends MusicBeatState
 	#if FEATURE_MODS
 	private var modsAdded:Array<String> = [];
 
-	function pushModCreditsToList(folder:String)
+	function pushModCreditsToList(folder:String):Void
 	{
 		if (modsAdded.contains(folder))
 			return;
@@ -327,7 +327,7 @@ class CreditsState extends MusicBeatState
 	}
 	#end
 
-	function getCurrentBGColor()
+	function getCurrentBGColor():Int
 	{
 		var bgColor:String = creditsStuff[curSelected][4];
 		if (!bgColor.startsWith('0x'))

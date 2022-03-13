@@ -13,7 +13,7 @@ using StringTools;
 typedef WeekData =
 {
 	// JSON variables
-	var songs:Array<Dynamic>;
+	var songs:Array<Array<Dynamic>>;
 	var weekCharacters:Array<String>;
 	var weekBackground:String;
 	var weekBefore:String;
@@ -35,7 +35,7 @@ class Week
 	public var folder:String = '';
 
 	// JSON variables
-	public var songs:Array<Dynamic>;
+	public var songs:Array<Array<Dynamic>>;
 	public var weekCharacters:Array<String>;
 	public var weekBackground:String;
 	public var weekBefore:String;
@@ -92,7 +92,7 @@ class Week
 		this.fileName = fileName;
 	}
 
-	public static function reloadWeekData(isStoryMode:Null<Bool> = false)
+	public static function reloadWeekData(isStoryMode:Null<Bool> = false):Void
 	{
 		weeksList = [];
 		weeksLoaded.clear();
@@ -113,7 +113,7 @@ class Week
 				else // Sort mod loading order based on modsList.txt file
 				{
 					// TODO Maybe use the Path class as an object more often instead of Strings
-					var path = Path.join([Paths.mods(), splitName[0]]);
+					var path:String = Path.join([Paths.mods(), splitName[0]]);
 					// Debug.logTrace('Trying to push: ${splitName[0]}');
 					if (FileSystem.isDirectory(path)
 						&& !Paths.ignoreModFolders.contains(splitName[0])
@@ -186,7 +186,7 @@ class Week
 
 				for (file in FileSystem.readDirectory(weekDirectory))
 				{
-					var path = Path.join([weekDirectory, file]);
+					var path:String = Path.join([weekDirectory, file]);
 					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
 					{
 						var weekId:String = file.substr(0, file.length - '.json'.length);
@@ -198,7 +198,7 @@ class Week
 		#end
 	}
 
-	private static function addWeek(weekId:String, path:String, directory:String)
+	private static function addWeek(weekId:String, path:String, directory:String):Void
 	{
 		if (!weeksLoaded.exists(weekId))
 		{
@@ -260,7 +260,7 @@ class Week
 		return weeksLoaded.get(weeksList[PlayState.storyWeek]);
 	}
 
-	public static function setDirectoryFromWeek(?data:Week = null)
+	public static function setDirectoryFromWeek(?data:Week = null):Void
 	{
 		Paths.currentModDirectory = '';
 		if (data != null && data.folder != null && data.folder.length > 0)
@@ -269,7 +269,7 @@ class Week
 		}
 	}
 
-	public static function loadTheFirstEnabledMod()
+	public static function loadTheFirstEnabledMod():Void
 	{
 		Paths.currentModDirectory = '';
 
@@ -280,7 +280,7 @@ class Week
 			var foundTheTop = false;
 			for (i in list)
 			{
-				var dat = i.split("|");
+				var dat:Array<String> = i.split("|");
 				if (dat[1] == "1" && !foundTheTop)
 				{
 					foundTheTop = true;

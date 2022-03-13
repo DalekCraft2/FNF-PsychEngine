@@ -75,7 +75,7 @@ class TileAnimationLibrary
 
 	public function getAnimationNames(prefix:String = ""):Array<String>
 	{
-		var out = new Array<String>();
+		var out:Array<String> = new Array<String>();
 
 		for (name in _symbolData.keys())
 		{
@@ -156,7 +156,7 @@ class TileAnimationLibrary
 	// # region helpers
 	private function parseAnimationData(data:AnimationData):Void
 	{
-		var metaData = data.metadata;
+		var metaData:Null<{?framerate:Null<Int>}> = data.metadata;
 
 		if (metaData != null && metaData.framerate != null && metaData.framerate > 0)
 		{
@@ -170,7 +170,7 @@ class TileAnimationLibrary
 		_symbolData = new Map();
 
 		// the actual symbol dictionary
-		var symbols = data.SYMBOL_DICTIONARY.Symbols;
+		var symbols:Array<SymbolData> = data.SYMBOL_DICTIONARY.Symbols;
 		for (symbolData in symbols)
 		{
 			_symbolData[symbolData.SYMBOL_name] = preprocessSymbolData(symbolData);

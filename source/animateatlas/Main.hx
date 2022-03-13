@@ -22,7 +22,6 @@ class Main extends Sprite
 	var aa:TileAnimationLibrary;
 	var ss:SpriteAnimationLibrary;
 
-	//
 	var tileSymbols:Array<TileContainerMovieClip>;
 
 	var spriteSymbols:Array<SpriteMovieClip>;
@@ -63,7 +62,7 @@ class Main extends Sprite
 	var dt:Int = 0;
 	var curr:Int = 0;
 
-	public function update(_)
+	public function update(_):Void
 	{
 		// making a dt
 		curr = Lib.getTimer();
@@ -80,11 +79,11 @@ class Main extends Sprite
 		}
 	}
 
-	public function addSpriteGirl(_)
+	public function addSpriteGirl(_):Void
 	{
 		for (i in 0...1)
 		{
-			var t = ss.createAnimation(false);
+			var t:SpriteMovieClip = ss.createAnimation(false);
 			t.x = mouseX + i * 20 * (-1 * i % 2);
 			t.y = mouseY + i * 20 * (-1 * i % 2);
 
@@ -97,11 +96,11 @@ class Main extends Sprite
 		}
 	}
 
-	public function addTileGirl(_)
+	public function addTileGirl(_):Void
 	{
 		for (i in 0...1)
 		{
-			var t = aa.createAnimation();
+			var t:TileContainerMovieClip = aa.createAnimation();
 			t.x = mouseX + i * 5 * (-1 * i % 2);
 			t.y = mouseY + i * 5 * (-1 * i % 2);
 

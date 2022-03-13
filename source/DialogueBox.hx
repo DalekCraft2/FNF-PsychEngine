@@ -53,7 +53,7 @@ class DialogueBox extends FlxSpriteGroup
 		bgFade.alpha = 0;
 		add(bgFade);
 
-		new FlxTimer().start(0.83, function(tmr:FlxTimer)
+		new FlxTimer().start(0.83, function(tmr:FlxTimer):Void
 		{
 			bgFade.alpha += (1 / 5) * 0.7;
 			if (bgFade.alpha > 0.7)
@@ -62,7 +62,7 @@ class DialogueBox extends FlxSpriteGroup
 
 		box = new FlxSprite(-20, 45);
 
-		var hasDialog = false;
+		var hasDialog:Bool = false;
 		switch (PlayState.song.songId)
 		{
 			case 'senpai':
@@ -151,7 +151,7 @@ class DialogueBox extends FlxSpriteGroup
 	var dialogueStarted:Bool = false;
 	var dialogueEnded:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		// HARD CODING CUZ IM STUPDI
 		if (PlayState.song.songId == 'roses')
@@ -195,7 +195,7 @@ class DialogueBox extends FlxSpriteGroup
 						if (PlayState.song.songId == 'senpai' || PlayState.song.songId == 'thorns')
 							FlxG.sound.music.fadeOut(1.5, 0);
 
-						new FlxTimer().start(0.2, function(tmr:FlxTimer)
+						new FlxTimer().start(0.2, function(tmr:FlxTimer):Void
 						{
 							box.alpha -= 1 / 5;
 							bgFade.alpha -= 1 / 5 * 0.7;
@@ -206,7 +206,7 @@ class DialogueBox extends FlxSpriteGroup
 							dropText.alpha = swagDialogue.alpha;
 						}, 5);
 
-						new FlxTimer().start(1.5, function(tmr:FlxTimer)
+						new FlxTimer().start(1.5, function(tmr:FlxTimer):Void
 						{
 							finishThing();
 							kill();
@@ -247,7 +247,7 @@ class DialogueBox extends FlxSpriteGroup
 		// swagDialogue.text = ;
 		swagDialogue.resetText(dialogueList[0]);
 		swagDialogue.start(0.04, true);
-		swagDialogue.completeCallback = function()
+		swagDialogue.completeCallback = function():Void
 		{
 			handSelect.visible = true;
 			dialogueEnded = true;

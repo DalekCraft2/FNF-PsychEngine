@@ -10,7 +10,6 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
@@ -51,7 +50,7 @@ class MainMenuState extends MusicBeatState
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
 
-	override function create()
+	override function create():Void
 	{
 		Week.loadTheFirstEnabledMod();
 
@@ -59,6 +58,12 @@ class MainMenuState extends MusicBeatState
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
+
+		if (!FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
+
 		debugKeys = ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('debug_1'));
 
 		camGame = new FlxCamera();
@@ -68,9 +73,6 @@ class MainMenuState extends MusicBeatState
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camAchievement);
 		FlxCamera.defaultCameras = [camGame];
-
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
 
 		persistentUpdate = persistentDraw = true;
 
@@ -148,7 +150,7 @@ class MainMenuState extends MusicBeatState
 
 		#if FEATURE_ACHIEVEMENTS
 		Achievements.loadAchievements();
-		var leDate = Date.now();
+		var leDate:Date = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 		{
 			var achievement:AchievementData = Achievements.achievementsLoaded.get('friday_night_play');
@@ -166,7 +168,7 @@ class MainMenuState extends MusicBeatState
 
 	#if FEATURE_ACHIEVEMENTS
 	// Unlocks "Freaky on a Friday Night" achievement
-	function giveAchievement()
+	function giveAchievement():Void
 	{
 		add(new Achievement('friday_night_play', camAchievement));
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
@@ -176,7 +178,7 @@ class MainMenuState extends MusicBeatState
 
 	var selectedSomethin:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (FlxG.sound.music.volume < 0.8)
 		{
@@ -204,7 +206,7 @@ class MainMenuState extends MusicBeatState
 			{
 				selectedSomethin = true;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				MusicBeatState.switchState(new TitleState());
+				FlxG.switchState(new TitleState());
 			}
 
 			if (controls.ACCEPT)
@@ -221,13 +223,13 @@ class MainMenuState extends MusicBeatState
 					if (OptionUtils.options.flashing)
 						FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
-					menuItems.forEach(function(spr:FlxSprite)
+					menuItems.forEach(function(spr:FlxSprite):Void
 					{
 						if (curSelected != spr.ID)
 						{
 							FlxTween.tween(spr, {alpha: 0}, 0.4, {
 								ease: FlxEase.quadOut,
-								onComplete: function(twn:FlxTween)
+								onComplete: function(twn:FlxTween):Void
 								{
 									spr.kill();
 								}
@@ -235,24 +237,24 @@ class MainMenuState extends MusicBeatState
 						}
 						else
 						{
-							FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+							FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker):Void
 							{
 								var daChoice:String = optionShit[curSelected];
 
 								switch (daChoice)
 								{
 									case 'story_mode':
-										MusicBeatState.switchState(new StoryMenuState());
+										FlxG.switchState(new StoryMenuState());
 									case 'freeplay':
-										MusicBeatState.switchState(new FreeplayState());
+										FlxG.switchState(new FreeplayState());
 									#if FEATURE_MODS
 									case 'mods':
-										MusicBeatState.switchState(new ModsMenuState());
+										FlxG.switchState(new ModsMenuState());
 									#end
 									case 'awards':
-										MusicBeatState.switchState(new AchievementsMenuState());
+										FlxG.switchState(new AchievementsMenuState());
 									case 'credits':
-										MusicBeatState.switchState(new CreditsState());
+										FlxG.switchState(new CreditsState());
 									case 'options':
 										LoadingState.loadAndSwitchState(new OptionsState());
 								}
@@ -265,20 +267,20 @@ class MainMenuState extends MusicBeatState
 			else if (FlxG.keys.anyJustPressed(debugKeys))
 			{
 				selectedSomethin = true;
-				MusicBeatState.switchState(new MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenu());
 			}
 			#end
 		}
 
 		super.update(elapsed);
 
-		menuItems.forEach(function(spr:FlxSprite)
+		menuItems.forEach(function(spr:FlxSprite):Void
 		{
 			spr.screenCenter(X);
 		});
 	}
 
-	function changeItem(huh:Int = 0)
+	function changeItem(huh:Int = 0):Void
 	{
 		curSelected += huh;
 
@@ -287,7 +289,7 @@ class MainMenuState extends MusicBeatState
 		if (curSelected < 0)
 			curSelected = menuItems.length - 1;
 
-		menuItems.forEach(function(spr:FlxSprite)
+		menuItems.forEach(function(spr:FlxSprite):Void
 		{
 			spr.animation.play('idle');
 			spr.updateHitbox();

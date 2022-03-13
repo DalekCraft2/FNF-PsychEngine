@@ -13,12 +13,12 @@ class DiscordClient
 {
 	public static var isInitialized:Bool = false;
 
-	public static function shutdown()
+	public static function shutdown():Void
 	{
 		DiscordRpc.shutdown();
 	}
 
-	static function onReady()
+	static function onReady():Void
 	{
 		DiscordRpc.presence({
 			details: "In the Menus",
@@ -28,17 +28,17 @@ class DiscordClient
 		});
 	}
 
-	static function onError(_code:Int, _message:String)
+	static function onError(_code:Int, _message:String):Void
 	{
 		Debug.logError('Error! $_code : $_message');
 	}
 
-	static function onDisconnected(_code:Int, _message:String)
+	static function onDisconnected(_code:Int, _message:String):Void
 	{
 		Debug.logInfo('Disconnected! $_code : $_message');
 	}
 
-	public static function initialize()
+	public static function initialize():Void
 	{
 		Debug.logTrace("Discord Client starting...");
 		DiscordRpc.start({
@@ -62,7 +62,7 @@ class DiscordClient
 		isInitialized = true;
 	}
 
-	public static function changePresence(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float)
+	public static function changePresence(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float):Void
 	{
 		var startTimestamp:Float = if (hasStartTimestamp) Date.now().getTime() else 0;
 
@@ -86,7 +86,7 @@ class DiscordClient
 	}
 
 	#if FEATURE_LUA
-	public static function addLuaCallbacks(lua:State)
+	public static function addLuaCallbacks(lua:State):Void
 	{
 		Lua_helper.add_callback(lua, "changePresence",
 			function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float)

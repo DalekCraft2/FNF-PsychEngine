@@ -1,6 +1,9 @@
 package;
 
 import flixel.FlxG;
+import options.Options.OptionUtils;
+
+using StringTools;
 
 class Highscore
 {
@@ -8,10 +11,12 @@ class Highscore
 	public static var weekScores:Map<String, Int> = new Map();
 	public static var songScores:Map<String, Int> = new Map();
 	public static var songRating:Map<String, Float> = new Map();
+	public static var songCombos:Map<String, String> = new Map();
 	#else
 	public static var weekScores:Map<String, Int> = new Map();
 	public static var songScores:Map<String, Int> = new Map<String, Int>();
 	public static var songRating:Map<String, Float> = new Map<String, Float>();
+	public static var songCombos:Map<String, String> = new Map<String, String>();
 	#end
 
 	public static function resetSong(song:String, diff:Int = 0):Void
@@ -64,6 +69,23 @@ class Highscore
 		}
 	}
 
+	public static function saveCombo(song:String, combo:String, ?diff:Int = 0):Void
+	{
+		var daSong:String = formatSong(song, diff);
+		var finalCombo:String = combo.split(')')[0].replace('(', '');
+
+		if (!OptionUtils.options.botPlay)
+		{
+			if (songCombos.exists(daSong))
+			{
+				if (getComboInt(songCombos.get(daSong)) < getComboInt(finalCombo))
+					setCombo(daSong, finalCombo);
+			}
+			else
+				setCombo(daSong, finalCombo);
+		}
+	}
+
 	public static function saveWeekScore(week:String, score:Int = 0, ?diff:Int = 0):Void
 	{
 		var daWeek:String = formatSong(week, diff);
@@ -88,6 +110,14 @@ class Highscore
 		FlxG.save.flush();
 	}
 
+	static function setCombo(song:String, combo:String):Void
+	{
+		// Reminder that I don't need to format this song, it should come formatted!
+		songCombos.set(song, combo);
+		FlxG.save.data.songCombos = songCombos;
+		FlxG.save.flush();
+	}
+
 	static function setWeekScore(week:String, score:Int):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
@@ -109,6 +139,23 @@ class Highscore
 		return Paths.formatToSongPath(song) + CoolUtil.getDifficultyFilePath(diff);
 	}
 
+	static function getComboInt(combo:String):Int
+	{
+		switch (combo)
+		{
+			case 'SDCB':
+				return 1;
+			case 'FC':
+				return 2;
+			case 'GFC':
+				return 3;
+			case 'MFC':
+				return 4;
+			default:
+				return 0;
+		}
+	}
+
 	public static function getScore(song:String, diff:Int):Int
 	{
 		var daSong:String = formatSong(song, diff);
@@ -116,6 +163,14 @@ class Highscore
 			setScore(daSong, 0);
 
 		return songScores.get(daSong);
+	}
+
+	public static function getCombo(song:String, diff:Int):String
+	{
+		if (!songCombos.exists(formatSong(song, diff)))
+			setCombo(formatSong(song, diff), '');
+
+		return songCombos.get(formatSong(song, diff));
 	}
 
 	public static function getRating(song:String, diff:Int):Float

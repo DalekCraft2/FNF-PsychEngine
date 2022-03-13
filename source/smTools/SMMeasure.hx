@@ -1,6 +1,6 @@
-#if FEATURE_STEPMANIA
 package smTools;
 
+#if FEATURE_STEPMANIA
 class SMMeasure
 {
 	public var notes:Array<SMNote>;

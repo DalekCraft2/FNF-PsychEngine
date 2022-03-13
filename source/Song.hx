@@ -71,7 +71,7 @@ class Song
 		copyDataFields(songData);
 	}
 
-	public function copyDataFields(songData:SongData)
+	public function copyDataFields(songData:SongData):Void
 	{
 		player1 = songData.player1;
 		player2 = songData.player2;
@@ -83,7 +83,7 @@ class Song
 		arrowSkin = songData.arrowSkin;
 		splashSkin = songData.splashSkin;
 		validScore = songData.validScore;
-		sections = new Array();
+		sections = [];
 		for (sectionData in songData.notes)
 		{
 			var section:Section = new Section(sectionData);
@@ -92,7 +92,7 @@ class Song
 		events = songData.events;
 	}
 
-	private static function onLoadJson(songData:SongData) // Convert old charts to newest format
+	private static function onLoadJson(songData:SongData):Void // Convert old charts to newest format
 	{
 		if (songData.events == null)
 		{
@@ -102,7 +102,7 @@ class Song
 				var sec:SectionData = songData.notes[secNum];
 
 				var i:Int = 0;
-				var notes:Array<Dynamic> = sec.sectionNotes;
+				var notes:Array<Array<Dynamic>> = sec.sectionNotes;
 				var len:Int = notes.length;
 				while (i < len)
 				{
@@ -127,11 +127,11 @@ class Song
 			folder = songId;
 		}
 
-		var songPath = 'songs/$folder/$songId$difficulty';
-		var songMetaPath = 'songs/$folder/_meta';
+		var songPath:String = 'songs/$folder/$songId$difficulty';
+		var songMetaPath:String = 'songs/$folder/_meta';
 
-		var rawJson = Paths.loadJson(songPath);
-		var rawMetaJson = Paths.loadJson(songMetaPath);
+		var rawJson:Dynamic = Paths.loadJson(songPath);
+		var rawMetaJson:Dynamic = Paths.loadJson(songMetaPath);
 
 		var songData:SongData = parseJson(songId, rawJson, rawMetaJson);
 		onLoadJson(songData);
@@ -152,7 +152,7 @@ class Song
 
 		// Inject info from _meta.json.
 		var songMetaData:SongMeta = cast jsonMetaData;
-		if (songMetaData.name != null)
+		if (songMetaData != null && songMetaData.name != null)
 		{
 			songData.songName = songMetaData.name;
 		}

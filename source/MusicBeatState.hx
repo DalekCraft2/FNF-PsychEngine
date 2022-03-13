@@ -2,8 +2,6 @@ package;
 
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
-import flixel.FlxState;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import options.Options.OptionUtils;
 
@@ -20,18 +18,6 @@ class MusicBeatState extends FlxUIState
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
-	override function create()
-	{
-		var skip:Bool = FlxTransitionableState.skipNextTransOut;
-		super.create();
-
-		if (!skip)
-		{
-			openSubState(new CustomFadeTransition(0.7, true));
-		}
-		FlxTransitionableState.skipNextTransOut = false;
-	}
-
 	#if (FEATURE_VIDEOS && windows)
 	override public function onFocus():Void
 	{
@@ -46,7 +32,7 @@ class MusicBeatState extends FlxUIState
 	}
 	#end
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		// everyStep();
 		var oldStep:Int = curStep;
@@ -84,48 +70,6 @@ class MusicBeatState extends FlxUIState
 		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - OptionUtils.options.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
-	public static function switchState(nextState:FlxState)
-	{
-		// Custom made Trans in
-		var curState:Dynamic = FlxG.state;
-		var leState:MusicBeatState = curState;
-		if (!FlxTransitionableState.skipNextTransIn)
-		{
-			leState.openSubState(new CustomFadeTransition(0.6, false));
-			if (nextState == FlxG.state)
-			{
-				CustomFadeTransition.finishCallback = function()
-				{
-					FlxG.resetState();
-				};
-				// Debug.logTrace('Reset state');
-			}
-			else
-			{
-				CustomFadeTransition.finishCallback = function()
-				{
-					FlxG.switchState(nextState);
-				};
-				// Debug.logTrace('Changed state');
-			}
-			return;
-		}
-		FlxTransitionableState.skipNextTransIn = false;
-		FlxG.switchState(nextState);
-	}
-
-	public static function resetState()
-	{
-		MusicBeatState.switchState(FlxG.state);
-	}
-
-	public static function getState():MusicBeatState
-	{
-		var curState:Dynamic = FlxG.state;
-		var leState:MusicBeatState = curState;
-		return leState;
-	}
-
 	public function stepHit():Void
 	{
 		if (curStep % 4 == 0)
@@ -134,6 +78,6 @@ class MusicBeatState extends FlxUIState
 
 	public function beatHit():Void
 	{
-		// do literally nothing dumbass
+		// Do nothing
 	}
 }

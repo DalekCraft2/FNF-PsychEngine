@@ -55,6 +55,8 @@
 	<define name="FEATURE_MODS" if="desktop" />
 	<define name="FEATURE_LUA" if="desktop" />
 	<define name="FEATURE_ACHIEVEMENTS" />
+	<!-- Defines whether StepMania files can be loaded. -->
+  	<define name="FEATURE_STEPMANIA" if="desktop" />
 	<!-- Defines whether videos should be enabled. Currently only enabled on Windows. -->
 	<define name="FEATURE_VIDEOS" if="web || windows" unless="32bits" />
 	<!-- Defines whether watermarks should display on the title screen. -->

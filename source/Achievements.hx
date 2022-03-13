@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -48,7 +49,7 @@ class Achievements
 		FlxG.save.flush();
 	}
 
-	public static function isAchievementUnlocked(name:String)
+	public static function isAchievementUnlocked(name:String):Bool
 	{
 		if (achievementsMap.exists(name) && achievementsMap.get(name))
 		{
@@ -57,7 +58,7 @@ class Achievements
 		return false;
 	}
 
-	public static function getAchievementIndex(name:String)
+	public static function getAchievementIndex(name:String):Int
 	{
 		return achievementList.indexOf(name);
 	}
@@ -104,7 +105,7 @@ class Achievements
 		// EDIT 2: Uhh this is weird, this message was written for Mind Games, so it doesn't apply logically for Psych Engine LOL
 	}
 
-	public static function reloadAchievementData()
+	public static function reloadAchievementData():Void
 	{
 		achievementList = [];
 		achievementsLoaded.clear();
@@ -124,7 +125,7 @@ class Achievements
 				}
 				else // Sort mod loading order based on modsList.txt file
 				{
-					var path = Path.join([Paths.mods(), splitName[0]]);
+					var path:String = Path.join([Paths.mods(), splitName[0]]);
 					// Debug.logTrace('Trying to push: ${splitName[0]}');
 					if (FileSystem.isDirectory(path)
 						&& !Paths.ignoreModFolders.contains(splitName[0])
@@ -200,7 +201,7 @@ class Achievements
 		#end
 	}
 
-	private static function addAchievement(achievementId:String)
+	private static function addAchievement(achievementId:String):Void
 	{
 		if (!achievementsLoaded.exists(achievementId))
 		{
@@ -257,17 +258,17 @@ class AttachedAchievement extends FlxSprite
 		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 
-	public function changeAchievement(tag:String)
+	public function changeAchievement(tag:String):Void
 	{
 		this.tag = tag;
 		reloadAchievementImage();
 	}
 
-	public function reloadAchievementImage()
+	public function reloadAchievementImage():Void
 	{
 		if (Achievements.isAchievementUnlocked(tag))
 		{
-			var graphic = Paths.image('achievements/$tag');
+			var graphic:FlxGraphic = Paths.image('achievements/$tag');
 			if (graphic == null)
 				graphic = Paths.image('achievements/missing');
 			loadGraphic(graphic);
@@ -280,7 +281,7 @@ class AttachedAchievement extends FlxSprite
 		updateHitbox();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (sprTracker != null)
 			setPosition(sprTracker.x - 130, sprTracker.y + 25);
@@ -337,11 +338,11 @@ class Achievement extends FlxSpriteGroup
 		achievementText.cameras = cam;
 		achievementIcon.cameras = cam;
 		alphaTween = FlxTween.tween(this, {alpha: 1}, 0.5, {
-			onComplete: function(twn:FlxTween)
+			onComplete: function(twn:FlxTween):Void
 			{
 				alphaTween = FlxTween.tween(this, {alpha: 0}, 0.5, {
 					startDelay: 2.5,
-					onComplete: function(twn:FlxTween)
+					onComplete: function(twn:FlxTween):Void
 					{
 						alphaTween = null;
 						remove(this);
@@ -353,7 +354,7 @@ class Achievement extends FlxSpriteGroup
 		});
 	}
 
-	override function destroy()
+	override function destroy():Void
 	{
 		if (alphaTween != null)
 		{

@@ -10,9 +10,9 @@ typedef StageData =
 	var defaultZoom:Float;
 	var isPixelStage:Bool;
 
-	var boyfriend:Array<Dynamic>;
-	var girlfriend:Array<Dynamic>;
-	var opponent:Array<Dynamic>;
+	var boyfriend:Array<Float>;
+	var girlfriend:Array<Float>;
+	var opponent:Array<Float>;
 	var hide_girlfriend:Bool;
 	var camera_boyfriend:Array<Float>;
 	var camera_opponent:Array<Float>;
@@ -32,9 +32,9 @@ class Stage
 	public var directory:String;
 	public var defaultZoom:Float;
 	public var isPixelStage:Bool;
-	public var boyfriend:Array<Dynamic>;
-	public var girlfriend:Array<Dynamic>;
-	public var opponent:Array<Dynamic>;
+	public var boyfriend:Array<Float>;
+	public var girlfriend:Array<Float>;
+	public var opponent:Array<Float>;
 	public var hide_girlfriend:Bool;
 	public var camera_boyfriend:Array<Float>;
 	public var camera_opponent:Array<Float>;
@@ -48,7 +48,7 @@ class Stage
 		copyDataFields(stageData);
 	}
 
-	public function copyDataFields(stageData:StageData)
+	public function copyDataFields(stageData:StageData):Void
 	{
 		directory = stageData.directory;
 		defaultZoom = stageData.defaultZoom;
@@ -65,7 +65,7 @@ class Stage
 
 	public static var forceNextDirectory:String = null;
 
-	public static function loadDirectory(song:SongData)
+	public static function loadDirectory(song:SongData):Void
 	{
 		var stage:String = '';
 		if (song.stage != null)
@@ -113,11 +113,8 @@ class Stage
 	public static function getStageData(stage:String):StageData
 	{
 		var stagePath:String = 'stages/$stage';
-
-		var rawJson = Paths.loadJson(stagePath);
-
+		var rawJson:Dynamic = Paths.loadJson(stagePath);
 		var stageData:StageData = cast rawJson;
-
 		return stageData;
 	}
 }

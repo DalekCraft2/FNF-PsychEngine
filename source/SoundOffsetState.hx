@@ -16,12 +16,12 @@ class SoundOffsetState extends MusicBeatState
 	public var playingAudio:Bool = false;
 	public var status:FlxText;
 	public var beatCounter:Float = 0;
-	public var beatCounts = [];
+	public var beatCounts:Array<Float> = [];
 	public var currOffset:Int = OptionUtils.options.noteOffset;
 	public var offsetTxt:FlxText;
 	public var metronome:Character;
 
-	override function create()
+	override function create():Void
 	{
 		super.create();
 		#if FEATURE_DISCORD
@@ -65,7 +65,7 @@ class SoundOffsetState extends MusicBeatState
 		add(metronome);
 	}
 
-	override function beatHit()
+	override function beatHit():Void
 	{
 		super.beatHit();
 		beatCounter = 0;
@@ -76,7 +76,7 @@ class SoundOffsetState extends MusicBeatState
 		}
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (playingAudio)
 		{

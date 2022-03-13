@@ -61,8 +61,8 @@ class DialogueCharacter extends FlxSprite
 	public var startingPos:Float = 0; // For center characters, it works as the starting Y, for everything else it works as starting X
 	public var isGhost:Bool = false; // For the editor
 	public var curCharacter:String = 'bf';
-	public var skiptimer = 0;
-	public var skipping = 0;
+	public var skiptimer:Int = 0;
+	public var skipping:Int = 0;
 
 	public function new(x:Float = 0, y:Float = 0, character:String = null)
 	{
@@ -81,7 +81,7 @@ class DialogueCharacter extends FlxSprite
 			antialiasing = false;
 	}
 
-	public function reloadCharacterJson(character:String)
+	public function reloadCharacterJson(character:String):Void
 	{
 		var characterPath:String = 'dialogue/$curCharacter';
 
@@ -91,10 +91,10 @@ class DialogueCharacter extends FlxSprite
 			rawJson = Paths.loadJson('dialogue/$DEFAULT_CHARACTER');
 		}
 
-		var characterData:DialogueCharacterData = cast rawJson;
+		jsonFile = cast rawJson;
 	}
 
-	public function reloadAnimations()
+	public function reloadAnimations():Void
 	{
 		dialogueAnimations.clear();
 		if (jsonFile.animations != null && jsonFile.animations.length > 0)
@@ -108,7 +108,7 @@ class DialogueCharacter extends FlxSprite
 		}
 	}
 
-	public function playAnim(animName:String = null, playIdle:Bool = false)
+	public function playAnim(animName:String = null, playIdle:Bool = false):Void
 	{
 		var leAnim:String = animName;
 		if (animName == null || !dialogueAnimations.exists(animName))
@@ -165,7 +165,7 @@ class DialogueCharacter extends FlxSprite
 	}
 }
 
-// TO DO: Clean code? Maybe? idk
+// TODO: Clean code? Maybe? idk
 class DialogueBoxPsych extends FlxSpriteGroup
 {
 	var dialogue:Alphabet;
@@ -237,7 +237,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	public static var RIGHT_CHAR_X:Float = -100;
 	public static var DEFAULT_CHAR_Y:Float = 60;
 
-	function spawnCharacters()
+	function spawnCharacters():Void
 	{
 		#if (haxe >= "4.0.0")
 		var charsMap:Map<String, Bool> = new Map();
@@ -289,14 +289,14 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 	}
 
-	public static var DEFAULT_TEXT_X = 90;
-	public static var DEFAULT_TEXT_Y = 430;
+	public static var DEFAULT_TEXT_X:Float = 90;
+	public static var DEFAULT_TEXT_Y:Float = 430;
 
-	var scrollSpeed = 4500;
+	var scrollSpeed:Float = 4500;
 	var daText:Alphabet = null;
 	var ignoreThisFrame:Bool = true; // First frame is reserved for loading dialogue images
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (ignoreThisFrame)
 		{
@@ -399,7 +399,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			{
 				for (i in 0...arrayCharacters.length)
 				{
-					var char = arrayCharacters[i];
+					var char:DialogueCharacter = arrayCharacters[i];
 					if (char != null)
 					{
 						if (i != lastCharacter)
@@ -540,7 +540,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		box.visible = true;
 		for (i in 0...arrayCharacters.length)
 		{
-			var char = arrayCharacters[i];
+			var char:DialogueCharacter = arrayCharacters[i];
 			if (char.curCharacter == curDialogue.portrait)
 			{
 				character = i;
@@ -603,14 +603,14 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	public static function parseDialogue(path:String):DialogueData
 	{
-		var rawJson = Paths.loadJson(path);
+		var rawJson:Dynamic = Paths.loadJson(path);
 
 		var dialogueData:DialogueData = cast rawJson;
 
 		return dialogueData;
 	}
 
-	public static function updateBoxOffsets(box:FlxSprite)
+	public static function updateBoxOffsets(box:FlxSprite):Void
 	{ // Had to make it static because of the editors
 		box.centerOffsets();
 		box.updateHitbox();

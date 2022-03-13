@@ -26,7 +26,7 @@ class AchievementsMenuState extends MusicBeatState
 	private var achievementIndex:Array<Int> = [];
 	private var descText:FlxText;
 
-	override function create()
+	override function create():Void
 	{
 		#if FEATURE_DISCORD
 		DiscordClient.changePresence("Achievements Menu", null);
@@ -83,7 +83,7 @@ class AchievementsMenuState extends MusicBeatState
 		super.create();
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -99,11 +99,11 @@ class AchievementsMenuState extends MusicBeatState
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
+			FlxG.switchState(new MainMenuState());
 		}
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -127,7 +127,7 @@ class AchievementsMenuState extends MusicBeatState
 
 		for (i in 0...achievementArray.length)
 		{
-			var achievement = achievementArray[i];
+			var achievement:AttachedAchievement = achievementArray[i];
 			achievement.alpha = 0.6;
 			if (i == curSelected)
 			{

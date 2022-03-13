@@ -21,7 +21,7 @@ class NotesState extends MusicBeatState
 	var blackBG:FlxSprite;
 	var hsbText:Alphabet;
 
-	var posX = 230;
+	var posX:Float = 230;
 
 	public function new()
 	{
@@ -92,7 +92,7 @@ class NotesState extends MusicBeatState
 
 	var changingNote:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (changingNote)
 		{
@@ -182,7 +182,7 @@ class NotesState extends MusicBeatState
 				holdTime = 0;
 				for (i in 0...grpNumbers.length)
 				{
-					var item = grpNumbers.members[i];
+					var item:Alphabet = grpNumbers.members[i];
 					item.alpha = 0;
 					if ((curSelected * 3) + typeSelected == i)
 					{
@@ -191,7 +191,7 @@ class NotesState extends MusicBeatState
 				}
 				for (i in 0...grpNotes.length)
 				{
-					var item = grpNotes.members[i];
+					var item:FlxSprite = grpNotes.members[i];
 					item.alpha = 0;
 					if (curSelected == i)
 					{
@@ -225,7 +225,7 @@ class NotesState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -238,7 +238,7 @@ class NotesState extends MusicBeatState
 
 		for (i in 0...grpNumbers.length)
 		{
-			var item = grpNumbers.members[i];
+			var item:Alphabet = grpNumbers.members[i];
 			item.alpha = 0.6;
 			if ((curSelected * 3) + typeSelected == i)
 			{
@@ -247,7 +247,7 @@ class NotesState extends MusicBeatState
 		}
 		for (i in 0...grpNotes.length)
 		{
-			var item = grpNotes.members[i];
+			var item:FlxSprite = grpNotes.members[i];
 			item.alpha = 0.6;
 			item.scale.set(0.75, 0.75);
 			if (curSelected == i)
@@ -261,7 +261,7 @@ class NotesState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	function changeType(change:Int = 0)
+	function changeType(change:Int = 0):Void
 	{
 		typeSelected += change;
 		if (typeSelected < 0)
@@ -274,7 +274,7 @@ class NotesState extends MusicBeatState
 
 		for (i in 0...grpNumbers.length)
 		{
-			var item = grpNumbers.members[i];
+			var item:Alphabet = grpNumbers.members[i];
 			item.alpha = 0.6;
 			if ((curSelected * 3) + typeSelected == i)
 			{
@@ -283,7 +283,7 @@ class NotesState extends MusicBeatState
 		}
 	}
 
-	function resetValue(selected:Int, type:Int)
+	function resetValue(selected:Int, type:Int):Void
 	{
 		curValue = 0;
 		OptionUtils.options.arrowHSV[selected][type] = 0;
@@ -297,12 +297,12 @@ class NotesState extends MusicBeatState
 				shaderArray[selected].brightness = 0;
 		}
 
-		var item = grpNumbers.members[(selected * 3) + type];
+		var item:Alphabet = grpNumbers.members[(selected * 3) + type];
 		item.changeText('0');
 		item.offset.x = (40 * (item.lettersArray.length - 1)) / 2;
 	}
 
-	function updateValue(change:Float = 0)
+	function updateValue(change:Float = 0):Void
 	{
 		curValue += change;
 		var roundedValue:Int = Math.round(curValue);
@@ -334,7 +334,7 @@ class NotesState extends MusicBeatState
 				shaderArray[curSelected].brightness = roundedValue / 100;
 		}
 
-		var item = grpNumbers.members[(curSelected * 3) + typeSelected];
+		var item:Alphabet = grpNumbers.members[(curSelected * 3) + typeSelected];
 		item.changeText(Std.string(roundedValue));
 		item.offset.x = (40 * (item.lettersArray.length - 1)) / 2;
 		if (roundedValue < 0)

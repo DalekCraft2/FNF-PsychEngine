@@ -1,20 +1,28 @@
 package;
 
+import options.Options.OptionUtils;
+import haxe.Exception;
+#if FEATURE_STEPMANIA
+import smTools.SMFile;
+#end
+#if FEATURE_FILESYSTEM
+import sys.FileSystem;
+import sys.io.File;
+#end
+import openfl.display.BitmapData;
+import flixel.system.FlxSound;
+import flixel.FlxSubState;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxSubState;
-import flixel.math.FlxMath;
-import flixel.system.FlxSound;
-import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import openfl.display.BitmapData;
-import options.Options.OptionUtils;
+import flixel.math.FlxMath;
+import flixel.text.FlxText;
 
 using StringTools;
 
-class ResultsSubState extends FlxSubState
+class ResultsScreen extends FlxSubState
 {
 	public var background:FlxSprite;
 	public var text:FlxText;
@@ -34,7 +42,7 @@ class ResultsSubState extends FlxSubState
 	public var ranking:String;
 	public var accuracy:String;
 
-	override function create():Void
+	override function create()
 	{
 		background = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		background.scrollFactor.set();
@@ -70,7 +78,7 @@ class ResultsSubState extends FlxSubState
 		var shits:Int = PlayState.isStoryMode ? PlayState.campaignShits : PlayState.instance.shits;
 
 		comboText = new FlxText(20, -75, 0,
-			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.songScore}\nAccuracy: ${CoolUtil.truncateFloat(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? "\nF1 - Replay Song" : ""}
+			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\n\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.songScore}\nAccuracy: ${CoolUtil.truncateFloat(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? "\nF1 - Replay song" : ""}
         ');
 		comboText.size = 28;
 		comboText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
@@ -80,7 +88,7 @@ class ResultsSubState extends FlxSubState
 
 		contText = new FlxText(FlxG.width - 475, FlxG.height + 50, 0, 'Press ${OptionUtils.options.controllerMode ? 'A' : 'ENTER'} to continue.');
 		contText.size = 28;
-		contText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
+		contText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 4, 1);
 		contText.color = FlxColor.WHITE;
 		contText.scrollFactor.set();
 		add(contText);
@@ -153,7 +161,7 @@ class ResultsSubState extends FlxSubState
 		FlxTween.tween(contText, {y: FlxG.height - 45}, 0.5, {ease: FlxEase.expoInOut});
 		FlxTween.tween(settingsText, {y: FlxG.height - 35}, 0.5, {ease: FlxEase.expoInOut});
 		FlxTween.tween(anotherBackground, {alpha: 0.6}, 0.5, {
-			onUpdate: function(tween:FlxTween):Void
+			onUpdate: function(tween:FlxTween)
 			{
 				graph.alpha = FlxMath.lerp(0, 1, tween.percent);
 				graphSprite.alpha = FlxMath.lerp(0, 1, tween.percent);
@@ -167,7 +175,7 @@ class ResultsSubState extends FlxSubState
 
 	var frames = 0;
 
-	override function update(elapsed:Float):Void
+	override function update(elapsed:Float)
 	{
 		if (music != null)
 			if (music.volume < 0.5)
@@ -181,7 +189,7 @@ class ResultsSubState extends FlxSubState
 				music.fadeOut(0.3);
 
 			PlayState.loadRep = false;
-			// PlayState.stageTesting = false;
+			PlayState.stageTesting = false;
 			PlayState.rep = null;
 
 			#if !switch
@@ -205,7 +213,7 @@ class ResultsSubState extends FlxSubState
 			PlayState.rep = null;
 
 			PlayState.loadRep = false;
-			// PlayState.stageTesting = false;
+			PlayState.stageTesting = false;
 
 			#if !switch
 			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.songScore), PlayState.storyDifficulty);

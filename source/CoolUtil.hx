@@ -141,7 +141,7 @@ class CoolUtil
 		precacheSoundFile(Paths.music(sound, library));
 	}
 
-	private static function precacheSoundFile(file:Dynamic):Void
+	private static function precacheSoundFile(file:String):Void
 	{
 		if (Assets.exists(file, SOUND) || Assets.exists(file, MUSIC))
 			Assets.getSound(file, true);

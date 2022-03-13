@@ -11,6 +11,9 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+#if CHECK_FOR_UPDATES
+import haxe.Http;
+#end
 import haxe.Json;
 import openfl.Assets;
 import options.Options.OptionUtils;
@@ -74,7 +77,7 @@ class TitleState extends MusicBeatState
 			if (FileSystem.exists('mods/')) {
 				var folders:Array<String> = [];
 				for (file in FileSystem.readDirectory('mods/')) {
-					var path = haxe.io.Path.join(['mods/', file]);
+					var path:String = haxe.io.Path.join(['mods/', file]);
 					if (FileSystem.isDirectory(path)) {
 						folders.push(file);
 					}
@@ -89,9 +92,9 @@ class TitleState extends MusicBeatState
 		if (!closedState)
 		{
 			Debug.logTrace('Checking for update');
-			var http = new haxe.Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
+			var http:Http = new Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
 
-			http.onData = function(data:String)
+			http.onData = function(data:String):Void
 			{
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = MainMenuState.psychEngineVersion.trim();
@@ -103,7 +106,7 @@ class TitleState extends MusicBeatState
 				}
 			}
 
-			http.onError = function(error)
+			http.onError = function(error):Void
 			{
 				Debug.logError('Error: $error');
 			}
@@ -147,11 +150,11 @@ class TitleState extends MusicBeatState
 		{
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
-			MusicBeatState.switchState(new FlashingState());
+			FlxG.switchState(new FlashingState());
 		}
 		else
 		{
-			new FlxTimer().start(1, function(tmr:FlxTimer)
+			new FlxTimer().start(1, function(tmr:FlxTimer):Void
 			{
 				startIntro();
 			});
@@ -164,7 +167,7 @@ class TitleState extends MusicBeatState
 	var titleText:FlxSprite;
 	var swagShader:ColorSwap = null;
 
-	function startIntro()
+	function startIntro():Void
 	{
 		if (!initialized)
 		{
@@ -247,7 +250,7 @@ class TitleState extends MusicBeatState
 
 		titleText = new FlxSprite(titleJSON.startx, titleJSON.starty);
 		#if (desktop && FEATURE_MODS)
-		var path = 'mods/${Paths.currentModDirectory}/images/titleEnter.png';
+		var path:String = 'mods/${Paths.currentModDirectory}/images/titleEnter.png';
 		// Debug.logTrace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path))
 		{
@@ -328,7 +331,7 @@ class TitleState extends MusicBeatState
 
 	private static var playJingle:Bool = false;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
@@ -374,15 +377,15 @@ class TitleState extends MusicBeatState
 				transitioning = true;
 				// FlxG.sound.music.stop();
 
-				new FlxTimer().start(1, function(tmr:FlxTimer)
+				new FlxTimer().start(1, function(tmr:FlxTimer):Void
 				{
 					if (mustUpdate)
 					{
-						MusicBeatState.switchState(new OutdatedState());
+						FlxG.switchState(new OutdatedState());
 					}
 					else
 					{
-						MusicBeatState.switchState(new MainMenuState());
+						FlxG.switchState(new MainMenuState());
 					}
 					closedState = true;
 				});
@@ -419,11 +422,11 @@ class TitleState extends MusicBeatState
 							add(black);
 
 							FlxTween.tween(black, {alpha: 1}, 1, {
-								onComplete: function(twn:FlxTween)
+								onComplete: function(twn:FlxTween):Void
 								{
 									FlxTransitionableState.skipNextTransIn = true;
 									FlxTransitionableState.skipNextTransOut = true;
-									MusicBeatState.switchState(new TitleState());
+									FlxG.switchState(new TitleState());
 								}
 							});
 							FlxG.sound.music.fadeOut();
@@ -455,7 +458,7 @@ class TitleState extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	function createCoolText(textArray:Array<String>, ?offset:Float = 0)
+	function createCoolText(textArray:Array<String>, ?offset:Float = 0):Void
 	{
 		for (i in 0...textArray.length)
 		{
@@ -470,7 +473,7 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	function addMoreText(text:String, ?offset:Float = 0)
+	function addMoreText(text:String, ?offset:Float = 0):Void
 	{
 		if (textGroup != null && credGroup != null)
 		{
@@ -482,7 +485,7 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	function deleteCoolText()
+	function deleteCoolText():Void
 	{
 		while (textGroup.members.length > 0)
 		{
@@ -495,7 +498,7 @@ class TitleState extends MusicBeatState
 
 	public static var closedState:Bool = false;
 
-	override function beatHit()
+	override function beatHit():Void
 	{
 		super.beatHit();
 
@@ -570,6 +573,19 @@ class TitleState extends MusicBeatState
 	{
 		if (!skippedIntro)
 		{
+			Debug.logInfo("Skipping intro...");
+
+			// Make the logo do wacky waving inflatable arm-flailing angle tweens
+			FlxTween.tween(logoBl, {y: -100}, 1.4, {ease: FlxEase.expoInOut});
+			logoBl.angle = -4;
+			new FlxTimer().start(0.01, function(tmr:FlxTimer)
+			{
+				if (logoBl.angle == -4)
+					FlxTween.angle(logoBl, logoBl.angle, 4, 4, {ease: FlxEase.quartInOut});
+				if (logoBl.angle == 4)
+					FlxTween.angle(logoBl, logoBl.angle, -4, 4, {ease: FlxEase.quartInOut});
+			}, 0);
+
 			if (playJingle) // Ignore deez
 			{
 				var easteregg:String = FlxG.save.data.psychDevsEasterEgg;
@@ -604,7 +620,7 @@ class TitleState extends MusicBeatState
 				transitioning = true;
 				if (easteregg == 'SHADOW')
 				{
-					new FlxTimer().start(3.2, function(tmr:FlxTimer)
+					new FlxTimer().start(3.2, function(tmr:FlxTimer):Void
 					{
 						remove(ngSpr);
 						remove(credGroup);
@@ -617,7 +633,7 @@ class TitleState extends MusicBeatState
 					remove(ngSpr);
 					remove(credGroup);
 					FlxG.camera.flash(FlxColor.WHITE, 3);
-					sound.onComplete = function()
+					sound.onComplete = function():Void
 					{
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
@@ -628,8 +644,6 @@ class TitleState extends MusicBeatState
 			}
 			else // Default! Edit this one!!
 			{
-				Debug.logInfo("Skipping intro...");
-
 				remove(ngSpr);
 				remove(credGroup);
 				FlxG.camera.flash(FlxColor.WHITE, 4);

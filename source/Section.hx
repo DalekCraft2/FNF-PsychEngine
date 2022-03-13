@@ -2,7 +2,7 @@ package;
 
 typedef SectionData =
 {
-	var sectionNotes:Array<Dynamic>;
+	var sectionNotes:Array<Array<Dynamic>>;
 	var lengthInSteps:Int;
 	var typeOfSection:Int;
 	var mustHitSection:Bool;
@@ -14,7 +14,7 @@ typedef SectionData =
 
 class Section
 {
-	public var notes:Array<Dynamic> = [];
+	public var notes:Array<Note> = [];
 	public var lengthInSteps:Int = 16;
 	public var typeOfSection:Int = 0;
 	public var mustHitSection:Bool = true;
@@ -27,7 +27,18 @@ class Section
 
 	public function new(sectionData:SectionData)
 	{
-		notes = sectionData.sectionNotes;
+		notes = [];
+		for (noteArray in sectionData.sectionNotes)
+		{
+			var strumTime:Float = noteArray[0];
+			var noteData:Int = noteArray[1];
+			var sustainLength:Float = noteArray[2];
+			var noteType:String = noteArray[3];
+			var note:Note = new Note(strumTime, noteData);
+			note.sustainLength = sustainLength;
+			note.noteType = noteType;
+			notes.push(note);
+		};
 		lengthInSteps = sectionData.lengthInSteps;
 		typeOfSection = sectionData.typeOfSection;
 		mustHitSection = sectionData.mustHitSection;

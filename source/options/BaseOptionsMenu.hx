@@ -114,7 +114,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		reloadCheckboxes();
 	}
 
-	public function addOption(option:Option)
+	public function addOption(option:Option):Void
 	{
 		if (optionsArray == null || optionsArray.length < 1)
 			optionsArray = [];
@@ -125,7 +125,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 	var holdTime:Float = 0;
 	var holdValue:Float = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (controls.UI_UP_P)
 		{
@@ -169,7 +169,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 					{
 						if (pressed)
 						{
-							var add:Dynamic = null;
+							var add:Float = null;
 							if (curOption.type != 'string')
 							{
 								add = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
@@ -284,7 +284,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		super.update(elapsed);
 	}
 
-	function updateTextFrom(option:Option)
+	function updateTextFrom(option:Option):Void
 	{
 		var text:String = option.displayFormat;
 		var val:Dynamic = option.getValue();
@@ -294,7 +294,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
-	function clearHold()
+	function clearHold():Void
 	{
 		if (holdTime > 0.5)
 		{
@@ -303,7 +303,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		holdTime = 0;
 	}
 
-	function changeSelection(change:Int = 0)
+	function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -349,7 +349,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	public function reloadBoyfriend()
+	public function reloadBoyfriend():Void
 	{
 		var wasVisible:Bool = false;
 		if (boyfriend != null)
@@ -368,7 +368,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		boyfriend.visible = wasVisible;
 	}
 
-	function reloadCheckboxes()
+	function reloadCheckboxes():Void
 	{
 		for (checkbox in checkboxGroup)
 		{

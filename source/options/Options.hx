@@ -14,23 +14,21 @@ class OptionUtils
 	private static var save:FlxSave = new FlxSave();
 	public static var noteSkins:Array<String> = [];
 
-	public static var camFocuses:Array<String> = ["Default", "BF", "Dad", "Center"];
-
 	public static var shit:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
 	public static var options:Dynamic = {};
 
-	public static function bindSave(?saveName:String = "mockEngineOptions")
+	public static function bindSave(?saveName:String = "mockEngineOptions"):Void
 	{
 		save.bind(saveName);
 		options = save.data;
 	}
 
-	public static function saveOptions(options:Dynamic)
+	public static function saveOptions(options:Dynamic):Void
 	{
-		var fields = Reflect.fields(options);
+		var fields:Array<String> = Reflect.fields(options);
 		for (f in fields)
 		{
-			var shit = Reflect.field(options, f);
+			var shit:Dynamic = Reflect.field(options, f);
 			// Debug.logTrace('$f, $shit');
 			Reflect.setField(save.data, f, shit);
 		}
@@ -38,9 +36,9 @@ class OptionUtils
 		Debug.logTrace("Settings saved!");
 	}
 
-	public static function loadOptions(options:Dynamic)
+	public static function loadOptions(options:Dynamic):Void
 	{
-		var fields = Reflect.fields(save.data);
+		var fields:Array<String> = Reflect.fields(save.data);
 		for (f in fields)
 		{
 			// Debug.logTrace('$f, ${Reflect.field(options, f)}');
@@ -49,7 +47,7 @@ class OptionUtils
 		}
 	}
 
-	public static function getKey(control:String)
+	public static function getKey(control:String):Array<FlxKey>
 	{
 		if (options.keyBinds == null)
 			options.keyBinds = new Map<String, Array<FlxKey>>();
@@ -68,7 +66,7 @@ class StateOption extends Option
 		this.name = name;
 	}
 
-	public override function accept()
+	public override function accept():Bool
 	{
 		FlxG.switchState(state);
 		return false;
@@ -101,7 +99,7 @@ class OptionCheckbox extends FlxSprite
 		animation.finishCallback = animationFinished;
 	}
 
-	public function changeState(state:Bool)
+	public function changeState(state:Bool):Void
 	{
 		this.state = state;
 		if (state)
@@ -119,7 +117,7 @@ class OptionCheckbox extends FlxSprite
 		}
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 		if (tracker != null)
@@ -132,7 +130,7 @@ class OptionCheckbox extends FlxSprite
 		}
 	}
 
-	private function animationFinished(name:String)
+	private function animationFinished(name:String):Void
 	{
 		switch (name)
 		{
@@ -149,7 +147,7 @@ class OptionCheckbox extends FlxSprite
 
 class ToggleOption extends Option
 {
-	private var property = "dummy";
+	private var property:String = "dummy";
 	private var checkbox:OptionCheckbox;
 	private var callback:Bool->Void;
 
@@ -166,7 +164,7 @@ class ToggleOption extends Option
 		add(checkbox);
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (text == null)
 		{
@@ -199,7 +197,7 @@ class ToggleOption extends Option
 class StepOption extends Option
 {
 	private var names:Array<String>;
-	private var property = "dummyInt";
+	private var property:String = "dummyInt";
 	private var max:Float = -1;
 	private var min:Float = 0;
 	private var step:Float = 1;
@@ -228,7 +226,7 @@ class StepOption extends Option
 		this.callback = callback;
 		if (Reflect.field(OptionUtils.options, property) == null)
 			Reflect.setField(OptionUtils.options, property, defaultValue);
-		var value = Reflect.field(OptionUtils.options, property);
+		var value:Float = Reflect.field(OptionUtils.options, property);
 		leftArrow = new FlxSprite(0, 0);
 		leftArrow.frames = Paths.getSparrowAtlas("arrows");
 		leftArrow.setGraphicSize(Std.int(leftArrow.width * .7));
@@ -260,7 +258,7 @@ class StepOption extends Option
 	var holdTime:Float = 0;
 	var holdValue:Float = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
@@ -300,12 +298,12 @@ class StepOption extends Option
 
 		// if (PlayerSettings.player1.controls.UI_LEFT || PlayerSettings.player1.controls.UI_RIGHT)
 		// {
-		// 	var pressed = (PlayerSettings.player1.controls.UI_LEFT_P || PlayerSettings.player1.controls.UI_RIGHT_P);
+		// 	var pressed:Bool = (PlayerSettings.player1.controls.UI_LEFT_P || PlayerSettings.player1.controls.UI_RIGHT_P);
 		// 	if (holdTime > 0.5 || pressed)
 		// 	{
 		// 		if (pressed)
 		// 		{
-		// 			var add:Dynamic = PlayerSettings.player1.controls.UI_LEFT ? -step : step;
+		// 			var add:Float = PlayerSettings.player1.controls.UI_LEFT ? -step : step;
 
 		// 			holdValue = getValue() + add;
 		// 			if (holdValue < min)
@@ -345,7 +343,7 @@ class StepOption extends Option
 		// }
 	}
 
-	function clearHold()
+	function clearHold():Void
 	{
 		if (holdTime > 0.5)
 		{
@@ -354,17 +352,17 @@ class StepOption extends Option
 		holdTime = 0;
 	}
 
-	function getValue()
+	function getValue():Float
 	{
 		return Reflect.field(OptionUtils.options, property);
 	}
 
-	function setValue(value:Float)
+	function setValue(value:Float):Void
 	{
 		Reflect.setField(OptionUtils.options, property, value);
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (labelAlphabet == null || text == null)
 		{
@@ -388,7 +386,7 @@ class StepOption extends Option
 		return text;
 	}
 
-	public function updateOptionText()
+	public function updateOptionText():Void
 	{
 		labelAlphabet.changeText(label);
 		text.changeText(name);
@@ -439,7 +437,7 @@ class StepOption extends Option
 class ScrollOption extends Option
 {
 	private var names:Array<String>;
-	private var property = "dummyInt";
+	private var property:String = "dummyInt";
 	private var max:Int = -1;
 	private var min:Int = 0;
 	private var label:String = '';
@@ -462,7 +460,7 @@ class ScrollOption extends Option
 		this.callback = callback;
 		if (Reflect.field(OptionUtils.options, property) == null)
 			Reflect.setField(OptionUtils.options, property, defaultValue);
-		var value = Reflect.field(OptionUtils.options, property);
+		var value:String = Reflect.field(OptionUtils.options, property);
 		leftArrow = new FlxSprite(0, 0);
 		leftArrow.frames = Paths.getSparrowAtlas("arrows");
 		leftArrow.setGraphicSize(Std.int(leftArrow.width * .7));
@@ -483,17 +481,18 @@ class ScrollOption extends Option
 		add(leftArrow);
 		this.max = max;
 		this.min = min;
-		if (names != null)
-		{
-			name = names[value];
-		}
-		else
-		{
-			name = Std.string(value);
-		}
+		// if (names != null)
+		// {
+		// 	name = names[value];
+		// }
+		// else
+		// {
+		// 	name = Std.string(value);
+		// }
+		name = value;
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
@@ -531,7 +530,7 @@ class ScrollOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (labelAlphabet == null || text == null)
 		{
@@ -619,7 +618,7 @@ class ScrollOption extends Option
 class JudgementsOption extends Option
 {
 	private var names:Array<String>;
-	private var property = "dummyInt";
+	private var property:String = "dummyInt";
 	private var label:String = '';
 	private var leftArrow:FlxSprite;
 	private var rightArrow:FlxSprite;
@@ -633,16 +632,16 @@ class JudgementsOption extends Option
 		this.property = property;
 		this.label = label;
 		this.description = description;
-		var idx = 0;
+		var idx:Int = 0;
 
 		if (Reflect.field(OptionUtils.options, property) == null)
 			Reflect.setField(OptionUtils.options, property, defaultValue);
 
-		var judgementOrder = CoolUtil.coolTextFile(Paths.txt('judgementOrder'));
+		var judgementOrder:Array<String> = CoolUtil.coolTextFile(Paths.txt('judgementOrder'));
 
 		for (i in 0...judgementOrder.length)
 		{
-			var judge = judgementOrder[i];
+			var judge:String = judgementOrder[i];
 			judgementNames.push(judge);
 			if (Reflect.field(OptionUtils.options, property) == judge)
 			{
@@ -686,7 +685,7 @@ class JudgementsOption extends Option
 		name = judgementNames[curValue];
 	}
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
@@ -724,7 +723,7 @@ class JudgementsOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (labelAlphabet == null || text == null)
 		{
@@ -787,7 +786,7 @@ class JudgementsOption extends Option
 // class NoteskinOption extends Option
 // {
 // 	private var names:Array<String>;
-// 	private var property = "dummyInt";
+// 	private var property:String = "dummyInt";
 // 	private var label:String = '';
 // 	private var leftArrow:FlxSprite;
 // 	private var rightArrow:FlxSprite;
@@ -795,7 +794,7 @@ class JudgementsOption extends Option
 // 	private var skinNames:Array<String> = [];
 // 	private var curValue:Int = 0;
 // 	private var defaultDesc:String = '';
-// 	function updateDescription()
+// 	function updateDescription():Void
 // 	{
 // 		description = '${defaultDesc}.\nSkin description: ${Note.skinManifest.get(skinNames[curValue]).desc}';
 // 	}
@@ -805,11 +804,11 @@ class JudgementsOption extends Option
 // 		this.property = property;
 // 		this.label = label;
 // 		this.defaultDesc = description;
-// 		var idx = 0;
-// 		var noteskinOrder = CoolUtil.coolTextFile(Paths.txtImages('skins/noteskinOrder'));
+// 		var idx:Int = 0;
+// 		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.txtImages('skins/noteskinOrder'));
 // 		for (i in 0...noteskinOrder.length)
 // 		{
-// 			var skin = noteskinOrder[i];
+// 			var skin:String = noteskinOrder[i];
 // 			if (OptionUtils.noteSkins.contains(skin) && skin != 'fallback')
 // 				skinNames.push(skin);
 // 		}
@@ -820,7 +819,7 @@ class JudgementsOption extends Option
 // 				skinNames.push(skin);
 // 			}
 // 		}
-// 		var idx = skinNames.indexOf(Reflect.field(OptionUtils.options, property));
+// 		idx = skinNames.indexOf(Reflect.field(OptionUtils.options, property));
 // 		curValue = idx == -1 ? 0 : idx;
 // 		updateDescription();
 // 		leftArrow = new FlxSprite(0, 0);
@@ -841,7 +840,7 @@ class JudgementsOption extends Option
 // 		add(leftArrow);
 // 		name = Note.skinManifest.get(skinNames[curValue]).name;
 // 	}
-// 	override function update(elapsed:Float)
+// 	override function update(elapsed:Float):Void
 // 	{
 // 		labelAlphabet.targetY = text.targetY;
 // 		labelAlphabet.alpha = text.alpha;
@@ -877,7 +876,7 @@ class JudgementsOption extends Option
 // 		leftArrow.y = text.y - 10;
 // 		rightArrow.y = text.y - 10;
 // 	}
-// 	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+// 	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 // 	{
 // 		remove(text);
 // 		remove(labelAlphabet);
@@ -923,7 +922,7 @@ class CountOption extends Option
 {
 	private var prefix:String = '';
 	private var suffix:String = '';
-	private var property = "dummyInt";
+	private var property:String = "dummyInt";
 	private var max:Int = -1;
 	private var min:Int = 0;
 
@@ -933,7 +932,7 @@ class CountOption extends Option
 		this.property = property;
 		this.min = min;
 		this.max = max;
-		var value = Reflect.field(OptionUtils.options, property);
+		var value:Int = Reflect.field(OptionUtils.options, property);
 		this.prefix = prefix;
 		this.suffix = suffix;
 
@@ -976,7 +975,7 @@ class ControlOption extends Option
 	private var controls:Controls;
 	private var keys:Array<FlxKey>;
 
-	public var forceUpdate = false;
+	public var forceUpdate:Bool = false;
 
 	public function new(controls:Controls, controlType:String, defaultValue:Array<FlxKey>)
 	{
@@ -993,7 +992,7 @@ class ControlOption extends Option
 		name = '${controlType.toUpperCase()} : ${OptionUtils.getKey(controlType)[0].toString()}';
 	}
 
-	public override function keyPressed(pressed:FlxKey)
+	public override function keyPressed(pressed:FlxKey):Bool
 	{
 		for (k in OptionUtils.shit)
 		{
@@ -1009,14 +1008,14 @@ class ControlOption extends Option
 		if (pressed != -1)
 		{
 			Debug.logTrace("pressed: " + pressed);
-			controls.setKeyboardScheme(Custom, true);
+			controls.setKeyboardScheme(CUSTOM, true);
 			allowMultiKeyInput = false;
 			return true;
 		}
 		return true;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Dynamic
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (text == null)
 		{
@@ -1034,7 +1033,7 @@ class ControlOption extends Option
 
 	public override function accept():Bool
 	{
-		controls.setKeyboardScheme(None, true);
+		controls.setKeyboardScheme(NONE, true);
 		allowMultiKeyInput = true;
 		name = "<Press any key to rebind>";
 		return true;

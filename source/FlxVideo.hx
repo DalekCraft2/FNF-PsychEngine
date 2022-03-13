@@ -30,18 +30,18 @@ class FlxVideo extends FlxBasic
 		player.x = 0;
 		player.y = 0;
 		FlxG.addChildBelowMouse(player);
-		var netConnect = new NetConnection();
+		var netConnect:NetConnection = new NetConnection();
 		netConnect.connect(null);
-		var netStream = new NetStream(netConnect);
+		var netStream:NetStream = new NetStream(netConnect);
 		netStream.client = {
-			onMetaData: function()
+			onMetaData: function():Void
 			{
 				player.attachNetStream(netStream);
 				player.width = FlxG.width;
 				player.height = FlxG.height;
 			}
 		};
-		netConnect.addEventListener(NetStatusEvent.NET_STATUS, function(event:NetStatusEvent)
+		netConnect.addEventListener(NetStatusEvent.NET_STATUS, function(event:NetStatusEvent):Void
 		{
 			if (event.info.code == "NetStream.Play.Complete")
 			{
@@ -78,8 +78,8 @@ class FlxVideo extends FlxBasic
 	#if desktop
 	function checkFile(fileName:String):String
 	{
-		var pDir = "";
-		var appDir = "file:///" + Sys.getCwd() + "/";
+		var pDir:String = "";
+		var appDir:String = "file:///" + Sys.getCwd() + "/";
 
 		if (fileName.indexOf(":") == -1) // Not a path
 			pDir = appDir;
@@ -89,7 +89,7 @@ class FlxVideo extends FlxBasic
 		return pDir + fileName;
 	}
 
-	public static function onFocus()
+	public static function onFocus():Void
 	{
 		if (vlcBitmap != null)
 		{
@@ -97,7 +97,7 @@ class FlxVideo extends FlxBasic
 		}
 	}
 
-	public static function onFocusLost()
+	public static function onFocusLost():Void
 	{
 		if (vlcBitmap != null)
 		{
@@ -105,7 +105,7 @@ class FlxVideo extends FlxBasic
 		}
 	}
 
-	function fixVolume(e:Event)
+	function fixVolume(e:Event):Void
 	{
 		// shitty volume fix
 		vlcBitmap.volume = 0;
@@ -115,7 +115,7 @@ class FlxVideo extends FlxBasic
 		}
 	}
 
-	public function onVLCComplete()
+	public function onVLCComplete():Void
 	{
 		vlcBitmap.stop();
 
@@ -133,7 +133,7 @@ class FlxVideo extends FlxBasic
 		}
 	}
 
-	function onVLCError()
+	function onVLCError():Void
 	{
 		Debug.logError("An error has occured while trying to load the video.\nPlease, check if the file you're loading exists.");
 		if (finishCallback != null)

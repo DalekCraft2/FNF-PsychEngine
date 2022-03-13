@@ -1,3 +1,5 @@
+package;
+
 import flixel.util.FlxColor;
 import openfl.display.Sprite;
 import flixel.FlxSprite;
@@ -23,7 +25,7 @@ class OFLSprite extends FlxSprite
 
 	private var _frameCount:Int = 0;
 
-	override function update(elapsed:Float)
+	override function update(elapsed:Float):Void
 	{
 		if (_frameCount != 2)
 		{
@@ -32,7 +34,7 @@ class OFLSprite extends FlxSprite
 		}
 	}
 
-	public function updateDisplay()
+	public function updateDisplay():Void
 	{
 		pixels.draw(flSprite);
 	}
