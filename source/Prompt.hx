@@ -15,8 +15,8 @@ class Prompt extends MusicBeatSubState
 {
 	var selected:Int = 0;
 
-	public var okc:Void->Void;
-	public var cancelc:Void->Void;
+	public var okc:() -> Void;
+	public var cancelc:() -> Void;
 
 	var buttons:FlxSprite = new FlxSprite(473.3, 450);
 	var theText:String = '';
@@ -28,15 +28,18 @@ class Prompt extends MusicBeatSubState
 	var buttonNo:FlxButton;
 	var cornerSize:Int = 10;
 
-	public function new(promptText:String = '', defaultSelected:Int = 0, okCallback:Void->Void, cancelCallback:Void->Void, acceptOnDefault:Bool = false,
+	public function new(promptText:String = '', defaultSelected:Int = 0, okCallback:() -> Void, cancelCallback:() -> Void, acceptOnDefault:Bool = false,
 			option1:String = null, option2:String = null)
 	{
+		super();
+
 		selected = defaultSelected;
 		okc = okCallback;
 		cancelc = cancelCallback;
 		theText = promptText;
 		goAnyway = acceptOnDefault;
 
+		// TODO More stuff which I want to move to create()
 		var op1:String = 'OK';
 		var op2:String = 'CANCEL';
 
@@ -44,24 +47,24 @@ class Prompt extends MusicBeatSubState
 			op1 = option1;
 		if (option2 != null)
 			op2 = option2;
-		buttonAccept = new FlxButton(473.3, 450, op1, function():Void
+		buttonAccept = new FlxButton(473.3, 450, op1, () ->
 		{
 			if (okc != null)
 				okc();
 			close();
 		});
-		buttonNo = new FlxButton(633.3, 450, op2, function():Void
+		buttonNo = new FlxButton(633.3, 450, op2, () ->
 		{
 			if (cancelc != null)
 				cancelc();
 			close();
 		});
-		super();
 	}
 
 	override public function create():Void
 	{
 		super.create();
+
 		if (goAnyway)
 		{
 			if (okc != null)
@@ -72,8 +75,8 @@ class Prompt extends MusicBeatSubState
 		{
 			panel = new FlxSprite(0, 0);
 			panelbg = new FlxSprite(0, 0);
-			makeSelectorGraphic(panel, 300, 150, 0xff999999);
-			makeSelectorGraphic(panelbg, 302, 165, 0xff000000);
+			makeSelectorGraphic(panel, 300, 150, 0xFF999999);
+			makeSelectorGraphic(panelbg, 302, 165, FlxColor.BLACK);
 			panel.scrollFactor.set();
 			panel.screenCenter();
 			panelbg.scrollFactor.set();
@@ -98,58 +101,63 @@ class Prompt extends MusicBeatSubState
 		}
 	}
 
-	/*
-		override public function update(elapsed:Float):Void 
+	/*override public function update(elapsed:Float):Void
 		{
 			super.update(elapsed);
-			
-			
-			
-			if (!goAnyway){
-				
-				
-				
-			if (controls.UI_LEFT_P || controls.UI_RIGHT_P){
-				if (selected == 0){
-					selected = 1;
-				}else{
-					selected = 0;
+
+			if (!goAnyway)
+			{
+				if (controls.UI_LEFT_P || controls.UI_RIGHT_P)
+				{
+					if (selected == 0)
+					{
+						selected = 1;
+					}
+					else
+					{
+						selected = 0;
+					}
+					FlxG.sound.play(Paths.sound('scrollMenu'));
+					// buttons.animation.play('but' + selected);
 				}
-				FlxG.sound.play(Paths.sound('scrollMenu'));
-				//buttons.animation.play('but' + selected);
-			}
-			buttonAccept.color.brightness = 0.5;
-			buttonNo.color.brightness = 0.5;
-			if (selected == 0 ) buttonAccept.color.brightness = 0.9;
-			if (selected == 1 ) buttonNo.color.brightness = 0.9;
-			if (controls.ACCEPT ){
-				if (selected == 0){
-					FlxG.sound.play(Paths.sound('confirmMenu'));
-					if(okc != null)okc();
-				}else{
-					FlxG.sound.play(Paths.sound('cancelMenu'));
-					if(cancelc != null)cancelc();
+				buttonAccept.color.brightness = 0.5;
+				buttonNo.color.brightness = 0.5;
+				if (selected == 0)
+					buttonAccept.color.brightness = 0.9;
+				if (selected == 1)
+					buttonNo.color.brightness = 0.9;
+				if (controls.ACCEPT)
+				{
+					if (selected == 0)
+					{
+						FlxG.sound.play(Paths.sound('confirmMenu'));
+						if (okc != null)
+							okc();
+					}
+					else
+					{
+						FlxG.sound.play(Paths.sound('cancelMenu'));
+						if (cancelc != null)
+							cancelc();
+					}
+					close();
 				}
-				close();
 			}
-			
-			}
-		}
-	 */
+	}*/
 	function makeSelectorGraphic(panel:FlxSprite, w, h, color:FlxColor):Void
 	{
 		panel.makeGraphic(w, h, color);
-		panel.pixels.fillRect(new Rectangle(0, 190, panel.width, 5), 0x0);
+		panel.pixels.fillRect(new Rectangle(0, 190, panel.width, 5), FlxColor.BLACK);
 
 		// Why did i do this? Because i'm a lmao stupid, of course
 		// also i wanted to understand better how fillRect works so i did this shit lol???
-		panel.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), 0x0); // top left
+		panel.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), FlxColor.BLACK); // top left
 		drawCircleCornerOnSelector(panel, false, false, color);
-		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, 0, cornerSize, cornerSize), 0x0); // top right
+		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, 0, cornerSize, cornerSize), FlxColor.BLACK); // top right
 		drawCircleCornerOnSelector(panel, true, false, color);
-		panel.pixels.fillRect(new Rectangle(0, panel.height - cornerSize, cornerSize, cornerSize), 0x0); // bottom left
+		panel.pixels.fillRect(new Rectangle(0, panel.height - cornerSize, cornerSize, cornerSize), FlxColor.BLACK); // bottom left
 		drawCircleCornerOnSelector(panel, false, true, color);
-		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, panel.height - cornerSize, cornerSize, cornerSize), 0x0); // bottom right
+		panel.pixels.fillRect(new Rectangle(panel.width - cornerSize, panel.height - cornerSize, cornerSize, cornerSize), FlxColor.BLACK); // bottom right
 		drawCircleCornerOnSelector(panel, true, true, color);
 	}
 

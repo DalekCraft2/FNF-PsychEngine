@@ -95,6 +95,8 @@ class FreeplayState extends MusicBeatState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
+		super.create();
+
 		persistentUpdate = true;
 		PlayState.isStoryMode = false;
 		Week.reloadWeekData(false);
@@ -153,7 +155,7 @@ class FreeplayState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 
-		grpSongs = new FlxTypedGroup<Alphabet>();
+		grpSongs = new FlxTypedGroup();
 		add(grpSongs);
 
 		for (i in 0...songs.length)
@@ -194,7 +196,7 @@ class FreeplayState extends MusicBeatState
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, "", 32);
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 
-		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, 0xFF000000);
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, FlxColor.BLACK);
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
 
@@ -235,7 +237,7 @@ class FreeplayState extends MusicBeatState
 			Debug.logTrace(md);
 		 */
 
-		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, 0xFF000000);
+		var textBG:FlxSprite = new FlxSprite(0, FlxG.height - 26).makeGraphic(FlxG.width, 26, FlxColor.BLACK);
 		textBG.alpha = 0.6;
 		add(textBG);
 
@@ -250,14 +252,14 @@ class FreeplayState extends MusicBeatState
 		text.setFormat(Paths.font("vcr.ttf"), size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
-		super.create();
 	}
 
 	override function closeSubState():Void
 	{
+		super.closeSubState();
+
 		changeSelection(0, false);
 		persistentUpdate = true;
-		super.closeSubState();
 	}
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, color:Int):Void
@@ -336,6 +338,8 @@ class FreeplayState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
@@ -472,7 +476,6 @@ class FreeplayState extends MusicBeatState
 			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
-		super.update(elapsed);
 	}
 
 	public static function destroyFreeplayVocals():Void
@@ -527,7 +530,7 @@ class FreeplayState extends MusicBeatState
 			}
 			intendedColor = newColor;
 			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
-				onComplete: function(twn:FlxTween):Void
+				onComplete: (twn:FlxTween) ->
 				{
 					colorTween = null;
 				}

@@ -14,6 +14,7 @@ class MenuItem extends FlxSprite
 	public function new(x:Float, y:Float, weekName:String = '')
 	{
 		super(x, y);
+
 		loadGraphic(Paths.image('storymenu/$weekName'));
 		// Debug.logTrace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
 		antialiasing = OptionUtils.options.globalAntialiasing;
@@ -35,13 +36,14 @@ class MenuItem extends FlxSprite
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
 		y = FlxMath.lerp(y, (targetY * 120) + 480, CoolUtil.boundTo(elapsed * 10.2, 0, 1));
 
 		if (isFlashing)
 			flashingInt += 1;
 
 		if (flashingInt % fakeFramerate >= Math.floor(fakeFramerate / 2))
-			color = 0xFF33ffff;
+			color = 0xFF33FFFF;
 		else
 			color = FlxColor.WHITE;
 	}

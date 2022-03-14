@@ -54,19 +54,22 @@ class Caching extends MusicBeatState
 	public function new(nextState:FlxState)
 	{
 		super();
+
 		this.nextState = nextState;
 	}
 
-	override function create()
+	override function create():Void
 	{
+		super.create();
+
 		// It doesn't reupdate the list before u restart rn lmao
 		// NoteskinHelpers.updateNoteskins();
 
-		bitmapData = new Map<String, FlxGraphic>();
+		bitmapData = [];
 
 		text = new FlxText(FlxG.width / 2, FlxG.height / 2 + 300, 0, "Loading...");
 		text.size = 34;
-		text.alignment = FlxTextAlign.CENTER;
+		text.alignment = CENTER;
 		text.alpha = 0;
 
 		kadeLogo = new FlxSprite(FlxG.width / 2, FlxG.height / 2).loadGraphic(Paths.loadImage('KadeEngineLogo'));
@@ -146,11 +149,9 @@ class Caching extends MusicBeatState
 			cache();
 		});
 		#end
-
-		super.create();
 	}
 
-	function cache()
+	function cache():Void
 	{
 		#if FEATURE_FILESYSTEM
 		Debug.logTrace("LOADING: " + toBeDone + " OBJECTS.");

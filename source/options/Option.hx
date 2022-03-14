@@ -17,6 +17,7 @@ class Option extends FlxTypedGroup<FlxSprite>
 	public function new(?name:String)
 	{
 		super();
+
 		this.type = "Option";
 		if (name != null)
 		{
@@ -80,10 +81,5 @@ class Option extends FlxTypedGroup<FlxSprite>
 			text.changeText(name);
 		}
 		return text;
-	}
-
-	override function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
 	}
 }

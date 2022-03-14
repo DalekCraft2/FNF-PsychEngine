@@ -20,6 +20,7 @@ class AttachedSprite extends FlxSprite
 	public function new(?file:String = null, ?anim:String = null, ?library:String = null, ?loop:Bool = false)
 	{
 		super();
+
 		if (anim != null)
 		{
 			frames = Paths.getSparrowAtlas(file, library);

@@ -29,11 +29,11 @@ class OptionsSubState extends MusicBeatSubState
 
 	public static var isInPause:Bool = false;
 
-	public function new(pauseMenu:Bool = false)
+	public function new(isInPause:Bool = false)
 	{
 		super();
 
-		isInPause = pauseMenu;
+		OptionsSubState.isInPause = isInPause;
 	}
 
 	// TODO Make some of these not changeable whilst in PlayState, like in Kade Engine
@@ -67,14 +67,15 @@ class OptionsSubState extends MusicBeatSubState
 						new ControlOption(controls, 'debug_1', [SEVEN, NONE]),
 						new ControlOption(controls, 'debug_2', [EIGHT, NONE])
 					]),
-				new ToggleOption("controllerMode", false, "Controller Mode",
+				new BooleanOption("controllerMode", false, "Controller Mode",
 					"Check this if you want to play with a controller instead of using your Keyboard."),
-				new ToggleOption("resetKey", true, "Reset Key", "Toggle pressing the bound key to instantly die"),
-				#if !FORCE_LUA_MODCHARTS new ToggleOption("loadModcharts", true, "Load Lua modcharts", "Toggles lua modcharts"),
+				new BooleanOption("resetKey", true, "Reset Key", "Toggle pressing the bound key to instantly die"),
+				#if !FORCE_LUA_MODCHARTS new BooleanOption("loadModcharts", true, "Load Lua modcharts", "Toggles lua modcharts"),
 				#end
-				new ToggleOption("ghostTapping", true, "Ghost-Tapping", "Allows you to press keys while no notes are able to be hit."),
+				new BooleanOption("ghostTapping", true, "Ghost-Tapping", "Allows you to press keys while no notes are able to be hit."),
 				// TODO Finish the descriptions of these
-				new ScrollOption("scrollType", 'multiplicative', "Scroll Type", "", 0, 1,
+				// TODO Make this option change the suffix of the scrollSpeed option when changed
+				new StringOption("scrollType", 'multiplicative', "Scroll Type", "", 0, 1,
 					["multiplicative", "constant"] /*,
 						(i1, s, i2) ->
 						{
@@ -85,107 +86,107 @@ class OptionsSubState extends MusicBeatSubState
 							}
 					}*/),
 
-				new StepOption("scrollSpeed", 1, "Scroll Speed", 0.1, 0.5, (OptionUtils.options.scrollType == 'multiplicative' ? 3 : 6),
+				new FloatOption("scrollSpeed", 1, "Scroll Speed", 0.1, 0.5, (OptionUtils.options.scrollType == 'multiplicative' ? 3 : 6),
 					(OptionUtils.options.scrollType == 'multiplicative' ? "X" : "")),
-				new StepOption("healthGain", 1, "Health Gain Multiplier", 0.1, 0, 5, "X"),
-				new StepOption("healthLoss", 1, "Health Loss Multiplier", 0.1, 0.5, 5, "X"),
-				new ToggleOption("instakill", false, "Instakill on Miss", "FC or die"),
-				new ToggleOption("practice ", false, "Practice Mode", ""),
-				#if !NO_BOTPLAY new ToggleOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
-				// new StepOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
+				new FloatOption("healthGain", 1, "Health Gain Multiplier", 0.1, 0, 5, "X"),
+				new FloatOption("healthLoss", 1, "Health Loss Multiplier", 0.1, 0.5, 5, "X"),
+				new BooleanOption("instakill", false, "Instakill on Miss", "FC or die"),
+				new BooleanOption("practice ", false, "Practice Mode", ""),
+				#if !NO_BOTPLAY new BooleanOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
+				// new FloatOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
 				// 	1, 0, 500, "ms", ""),
-				new StepOption("ratingOffset", 0, "Rating Offset",
+				new FloatOption("ratingOffset", 0, "Rating Offset",
 					"Changes how late/early you have to hit for a \"Sick!\" Higher values mean you have to hit later.", 1, -30, 30, "ms"),
-				new StepOption("sickWindow", 45, "Sick! Hit Window", "Changes the amount of time you have for hitting a \"Sick!\" in milliseconds.", 1, 15,
+				new FloatOption("sickWindow", 45, "Sick! Hit Window", "Changes the amount of time you have for hitting a \"Sick!\" in milliseconds.", 1, 15,
 					45, "ms"),
-				new StepOption("goodWindow", 90, "Good Hit Window", "Changes the amount of time you have for hitting a \"Good\" in milliseconds.", 1, 15, 90,
+				new FloatOption("goodWindow", 90, "Good Hit Window", "Changes the amount of time you have for hitting a \"Good\" in milliseconds.", 1, 15, 90,
 					"ms"),
-				new StepOption("badWindow", 135, "Bad Hit Window", "Changes the amount of time you have for hitting a \"Bad\" in milliseconds.", 1, 15, 135,
+				new FloatOption("badWindow", 135, "Bad Hit Window", "Changes the amount of time you have for hitting a \"Bad\" in milliseconds.", 1, 15, 135,
 					"ms"),
-				new StepOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
+				new FloatOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
 				#if !NO_FREEPLAY_MODS
 				/*new OptionCategory("Freeplay Modifiers", [
-						new StepOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0,
+						new FloatOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0,
 							10, "", "", true),
-						new StepOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
-						new StepOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
-						new ToggleOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
+						new FloatOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
+						new FloatOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
+						new BooleanOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
 					]), */
 				new StateOption("Delay and Combo Offset", new NoteOffsetState()),
 				#end
 				/*new OptionCategory("Advanced", [
 						#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
-							"The judgement windows to use"), new ToggleOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
+							"The judgement windows to use"), new BooleanOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
 						#end
-						new ScrollOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
-						// new ToggleOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
+						new StringOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
+						// new BooleanOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
 					]
 					), */
 				new StateOption("Calibrate Offset", new SoundOffsetState()) // TODO: make a better 'calibrate offset'
 			]),
 			new OptionCategory("Appearance", [
 				new StateOption("Note Colors", new NotesState()),
-				new ToggleOption("showComboCounter", true, "Show Combo", "Shows your combo when you hit a note"),
-				new ToggleOption("showRatings", true, "Show Judgements", "Shows judgements when you hit a note"),
-				new ToggleOption("showMS", false, "Show Hit MS", "Shows millisecond difference when you hit a note"),
-				new ToggleOption("showCounters", true, "Show Judgement Counters", "Whether judgement counters get shown on the side"),
-				new ToggleOption("downScroll", false, "Downscroll", "Arrows come from the top down instead of the bottom up."),
-				new ToggleOption("middleScroll", false, "Centered Notes",
+				new BooleanOption("showComboCounter", true, "Show Combo", "Shows your combo when you hit a note"),
+				new BooleanOption("showRatings", true, "Show Judgements", "Shows judgements when you hit a note"),
+				new BooleanOption("showMS", false, "Show Hit MS", "Shows millisecond difference when you hit a note"),
+				new BooleanOption("showCounters", true, "Show Judgement Counters", "Whether judgement counters get shown on the side"),
+				new BooleanOption("downScroll", false, "Downscroll", "Arrows come from the top down instead of the bottom up."),
+				new BooleanOption("middleScroll", false, "Centered Notes",
 					"Places your notes in the center of the screen and hides the opponent's. \"Middlescroll\""),
-				new ToggleOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
-				new StepOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
-				new ScrollOption("staticCam", "Default", "Camera Focus", "Who the camera should focus on", 0, 3, ["Default", "BF", "Dad", "Center"]),
-				// new ToggleOption("oldMenus", false, "Vanilla Menus", "Forces the vanilla menus to be used"),
-				// new ToggleOption("oldTitle", false, "Vanilla Title Screen", "Forces the vanilla title to be used"),
-				new ToggleOption("healthBarColors", true, "Healthbar Colours", "Whether the healthbar colour changes with the character"),
-				new ToggleOption("onlyScore", false, "Minimal Information", "Only shows your score below the hp bar"),
-				new ToggleOption("smoothHPBar", false, "Smooth Healthbar", "Makes the HP Bar smoother"),
-				new ToggleOption("fcBasedComboColor", false, "FC Combo Colouring", "Makes the combo's colour changes with type of FC you have"),
-				new ToggleOption("holdsBehindReceptors", false, "Stepmania Clipping", "Makes holds clip behind the receptors"),
+				new BooleanOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
+				new FloatOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
+				new StringOption("staticCam", "Default", "Camera Focus", "Who the camera should focus on", 0, 3, ["Default", "BF", "Dad", "Center"]),
+				// new BooleanOption("oldMenus", false, "Vanilla Menus", "Forces the vanilla menus to be used"),
+				// new BooleanOption("oldTitle", false, "Vanilla Title Screen", "Forces the vanilla title to be used"),
+				new BooleanOption("healthBarColors", true, "Healthbar Colours", "Whether the healthbar colour changes with the character"),
+				new BooleanOption("onlyScore", false, "Minimal Information", "Only shows your score below the hp bar"),
+				new BooleanOption("smoothHPBar", false, "Smooth Healthbar", "Makes the HP Bar smoother"),
+				new BooleanOption("fcBasedComboColor", false, "FC Combo Colouring", "Makes the combo's colour changes with type of FC you have"),
+				new BooleanOption("holdsBehindReceptors", false, "Stepmania Clipping", "Makes holds clip behind the receptors"),
 				// new NoteskinOption("noteSkin", "NoteSkin", "The noteskin to use"),
 				new OptionCategory("Effects", [
-					new ToggleOption("picoCamshake", true, "Train camera shake", "Whether the train in week 3's background shakes the camera"),
-					// new ToggleOption("senpaiShaders", true, "Week 6 shaders","Is the CRT effect active in week 6"),
-					new ScrollOption("senpaiShaderStrength", "All", "Week 6 shaders", "How strong the week 6 shaders are", 0, 2, ["Off", "CRT", "All"])
+					new BooleanOption("picoCamshake", true, "Train camera shake", "Whether the train in week 3's background shakes the camera"),
+					// new BooleanOption("senpaiShaders", true, "Week 6 shaders","Is the CRT effect active in week 6"),
+					new StringOption("senpaiShaderStrength", "All", "Week 6 shaders", "How strong the week 6 shaders are", 0, 2, ["Off", "CRT", "All"])
 				])
 			]),
 			new OptionCategory("Preferences", [
-				new ToggleOption("noteSplashes", true, "Show NoteSplashes", "Notesplashes showing up on sicks and above."),
-				new ToggleOption("camFollowsAnims", false, "Directional Camera", "Camera moving depending on a character's animations"),
-				new ToggleOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
-				new ScrollOption("timeBarType", "Time Left", "Time Bar", "What should the Time Bar display?", 0, 3,
+				new BooleanOption("noteSplashes", true, "Show NoteSplashes", "Notesplashes showing up on sicks and above."),
+				new BooleanOption("camFollowsAnims", false, "Directional Camera", "Camera moving depending on a character's animations"),
+				new BooleanOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
+				new StringOption("timeBarType", "Time Left", "Time Bar", "What should the Time Bar display?", 0, 3,
 					['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']),
-				new ToggleOption("scoreScreen", false, "Score Screen", "Show the score screen after the end of a song"),
-				new ToggleOption("inputShow", false, "Score Screen Debug", "Display every single input on the score screen."),
-				new ToggleOption("accuracyDisplay", true, "Accuracy Display", "Display accuracy information on the info bar."),
-				new ToggleOption("npsDisplay", false, "NPS Display", "Shows your current Notes Per Second on the info bar."),
-				new ToggleOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
-				new ToggleOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),
-				new ToggleOption("scoreZoom", true, "Score Text Zoom on Hit", "If unchecked, disables the Score text zooming\neverytime you hit a note."),
-				new StepOption("healthBarAlpha", 1, "Health Bar Transparency", "How much transparent should the health bar and icons be.", 0.1, 0, 1, true),
-				new ToggleOption("ratingInHUD", false, "Fixed Judgements", "Fixes judgements, milliseconds and combo to the screen"),
-				new ToggleOption("ratingOverNotes", false, "Judgements over Notes", "Places judgements, milliseconds and combo above the playfield"),
-				new ToggleOption("smJudges", false, "Simply Judgements", "Animates judgements like ITG's Simply Love theme"),
-				new ToggleOption("persistentCombo", false, "Simply Combos", "Animates combos like ITG's Simply Love theme"),
-				new ToggleOption("pauseHoldAnims", true, "Holds Pause Animations", "Whether to pause animations on their first frame"),
-				new ToggleOption("menuFlash", true, "Flashing in Menus", "Whether buttons and the background should flash in menus"),
-				new ToggleOption("hitSound", false, "Hit Sounds", "Play a click sound when you hit a note"),
-				new ToggleOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", function(state:Bool):Void
+				new BooleanOption("scoreScreen", false, "Score Screen", "Show the score screen after the end of a song"),
+				new BooleanOption("inputShow", false, "Score Screen Debug", "Display every single input on the score screen."),
+				new BooleanOption("accuracyDisplay", true, "Accuracy Display", "Display accuracy information on the info bar."),
+				new BooleanOption("npsDisplay", false, "NPS Display", "Shows your current Notes Per Second on the info bar."),
+				new BooleanOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
+				new BooleanOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),
+				new BooleanOption("scoreZoom", true, "Score Text Zoom on Hit", "If unchecked, disables the Score text zooming\neverytime you hit a note."),
+				new FloatOption("healthBarAlpha", 1, "Health Bar Transparency", "How much transparent should the health bar and icons be.", 0.1, 0, 1, true),
+				new BooleanOption("ratingInHUD", false, "Fixed Judgements", "Fixes judgements, milliseconds and combo to the screen"),
+				new BooleanOption("ratingOverNotes", false, "Judgements over Notes", "Places judgements, milliseconds and combo above the playfield"),
+				new BooleanOption("smJudges", false, "Simply Judgements", "Animates judgements like ITG's Simply Love theme"),
+				new BooleanOption("persistentCombo", false, "Simply Combos", "Animates combos like ITG's Simply Love theme"),
+				new BooleanOption("pauseHoldAnims", true, "Holds Pause Animations", "Whether to pause animations on their first frame"),
+				new BooleanOption("menuFlash", true, "Flashing in Menus", "Whether buttons and the background should flash in menus"),
+				new BooleanOption("hitSound", false, "Hit Sounds", "Play a click sound when you hit a note"),
+				new BooleanOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", (state:Bool) ->
 				{
 					FPSMem.showFPS = state;
 				}),
-				new ToggleOption("showMem", false, "Show Memory", "Shows memory usage in the top left", function(state:Bool):Void
+				new BooleanOption("showMem", false, "Show Memory", "Shows memory usage in the top left", (state:Bool) ->
 				{
 					FPSMem.showMem = state;
 				}),
-				new ToggleOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
-					function(state:Bool):Void
+				new BooleanOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
+					(state:Bool) ->
 					{
 						FPSMem.showMemPeak = state;
 					}),
-				new ScrollOption("pauseMusic", "Tea Time", "Pause Screen Song", "What song do you prefer for the Pause Screen?", 0, 2,
+				new StringOption("pauseMusic", "Tea Time", "Pause Screen Song", "What song do you prefer for the Pause Screen?", 0, 2,
 					["None", "Breakfast", "Tea Time"],
-					function(index:Int, name:String, indexAdd:Int):Void
+					(index:Int, name:String, indexAdd:Int) ->
 					{
 						if (name == 'None')
 							FlxG.sound.music.volume = 0;
@@ -194,33 +195,32 @@ class OptionsSubState extends MusicBeatSubState
 
 						// changedMusic = true;
 					}),
-				new ToggleOption("ghosttapSounds", false, "Ghost-tap Hit Sounds", "Play a click sound when you ghost-tap"),
-				new StepOption("hitsoundVol", 50, "Hit Sound Volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
-				// new ToggleOption("freeplayPreview", false, "Song Preview in Freeplay", "Whether songs get played as you hover over them in Freeplay"),
-				new ToggleOption("fastTransitions", false, "Fast Transitions", "Makes transitions between states faster"),
+				new BooleanOption("ghosttapSounds", false, "Ghost-tap Hit Sounds", "Play a click sound when you ghost-tap"),
+				new FloatOption("hitsoundVol", 50, "Hit Sound Volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
+				// new BooleanOption("freeplayPreview", false, "Song Preview in Freeplay", "Whether songs get played as you hover over them in Freeplay"),
+				new BooleanOption("fastTransitions", false, "Fast Transitions", "Makes transitions between states faster"),
 				// new StateOption("Judgement Position", new JudgeCustomizationState())
 			]),
 			new OptionCategory("Performance", [
-				new StepOption("framerate", 120, "FPS Cap", "The FPS the game tries to run at", 30, 30, 360, "", "", true,
-					function(value:Float, step:Float):Void
-					{
-						Main.setFPSCap(Std.int(value));
-					}),
-				new ToggleOption("recycleComboJudges", false, "Recycling",
+				new FloatOption("framerate", 120, "FPS Cap", "The FPS the game tries to run at", 30, 30, 360, "", "", true, (value:Float, step:Float) ->
+				{
+					Main.setFPSCap(Std.int(value));
+				}),
+				new BooleanOption("recycleComboJudges", false, "Recycling",
 					"Instead of making a new sprite for each judgement and combo number, objects are reused when possible.\nMay cause layering issues."),
-				new ToggleOption("lowQuality", false, "Low Quality",
+				new BooleanOption("lowQuality", false, "Low Quality",
 					"If checked, disables some background details,\ndecreases loading times and improves performance."),
-				new ToggleOption("noChars", false, "Hide Characters", "Hides characters ingame"),
-				new ToggleOption("noStage", false, "Hide Background", "Hides stage ingame"),
-				new ToggleOption("globalAntialiasing", true, "Antialiasing", "Toggles the ability for sprites to have antialiasing"),
-				new ToggleOption("allowOrderSorting", true, "Sort notes by order",
+				new BooleanOption("noChars", false, "Hide Characters", "Hides characters ingame"),
+				new BooleanOption("noStage", false, "Hide Background", "Hides stage ingame"),
+				new BooleanOption("globalAntialiasing", true, "Antialiasing", "Toggles the ability for sprites to have antialiasing"),
+				new BooleanOption("allowOrderSorting", true, "Sort notes by order",
 					"Allows notes to go infront and behind other notes. May cause FPS drops on very high note-density charts."),
 				/*new OptionCategory("Caching", [
-						new ToggleOption("shouldCache", false, "Cache on startup", "Whether the engine caches stuff when the game starts"),
-						new ToggleOption("cacheSongs", false, "Cache songs", "Whether the engine caches songs if it caches on startup"),
-						new ToggleOption("cacheSounds", false, "Cache sounds", "Whether the engine caches misc sounds if it caches on startup"),
-						new ToggleOption("cacheImages", false, "Cache images", "Whether the engine caches misc images if it caches on startup"),
-						new ToggleOption("persistentImages", false, "Persistent Images", "Whether images should persist in memory", function(state:Bool):Void
+						new BooleanOption("shouldCache", false, "Cache on startup", "Whether the engine caches stuff when the game starts"),
+						new BooleanOption("cacheSongs", false, "Cache songs", "Whether the engine caches songs if it caches on startup"),
+						new BooleanOption("cacheSounds", false, "Cache sounds", "Whether the engine caches misc sounds if it caches on startup"),
+						new BooleanOption("cacheImages", false, "Cache images", "Whether the engine caches misc images if it caches on startup"),
+						new BooleanOption("persistentImages", false, "Persistent Images", "Whether images should persist in memory", (state:Bool) ->
 						{
 							FlxGraphic.defaultPersist = state;
 						})
@@ -232,6 +232,7 @@ class OptionsSubState extends MusicBeatSubState
 	override function create():Void
 	{
 		super.create();
+
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Changing options", null);
@@ -249,11 +250,11 @@ class OptionsSubState extends MusicBeatSubState
 		createDefault();
 		category = defCat;
 
-		optionText = new FlxTypedGroup<Option>();
+		optionText = new FlxTypedGroup();
 		add(optionText);
 
 		optionDesc = new FlxText(5, FlxG.height - 48, 0, "", 20);
-		optionDesc.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		optionDesc.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		optionDesc.textField.background = true;
 		optionDesc.textField.backgroundColor = FlxColor.BLACK;
 		refresh();
@@ -317,6 +318,8 @@ class OptionsSubState extends MusicBeatSubState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		var upP:Bool = false;
 		var downP:Bool = false;
 		var leftP:Bool = false;
@@ -435,6 +438,5 @@ class OptionsSubState extends MusicBeatSubState
 				changeSelection();
 			}
 		}
-		super.update(elapsed);
 	}
 }

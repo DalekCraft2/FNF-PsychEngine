@@ -52,6 +52,11 @@ class MainMenuState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		Week.loadTheFirstEnabledMod();
 
 		#if FEATURE_DISCORD
@@ -98,12 +103,12 @@ class MainMenuState extends MusicBeatState
 		magenta.screenCenter();
 		magenta.visible = false;
 		magenta.antialiasing = OptionUtils.options.globalAntialiasing;
-		magenta.color = 0xFFfd719b;
+		magenta.color = 0xFFFD719B;
 		add(magenta);
 
 		// magenta.scrollFactor.set();
 
-		menuItems = new FlxTypedGroup<FlxSprite>();
+		menuItems = new FlxTypedGroup();
 		add(menuItems);
 
 		var scale:Float = 1;
@@ -137,11 +142,11 @@ class MainMenuState extends MusicBeatState
 
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
 		// NG.core.calls.event.logEvent('swag').send();
@@ -162,8 +167,6 @@ class MainMenuState extends MusicBeatState
 			}
 		}
 		#end
-
-		super.create();
 	}
 
 	#if FEATURE_ACHIEVEMENTS
@@ -180,6 +183,8 @@ class MainMenuState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
@@ -223,13 +228,13 @@ class MainMenuState extends MusicBeatState
 					if (OptionUtils.options.flashing)
 						FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
-					menuItems.forEach(function(spr:FlxSprite):Void
+					menuItems.forEach((spr:FlxSprite) ->
 					{
 						if (curSelected != spr.ID)
 						{
 							FlxTween.tween(spr, {alpha: 0}, 0.4, {
 								ease: FlxEase.quadOut,
-								onComplete: function(twn:FlxTween):Void
+								onComplete: (twn:FlxTween) ->
 								{
 									spr.kill();
 								}
@@ -237,7 +242,7 @@ class MainMenuState extends MusicBeatState
 						}
 						else
 						{
-							FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker):Void
+							FlxFlicker.flicker(spr, 1, 0.06, false, false, (flick:FlxFlicker) ->
 							{
 								var daChoice:String = optionShit[curSelected];
 
@@ -272,9 +277,7 @@ class MainMenuState extends MusicBeatState
 			#end
 		}
 
-		super.update(elapsed);
-
-		menuItems.forEach(function(spr:FlxSprite):Void
+		menuItems.forEach((spr:FlxSprite) ->
 		{
 			spr.screenCenter(X);
 		});
@@ -289,7 +292,7 @@ class MainMenuState extends MusicBeatState
 		if (curSelected < 0)
 			curSelected = menuItems.length - 1;
 
-		menuItems.forEach(function(spr:FlxSprite):Void
+		menuItems.forEach((spr:FlxSprite) ->
 		{
 			spr.animation.play('idle');
 			spr.updateHitbox();

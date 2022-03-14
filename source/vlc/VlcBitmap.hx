@@ -42,17 +42,17 @@ class VlcBitmap extends Bitmap
 	public var disposeOnStop:Bool = false;
 	public var time:Int;
 
-	public var onVideoReady:Void->Void;
-	public var onPlay:Void->Void;
-	public var onStop:Void->Void;
-	public var onPause:Void->Void;
-	public var onResume:Void->Void;
-	public var onSeek:Void->Void;
-	public var onBuffer:Void->Void;
-	public var onProgress:Void->Void;
-	public var onOpening:Void->Void;
-	public var onComplete:Void->Void;
-	public var onError:Void->Void;
+	public var onVideoReady:() -> Void;
+	public var onPlay:() -> Void;
+	public var onStop:() -> Void;
+	public var onPause:() -> Void;
+	public var onResume:() -> Void;
+	public var onSeek:() -> Void;
+	public var onBuffer:() -> Void;
+	public var onProgress:() -> Void;
+	public var onOpening:() -> Void;
+	public var onComplete:() -> Void;
+	public var onError:() -> Void;
 
 	// ===================================================================================
 	// Declarations

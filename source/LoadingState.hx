@@ -33,6 +33,7 @@ class LoadingState extends MusicBeatState
 	function new(target:FlxState, stopMusic:Bool, directory:String)
 	{
 		super();
+
 		this.target = target;
 		this.stopMusic = stopMusic;
 		this.directory = directory;
@@ -43,7 +44,12 @@ class LoadingState extends MusicBeatState
 
 	override function create():Void
 	{
-		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xffcaff4d);
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
+		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xFFCAFF4D);
 		add(bg);
 		funkay = new FlxSprite(0, 0).loadGraphic(Paths.image('funkay'));
 		funkay.setGraphicSize(0, FlxG.height);
@@ -53,15 +59,15 @@ class LoadingState extends MusicBeatState
 		funkay.scrollFactor.set();
 		funkay.screenCenter();
 
-		loadBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xffff16d2);
+		loadBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFFFF16D2);
 		loadBar.screenCenter(X);
 		loadBar.antialiasing = OptionUtils.options.globalAntialiasing;
 		add(loadBar);
 
-		initSongsManifest().onComplete(function(lib):Void
+		initSongsManifest().onComplete((lib) ->
 		{
 			callbacks = new MultiCallback(onLoad);
-			var introComplete:Void->Void = callbacks.add("introComplete");
+			var introComplete:() -> Void = callbacks.add("introComplete");
 			if (PlayState.song != null)
 			{
 				checkLoadSong(getSongPath());
@@ -76,7 +82,7 @@ class LoadingState extends MusicBeatState
 
 			var fadeTime:Float = 0.5;
 			FlxG.camera.fade(FlxG.camera.bgColor, fadeTime, true);
-			new FlxTimer().start(fadeTime + MIN_TIME, function(_):Void introComplete());
+			new FlxTimer().start(fadeTime + MIN_TIME, (_) -> introComplete());
 		});
 	}
 
@@ -90,8 +96,8 @@ class LoadingState extends MusicBeatState
 			// library.types.set(symbolPath, SOUND);
 			// @:privateAccess
 			// library.pathGroups.set(symbolPath, [library.__cacheBreak(symbolPath)]);
-			var callback:Void->Void = callbacks.add("song:" + path);
-			Assets.loadSound(path).onComplete(function(_):Void
+			var callback:() -> Void = callbacks.add("song:" + path);
+			Assets.loadSound(path).onComplete((_) ->
 			{
 				callback();
 			});
@@ -107,8 +113,8 @@ class LoadingState extends MusicBeatState
 			if (!LimeAssets.libraryPaths.exists(library))
 				throw 'Missing library: $library';
 
-			var callback:Void->Void = callbacks.add('library: $library');
-			Assets.loadLibrary(library).onComplete(function(_):Void
+			var callback:() -> Void = callbacks.add('library: $library');
+			Assets.loadLibrary(library).onComplete((_) ->
 			{
 				callback();
 			});
@@ -118,6 +124,7 @@ class LoadingState extends MusicBeatState
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
 		funkay.setGraphicSize(Std.int(0.88 * FlxG.width + 0.9 * (funkay.width - 0.88 * FlxG.width)));
 		funkay.updateHitbox();
 		if (controls.ACCEPT)
@@ -209,7 +216,7 @@ class LoadingState extends MusicBeatState
 	static function initSongsManifest():Future<AssetLibrary>
 	{
 		var id:String = "songs";
-		var promise:Promise<AssetLibrary> = new Promise<AssetLibrary>();
+		var promise:Promise<AssetLibrary> = new Promise();
 
 		var library:AssetLibrary = LimeAssets.getLibrary(id);
 
@@ -243,7 +250,7 @@ class LoadingState extends MusicBeatState
 			path = LimeAssets.__cacheBreak(path);
 		}
 
-		AssetManifest.loadFromFile(path, rootPath).onComplete(function(manifest):Void
+		AssetManifest.loadFromFile(path, rootPath).onComplete((manifest) ->
 		{
 			if (manifest == null)
 			{
@@ -264,10 +271,10 @@ class LoadingState extends MusicBeatState
 				library.onChange.add(LimeAssets.onChange.dispatch);
 				promise.completeWith(Future.withValue(library));
 			}
-		}).onError(function(_):Void
-		{
+		}).onError((_) ->
+			{
 				promise.error("There is no asset library with an ID of \"" + id + "\"");
-		});
+			});
 
 		return promise.future;
 	}
@@ -275,27 +282,26 @@ class LoadingState extends MusicBeatState
 
 class MultiCallback
 {
-	public var callback:Void->Void;
+	public var callback:() -> Void;
 	public var logId:String = null;
 	public var length(default, null):Int = 0;
 	public var numRemaining(default, null):Int = 0;
 
-	var unfired:Map<String, Void->Void> = new Map<String, Void->Void>();
-	var fired:Array<String> = new Array<String>();
+	var unfired:Map<String, () -> Void> = [];
+	var fired:Array<String> = [];
 
-	public function new(callback:Void->Void, logId:String = null)
+	public function new(callback:() -> Void, logId:String = null)
 	{
 		this.callback = callback;
 		this.logId = logId;
 	}
 
-	public function add(id = "untitled"):Void->Void
+	public function add(id = "untitled"):() -> Void
 	{
 		id = '$length:$id';
 		length++;
 		numRemaining++;
-		var func:Void->Void = null;
-		func = function():Void
+		var func:() -> Void = () ->
 		{
 			if (unfired.exists(id))
 			{

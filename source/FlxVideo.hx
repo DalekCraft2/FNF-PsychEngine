@@ -12,10 +12,12 @@ import openfl.events.Event;
 import vlc.VlcBitmap;
 #end
 
+using StringTools;
+
 class FlxVideo extends FlxBasic
 {
 	#if FEATURE_VIDEOS
-	public var finishCallback:Void->Void = null;
+	public var finishCallback:() -> Void = null;
 
 	#if desktop
 	public static var vlcBitmap:VlcBitmap;
@@ -34,14 +36,14 @@ class FlxVideo extends FlxBasic
 		netConnect.connect(null);
 		var netStream:NetStream = new NetStream(netConnect);
 		netStream.client = {
-			onMetaData: function():Void
+			onMetaData: () ->
 			{
 				player.attachNetStream(netStream);
 				player.width = FlxG.width;
 				player.height = FlxG.height;
 			}
 		};
-		netConnect.addEventListener(NetStatusEvent.NET_STATUS, function(event:NetStatusEvent):Void
+		netConnect.addEventListener(NetStatusEvent.NET_STATUS, (event:NetStatusEvent) ->
 		{
 			if (event.info.code == "NetStream.Play.Complete")
 			{
@@ -81,9 +83,9 @@ class FlxVideo extends FlxBasic
 		var pDir:String = "";
 		var appDir:String = "file:///" + Sys.getCwd() + "/";
 
-		if (fileName.indexOf(":") == -1) // Not a path
+		if (!fileName.contains(":")) // Not a path
 			pDir = appDir;
-		else if (fileName.indexOf("file://") == -1 || fileName.indexOf("http") == -1) // C:, D: etc? ..missing "file:///" ?
+		else if (!fileName.contains("file://") || !fileName.contains("http")) // C:, D: etc? ..missing "file:///" ?
 			pDir = "file:///";
 
 		return pDir + fileName;

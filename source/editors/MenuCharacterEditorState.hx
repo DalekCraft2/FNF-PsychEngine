@@ -35,6 +35,11 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		characterFile = {
 			image: 'Menu_Dad',
 			scale: 1,
@@ -48,7 +53,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		DiscordClient.changePresence("Menu Character Editor", "Editting: " + characterFile.image);
 		#end
 
-		grpWeekCharacters = new FlxTypedGroup<MenuCharacter>();
+		grpWeekCharacters = new FlxTypedGroup();
 		for (char in 0...3)
 		{
 			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150, defaultCharacters[char]);
@@ -74,8 +79,6 @@ class MenuCharacterEditorState extends MusicBeatState
 		addEditorBox();
 		FlxG.mouse.visible = true;
 		updateCharTypeBox();
-
-		super.create();
 	}
 
 	var UI_typebox:FlxUITabMenu;
@@ -102,7 +105,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		addCharacterUI();
 		add(UI_mainbox);
 
-		var loadButton:FlxButton = new FlxButton(0, 480, "Load Character", function():Void
+		var loadButton:FlxButton = new FlxButton(0, 480, "Load Character", () ->
 		{
 			loadCharacter();
 		});
@@ -110,7 +113,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		loadButton.x -= 60;
 		add(loadButton);
 
-		var saveButton:FlxButton = new FlxButton(0, 480, "Save Character", function():Void
+		var saveButton:FlxButton = new FlxButton(0, 480, "Save Character", () ->
 		{
 			saveCharacter();
 		});
@@ -130,21 +133,21 @@ class MenuCharacterEditorState extends MusicBeatState
 		tab_group.name = "Character Type";
 
 		opponentCheckbox = new FlxUICheckBox(10, 20, null, null, "Opponent", 100);
-		opponentCheckbox.callback = function():Void
+		opponentCheckbox.callback = () ->
 		{
 			curTypeSelected = 0;
 			updateCharTypeBox();
 		};
 
 		boyfriendCheckbox = new FlxUICheckBox(opponentCheckbox.x, opponentCheckbox.y + 40, null, null, "Boyfriend", 100);
-		boyfriendCheckbox.callback = function():Void
+		boyfriendCheckbox.callback = () ->
 		{
 			curTypeSelected = 1;
 			updateCharTypeBox();
 		};
 
 		girlfriendCheckbox = new FlxUICheckBox(boyfriendCheckbox.x, boyfriendCheckbox.y + 40, null, null, "Girlfriend", 100);
-		girlfriendCheckbox.callback = function():Void
+		girlfriendCheckbox.callback = () ->
 		{
 			curTypeSelected = 2;
 			updateCharTypeBox();
@@ -176,13 +179,13 @@ class MenuCharacterEditorState extends MusicBeatState
 		blockPressWhileTypingOn.push(confirmInputText);
 
 		flipXCheckbox = new FlxUICheckBox(10, confirmInputText.y + 30, null, null, "Flip X", 100);
-		flipXCheckbox.callback = function():Void
+		flipXCheckbox.callback = () ->
 		{
 			grpWeekCharacters.members[curTypeSelected].flipX = flipXCheckbox.checked;
 			characterFile.flipX = flipXCheckbox.checked;
 		};
 
-		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, "Reload Char", function():Void
+		var reloadImageButton:FlxButton = new FlxButton(140, confirmInputText.y + 30, "Reload Char", () ->
 		{
 			reloadSelectedCharacter();
 		});
@@ -288,6 +291,8 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		var blockInput:Bool = false;
 		for (inputText in blockPressWhileTypingOn)
 		{
@@ -351,8 +356,6 @@ class MenuCharacterEditorState extends MusicBeatState
 		{
 			char.animation.play('idle', true);
 		}
-
-		super.update(elapsed);
 	}
 
 	function updateOffset():Void

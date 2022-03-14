@@ -20,7 +20,7 @@ using StringTools;
 
 class StoryMenuState extends MusicBeatState
 {
-	public static var weekCompleted:Map<String, Bool> = new Map<String, Bool>();
+	public static var weekCompleted:Map<String, Bool> = [];
 
 	var scoreText:FlxText;
 
@@ -51,6 +51,8 @@ class StoryMenuState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
+
+		super.create();
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
@@ -86,15 +88,15 @@ class StoryMenuState extends MusicBeatState
 		bgSprite = new FlxSprite(0, 56);
 		bgSprite.antialiasing = OptionUtils.options.globalAntialiasing;
 
-		grpWeekText = new FlxTypedGroup<MenuItem>();
+		grpWeekText = new FlxTypedGroup();
 		add(grpWeekText);
 
 		var blackBarThingie:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 56, FlxColor.BLACK);
 		add(blackBarThingie);
 
-		grpWeekCharacters = new FlxTypedGroup<MenuCharacter>();
+		grpWeekCharacters = new FlxTypedGroup();
 
-		grpLocks = new FlxTypedGroup<FlxSprite>();
+		grpLocks = new FlxTypedGroup();
 		add(grpLocks);
 
 		var num:Int = 0;
@@ -180,7 +182,7 @@ class StoryMenuState extends MusicBeatState
 		txtTracklist = new FlxText(FlxG.width * 0.05, tracksSprite.y + 60, 0, "", 32);
 		txtTracklist.alignment = CENTER;
 		txtTracklist.font = rankText.font;
-		txtTracklist.color = 0xFFe55777;
+		txtTracklist.color = 0xFFE55777;
 		add(txtTracklist);
 		// add(rankText);
 		add(scoreText);
@@ -188,19 +190,20 @@ class StoryMenuState extends MusicBeatState
 
 		changeWeek();
 		changeDifficulty();
-
-		super.create();
 	}
 
 	override function closeSubState()
 	{
+		super.closeSubState();
+
 		persistentUpdate = true;
 		changeWeek();
-		super.closeSubState();
 	}
 
 	override function update(elapsed:Float)
 	{
+		super.update(elapsed);
+
 		// scoreText.setFormat('VCR OSD Mono', 32);
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 30, 0, 1)));
 		if (Math.abs(intendedScore - lerpScore) < 10)
@@ -267,9 +270,7 @@ class StoryMenuState extends MusicBeatState
 			FlxG.switchState(new MainMenuState());
 		}
 
-		super.update(elapsed);
-
-		grpLocks.forEach(function(lock:FlxSprite)
+		grpLocks.forEach((lock:FlxSprite) ->
 		{
 			lock.y = grpWeekText.members[lock.ID].y;
 			lock.visible = (lock.y > FlxG.height / 2);
@@ -322,7 +323,7 @@ class StoryMenuState extends MusicBeatState
 			PlayState.campaignBads = 0;
 			PlayState.campaignShits = 0;
 			PlayState.campaignMisses = 0;
-			new FlxTimer().start(1, function(tmr:FlxTimer)
+			new FlxTimer().start(1, (tmr:FlxTimer) ->
 			{
 				LoadingState.loadAndSwitchState(new PlayState(), true);
 				FreeplayState.destroyFreeplayVocals();
@@ -362,7 +363,7 @@ class StoryMenuState extends MusicBeatState
 			if (tweenDifficulty != null)
 				tweenDifficulty.cancel();
 			tweenDifficulty = FlxTween.tween(sprDifficulty, {y: leftArrow.y + 15, alpha: 1}, 0.07, {
-				onComplete: function(twn:FlxTween)
+				onComplete: (twn:FlxTween) ->
 				{
 					tweenDifficulty = null;
 				}

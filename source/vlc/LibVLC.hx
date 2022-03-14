@@ -24,15 +24,11 @@ extern class LibVLC
 	public function openMedia(path:String):Void;
 
 	@:native("play")
-	@:overload(function():Void
-	{
-	})
+	@:overload(() -> {})
 	public function play(path:String):Void;
 
 	@:native("playInWindow")
-	@:overload(function():Void
-	{
-	})
+	@:overload(() -> {})
 	public function playInWindow(path:String):Void;
 
 	@:native("stop")

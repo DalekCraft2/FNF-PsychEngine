@@ -25,6 +25,7 @@ class TileContainerMovieClip extends TileContainer
 	public function new(symbol:TileContainerSymbol)
 	{
 		super();
+
 		this.symbol = symbol;
 		addTile(this.symbol);
 	}

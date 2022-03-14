@@ -32,12 +32,13 @@ class StrumNote extends FlxSprite
 
 	public function new(x:Float, y:Float, leData:Int, player:Int)
 	{
+		super(x, y);
+
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
 		noteData = leData;
 		this.player = player;
 		this.noteData = leData;
-		super(x, y);
 
 		var skin:String = 'NOTE_assets';
 		if (PlayState.song.arrowSkin != null && PlayState.song.arrowSkin.length > 1)
@@ -137,6 +138,8 @@ class StrumNote extends FlxSprite
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (resetAnim > 0)
 		{
 			resetAnim -= elapsed;
@@ -152,8 +155,6 @@ class StrumNote extends FlxSprite
 			centerOrigin();
 		}
 		// }
-
-		super.update(elapsed);
 	}
 
 	public function playAnim(anim:String, ?force:Bool = false):Void

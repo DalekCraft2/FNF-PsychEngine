@@ -2,7 +2,7 @@ package options;
 
 class OptionCategory extends Option
 {
-	public var options:Array<Option> = new Array<Option>();
+	public var options:Array<Option> = [];
 	public var curSelected:Int = 0;
 
 	public function addOption(opt:Option):Void
@@ -24,6 +24,7 @@ class OptionCategory extends Option
 	public function new(name:String, opts:Array<Option>)
 	{
 		super();
+
 		this.type = "Category";
 		this.name = name;
 		for (opt in opts)

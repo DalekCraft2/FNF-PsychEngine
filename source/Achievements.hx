@@ -31,11 +31,10 @@ typedef AchievementData =
 
 class Achievements
 {
-	public static var achievementList:Array<String> = [
-		// Gets filled when loading achievements
-	];
-	public static var achievementsMap:Map<String, Bool> = new Map<String, Bool>();
-	public static var achievementsLoaded:Map<String, AchievementData> = new Map<String, AchievementData>();
+	// Gets filled when loading achievements
+	public static var achievementList:Array<String> = [];
+	public static var achievementsMap:Map<String, Bool> = [];
+	public static var achievementsLoaded:Map<String, AchievementData> = [];
 
 	public static var henchmenDeath:Int = 0;
 
@@ -283,22 +282,23 @@ class AttachedAchievement extends FlxSprite
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (sprTracker != null)
 			setPosition(sprTracker.x - 130, sprTracker.y + 25);
-
-		super.update(elapsed);
 	}
 }
 
 class Achievement extends FlxSpriteGroup
 {
-	public var onFinish:Void->Void = null;
+	public var onFinish:() -> Void = null;
 
 	var alphaTween:FlxTween;
 
 	public function new(name:String, ?camera:FlxCamera = null)
 	{
 		super(x, y);
+
 		OptionUtils.saveOptions(OptionUtils.options);
 
 		var id:Int = Achievements.getAchievementIndex(name);
@@ -338,11 +338,11 @@ class Achievement extends FlxSpriteGroup
 		achievementText.cameras = cam;
 		achievementIcon.cameras = cam;
 		alphaTween = FlxTween.tween(this, {alpha: 1}, 0.5, {
-			onComplete: function(twn:FlxTween):Void
+			onComplete: (twn:FlxTween) ->
 			{
 				alphaTween = FlxTween.tween(this, {alpha: 0}, 0.5, {
 					startDelay: 2.5,
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						alphaTween = null;
 						remove(this);
@@ -356,10 +356,11 @@ class Achievement extends FlxSpriteGroup
 
 	override function destroy():Void
 	{
+		super.destroy();
+
 		if (alphaTween != null)
 		{
 			alphaTween.cancel();
 		}
-		super.destroy();
 	}
 }

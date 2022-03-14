@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.display.IBitmapDrawable;
@@ -43,7 +44,7 @@ class ImageOutline
 			h = Std.int(bmp.height);
 		}
 
-		var render:BitmapData = new BitmapData(w, h, true, 0x000000);
+		var render:BitmapData = new BitmapData(w, h, true, FlxColor.BLACK);
 		render.draw(src, m);
 
 		return new Bitmap(ImageOutline.outline(render, weight, color, alpha, antialias, threshold));
@@ -68,7 +69,7 @@ class ImageOutline
 		_weight = weight;
 		_brush = (weight * 2) + 1;
 
-		var copy:BitmapData = new BitmapData(Std.int(src.width + _brush), Std.int(src.height + _brush), true, 0x00000000);
+		var copy:BitmapData = new BitmapData(Std.int(src.width + _brush), Std.int(src.height + _brush), true, FlxColor.BLACK);
 
 		for (iy in 0...src.height)
 		{

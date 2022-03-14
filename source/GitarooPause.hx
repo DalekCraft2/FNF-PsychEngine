@@ -12,6 +12,8 @@ class GitarooPause extends MusicBeatState
 
 	override function create():Void
 	{
+		super.create();
+
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
@@ -40,12 +42,12 @@ class GitarooPause extends MusicBeatState
 		add(cancelButton);
 
 		changeThing();
-
-		super.create();
 	}
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (controls.UI_LEFT_P || controls.UI_RIGHT_P)
 			changeThing();
 
@@ -66,8 +68,6 @@ class GitarooPause extends MusicBeatState
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		}
-
-		super.update(elapsed);
 	}
 
 	function changeThing():Void

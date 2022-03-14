@@ -14,21 +14,12 @@ class PlayerSettings
 	static public var player1(default, null):PlayerSettings;
 	static public var player2(default, null):PlayerSettings;
 
-	#if (haxe >= "4.0.0")
-	static public final onAvatarAdd:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
-	static public final onAvatarRemove:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
-	#else
-	static public var onAvatarAdd:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
-	static public var onAvatarRemove:FlxTypedSignal<PlayerSettings->Void> = new FlxTypedSignal<PlayerSettings->Void>();
-	#end
+	static public final onAvatarAdd:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
+	static public final onAvatarRemove:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
 
 	public var id(default, null):Int;
 
-	#if (haxe >= "4.0.0")
 	public final controls:Controls;
-	#else
-	public var controls:Controls;
-	#end
 
 	// public var avatar:Player;
 	// public var camera(get, never):PlayCamera;
@@ -102,7 +93,7 @@ class PlayerSettings
 			settings.avatar = null;
 			while (settings.controls.gamepadsAdded.length > 0)
 			{
-				final id = settings.controls.gamepadsAdded.shift();
+				final id:Float = settings.controls.gamepadsAdded.shift();
 				settings.controls.removeGamepad(id);
 				DeviceManager.releaseGamepad(FlxG.gamepads.getByID(id));
 			}

@@ -18,6 +18,9 @@ class FlashingState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -35,6 +38,8 @@ class FlashingState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (!leftState)
 		{
 			var back:Bool = controls.BACK;
@@ -48,9 +53,9 @@ class FlashingState extends MusicBeatState
 					OptionUtils.options.flashing = false;
 					OptionUtils.saveOptions(OptionUtils.options);
 					FlxG.sound.play(Paths.sound('confirmMenu'));
-					FlxFlicker.flicker(warnText, 1, 0.1, false, true, function(flk:FlxFlicker):Void
+					FlxFlicker.flicker(warnText, 1, 0.1, false, true, (flk:FlxFlicker) ->
 					{
-						new FlxTimer().start(0.5, function(tmr:FlxTimer):Void
+						new FlxTimer().start(0.5, (tmr:FlxTimer) ->
 						{
 							FlxG.switchState(new TitleState());
 						});
@@ -60,7 +65,7 @@ class FlashingState extends MusicBeatState
 				{
 					FlxG.sound.play(Paths.sound('cancelMenu'));
 					FlxTween.tween(warnText, {alpha: 0}, 1, {
-						onComplete: function(twn:FlxTween):Void
+						onComplete: (twn:FlxTween) ->
 						{
 							FlxG.switchState(new TitleState());
 						}
@@ -68,6 +73,5 @@ class FlashingState extends MusicBeatState
 				}
 			}
 		}
-		super.update(elapsed);
 	}
 }

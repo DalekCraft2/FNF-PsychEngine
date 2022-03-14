@@ -14,13 +14,14 @@ typedef EventNote =
 
 // TODO Use the below typedef
 
-/*typedef NoteData =
-	{
+typedef NoteData =
+{
 	strumTime:Float,
 	noteData:Int,
-	sustainLength:Float,
-	noteType:String
-}*/
+	?sustainLength:Float,
+	?noteType:String
+}
+
 class Note extends FlxSprite
 {
 	public var strumTime:Float = 0;

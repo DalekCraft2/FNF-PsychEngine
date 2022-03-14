@@ -14,6 +14,8 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import options.Options.OptionUtils;
 
+// TODO Make this look more like Kade's without having it lag the game to an absurd degree
+
 /**
 	The FPS class provides an easy-to-use monitor to display
 	the current frame rate of an OpenFL project
@@ -67,7 +69,7 @@ class FPSMem extends TextField
 		times = [];
 
 		#if flash
-		addEventListener(Event.ENTER_FRAME, function(e):Void
+		addEventListener(Event.ENTER_FRAME, (e) ->
 		{
 			__enterFrame(Timer.stamp() - lastUpdate);
 		});
@@ -81,6 +83,10 @@ class FPSMem extends TextField
 	@:noCompletion
 	private #if !flash override #end function __enterFrame(d:Float):Void
 	{
+		// TODO Can I add a super.__enterFrame(d) call here?
+		// super.__enterFrame(d);
+		// Nope. Can't. The super method has an Int for a parameter.
+
 		currentTime = Timer.stamp();
 		lastUpdate = currentTime;
 		times.push(currentTime);

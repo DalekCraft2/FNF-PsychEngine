@@ -21,20 +21,23 @@ class MusicBeatState extends FlxUIState
 	#if (FEATURE_VIDEOS && windows)
 	override public function onFocus():Void
 	{
-		FlxVideo.onFocus();
 		super.onFocus();
+
+		FlxVideo.onFocus();
 	}
 
 	override public function onFocusLost():Void
 	{
-		FlxVideo.onFocusLost();
 		super.onFocusLost();
+
+		FlxVideo.onFocusLost();
 	}
 	#end
 
 	override function update(elapsed:Float):Void
 	{
-		// everyStep();
+		super.update(elapsed);
+
 		var oldStep:Int = curStep;
 
 		updateCurStep();
@@ -45,8 +48,6 @@ class MusicBeatState extends FlxUIState
 
 		if (FlxG.save.data != null)
 			FlxG.save.data.fullscreen = FlxG.fullscreen;
-
-		super.update(elapsed);
 	}
 
 	private function updateBeat():Void

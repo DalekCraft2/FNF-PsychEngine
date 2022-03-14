@@ -52,6 +52,7 @@ class Alphabet extends FlxSpriteGroup
 	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false, ?typingSpeed:Float = 0.05, ?textSize:Float = 1)
 	{
 		super(x, y);
+
 		forceX = Math.NEGATIVE_INFINITY;
 		this.textSize = textSize;
 
@@ -142,14 +143,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			#if (haxe >= "4.0.0")
 			var isNumber:Bool = AlphaCharacter.numbers.contains(character);
 			var isSymbol:Bool = AlphaCharacter.symbols.contains(character);
-			#else
-			var isNumber:Bool = AlphaCharacter.numbers.indexOf(character) != -1;
-			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(character) != -1;
-			#end
-			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1;
+			var isAlphabet:Bool = AlphaCharacter.alphabet.contains(character.toLowerCase());
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null)
@@ -258,9 +254,9 @@ class Alphabet extends FlxSpriteGroup
 		}
 		else
 		{
-			typeTimer = new FlxTimer().start(0.1, function(tmr:FlxTimer):Void
+			typeTimer = new FlxTimer().start(0.1, (tmr:FlxTimer) ->
 			{
-				typeTimer = new FlxTimer().start(speed, function(tmr:FlxTimer):Void
+				typeTimer = new FlxTimer().start(speed, (tmr:FlxTimer) ->
 				{
 					timerCheck(tmr);
 				}, 0);
@@ -304,9 +300,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			var isNumber:Bool = AlphaCharacter.numbers.indexOf(splitWords[loopNum]) != -1;
-			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(splitWords[loopNum]) != -1;
-			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(splitWords[loopNum].toLowerCase()) != -1;
+			var isNumber:Bool = AlphaCharacter.numbers.contains(splitWords[loopNum]);
+			var isSymbol:Bool = AlphaCharacter.symbols.contains(splitWords[loopNum]);
+			var isAlphabet:Bool = AlphaCharacter.alphabet.contains(splitWords[loopNum].toLowerCase());
 
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
@@ -391,6 +387,8 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (isMenuItem)
 		{
 			var scaledY:Float = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
@@ -406,8 +404,6 @@ class Alphabet extends FlxSpriteGroup
 				x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
 			}
 		}
-
-		super.update(elapsed);
 	}
 
 	public function killTheTimer():Void
@@ -441,6 +437,7 @@ class AlphaCharacter extends FlxSprite
 	public function new(x:Float, y:Float, textSize:Float)
 	{
 		super(x, y);
+
 		var tex:FlxAtlasFrames = Paths.getSparrowAtlas("alphabet");
 		frames = tex;
 
@@ -457,7 +454,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 	}
 
 	public function createBoldNumber(letter:String):Void
@@ -467,7 +464,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 	}
 
 	public function createBoldSymbol(letter:String):Void
@@ -477,7 +474,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 		// switch (letter)
 		// {
 		// 	case "'", "^", "“", "”":
@@ -500,7 +497,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 	}
 
 	public function createNumber(letter:String):Void
@@ -510,7 +507,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 	}
 
 	public function createSymbol(letter:String):Void
@@ -520,7 +517,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		y += row * 60;
+		// y += row * 60;
 		switch (letter)
 		{
 			case "'", "^", "“", "”":

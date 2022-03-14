@@ -26,9 +26,9 @@ class ControlsSubState extends MusicBeatSubState
 	var rebindingKey:Bool = false;
 	var nextAccept:Int = 5;
 
-	public function new()
+	override function create():Void
 	{
-		super();
+		super.create();
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
@@ -36,7 +36,7 @@ class ControlsSubState extends MusicBeatSubState
 		bg.antialiasing = OptionUtils.options.globalAntialiasing;
 		add(bg);
 
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedGroup();
 		add(grpOptions);
 
 		optionShit.push(['']);
@@ -83,6 +83,8 @@ class ControlsSubState extends MusicBeatSubState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (!rebindingKey)
 		{
 			if (controls.UI_UP_P)
@@ -171,7 +173,6 @@ class ControlsSubState extends MusicBeatSubState
 		{
 			nextAccept -= 1;
 		}
-		super.update(elapsed);
 	}
 
 	function getInputTextNum():Int

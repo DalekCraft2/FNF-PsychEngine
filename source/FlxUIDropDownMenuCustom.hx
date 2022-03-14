@@ -146,9 +146,9 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 
 	public static inline var CLICK_EVENT:String = "click_dropdown";
 
-	public var callback:String->Void;
+	public var callback:(String) -> Void;
 
-	// private var _ui_control_callback:Bool->FlxUIDropDownMenuCustom->Void;
+	// private var _ui_control_callback:(Bool, FlxUIDropDownMenuCustom) -> Void;
 
 	/**
 	 * This creates a new dropdown menu.
@@ -162,10 +162,11 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 	 * @param	ButtonList			Optional list of buttons to be used for the corresponding entry in DataList
 	 * @param	UIControlCallback	Used internally by FlxUI
 	 */
-	public function new(X:Float = 0, Y:Float = 0, DataList:Array<StrNameLabel>, ?Callback:String->Void, ?Header:FlxUIDropDownHeader,
-			?DropPanel:FlxUI9SliceSprite, ?ButtonList:Array<FlxUIButton>, ?UIControlCallback:Bool->FlxUIDropDownMenuCustom->Void)
+	public function new(X:Float = 0, Y:Float = 0, DataList:Array<StrNameLabel>, ?Callback:(String) -> Void, ?Header:FlxUIDropDownHeader,
+			?DropPanel:FlxUI9SliceSprite, ?ButtonList:Array<FlxUIButton>, ?UIControlCallback:(Bool, FlxUIDropDownMenuCustom) -> Void)
 	{
 		super(X, Y);
+
 		callback = Callback;
 		header = Header;
 		dropPanel = DropPanel;
@@ -245,6 +246,8 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 
 	override function set_visible(Value:Bool):Bool
 	{
+		super.set_visible(Value);
+
 		var vDropPanel:Bool = dropPanel.visible;
 		var vButtons:Array<Bool> = [];
 		for (i in 0...list.length)
@@ -258,7 +261,6 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 				vButtons.push(false);
 			}
 		}
-		super.set_visible(Value);
 		dropPanel.visible = vDropPanel;
 		for (i in 0...list.length)
 		{
@@ -300,7 +302,7 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 				var recycled:Bool = false;
 				if (list != null)
 				{
-					if (i <= list.length - 1)
+					if (i < list.length)
 					{ // If buttons exist, try to re-use them
 						var btn:FlxUIButton = list[i];
 						if (btn != null)
@@ -383,8 +385,9 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 		return t;
 	}
 
-	/*public function setUIControlCallback(UIControlCallback:Bool->FlxUIDropDownMenuCustom->Void):Void {
-		_ui_control_callback = UIControlCallback;
+	/*public function setUIControlCallback(UIControlCallback:(Bool, FlxUIDropDownMenuCustom) -> Void):Void
+		{
+			_ui_control_callback = UIControlCallback;
 	}*/
 	public function changeLabelByIndex(i:Int, NewLabel:String):Void
 	{

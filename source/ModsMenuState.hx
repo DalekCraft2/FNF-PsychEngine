@@ -60,6 +60,9 @@ class ModsMenuState extends MusicBeatState
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
+
+		super.create();
+
 		Week.setDirectoryFromWeek();
 
 		#if FEATURE_DISCORD
@@ -75,7 +78,7 @@ class ModsMenuState extends MusicBeatState
 		noModsTxt = new FlxText(0, 0, FlxG.width, "NO MODS INSTALLED\nPRESS BACK TO EXIT AND INSTALL A MOD", 48);
 		if (FlxG.random.bool(0.1))
 			noModsTxt.text += '\nBITCH.'; // meanie
-		noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		noModsTxt.scrollFactor.set();
 		noModsTxt.borderSize = 2;
 		add(noModsTxt);
@@ -127,7 +130,7 @@ class ModsMenuState extends MusicBeatState
 		// attached buttons
 		var startX:Int = 1120;
 
-		buttonToggle = new FlxButton(startX, 0, "ON", function():Void
+		buttonToggle = new FlxButton(startX, 0, "ON", () ->
 		{
 			if (mods[curSelected].restart)
 			{
@@ -147,7 +150,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonToggle, -15, 10);
 		startX -= 70;
 
-		buttonUp = new FlxButton(startX, 0, "/\\", function():Void
+		buttonUp = new FlxButton(startX, 0, "/\\", () ->
 		{
 			moveMod(-1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
@@ -161,7 +164,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonUp, -15, 10);
 		startX -= 70;
 
-		buttonDown = new FlxButton(startX, 0, "\\/", function():Void
+		buttonDown = new FlxButton(startX, 0, "\\/", () ->
 		{
 			moveMod(1);
 			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
@@ -175,7 +178,7 @@ class ModsMenuState extends MusicBeatState
 		setAllLabelsOffset(buttonDown, -15, 10);
 
 		startX -= 100;
-		buttonTop = new FlxButton(startX, 0, "TOP", function():Void
+		buttonTop = new FlxButton(startX, 0, "TOP", () ->
 		{
 			var doRestart:Bool = (mods[0].restart || mods[curSelected].restart);
 			for (i in 0...curSelected) // so it shifts to the top instead of replacing the top one
@@ -198,7 +201,7 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(buttonTop);
 
 		startX -= 190;
-		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", function():Void
+		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", () ->
 		{
 			for (i in modsList)
 			{
@@ -225,7 +228,7 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(buttonDisableAll);
 
 		startX -= 190;
-		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", function():Void
+		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", () ->
 		{
 			for (i in modsList)
 			{
@@ -254,7 +257,7 @@ class ModsMenuState extends MusicBeatState
 		// more buttons
 		var startX:Int = 1100;
 
-		/*installButton = new FlxButton(startX, 620, "Install Mod", function():Void
+		/*installButton = new FlxButton(startX, 620, "Install Mod", () ->
 			{
 				installMod();
 			});
@@ -267,7 +270,7 @@ class ModsMenuState extends MusicBeatState
 			add(installButton);
 			startX -= 180;
 
-			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", function():Void
+			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", () ->
 			{
 				var path:String = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
 				if (FileSystem.exists(path) && FileSystem.isDirectory(path))
@@ -375,8 +378,6 @@ class ModsMenuState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 
 		FlxG.mouse.visible = true;
-
-		super.create();
 	}
 
 	/*function getIntArray(max:Int):Array<Int>
@@ -472,6 +473,8 @@ class ModsMenuState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (noModsTxt.visible)
 		{
 			noModsSine += 180 * elapsed;
@@ -513,7 +516,6 @@ class ModsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 		updatePosition(elapsed);
-		super.update(elapsed);
 	}
 
 	function setAllLabelsOffset(button:FlxButton, x:Float, y:Float):Void
@@ -563,7 +565,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			intendedColor = newColor;
 			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
-				onComplete: function(twn:FlxTween):Void
+				onComplete: (twn:FlxTween) ->
 				{
 					colorTween = null;
 				}
@@ -641,17 +643,18 @@ class ModsMenuState extends MusicBeatState
 	function makeSelectorGraphic():Void
 	{
 		selector.makeGraphic(1100, 450, FlxColor.BLACK);
-		selector.pixels.fillRect(new Rectangle(0, 190, selector.width, 5), 0x0);
+		selector.pixels.fillRect(new Rectangle(0, 190, selector.width, 5), FlxColor.BLACK);
 
 		// Why did i do this? Because i'm a lmao stupid, of course
 		// also i wanted to understand better how fillRect works so i did this shit lol???
-		selector.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), 0x0); // top left
+		selector.pixels.fillRect(new Rectangle(0, 0, cornerSize, cornerSize), FlxColor.BLACK); // top left
 		drawCircleCornerOnSelector(false, false);
-		selector.pixels.fillRect(new Rectangle(selector.width - cornerSize, 0, cornerSize, cornerSize), 0x0); // top right
+		selector.pixels.fillRect(new Rectangle(selector.width - cornerSize, 0, cornerSize, cornerSize), FlxColor.BLACK); // top right
 		drawCircleCornerOnSelector(true, false);
-		selector.pixels.fillRect(new Rectangle(0, selector.height - cornerSize, cornerSize, cornerSize), 0x0); // bottom left
+		selector.pixels.fillRect(new Rectangle(0, selector.height - cornerSize, cornerSize, cornerSize), FlxColor.BLACK); // bottom left
 		drawCircleCornerOnSelector(false, true);
-		selector.pixels.fillRect(new Rectangle(selector.width - cornerSize, selector.height - cornerSize, cornerSize, cornerSize), 0x0); // bottom right
+		selector.pixels.fillRect(new Rectangle(selector.width - cornerSize, selector.height - cornerSize, cornerSize, cornerSize),
+			FlxColor.BLACK); // bottom right
 		drawCircleCornerOnSelector(true, true);
 	}
 

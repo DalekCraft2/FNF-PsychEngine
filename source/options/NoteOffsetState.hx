@@ -48,6 +48,11 @@ class NoteOffsetState extends MusicBeatState
 
 	override public function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		// Cameras
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
@@ -138,7 +143,7 @@ class NoteOffsetState extends MusicBeatState
 			daLoop++;
 		}
 
-		dumbTexts = new FlxTypedGroup<FlxText>();
+		dumbTexts = new FlxTypedGroup();
 		dumbTexts.cameras = [camHUD];
 		add(dumbTexts);
 		createTexts();
@@ -155,7 +160,7 @@ class NoteOffsetState extends MusicBeatState
 		add(beatText);
 
 		timeTxt = new FlxText(0, 600, FlxG.width, "", 32);
-		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.borderSize = 2;
 		timeTxt.visible = false;
@@ -201,8 +206,6 @@ class NoteOffsetState extends MusicBeatState
 
 		Conductor.changeBPM(128.0);
 		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
-
-		super.create();
 	}
 
 	var holdTime:Float = 0;
@@ -214,6 +217,8 @@ class NoteOffsetState extends MusicBeatState
 
 	override public function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		var addNum:Int = 1;
 		if (FlxG.keys.pressed.SHIFT)
 			addNum = 10;
@@ -374,7 +379,6 @@ class NoteOffsetState extends MusicBeatState
 		}
 
 		Conductor.songPosition = FlxG.sound.music.time;
-		super.update(elapsed);
 	}
 
 	var zoomTween:FlxTween;
@@ -403,7 +407,7 @@ class NoteOffsetState extends MusicBeatState
 				zoomTween.cancel();
 			zoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, 1, {
 				ease: FlxEase.circOut,
-				onComplete: function(twn:FlxTween):Void
+				onComplete: (twn:FlxTween) ->
 				{
 					zoomTween = null;
 				}
@@ -416,7 +420,7 @@ class NoteOffsetState extends MusicBeatState
 				beatTween.cancel();
 			beatTween = FlxTween.tween(beatText, {alpha: 0}, 1, {
 				ease: FlxEase.sineIn,
-				onComplete: function(twn:FlxTween):Void
+				onComplete: (twn:FlxTween) ->
 				{
 					beatTween = null;
 				}
@@ -443,7 +447,7 @@ class NoteOffsetState extends MusicBeatState
 		for (i in 0...4)
 		{
 			var text:FlxText = new FlxText(10, 48 + (i * 30), 0, '', 24);
-			text.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			text.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 			text.scrollFactor.set();
 			text.borderSize = 2;
 			dumbTexts.add(text);

@@ -52,11 +52,7 @@ class DialogueCharacter extends FlxSprite
 	public static var DEFAULT_SCALE:Float = 0.7;
 
 	public var jsonFile:DialogueCharacterData = null;
-	#if (haxe >= "4.0.0")
-	public var dialogueAnimations:Map<String, DialogueAnimationData> = new Map();
-	#else
-	public var dialogueAnimations:Map<String, DialogueAnimationData> = new Map<String, DialogueAnimationData>();
-	#end
+	public var dialogueAnimations:Map<String, DialogueAnimationData> = [];
 
 	public var startingPos:Float = 0; // For center characters, it works as the starting Y, for everything else it works as starting X
 	public var isGhost:Bool = false; // For the editor
@@ -171,9 +167,9 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var dialogue:Alphabet;
 	var dialogueList:DialogueData = null;
 
-	public var finishThing:Void->Void;
-	public var nextDialogueThing:Void->Void = null;
-	public var skipDialogueThing:Void->Void = null;
+	public var finishThing:() -> Void;
+	public var nextDialogueThing:() -> Void = null;
+	public var skipDialogueThing:() -> Void = null;
 
 	var bgFade:FlxSprite = null;
 	var box:FlxSprite;
@@ -239,11 +235,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	function spawnCharacters():Void
 	{
-		#if (haxe >= "4.0.0")
-		var charsMap:Map<String, Bool> = new Map();
-		#else
-		var charsMap:Map<String, Bool> = new Map<String, Bool>();
-		#end
+		var charsMap:Map<String, Bool> = [];
 		for (dialogueLine in dialogueList.dialogue)
 		{
 			if (dialogueLine != null)
@@ -298,10 +290,11 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (ignoreThisFrame)
 		{
 			ignoreThisFrame = false;
-			super.update(elapsed);
 			return;
 		}
 
@@ -504,7 +497,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				kill();
 			}
 		}
-		super.update(elapsed);
 	}
 
 	var lastCharacter:Int = -1;

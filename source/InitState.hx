@@ -40,6 +40,8 @@ class InitState extends FlxUIState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
+		super.create();
+
 		OptionUtils.bindSave();
 		OptionUtils.loadOptions(OptionUtils.options);
 		var currentOptions:Dynamic = OptionUtils.options;
@@ -57,6 +59,8 @@ class InitState extends FlxUIState
 		}
 
 		PlayerSettings.init();
+		// TODO Figure out a less stupid way of initializing options which is simple enough to keep in one class
+		// (That means not having a separate class for default values)
 		new OptionsSubState().createDefault(); // Load default options in case any are null
 		OptionUtils.saveOptions(currentOptions); // Save initialized options
 
@@ -69,7 +73,7 @@ class InitState extends FlxUIState
 		FlxG.sound.volumeUpKeys = volumeUpKeys;
 		FlxG.keys.preventDefaultKeys = [TAB];
 
-		FlxG.sound.volumeHandler = function(volume:Float):Void
+		FlxG.sound.volumeHandler = (volume:Float) ->
 		{
 			FlxG.save.data.volume = volume;
 		}
@@ -105,13 +109,12 @@ class InitState extends FlxUIState
 		}
 
 		Main.setFPSCap(currentOptions.fps);
-		super.create();
 
 		#if FEATURE_DISCORD
 		if (!DiscordClient.isInitialized)
 		{
 			DiscordClient.initialize();
-			Application.current.onExit.add(function(exitCode):Void
+			Application.current.onExit.add((exitCode) ->
 			{
 				DiscordClient.shutdown();
 			});

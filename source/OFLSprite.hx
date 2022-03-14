@@ -27,6 +27,8 @@ class OFLSprite extends FlxSprite
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (_frameCount != 2)
 		{
 			pixels.draw(flSprite);

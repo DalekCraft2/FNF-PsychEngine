@@ -84,22 +84,22 @@ class GameplayChangersSubState extends MusicBeatSubState
 		return null;
 	}
 
-	public function new()
+	override function create():Void
 	{
-		super();
+		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.6;
 		add(bg);
 
 		// avoids lagspikes while scrolling through menus!
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedGroup();
 		add(grpOptions);
 
-		grpTexts = new FlxTypedGroup<AttachedText>();
+		grpTexts = new FlxTypedGroup();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedGroup();
 		add(checkboxGroup);
 
 		getOptions();
@@ -146,6 +146,8 @@ class GameplayChangersSubState extends MusicBeatSubState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (controls.UI_UP_P)
 		{
 			changeSelection(-1);
@@ -328,7 +330,6 @@ class GameplayChangersSubState extends MusicBeatSubState
 		{
 			nextAccept -= 1;
 		}
-		super.update(elapsed);
 	}
 
 	function updateTextFrom(option:GameplayOption):Void
@@ -397,7 +398,7 @@ class GameplayOption
 	private var child:Alphabet;
 
 	public var text(get, set):String;
-	public var onChange:Void->Void = null; // Pressed enter (on Bool type options) or pressed/held left/right (on other types)
+	public var onChange:() -> Void = null; // Pressed enter (on Bool type options) or pressed/held left/right (on other types)
 
 	public var type(get, default):String = 'bool'; // bool, int (or integer), float (or fl), percent, string (or str)
 

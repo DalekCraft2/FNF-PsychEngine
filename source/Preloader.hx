@@ -21,6 +21,8 @@ class Preloader extends FlxBasePreloader
 
 	override function create():Void
 	{
+		super.create();
+
 		this._width = Lib.current.stage.stageWidth;
 		this._height = Lib.current.stage.stageHeight;
 
@@ -32,12 +34,12 @@ class Preloader extends FlxBasePreloader
 		logo.x = ((this._width) / 2) - ((logo.width) / 2);
 		logo.y = (this._height / 2) - ((logo.height) / 2);
 		addChild(logo); // Adds the graphic to the NMEPreloader's buffer.
-
-		super.create();
 	}
 
 	override function update(Percent:Float):Void
 	{
+		super.update(Percent);
+
 		if (Percent < 69)
 		{
 			logo.scaleX += Percent / 1920;
@@ -52,7 +54,5 @@ class Preloader extends FlxBasePreloader
 			logo.x = ((this._width) / 2) - ((logo.width) / 2);
 			logo.y = (this._height / 2) - ((logo.height) / 2);
 		}
-
-		super.update(Percent);
 	}
 }

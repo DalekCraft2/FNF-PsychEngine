@@ -19,7 +19,7 @@ import options.Options.OptionUtils;
  */
 class HitGraph extends Sprite
 {
-	static inline var AXIS_COLOR:FlxColor = 0xffffff;
+	static inline var AXIS_COLOR:FlxColor = FlxColor.WHITE;
 	static inline var AXIS_ALPHA:Float = 0.5;
 	inline static var HISTORY_MAX:Int = 30;
 
@@ -51,6 +51,7 @@ class HitGraph extends Sprite
 	public function new(X:Int, Y:Int, Width:Int, Height:Int)
 	{
 		super();
+
 		x = X;
 		y = Y;
 		_width = Width;
@@ -157,15 +158,15 @@ class HitGraph extends Sprite
 		gfx.clear();
 		gfx.lineStyle(1, graphColor, 1);
 
-		gfx.beginFill(0x00FF00);
+		gfx.beginFill(FlxColor.GREEN);
 		drawJudgementLine(45);
 		gfx.endFill();
 
-		gfx.beginFill(0xFF0000);
+		gfx.beginFill(FlxColor.RED);
 		drawJudgementLine(90);
 		gfx.endFill();
 
-		gfx.beginFill(0x8b0000);
+		gfx.beginFill(0x8B0000);
 		drawJudgementLine(135);
 		gfx.endFill();
 
@@ -173,15 +174,15 @@ class HitGraph extends Sprite
 		drawJudgementLine(166);
 		gfx.endFill();
 
-		gfx.beginFill(0x00FF00);
+		gfx.beginFill(FlxColor.GREEN);
 		drawJudgementLine(-45);
 		gfx.endFill();
 
-		gfx.beginFill(0xFF0000);
+		gfx.beginFill(FlxColor.RED);
 		drawJudgementLine(-90);
 		gfx.endFill();
 
-		gfx.beginFill(0x8b0000);
+		gfx.beginFill(0x8B0000);
 		drawJudgementLine(-135);
 		gfx.endFill();
 
@@ -201,7 +202,7 @@ class HitGraph extends Sprite
 				var value:Float = (ana.key * 25 - minValue) / range;
 
 				if (ana.hit)
-					gfx.beginFill(0xFFFF00);
+					gfx.beginFill(FlxColor.YELLOW);
 				else
 					gfx.beginFill(0xC2B280);
 
@@ -222,17 +223,17 @@ class HitGraph extends Sprite
 			switch (judge)
 			{
 				case "sick":
-					gfx.beginFill(0x00FFFF);
+					gfx.beginFill(FlxColor.CYAN);
 				case "good":
-					gfx.beginFill(0x00FF00);
+					gfx.beginFill(FlxColor.GREEN);
 				case "bad":
-					gfx.beginFill(0xFF0000);
+					gfx.beginFill(FlxColor.RED);
 				case "shit":
-					gfx.beginFill(0x8b0000);
+					gfx.beginFill(0x8B0000);
 				case "miss":
 					gfx.beginFill(0x580000);
 				default:
-					gfx.beginFill(0xFFFFFF);
+					gfx.beginFill(FlxColor.WHITE);
 			}
 			var pointY:Float = ((-value * _height - 1) + _height);
 

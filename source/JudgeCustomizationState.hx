@@ -20,14 +20,19 @@ class JudgeCustomizationState extends MusicBeatState
 
 	override function destroy():Void
 	{
+		super.destroy();
+
 		defaultPos.put();
 		judgePlacementPos.put();
-		return super.destroy();
 	}
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		super.create();
+
 		FlxG.mouse.visible = true;
 
 		defaultPos = FlxPoint.get();
@@ -74,7 +79,7 @@ class JudgeCustomizationState extends MusicBeatState
 
 		var title:FlxText = new FlxText(0, 20, 0, "Judgement Movement", 32);
 		title.scrollFactor.set(0, 0);
-		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		title.screenCenter(X);
 		add(title);
 
@@ -82,7 +87,7 @@ class JudgeCustomizationState extends MusicBeatState
 			"Click and drag the judgement around to move it\nPress R to place the judgement in its default position\nPress C to show the combo\nPress Enter to exit and save\nPress Escape to exit without saving",
 			24);
 		instructions.scrollFactor.set(0, 0);
-		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		instructions.screenCenter(X);
 		add(instructions);
 	}
@@ -141,7 +146,7 @@ class JudgeCustomizationState extends MusicBeatState
 
 			add(numScore);
 			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
-				onComplete: function(tween:FlxTween):Void
+				onComplete: (tween:FlxTween) ->
 				{
 					numScore.destroy();
 				},
@@ -162,6 +167,8 @@ class JudgeCustomizationState extends MusicBeatState
 
 	override function update(elapsed):Void
 	{
+		super.update(elapsed);
+
 		var deltaX:Float = mouseX - FlxG.mouse.screenX;
 		var deltaY:Float = mouseY - FlxG.mouse.screenY;
 		mouseX = FlxG.mouse.screenX;
@@ -212,7 +219,5 @@ class JudgeCustomizationState extends MusicBeatState
 				draggingJudge = false;
 			}
 		}
-
-		super.update(elapsed);
 	}
 }

@@ -14,9 +14,14 @@ class LatencyState extends FlxState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		FlxG.sound.playMusic(Paths.sound('soundTest'));
 
-		noteGrp = new FlxTypedGroup<Note>();
+		noteGrp = new FlxTypedGroup();
 		add(noteGrp);
 
 		for (i in 0...32)
@@ -33,12 +38,12 @@ class LatencyState extends FlxState
 		add(strumLine);
 
 		Conductor.changeBPM(120);
-
-		super.create();
 	}
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		offsetText.text = "Offset: " + Conductor.offset + "ms";
 
 		Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
@@ -60,7 +65,7 @@ class LatencyState extends FlxState
 			FlxG.resetState();
 		}
 
-		noteGrp.forEach(function(daNote:Note):Void
+		noteGrp.forEach((daNote:Note) ->
 		{
 			daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * 0.45);
 			daNote.x = strumLine.x + 30;
@@ -68,7 +73,5 @@ class LatencyState extends FlxState
 			if (daNote.y < strumLine.y)
 				daNote.kill();
 		});
-
-		super.update(elapsed);
 	}
 }

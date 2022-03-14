@@ -68,6 +68,11 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		Week.loadTheFirstEnabledMod();
 
@@ -94,7 +99,7 @@ class TitleState extends MusicBeatState
 			Debug.logTrace('Checking for update');
 			var http:Http = new Http("https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt");
 
-			http.onData = function(data:String):Void
+			http.onData = (data:String) ->
 			{
 				updateVersion = data.split('\n')[0].trim();
 				var curVersion:String = MainMenuState.psychEngineVersion.trim();
@@ -106,7 +111,7 @@ class TitleState extends MusicBeatState
 				}
 			}
 
-			http.onError = function(error):Void
+			http.onError = (error) ->
 			{
 				Debug.logError('Error: $error');
 			}
@@ -120,7 +125,6 @@ class TitleState extends MusicBeatState
 		// DEBUG BULLSHIT
 
 		swagShader = new ColorSwap();
-		super.create();
 
 		// IGNORE THIS!!!
 		titleJSON = Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
@@ -154,7 +158,7 @@ class TitleState extends MusicBeatState
 		}
 		else
 		{
-			new FlxTimer().start(1, function(tmr:FlxTimer):Void
+			new FlxTimer().start(1, (tmr:FlxTimer) ->
 			{
 				startIntro();
 			});
@@ -333,6 +337,8 @@ class TitleState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 		// Debug.quickWatch('amp', FlxG.sound.music.amplitude);
@@ -377,7 +383,7 @@ class TitleState extends MusicBeatState
 				transitioning = true;
 				// FlxG.sound.music.stop();
 
-				new FlxTimer().start(1, function(tmr:FlxTimer):Void
+				new FlxTimer().start(1, (tmr:FlxTimer) ->
 				{
 					if (mustUpdate)
 					{
@@ -422,7 +428,7 @@ class TitleState extends MusicBeatState
 							add(black);
 
 							FlxTween.tween(black, {alpha: 1}, 1, {
-								onComplete: function(twn:FlxTween):Void
+								onComplete: (twn:FlxTween) ->
 								{
 									FlxTransitionableState.skipNextTransIn = true;
 									FlxTransitionableState.skipNextTransOut = true;
@@ -454,8 +460,6 @@ class TitleState extends MusicBeatState
 			if (controls.UI_RIGHT)
 				swagShader.hue += elapsed * 0.1;
 		}
-
-		super.update(elapsed);
 	}
 
 	function createCoolText(textArray:Array<String>, ?offset:Float = 0):Void
@@ -578,7 +582,7 @@ class TitleState extends MusicBeatState
 			// Make the logo do wacky waving inflatable arm-flailing angle tweens
 			FlxTween.tween(logoBl, {y: -100}, 1.4, {ease: FlxEase.expoInOut});
 			logoBl.angle = -4;
-			new FlxTimer().start(0.01, function(tmr:FlxTimer)
+			new FlxTimer().start(0.01, (tmr:FlxTimer) ->
 			{
 				if (logoBl.angle == -4)
 					FlxTween.angle(logoBl, logoBl.angle, 4, 4, {ease: FlxEase.quartInOut});
@@ -620,7 +624,7 @@ class TitleState extends MusicBeatState
 				transitioning = true;
 				if (easteregg == 'SHADOW')
 				{
-					new FlxTimer().start(3.2, function(tmr:FlxTimer):Void
+					new FlxTimer().start(3.2, (tmr:FlxTimer) ->
 					{
 						remove(ngSpr);
 						remove(credGroup);
@@ -633,7 +637,7 @@ class TitleState extends MusicBeatState
 					remove(ngSpr);
 					remove(credGroup);
 					FlxG.camera.flash(FlxColor.WHITE, 3);
-					sound.onComplete = function():Void
+					sound.onComplete = () ->
 					{
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);

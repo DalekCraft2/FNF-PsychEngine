@@ -47,6 +47,7 @@ class WeekEditorState extends MusicBeatState
 	public function new(weekData:WeekData = null)
 	{
 		super();
+
 		this.weekData = Week.createWeekData();
 		if (weekData != null)
 			this.weekData = weekData;
@@ -56,6 +57,11 @@ class WeekEditorState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
 		txtWeekTitle.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
@@ -73,7 +79,7 @@ class WeekEditorState extends MusicBeatState
 		var blackBarThingie:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 56, FlxColor.BLACK);
 		add(blackBarThingie);
 
-		grpWeekCharacters = new FlxTypedGroup<MenuCharacter>();
+		grpWeekCharacters = new FlxTypedGroup();
 
 		lock = new FlxSprite();
 		lock.frames = ui_tex;
@@ -83,7 +89,7 @@ class WeekEditorState extends MusicBeatState
 		add(lock);
 
 		missingFileText = new FlxText(0, 0, FlxG.width, "");
-		missingFileText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		missingFileText.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		missingFileText.borderSize = 2;
 		missingFileText.visible = false;
 		add(missingFileText);
@@ -115,8 +121,6 @@ class WeekEditorState extends MusicBeatState
 		reloadAllShit();
 
 		FlxG.mouse.visible = true;
-
-		super.create();
 	}
 
 	var UI_box:FlxUITabMenu;
@@ -136,7 +140,7 @@ class WeekEditorState extends MusicBeatState
 		UI_box.selected_tab_id = 'Week';
 		add(UI_box);
 
-		var loadWeekButton:FlxButton = new FlxButton(0, 650, "Load Week", function():Void
+		var loadWeekButton:FlxButton = new FlxButton(0, 650, "Load Week", () ->
 		{
 			loadWeek();
 		});
@@ -144,14 +148,14 @@ class WeekEditorState extends MusicBeatState
 		loadWeekButton.x -= 120;
 		add(loadWeekButton);
 
-		var freeplayButton:FlxButton = new FlxButton(0, 650, "Freeplay", function():Void
+		var freeplayButton:FlxButton = new FlxButton(0, 650, "Freeplay", () ->
 		{
 			FlxG.switchState(new WeekEditorFreeplayState(weekData));
 		});
 		freeplayButton.screenCenter(X);
 		add(freeplayButton);
 
-		var saveWeekButton:FlxButton = new FlxButton(0, 650, "Save Week", function():Void
+		var saveWeekButton:FlxButton = new FlxButton(0, 650, "Save Week", () ->
 		{
 			saveWeek(weekData);
 		});
@@ -203,7 +207,7 @@ class WeekEditorState extends MusicBeatState
 		reloadWeekThing();
 
 		hideCheckbox = new FlxUICheckBox(10, weekDataInputText.y + 40, null, null, "Hide Week from Story Mode?", 100);
-		hideCheckbox.callback = function():Void
+		hideCheckbox.callback = () ->
 		{
 			weekData.hideStoryMode = hideCheckbox.checked;
 		};
@@ -239,7 +243,7 @@ class WeekEditorState extends MusicBeatState
 		tab_group.name = "Other";
 
 		lockedCheckbox = new FlxUICheckBox(10, 30, null, null, "Week starts Locked", 100);
-		lockedCheckbox.callback = function():Void
+		lockedCheckbox.callback = () ->
 		{
 			weekData.startUnlocked = !lockedCheckbox.checked;
 			lock.visible = lockedCheckbox.checked;
@@ -247,7 +251,7 @@ class WeekEditorState extends MusicBeatState
 		};
 
 		hiddenUntilUnlockCheckbox = new FlxUICheckBox(10, lockedCheckbox.y + 25, null, null, "Hidden until Unlocked", 110);
-		hiddenUntilUnlockCheckbox.callback = function():Void
+		hiddenUntilUnlockCheckbox.callback = () ->
 		{
 			weekData.hiddenUntilUnlocked = hiddenUntilUnlockCheckbox.checked;
 		};
@@ -461,6 +465,8 @@ class WeekEditorState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (loadedWeek != null)
 		{
 			weekData = loadedWeek;
@@ -496,8 +502,6 @@ class WeekEditorState extends MusicBeatState
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		}
-
-		super.update(elapsed);
 
 		lock.y = weekThing.y;
 		missingFileText.y = weekThing.y + 36;
@@ -639,6 +643,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 	public function new(weekData:WeekData = null)
 	{
 		super();
+
 		this.weekData = Week.createWeekData();
 		if (weekData != null)
 			this.weekData = weekData;
@@ -652,13 +657,15 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 	override function create():Void
 	{
+		super.create();
+
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = OptionUtils.options.globalAntialiasing;
 
 		bg.color = FlxColor.WHITE;
 		add(bg);
 
-		grpSongs = new FlxTypedGroup<Alphabet>();
+		grpSongs = new FlxTypedGroup();
 		add(grpSongs);
 
 		for (i in 0...weekData.songs.length)
@@ -682,7 +689,6 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 		addEditorBox();
 		changeSelection();
-		super.create();
 	}
 
 	var UI_box:FlxUITabMenu;
@@ -705,7 +711,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 		blackBlack.alpha = 0.6;
 		add(blackBlack);
 
-		var loadWeekButton:FlxButton = new FlxButton(0, 685, "Load Week", function():Void
+		var loadWeekButton:FlxButton = new FlxButton(0, 685, "Load Week", () ->
 		{
 			WeekEditorState.loadWeek();
 		});
@@ -713,14 +719,14 @@ class WeekEditorFreeplayState extends MusicBeatState
 		loadWeekButton.x -= 120;
 		add(loadWeekButton);
 
-		var storyModeButton:FlxButton = new FlxButton(0, 685, "Story Mode", function():Void
+		var storyModeButton:FlxButton = new FlxButton(0, 685, "Story Mode", () ->
 		{
 			FlxG.switchState(new WeekEditorState(weekData));
 		});
 		storyModeButton.screenCenter(X);
 		add(storyModeButton);
 
-		var saveWeekButton:FlxButton = new FlxButton(0, 685, "Save Week", function():Void
+		var saveWeekButton:FlxButton = new FlxButton(0, 685, "Save Week", () ->
 		{
 			WeekEditorState.saveWeek(weekData);
 		});
@@ -759,11 +765,11 @@ class WeekEditorFreeplayState extends MusicBeatState
 		bgColorStepperG = new FlxUINumericStepper(80, 40, 20, 255, 0, 255, 0);
 		bgColorStepperB = new FlxUINumericStepper(150, 40, 20, 255, 0, 255, 0);
 
-		var copyColor:FlxButton = new FlxButton(10, bgColorStepperR.y + 25, "Copy Color", function():Void
+		var copyColor:FlxButton = new FlxButton(10, bgColorStepperR.y + 25, "Copy Color", () ->
 		{
 			Clipboard.text = bg.color.red + ',' + bg.color.green + ',' + bg.color.blue;
 		});
-		var pasteColor:FlxButton = new FlxButton(140, copyColor.y, "Paste Color", function():Void
+		var pasteColor:FlxButton = new FlxButton(140, copyColor.y, "Paste Color", () ->
 		{
 			if (Clipboard.text != null)
 			{
@@ -796,7 +802,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 		var hideFreeplayCheckbox:FlxUICheckBox = new FlxUICheckBox(10, iconInputText.y + 30, null, null, "Hide Week from Freeplay?", 100);
 		hideFreeplayCheckbox.checked = weekData.hideFreeplay;
-		hideFreeplayCheckbox.callback = function():Void
+		hideFreeplayCheckbox.callback = () ->
 		{
 			weekData.hideFreeplay = hideFreeplayCheckbox.checked;
 		};
@@ -864,9 +870,10 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (WeekEditorState.loadedWeek != null)
 		{
-			super.update(elapsed);
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 			FlxG.switchState(new WeekEditorFreeplayState(WeekEditorState.loadedWeek));
@@ -900,6 +907,5 @@ class WeekEditorFreeplayState extends MusicBeatState
 			if (controls.UI_DOWN_P)
 				changeSelection(1);
 		}
-		super.update(elapsed);
 	}
 }

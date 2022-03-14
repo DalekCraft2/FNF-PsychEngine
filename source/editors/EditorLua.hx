@@ -7,6 +7,7 @@ import Type.ValueType;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import lime.app.Application;
 #if FEATURE_LUA
 import llua.Convert;
 import llua.Lua;
@@ -40,7 +41,7 @@ class EditorLua
 		var resultStr:String = Lua.tostring(lua, result);
 		if (resultStr != null && result != 0)
 		{
-			lime.app.Application.current.window.alert(resultStr, 'Error on .LUA script!');
+			Application.current.window.alert(resultStr, 'Error on .LUA script!');
 			Debug.logError('Error on .LUA script! $resultStr');
 			lua = null;
 			return;
@@ -76,7 +77,7 @@ class EditorLua
 		set('middlescroll', OptionUtils.options.middleScroll);
 
 		// stuff 4 noobz like you B)
-		Lua_helper.add_callback(lua, "getProperty", function(variable:String):Dynamic
+		Lua_helper.add_callback(lua, "getProperty", (variable:String) ->
 		{
 			var killMe:Array<String> = variable.split('.');
 			if (killMe.length > 1)
@@ -87,11 +88,12 @@ class EditorLua
 				{
 					coverMeInPiss = Reflect.getProperty(coverMeInPiss, killMe[i]);
 				}
-				return Reflect.getProperty(coverMeInPiss, killMe[killMe.length - 1]);
+				Reflect.getProperty(coverMeInPiss, killMe[killMe.length - 1]);
+				return;
 			}
-			return Reflect.getProperty(EditorPlayState.instance, variable);
+			Reflect.getProperty(EditorPlayState.instance, variable);
 		});
-		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic):Void
+		Lua_helper.add_callback(lua, "setProperty", (variable:String, value:Dynamic) ->
 		{
 			var killMe:Array<String> = variable.split('.');
 			if (killMe.length > 1)
@@ -102,11 +104,12 @@ class EditorLua
 				{
 					coverMeInPiss = Reflect.getProperty(coverMeInPiss, killMe[i]);
 				}
-				return Reflect.setProperty(coverMeInPiss, killMe[killMe.length - 1], value);
+				Reflect.setProperty(coverMeInPiss, killMe[killMe.length - 1], value);
+				return;
 			}
-			return Reflect.setProperty(EditorPlayState.instance, variable, value);
+			Reflect.setProperty(EditorPlayState.instance, variable, value);
 		});
-		Lua_helper.add_callback(lua, "getPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic):Dynamic
+		Lua_helper.add_callback(lua, "getPropertyFromGroup", (obj:String, index:Int, variable:Dynamic) ->
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
@@ -124,11 +127,12 @@ class EditorLua
 			}
 			return null;
 		});
-		Lua_helper.add_callback(lua, "setPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic, value:Dynamic):Void
+		Lua_helper.add_callback(lua, "setPropertyFromGroup", (obj:String, index:Int, variable:Dynamic, value:Dynamic) ->
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
-				return Reflect.setProperty(Reflect.getProperty(EditorPlayState.instance, obj).members[index], variable, value);
+				Reflect.setProperty(Reflect.getProperty(EditorPlayState.instance, obj).members[index], variable, value);
+				return;
 			}
 
 			var leArray:Dynamic = Reflect.getProperty(EditorPlayState.instance, obj)[index];
@@ -136,12 +140,13 @@ class EditorLua
 			{
 				if (Type.typeof(variable) == ValueType.TInt)
 				{
-					return leArray[variable] = value;
+					leArray[variable] = value;
+					return;
 				}
-				return Reflect.setProperty(leArray, variable, value);
+				Reflect.setProperty(leArray, variable, value);
 			}
 		});
-		Lua_helper.add_callback(lua, "removeFromGroup", function(obj:String, index:Int, dontDestroy:Bool = false):Void
+		Lua_helper.add_callback(lua, "removeFromGroup", (obj:String, index:Int, dontDestroy:Bool = false) ->
 		{
 			if (Std.isOfType(Reflect.getProperty(EditorPlayState.instance, obj), FlxTypedGroup))
 			{
@@ -156,14 +161,14 @@ class EditorLua
 			Reflect.getProperty(EditorPlayState.instance, obj).remove(Reflect.getProperty(EditorPlayState.instance, obj)[index]);
 		});
 
-		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String):Int
+		Lua_helper.add_callback(lua, "getColorFromHex", (color:String) ->
 		{
 			if (!color.startsWith('0x'))
-				color = '0xff' + color;
+				color = '0xFF' + color;
 			return Std.parseInt(color);
 		});
 
-		Lua_helper.add_callback(lua, "setGraphicSize", function(obj:String, x:Int, y:Int = 0):Void
+		Lua_helper.add_callback(lua, "setGraphicSize", (obj:String, x:Int, y:Int = 0) ->
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)
@@ -173,7 +178,7 @@ class EditorLua
 				return;
 			}
 		});
-		Lua_helper.add_callback(lua, "scaleObject", function(obj:String, x:Float, y:Float):Void
+		Lua_helper.add_callback(lua, "scaleObject", (obj:String, x:Float, y:Float) ->
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)
@@ -183,7 +188,7 @@ class EditorLua
 				return;
 			}
 		});
-		Lua_helper.add_callback(lua, "updateHitbox", function(obj:String):Void
+		Lua_helper.add_callback(lua, "updateHitbox", (obj:String) ->
 		{
 			var poop:FlxSprite = Reflect.getProperty(EditorPlayState.instance, obj);
 			if (poop != null)

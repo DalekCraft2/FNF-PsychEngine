@@ -2,8 +2,10 @@ package options;
 
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
-	public function new()
+	override function create():Void
 	{
+		super.create();
+
 		title = 'Gameplay Settings';
 		rpcTitle = 'Gameplay Settings Menu'; // for Discord Rich Presence
 
@@ -72,7 +74,5 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		option.maxValue = 10;
 		option.changeValue = 0.1;
 		addOption(option);
-
-		super();
 	}
 }

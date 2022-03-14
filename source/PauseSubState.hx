@@ -35,10 +35,11 @@ class PauseSubState extends MusicBeatSubState
 	// var botplayText:FlxText;
 	public static var songName:String = '';
 
-	public function new(x:Float, y:Float)
+	override function create():Void
 	{
-		super();
-		if (CoolUtil.difficulties.length < 2)
+		super.create();
+
+		if (CoolUtil.difficulties.length <= 1)
 			menuItemsOG.remove('Change Difficulty'); // No need to change difficulty if there is only one!
 
 		if (PlayState.chartingMode)
@@ -59,7 +60,7 @@ class PauseSubState extends MusicBeatSubState
 
 		for (i in 0...CoolUtil.difficulties.length)
 		{
-			var diff:String = '' + CoolUtil.difficulties[i];
+			var diff:String = CoolUtil.difficulties[i];
 			difficultyChoices.push(diff);
 		}
 		difficultyChoices.push('BACK');
@@ -148,7 +149,7 @@ class PauseSubState extends MusicBeatSubState
 		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 		FlxTween.tween(blueballedTxt, {alpha: 1, y: blueballedTxt.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.7});
 
-		grpMenuShit = new FlxTypedGroup<Alphabet>();
+		grpMenuShit = new FlxTypedGroup();
 		add(grpMenuShit);
 
 		regenMenu();
@@ -159,10 +160,11 @@ class PauseSubState extends MusicBeatSubState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (pauseMusic.volume < 0.5)
 			pauseMusic.volume += 0.01 * elapsed;
 
-		super.update(elapsed);
 		updateSkipTextStuff();
 
 		var upP:Bool = controls.UI_UP_P;
@@ -319,14 +321,14 @@ class PauseSubState extends MusicBeatSubState
 
 	override function destroy():Void
 	{
+		super.destroy();
+
 		if (!goToOptions)
 		{
 			Debug.logTrace("Destroying music for pause menu");
 			pauseMusic.destroy();
 			playingPause = false;
 		}
-
-		super.destroy();
 	}
 
 	function changeSelection(change:Int = 0):Void
@@ -384,7 +386,7 @@ class PauseSubState extends MusicBeatSubState
 			if (menuItems[i] == 'Skip Time')
 			{
 				skipTimeText = new FlxText(0, 0, 0, '', 64);
-				skipTimeText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+				skipTimeText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 				skipTimeText.scrollFactor.set();
 				skipTimeText.borderSize = 2;
 				skipTimeTracker = item;

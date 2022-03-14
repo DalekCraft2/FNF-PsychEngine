@@ -36,6 +36,8 @@ class ResultsSubState extends FlxSubState
 
 	override function create():Void
 	{
+		super.create();
+
 		background = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		background.scrollFactor.set();
 		add(background);
@@ -52,7 +54,7 @@ class ResultsSubState extends FlxSubState
 
 		text = new FlxText(20, -55, 0, "Song Cleared!");
 		text.size = 34;
-		text.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 4, 1);
+		text.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		text.color = FlxColor.WHITE;
 		text.scrollFactor.set();
 		add(text);
@@ -142,7 +144,7 @@ class ResultsSubState extends FlxSubState
 		settingsText = new FlxText(20, FlxG.height + 50, 0,
 			'Mean: ${mean}ms (SICK:${Ratings.timingWindows[3]}ms,GOOD:${Ratings.timingWindows[2]}ms,BAD:${Ratings.timingWindows[1]}ms,SHIT:${Ratings.timingWindows[0]}ms)');
 		settingsText.size = 16;
-		settingsText.setBorderStyle(FlxTextBorderStyle.OUTLINE, FlxColor.BLACK, 2, 1);
+		settingsText.setBorderStyle(OUTLINE, FlxColor.BLACK, 2, 1);
 		settingsText.color = FlxColor.WHITE;
 		settingsText.scrollFactor.set();
 		add(settingsText);
@@ -153,7 +155,7 @@ class ResultsSubState extends FlxSubState
 		FlxTween.tween(contText, {y: FlxG.height - 45}, 0.5, {ease: FlxEase.expoInOut});
 		FlxTween.tween(settingsText, {y: FlxG.height - 35}, 0.5, {ease: FlxEase.expoInOut});
 		FlxTween.tween(anotherBackground, {alpha: 0.6}, 0.5, {
-			onUpdate: function(tween:FlxTween):Void
+			onUpdate: (tween:FlxTween) ->
 			{
 				graph.alpha = FlxMath.lerp(0, 1, tween.percent);
 				graphSprite.alpha = FlxMath.lerp(0, 1, tween.percent);
@@ -161,14 +163,14 @@ class ResultsSubState extends FlxSubState
 		});
 
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
-
-		super.create();
 	}
 
 	var frames = 0;
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (music != null)
 			if (music.volume < 0.5)
 				music.volume += 0.01 * elapsed;
@@ -220,7 +222,5 @@ class ResultsSubState extends FlxSubState
 			LoadingState.loadAndSwitchState(new PlayState());
 			// PlayState.instance.clean();
 		}
-
-		super.update(elapsed);
 	}
 }

@@ -23,13 +23,17 @@ class SoundOffsetState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		super.create();
+
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Calibrating audio", null);
 		#end
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image("menuBG"));
-		// menuBG.color = 0xFFa271de;
+		// menuBG.color = 0xFFA271DE;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
@@ -37,24 +41,24 @@ class SoundOffsetState extends MusicBeatState
 		add(menuBG);
 
 		var title:FlxText = new FlxText(0, 20, 0, "Audio Calibration", 32);
-		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		title.screenCenter(X);
 		add(title);
 
 		status = new FlxText(0, 50, 0, "Audio is paused", 24);
-		status.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		status.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		status.screenCenter(X);
 		add(status);
 
 		offsetTxt = new FlxText(0, 80, 0, "Current offset: 0ms", 24);
-		offsetTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		offsetTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		offsetTxt.screenCenter(X);
 		add(offsetTxt);
 
 		var instructions:FlxText = new FlxText(0, 125, 0,
 			"Press the spacebar to pause/play the beat\nPress enter in time with the beat to get an approximate offset\nPress R to reset\nPress left and right to adjust the offset manually. Hold shift for precision.\nPress ESC to go back and save the current offset",
 			24);
-		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		instructions.screenCenter(X);
 		add(instructions);
 
@@ -68,6 +72,7 @@ class SoundOffsetState extends MusicBeatState
 	override function beatHit():Void
 	{
 		super.beatHit();
+
 		beatCounter = 0;
 		if (playingAudio)
 		{
@@ -78,6 +83,8 @@ class SoundOffsetState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (playingAudio)
 		{
 			if (FlxG.sound.music.volume > 0)
@@ -160,7 +167,5 @@ class SoundOffsetState extends MusicBeatState
 				currOffset++;
 			}
 		}
-
-		super.update(elapsed);
 	}
 }

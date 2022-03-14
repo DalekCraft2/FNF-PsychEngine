@@ -56,7 +56,7 @@ class SpriteAnimationLibrary
 		parseAnimationData(data);
 		parseAtlasData(atlas);
 		_texture = texture;
-		_symbolPool = new Map();
+		_symbolPool = [];
 	}
 
 	public function hasAnimation(name:String):Bool
@@ -77,7 +77,7 @@ class SpriteAnimationLibrary
 
 	public function getAnimationNames(prefix:String = ""):Array<String>
 	{
-		var out:Array<String> = new Array<String>();
+		var out:Array<String> = [];
 
 		for (name in _symbolData.keys())
 		{
@@ -88,7 +88,7 @@ class SpriteAnimationLibrary
 		}
 
 		// but... why?
-		out.sort(function(a1, a2):Int
+		out.sort((a1, a2) ->
 		{
 			a1 = a1.toLowerCase();
 			a2 = a2.toLowerCase();
@@ -172,7 +172,7 @@ class SpriteAnimationLibrary
 			frameRate = 24;
 		}
 
-		_symbolData = new Map();
+		_symbolData = [];
 
 		// the actual symbol dictionary
 		var symbols:Array<SymbolData> = data.SYMBOL_DICTIONARY.Symbols;
@@ -249,7 +249,7 @@ class SpriteAnimationLibrary
 
 	private function parseAtlasData(atlas:AtlasData):Void
 	{
-		_atlas = new Map<String, SpriteData>();
+		_atlas = [];
 		if (atlas.ATLAS != null && atlas.ATLAS.SPRITES != null)
 		{
 			for (s in atlas.ATLAS.SPRITES)

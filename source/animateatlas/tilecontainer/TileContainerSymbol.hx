@@ -48,6 +48,7 @@ class TileContainerSymbol extends TileContainer
 	private function new(data:SymbolData, library:TileAnimationLibrary, tileset:Tileset)
 	{
 		super();
+
 		this.tileset = tileset;
 		_data = data;
 		_library = library;
@@ -67,7 +68,7 @@ class TileContainerSymbol extends TileContainer
 			if (layer.FrameMap != null)
 				return;
 
-			var map:Map<Int, LayerFrameData> = new Map();
+			var map:Map<Int, LayerFrameData> = [];
 
 			for (i in 0...layer.Frames.length)
 			{
@@ -242,7 +243,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			throw new Error("You must not call this twice");
 		}
-		_layers = new Array<TileContainer>();
+		_layers = [];
 
 		if (_numLayers <= 1)
 		{

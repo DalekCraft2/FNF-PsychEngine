@@ -24,9 +24,9 @@ class DialogueBox extends FlxSpriteGroup
 
 	var dropText:FlxText;
 
-	public var finishThing:Void->Void;
-	public var nextDialogueThing:Void->Void = null;
-	public var skipDialogueThing:Void->Void = null;
+	public var finishThing:() -> Void;
+	public var nextDialogueThing:() -> Void = null;
+	public var skipDialogueThing:() -> Void = null;
 
 	var portraitLeft:FlxSprite;
 	var portraitRight:FlxSprite;
@@ -48,12 +48,12 @@ class DialogueBox extends FlxSpriteGroup
 				FlxG.sound.music.fadeIn(1, 0, 0.8);
 		}
 
-		bgFade = new FlxSprite(-200, -200).makeGraphic(Std.int(FlxG.width * 1.3), Std.int(FlxG.height * 1.3), 0xFFB3DFd8);
+		bgFade = new FlxSprite(-200, -200).makeGraphic(Std.int(FlxG.width * 1.3), Std.int(FlxG.height * 1.3), 0xFFB3DFD8);
 		bgFade.scrollFactor.set();
 		bgFade.alpha = 0;
 		add(bgFade);
 
-		new FlxTimer().start(0.83, function(tmr:FlxTimer):Void
+		new FlxTimer().start(0.83, (tmr:FlxTimer) ->
 		{
 			bgFade.alpha += (1 / 5) * 0.7;
 			if (bgFade.alpha > 0.7)
@@ -153,6 +153,8 @@ class DialogueBox extends FlxSpriteGroup
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		// HARD CODING CUZ IM STUPDI
 		if (PlayState.song.songId == 'roses')
 			portraitLeft.visible = false;
@@ -195,7 +197,7 @@ class DialogueBox extends FlxSpriteGroup
 						if (PlayState.song.songId == 'senpai' || PlayState.song.songId == 'thorns')
 							FlxG.sound.music.fadeOut(1.5, 0);
 
-						new FlxTimer().start(0.2, function(tmr:FlxTimer):Void
+						new FlxTimer().start(0.2, (tmr:FlxTimer) ->
 						{
 							box.alpha -= 1 / 5;
 							bgFade.alpha -= 1 / 5 * 0.7;
@@ -206,7 +208,7 @@ class DialogueBox extends FlxSpriteGroup
 							dropText.alpha = swagDialogue.alpha;
 						}, 5);
 
-						new FlxTimer().start(1.5, function(tmr:FlxTimer):Void
+						new FlxTimer().start(1.5, (tmr:FlxTimer) ->
 						{
 							finishThing();
 							kill();
@@ -231,8 +233,6 @@ class DialogueBox extends FlxSpriteGroup
 				}
 			}
 		}
-
-		super.update(elapsed);
 	}
 
 	var isEnding:Bool = false;
@@ -247,7 +247,7 @@ class DialogueBox extends FlxSpriteGroup
 		// swagDialogue.text = ;
 		swagDialogue.resetText(dialogueList[0]);
 		swagDialogue.start(0.04, true);
-		swagDialogue.completeCallback = function():Void
+		swagDialogue.completeCallback = () ->
 		{
 			handSelect.visible = true;
 			dialogueEnded = true;

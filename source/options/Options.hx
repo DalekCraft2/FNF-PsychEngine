@@ -62,6 +62,7 @@ class StateOption extends Option
 	public function new(name:String, state:FlxState)
 	{
 		super();
+
 		this.state = state;
 		this.name = name;
 	}
@@ -84,6 +85,7 @@ class OptionCheckbox extends FlxSprite
 	public function new(state:Bool)
 	{
 		super();
+
 		this.state = state;
 		frames = Paths.getSparrowAtlas('checkbox');
 		animation.addByPrefix("unchecked", "unchecked", 24, false);
@@ -120,6 +122,7 @@ class OptionCheckbox extends FlxSprite
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
 		if (tracker != null)
 		{
 			setPosition(tracker.x - 130 + offsetX, tracker.y + offsetY);
@@ -145,15 +148,16 @@ class OptionCheckbox extends FlxSprite
 	}
 }
 
-class ToggleOption extends Option
+class BooleanOption extends Option
 {
 	private var property:String = "dummy";
 	private var checkbox:OptionCheckbox;
-	private var callback:Bool->Void;
+	private var callback:(Bool) -> Void;
 
-	public function new(property:String, defaultValue:Bool, ?name:String, ?description:String = '', ?callback:Bool->Void)
+	public function new(property:String, defaultValue:Bool, ?name:String, ?description:String = '', ?callback:(Bool) -> Void)
 	{
 		super();
+
 		this.property = property;
 		this.name = name;
 		this.callback = callback;
@@ -194,7 +198,59 @@ class ToggleOption extends Option
 	}
 }
 
-class StepOption extends Option
+class IntegerOption extends Option
+{
+	private var prefix:String = '';
+	private var suffix:String = '';
+	private var property:String = "dummyInt";
+	private var max:Int = -1;
+	private var min:Int = 0;
+
+	public function new(property:String, ?min:Int = 0, ?max:Int = -1, ?prefix:String = '', ?suffix:String = '')
+	{
+		super();
+
+		this.property = property;
+		this.min = min;
+		this.max = max;
+		var value:Int = Reflect.field(OptionUtils.options, property);
+		this.prefix = prefix;
+		this.suffix = suffix;
+
+		name = prefix + " " + Std.string(value) + " " + suffix;
+	}
+
+	public override function left():Bool
+	{
+		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) - 1);
+
+		if (value < min)
+			value = max;
+		if (value > max)
+			value = min;
+
+		Reflect.setField(OptionUtils.options, property, value);
+		name = prefix + " " + Std.string(value) + " " + suffix;
+		return true;
+	}
+
+	public override function right():Bool
+	{
+		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) + 1);
+
+		if (value < min)
+			value = max;
+		if (value > max)
+			value = min;
+
+		Reflect.setField(OptionUtils.options, property, value);
+
+		name = prefix + " " + Std.string(value) + " " + suffix;
+		return true;
+	}
+}
+
+class FloatOption extends Option
 {
 	private var names:Array<String>;
 	private var property:String = "dummyInt";
@@ -206,17 +262,16 @@ class StepOption extends Option
 	private var leftArrow:FlxSprite;
 	private var rightArrow:FlxSprite;
 	private var labelAlphabet:Alphabet;
-	private var callback:Float->Float->Void;
+	private var callback:(Float, Float) -> Void;
 	private var suffix:String = '';
 	private var prefix:String = '';
-	private var truncFloat:Bool = false;
-
-	private var decimals:Int = 1;
+	private var truncateFloat:Bool = false;
 
 	public function new(property:String, defaultValue:Float, label:String, ?desc:String = '', ?step:Float = 1, ?min:Float = 0, ?max:Float = 100,
-			?suffix:String = '', ?prefix:String = '', ?truncateFloat = false, ?callback:Float->Float->Void)
+			?suffix:String = '', ?prefix:String = '', ?truncateFloat = false, ?callback:(Float, Float) -> Void)
 	{
 		super();
+
 		this.property = property;
 		this.label = label;
 		this.description = desc;
@@ -248,8 +303,8 @@ class StepOption extends Option
 		this.max = max;
 		this.min = min;
 
-		truncFloat = truncateFloat;
-		if (truncFloat)
+		this.truncateFloat = truncateFloat;
+		if (truncateFloat)
 			value = CoolUtil.truncateFloat(value, 2);
 
 		name = '${prefix}${Std.string(value)}${suffix}';
@@ -260,12 +315,13 @@ class StepOption extends Option
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
 		leftArrow.alpha = text.alpha;
 		rightArrow.alpha = text.alpha;
 
-		super.update(elapsed);
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -295,75 +351,11 @@ class StepOption extends Option
 		leftArrow.x = text.x - 60;
 		leftArrow.y = text.y - 10;
 		rightArrow.y = text.y - 10;
-
-		// if (PlayerSettings.player1.controls.UI_LEFT || PlayerSettings.player1.controls.UI_RIGHT)
-		// {
-		// 	var pressed:Bool = (PlayerSettings.player1.controls.UI_LEFT_P || PlayerSettings.player1.controls.UI_RIGHT_P);
-		// 	if (holdTime > 0.5 || pressed)
-		// 	{
-		// 		if (pressed)
-		// 		{
-		// 			var add:Float = PlayerSettings.player1.controls.UI_LEFT ? -step : step;
-
-		// 			holdValue = getValue() + add;
-		// 			if (holdValue < min)
-		// 				holdValue = min;
-		// 			else if (holdValue > max)
-		// 				holdValue = max;
-
-		// 			holdValue = FlxMath.roundDecimal(holdValue, decimals);
-		// 			setValue(holdValue);
-
-		// 			updateOptionText();
-		// 			// if (callback != null)
-		// 			// 	callback(value, add);
-		// 			FlxG.sound.play(Paths.sound('scrollMenu'));
-		// 		}
-		// 		else
-		// 		{
-		// 			holdValue += scrollSpeed * elapsed * (PlayerSettings.player1.controls.UI_LEFT ? -1 : 1);
-		// 			if (holdValue < min)
-		// 				holdValue = min;
-		// 			else if (holdValue > max)
-		// 				holdValue = max;
-
-		// 			holdValue = FlxMath.roundDecimal(holdValue, decimals);
-		// 			setValue(holdValue);
-
-		// 			updateOptionText();
-		// 			// if (callback != null)
-		// 			// 	callback(value, add);
-		// 		}
-		// 	}
-		// 	holdTime += elapsed;
-		// }
-		// else if (PlayerSettings.player1.controls.UI_LEFT_R || PlayerSettings.player1.controls.UI_RIGHT_R)
-		// {
-		// 	clearHold();
-		// }
-	}
-
-	function clearHold():Void
-	{
-		if (holdTime > 0.5)
-		{
-			FlxG.sound.play(Paths.sound('scrollMenu'));
-		}
-		holdTime = 0;
-	}
-
-	function getValue():Float
-	{
-		return Reflect.field(OptionUtils.options, property);
-	}
-
-	function setValue(value:Float):Void
-	{
-		Reflect.setField(OptionUtils.options, property, value);
 	}
 
 	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
+		Debug.logTrace('createOptionText($curSelected, $optionText)');
 		if (labelAlphabet == null || text == null)
 		{
 			remove(text);
@@ -394,6 +386,7 @@ class StepOption extends Option
 
 	public override function left():Bool
 	{
+		Debug.logTrace('left()');
 		var value:Float = Reflect.field(OptionUtils.options, property) - step;
 
 		if (value < min)
@@ -404,7 +397,7 @@ class StepOption extends Option
 
 		Reflect.setField(OptionUtils.options, property, value);
 
-		if (truncFloat)
+		if (truncateFloat)
 			value = CoolUtil.truncateFloat(value, 2);
 		name = '${prefix}${Std.string(value)}${suffix}';
 		if (callback != null)
@@ -415,6 +408,7 @@ class StepOption extends Option
 
 	public override function right():Bool
 	{
+		Debug.logTrace('right()');
 		var value:Float = Reflect.field(OptionUtils.options, property) + step;
 
 		if (value < min)
@@ -424,7 +418,7 @@ class StepOption extends Option
 
 		Reflect.setField(OptionUtils.options, property, value);
 
-		if (truncFloat)
+		if (truncateFloat)
 			value = CoolUtil.truncateFloat(value, 2);
 		name = '${prefix}${Std.string(value)}${suffix}';
 		if (callback != null)
@@ -434,7 +428,8 @@ class StepOption extends Option
 	}
 }
 
-class ScrollOption extends Option
+// If the time comes to add options which allow typing strings (like VS Online's username option), I'm renaming this to EnumOption
+class StringOption extends Option
 {
 	private var names:Array<String>;
 	private var property:String = "dummyInt";
@@ -444,15 +439,16 @@ class ScrollOption extends Option
 	private var leftArrow:FlxSprite;
 	private var rightArrow:FlxSprite;
 	private var labelAlphabet:Alphabet;
-	private var callback:Int->String->Int->Void;
+	private var callback:(Int, String, Int) -> Void;
 
 	// i wish there was a better way to do this ^
 	// if there is and you're reading this and know a better way, PR please!
 
 	public function new(property:String, defaultValue:String, label:String, description:String, ?min:Int = 0, ?max:Int = -1, ?names:Array<String>,
-			?callback:Int->String->Int->Void)
+			?callback:(Int, String, Int) -> Void)
 	{
 		super();
+
 		this.property = property;
 		this.label = label;
 		this.description = description;
@@ -481,24 +477,17 @@ class ScrollOption extends Option
 		add(leftArrow);
 		this.max = max;
 		this.min = min;
-		// if (names != null)
-		// {
-		// 	name = names[value];
-		// }
-		// else
-		// {
-		// 	name = Std.string(value);
-		// }
 		name = value;
 	}
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
 		leftArrow.alpha = text.alpha;
 		rightArrow.alpha = text.alpha;
-		super.update(elapsed);
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -629,6 +618,7 @@ class JudgementsOption extends Option
 	public function new(property:String, defaultValue:String, label:String, description:String)
 	{
 		super();
+
 		this.property = property;
 		this.label = label;
 		this.description = description;
@@ -687,11 +677,12 @@ class JudgementsOption extends Option
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		labelAlphabet.targetY = text.targetY;
 		labelAlphabet.alpha = text.alpha;
 		leftArrow.alpha = text.alpha;
 		rightArrow.alpha = text.alpha;
-		super.update(elapsed);
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
 			leftArrow.animation.play("pressed");
@@ -783,192 +774,148 @@ class JudgementsOption extends Option
 	}
 }
 
-// class NoteskinOption extends Option
-// {
-// 	private var names:Array<String>;
-// 	private var property:String = "dummyInt";
-// 	private var label:String = '';
-// 	private var leftArrow:FlxSprite;
-// 	private var rightArrow:FlxSprite;
-// 	private var labelAlphabet:Alphabet;
-// 	private var skinNames:Array<String> = [];
-// 	private var curValue:Int = 0;
-// 	private var defaultDesc:String = '';
-// 	function updateDescription():Void
-// 	{
-// 		description = '${defaultDesc}.\nSkin description: ${Note.skinManifest.get(skinNames[curValue]).desc}';
-// 	}
-// 	public function new(property:String, label:String, description:String)
-// 	{
-// 		super();
-// 		this.property = property;
-// 		this.label = label;
-// 		this.defaultDesc = description;
-// 		var idx:Int = 0;
-// 		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.txtImages('skins/noteskinOrder'));
-// 		for (i in 0...noteskinOrder.length)
-// 		{
-// 			var skin:String = noteskinOrder[i];
-// 			if (OptionUtils.noteSkins.contains(skin) && skin != 'fallback')
-// 				skinNames.push(skin);
-// 		}
-// 		for (skin in OptionUtils.noteSkins)
-// 		{
-// 			if (!skinNames.contains(skin) && skin != 'fallback')
-// 			{
-// 				skinNames.push(skin);
-// 			}
-// 		}
-// 		idx = skinNames.indexOf(Reflect.field(OptionUtils.options, property));
-// 		curValue = idx == -1 ? 0 : idx;
-// 		updateDescription();
-// 		leftArrow = new FlxSprite(0, 0);
-// 		leftArrow.frames = Paths.getSparrowAtlas("arrows");
-// 		leftArrow.setGraphicSize(Std.int(leftArrow.width * .7));
-// 		leftArrow.updateHitbox();
-// 		leftArrow.animation.addByPrefix("pressed", "arrow push left", 24, false);
-// 		leftArrow.animation.addByPrefix("static", "arrow left", 24, false);
-// 		leftArrow.animation.play("static");
-// 		rightArrow = new FlxSprite(0, 0);
-// 		rightArrow.frames = Paths.getSparrowAtlas("arrows");
-// 		rightArrow.setGraphicSize(Std.int(rightArrow.width * .7));
-// 		rightArrow.updateHitbox();
-// 		rightArrow.animation.addByPrefix("pressed", "arrow push right", 24, false);
-// 		rightArrow.animation.addByPrefix("static", "arrow right", 24, false);
-// 		rightArrow.animation.play("static");
-// 		add(rightArrow);
-// 		add(leftArrow);
-// 		name = Note.skinManifest.get(skinNames[curValue]).name;
-// 	}
-// 	override function update(elapsed:Float):Void
-// 	{
-// 		labelAlphabet.targetY = text.targetY;
-// 		labelAlphabet.alpha = text.alpha;
-// 		leftArrow.alpha = text.alpha;
-// 		rightArrow.alpha = text.alpha;
-// 		super.update(elapsed);
-// 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
-// 		{
-// 			leftArrow.animation.play("pressed");
-// 			leftArrow.offset.x = 0;
-// 			leftArrow.offset.y = -3;
-// 		}
-// 		else
-// 		{
-// 			leftArrow.animation.play("static");
-// 			leftArrow.offset.x = 0;
-// 			leftArrow.offset.y = 0;
-// 		}
-// 		if (PlayerSettings.player1.controls.UI_RIGHT && isSelected)
-// 		{
-// 			rightArrow.animation.play("pressed");
-// 			rightArrow.offset.x = 0;
-// 			rightArrow.offset.y = -3;
-// 		}
-// 		else
-// 		{
-// 			rightArrow.animation.play("static");
-// 			rightArrow.offset.x = 0;
-// 			rightArrow.offset.y = 0;
-// 		}
-// 		rightArrow.x = text.x + text.width + 10;
-// 		leftArrow.x = text.x - 60;
-// 		leftArrow.y = text.y - 10;
-// 		rightArrow.y = text.y - 10;
-// 	}
-// 	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
-// 	{
-// 		remove(text);
-// 		remove(labelAlphabet);
-// 		labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
-// 		labelAlphabet.isMenuItem = true;
-// 		text = new Alphabet(0, (70 * curSelected), name, false, false);
-// 		text.isMenuItem = true;
-// 		text.xAdd = labelAlphabet.width + 120;
-// 		labelAlphabet.targetY = text.targetY;
-// 		add(labelAlphabet);
-// 		add(text);
-// 		return text;
-// 	}
-// 	public override function left():Bool
-// 	{
-// 		var value:Int = curValue - 1;
-// 		if (value < 0)
-// 			value = skinNames.length - 1;
-// 		if (value > skinNames.length - 1)
-// 			value = 0;
-// 		Reflect.setField(OptionUtils.options, property, skinNames[value]);
-// 		curValue = value;
-// 		name = Note.skinManifest.get(skinNames[value]).name;
-// 		updateDescription();
-// 		return true;
-// 	}
-// 	public override function right():Bool
-// 	{
-// 		var value:Int = curValue + 1;
-// 		if (value < 0)
-// 			value = skinNames.length - 1;
-// 		if (value > skinNames.length - 1)
-// 			value = 0;
-// 		Reflect.setField(OptionUtils.options, property, skinNames[value]);
-// 		curValue = value;
-// 		name = Note.skinManifest.get(skinNames[value]).name;
-// 		updateDescription();
-// 		return true;
-// 	}
-// }
-
-class CountOption extends Option
-{
-	private var prefix:String = '';
-	private var suffix:String = '';
+/*class NoteskinOption extends Option
+	{
+	private var names:Array<String>;
 	private var property:String = "dummyInt";
-	private var max:Int = -1;
-	private var min:Int = 0;
+	private var label:String = '';
+	private var leftArrow:FlxSprite;
+	private var rightArrow:FlxSprite;
+	private var labelAlphabet:Alphabet;
+	private var skinNames:Array<String> = [];
+	private var curValue:Int = 0;
+	private var defaultDesc:String = '';
 
-	public function new(property:String, ?min:Int = 0, ?max:Int = -1, ?prefix:String = '', ?suffix:String = '')
+	function updateDescription():Void
+	{
+		description = '${defaultDesc}.\nSkin description: ${Note.skinManifest.get(skinNames[curValue]).desc}';
+	}
+
+	public function new(property:String, label:String, description:String)
 	{
 		super();
-		this.property = property;
-		this.min = min;
-		this.max = max;
-		var value:Int = Reflect.field(OptionUtils.options, property);
-		this.prefix = prefix;
-		this.suffix = suffix;
 
-		name = prefix + " " + Std.string(value) + " " + suffix;
+		this.property = property;
+		this.label = label;
+		this.defaultDesc = description;
+		var idx:Int = 0;
+		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.txtImages('skins/noteskinOrder'));
+		for (i in 0...noteskinOrder.length)
+		{
+			var skin:String = noteskinOrder[i];
+			if (OptionUtils.noteSkins.contains(skin) && skin != 'fallback')
+				skinNames.push(skin);
+		}
+		for (skin in OptionUtils.noteSkins)
+		{
+			if (!skinNames.contains(skin) && skin != 'fallback')
+			{
+				skinNames.push(skin);
+			}
+		}
+		idx = skinNames.indexOf(Reflect.field(OptionUtils.options, property));
+		curValue = idx == -1 ? 0 : idx;
+		updateDescription();
+		leftArrow = new FlxSprite(0, 0);
+		leftArrow.frames = Paths.getSparrowAtlas("arrows");
+		leftArrow.setGraphicSize(Std.int(leftArrow.width * .7));
+		leftArrow.updateHitbox();
+		leftArrow.animation.addByPrefix("pressed", "arrow push left", 24, false);
+		leftArrow.animation.addByPrefix("static", "arrow left", 24, false);
+		leftArrow.animation.play("static");
+		rightArrow = new FlxSprite(0, 0);
+		rightArrow.frames = Paths.getSparrowAtlas("arrows");
+		rightArrow.setGraphicSize(Std.int(rightArrow.width * .7));
+		rightArrow.updateHitbox();
+		rightArrow.animation.addByPrefix("pressed", "arrow push right", 24, false);
+		rightArrow.animation.addByPrefix("static", "arrow right", 24, false);
+		rightArrow.animation.play("static");
+		add(rightArrow);
+		add(leftArrow);
+		name = Note.skinManifest.get(skinNames[curValue]).name;
+	}
+
+	override function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		labelAlphabet.targetY = text.targetY;
+		labelAlphabet.alpha = text.alpha;
+		leftArrow.alpha = text.alpha;
+		rightArrow.alpha = text.alpha;
+		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
+		{
+			leftArrow.animation.play("pressed");
+			leftArrow.offset.x = 0;
+			leftArrow.offset.y = -3;
+		}
+		else
+		{
+			leftArrow.animation.play("static");
+			leftArrow.offset.x = 0;
+			leftArrow.offset.y = 0;
+		}
+		if (PlayerSettings.player1.controls.UI_RIGHT && isSelected)
+		{
+			rightArrow.animation.play("pressed");
+			rightArrow.offset.x = 0;
+			rightArrow.offset.y = -3;
+		}
+		else
+		{
+			rightArrow.animation.play("static");
+			rightArrow.offset.x = 0;
+			rightArrow.offset.y = 0;
+		}
+		rightArrow.x = text.x + text.width + 10;
+		leftArrow.x = text.x - 60;
+		leftArrow.y = text.y - 10;
+		rightArrow.y = text.y - 10;
+	}
+
+	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	{
+		remove(text);
+		remove(labelAlphabet);
+		labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
+		labelAlphabet.isMenuItem = true;
+		text = new Alphabet(0, (70 * curSelected), name, false, false);
+		text.isMenuItem = true;
+		text.xAdd = labelAlphabet.width + 120;
+		labelAlphabet.targetY = text.targetY;
+		add(labelAlphabet);
+		add(text);
+		return text;
 	}
 
 	public override function left():Bool
 	{
-		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) - 1);
-
-		if (value < min)
-			value = max;
-		if (value > max)
-			value = min;
-
-		Reflect.setField(OptionUtils.options, property, value);
-		name = prefix + " " + Std.string(value) + " " + suffix;
+		var value:Int = curValue - 1;
+		if (value < 0)
+			value = skinNames.length - 1;
+		if (value > skinNames.length - 1)
+			value = 0;
+		Reflect.setField(OptionUtils.options, property, skinNames[value]);
+		curValue = value;
+		name = Note.skinManifest.get(skinNames[value]).name;
+		updateDescription();
 		return true;
 	}
 
 	public override function right():Bool
 	{
-		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) + 1);
-
-		if (value < min)
-			value = max;
-		if (value > max)
-			value = min;
-
-		Reflect.setField(OptionUtils.options, property, value);
-
-		name = prefix + " " + Std.string(value) + " " + suffix;
+		var value:Int = curValue + 1;
+		if (value < 0)
+			value = skinNames.length - 1;
+		if (value > skinNames.length - 1)
+			value = 0;
+		Reflect.setField(OptionUtils.options, property, skinNames[value]);
+		curValue = value;
+		name = Note.skinManifest.get(skinNames[value]).name;
+		updateDescription();
 		return true;
 	}
-}
-
+}*/
 class ControlOption extends Option
 {
 	private var controlType:String = 'ui_up';
@@ -980,6 +927,7 @@ class ControlOption extends Option
 	public function new(controls:Controls, controlType:String, defaultValue:Array<FlxKey>)
 	{
 		super();
+
 		this.controlType = controlType;
 		this.controls = controls;
 

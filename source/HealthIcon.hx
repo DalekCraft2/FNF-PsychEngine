@@ -17,6 +17,7 @@ class HealthIcon extends FlxSprite
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
+
 		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
 		changeIcon(char);
@@ -73,6 +74,7 @@ class HealthIcon extends FlxSprite
 	override function updateHitbox():Void
 	{
 		super.updateHitbox();
+
 		offset.x = iconOffsets[0];
 		offset.y = iconOffsets[1];
 	}

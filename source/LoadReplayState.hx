@@ -37,6 +37,11 @@ class LoadReplayState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.loadImage('menuDesat'));
 		// TODO: Refactor this to use OpenFlAssets.
 		#if FEATURE_FILESYSTEM
@@ -66,14 +71,14 @@ class LoadReplayState extends MusicBeatState
 		if (controlsStrings.length == 0)
 			controlsStrings.push("No Replays...");
 
-		menuBG.color = 0xFFea71fd;
+		menuBG.color = 0xFFEA71FD;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
 		menuBG.antialiasing = FlxG.save.data.antialiasing;
 		add(menuBG);
 
-		grpControls = new FlxTypedGroup<Alphabet>();
+		grpControls = new FlxTypedGroup();
 		add(grpControls);
 
 		for (i in 0...controlsStrings.length)
@@ -89,17 +94,15 @@ class LoadReplayState extends MusicBeatState
 			"Replay Loader (ESCAPE TO GO BACK)\nNOTICE!!!! Replays are in a beta stage, and they are probably not 100% correct. expect misses and other stuff that isn't there!\n",
 			12);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
 		poggerDetails = new FlxText(5, 34, 0, "Replay Details - \nnone", 12);
 		poggerDetails.scrollFactor.set();
-		poggerDetails.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		poggerDetails.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(poggerDetails);
 
 		changeSelection(0);
-
-		super.create();
 	}
 
 	function sortByDate(a:String, b:String):Int

@@ -25,6 +25,7 @@ class SpriteMovieClip extends Sprite
 	public function new(symbol:SpriteSymbol)
 	{
 		super();
+
 		this.symbol = symbol;
 		addChild(this.symbol);
 	}

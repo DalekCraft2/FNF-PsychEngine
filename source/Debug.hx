@@ -183,7 +183,7 @@ class Debug
 		trace('Initializing Debug tools...');
 
 		// Override Haxe's vanilla trace() calls to use the Flixel console.
-		Log.trace = function(data:Dynamic, ?info:PosInfos):Void
+		Log.trace = (data:Dynamic, ?info:PosInfos) ->
 		{
 			var paramArray:Array<Dynamic> = [data];
 
@@ -279,23 +279,23 @@ class Debug
 	inline static function defineConsoleCommands():Void
 	{
 		// Example: This will display Boyfriend's sprite properties in a debug window.
-		addConsoleCommand("trackBoyfriend", function():Void
+		addConsoleCommand("trackBoyfriend", () ->
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Boyfriend...");
 			trackObject(PlayState.instance.boyfriend);
 		});
-		addConsoleCommand("trackGirlfriend", function():Void
+		addConsoleCommand("trackGirlfriend", () ->
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Girlfriend...");
 			trackObject(PlayState.instance.gf);
 		});
-		addConsoleCommand("trackDad", function():Void
+		addConsoleCommand("trackDad", () ->
 		{
 			Debug.logInfo("CONSOLE: Begin tracking Dad...");
 			trackObject(PlayState.instance.opponent);
 		});
 
-		addConsoleCommand("setLogLevel", function(logLevel:String):Void
+		addConsoleCommand("setLogLevel", (logLevel:String) ->
 		{
 			if (!DebugLogWriter.LOG_LEVELS.contains(logLevel))
 			{
@@ -310,13 +310,13 @@ class Debug
 		});
 
 		// Console commands let you do WHATEVER you want.
-		addConsoleCommand("playSong", function(songName:String, ?difficulty:Int = 1):Void
+		addConsoleCommand("playSong", (songName:String, ?difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
 			// TODO Reimplement these commands
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
-		addConsoleCommand("chartSong", function(songName:String, ?difficulty:Int = 1):Void
+		addConsoleCommand("chartSong", (songName:String, ?difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Chart Editor...');
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, true, true);
@@ -377,7 +377,7 @@ class DebugLogWriter
 		var logFilePath:String = '$LOG_FOLDER/${Sys.time()}.log';
 
 		// Make sure that the path exists
-		if (logFilePath.indexOf("/") != -1)
+		if (logFilePath.contains("/"))
 		{
 			var lastIndex:Int = logFilePath.lastIndexOf("/");
 			var logFolderPath:String = logFilePath.substr(0, lastIndex);

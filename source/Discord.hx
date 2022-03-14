@@ -89,7 +89,7 @@ class DiscordClient
 	public static function addLuaCallbacks(lua:State):Void
 	{
 		Lua_helper.add_callback(lua, "changePresence",
-			function(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float)
+			(details:String, state:Null<String>, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) ->
 			{
 				changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
 			});

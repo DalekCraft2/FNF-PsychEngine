@@ -28,6 +28,11 @@ class AchievementsMenuState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		#if FEATURE_DISCORD
 		DiscordClient.changePresence("Achievements Menu", null);
 		#end
@@ -40,7 +45,7 @@ class AchievementsMenuState extends MusicBeatState
 		menuBG.antialiasing = OptionUtils.options.globalAntialiasing;
 		add(menuBG);
 
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedGroup();
 		add(grpOptions);
 
 		Achievements.loadAchievements();
@@ -74,13 +79,11 @@ class AchievementsMenuState extends MusicBeatState
 		}
 
 		descText = new FlxText(150, 600, 980, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		add(descText);
 		changeSelection();
-
-		super.create();
 	}
 
 	override function update(elapsed:Float):Void

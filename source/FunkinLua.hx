@@ -22,6 +22,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
+import lime.app.Application;
 #if FEATURE_LUA
 import llua.Convert;
 import llua.Lua;
@@ -49,7 +50,7 @@ class FunkinLua
 
 	var gonnaClose:Bool = false;
 
-	public var accessedProps:Map<String, Dynamic> = null;
+	public var accessedProps:Map<String, Dynamic> = [];
 
 	public function new(script:String)
 	{
@@ -69,19 +70,13 @@ class FunkinLua
 			Debug.logError('Error on lua script! $resultStr');
 			luaTrace('Error loading lua script: "$script"\n$resultStr', true, false);
 			#if windows
-			lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
+			Application.current.window.alert(resultStr, 'Error on lua script!');
 			#end
 			lua = null;
 			return;
 		}
 		scriptName = script;
 		Debug.logTrace('Lua file loaded succesfully: $script');
-
-		#if (haxe >= "4.0.0")
-		accessedProps = new Map();
-		#else
-		accessedProps = new Map<String, Dynamic>();
-		#end
 
 		// Lua shit
 		set('Function_Stop', Function_Stop);
@@ -459,7 +454,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {x: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -478,7 +473,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {y: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -497,7 +492,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {angle: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -516,7 +511,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {alpha: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -535,7 +530,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(penisExam, {zoom: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -554,13 +549,13 @@ class FunkinLua
 			{
 				var color:Int = Std.parseInt(targetColor);
 				if (!targetColor.startsWith('0x'))
-					color = Std.parseInt('0xff' + targetColor);
+					color = Std.parseInt('0xFF' + targetColor);
 
 				var curColor:FlxColor = penisExam.color;
 				curColor.alphaFloat = penisExam.alpha;
 				PlayState.instance.modchartTweens.set(tag, FlxTween.color(penisExam, duration, curColor, color, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.modchartTweens.remove(tag);
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
@@ -585,7 +580,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {x: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -604,7 +599,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {y: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -623,7 +618,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {angle: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -642,7 +637,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {direction: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -698,7 +693,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {angle: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -717,7 +712,7 @@ class FunkinLua
 			{
 				PlayState.instance.modchartTweens.set(tag, FlxTween.tween(testicle, {alpha: value}, duration, {
 					ease: getFlxEaseByString(ease),
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 						PlayState.instance.modchartTweens.remove(tag);
@@ -734,7 +729,7 @@ class FunkinLua
 		Lua_helper.add_callback(lua, "runTimer", function(tag:String, time:Float = 1, loops:Int = 1):Void
 		{
 			cancelTimer(tag);
-			PlayState.instance.modchartTimers.set(tag, new FlxTimer().start(time, function(tmr:FlxTimer):Void
+			PlayState.instance.modchartTimers.set(tag, new FlxTimer().start(time, (tmr:FlxTimer) ->
 			{
 				if (tmr.finished)
 				{
@@ -829,7 +824,7 @@ class FunkinLua
 		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String):Int
 		{
 			if (!color.startsWith('0x'))
-				color = '0xff' + color;
+				color = '0xFF' + color;
 			return Std.parseInt(color);
 		});
 		Lua_helper.add_callback(lua, "keyJustPressed", function(name:String):Bool
@@ -1031,14 +1026,14 @@ class FunkinLua
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xff' + color);
+				colorNum = Std.parseInt('0xFF' + color);
 			cameraFromString(camera).flash(colorNum, duration, null, forced);
 		});
 		Lua_helper.add_callback(lua, "cameraFade", function(camera:String, color:String, duration:Float, forced:Bool):Void
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xff' + color);
+				colorNum = Std.parseInt('0xFF' + color);
 			cameraFromString(camera).fade(colorNum, duration, false, null, forced);
 		});
 		Lua_helper.add_callback(lua, "setRatingPercent", function(value:Float):Void
@@ -1169,7 +1164,7 @@ class FunkinLua
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xff' + color);
+				colorNum = Std.parseInt('0xFF' + color);
 
 			if (PlayState.instance.modchartSprites.exists(obj))
 			{
@@ -1533,7 +1528,7 @@ class FunkinLua
 			}
 			return FlxG.random.float(min, max, toExclude);
 		});
-		Lua_helper.add_callback(lua, "getRandomBool", function(chance:Float = 50)
+		Lua_helper.add_callback(lua, "getRandomBool", function(chance:Float = 50):Bool
 		{
 			return FlxG.random.bool(chance);
 		});
@@ -1608,7 +1603,7 @@ class FunkinLua
 				{
 					PlayState.instance.modchartSounds.get(tag).stop();
 				}
-				PlayState.instance.modchartSounds.set(tag, FlxG.sound.play(Paths.sound(sound), volume, false, function():Void
+				PlayState.instance.modchartSounds.set(tag, FlxG.sound.play(Paths.sound(sound), volume, false, () ->
 				{
 					PlayState.instance.modchartSounds.remove(tag);
 					PlayState.instance.callOnLuas('onSoundFinished', [tag]);
@@ -1809,7 +1804,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xff' + color);
+					colorNum = Std.parseInt('0xFF' + color);
 
 				obj.borderSize = size;
 				obj.borderColor = colorNum;
@@ -1822,7 +1817,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xff' + color);
+					colorNum = Std.parseInt('0xFF' + color);
 
 				obj.color = colorNum;
 			}
@@ -1988,7 +1983,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xff' + color);
+					colorNum = Std.parseInt('0xFF' + color);
 
 				PlayState.instance.modchartSprites.get(tag).makeGraphic(width, height, colorNum);
 			}
@@ -2248,7 +2243,7 @@ class FunkinLua
 	}
 
 	// Better optimized than using some getProperty shit or idk
-	function getFlxEaseByString(?ease:String = ''):Float->Float
+	function getFlxEaseByString(?ease:String = ''):(Float) -> Float
 	{
 		switch (ease.toLowerCase().trim())
 		{
@@ -2509,10 +2504,7 @@ class FunkinLua
 			return;
 		}
 
-		if (accessedProps != null)
-		{
-			accessedProps.clear();
-		}
+		accessedProps.clear();
 
 		Lua.close(lua);
 		lua = null;
@@ -2544,6 +2536,7 @@ class ModchartSprite extends FlxSprite
 	public function new(?x:Float = 0, ?y:Float = 0)
 	{
 		super(x, y);
+
 		antialiasing = OptionUtils.options.globalAntialiasing;
 	}
 }
@@ -2555,7 +2548,8 @@ class ModchartText extends FlxText
 	public function new(x:Float, y:Float, text:String, width:Float)
 	{
 		super(x, y, width, text, 16);
-		setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+
+		setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		cameras = [PlayState.instance.camHUD];
 		scrollFactor.set();
 		borderSize = 2;
@@ -2570,8 +2564,9 @@ class DebugLuaText extends FlxText
 
 	public function new(text:String, parentGroup:FlxTypedGroup<DebugLuaText>)
 	{
-		this.parentGroup = parentGroup;
 		super(10, 10, 0, text, 16);
+
+		this.parentGroup = parentGroup;
 		setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		scrollFactor.set();
 		borderSize = 1;
@@ -2580,6 +2575,7 @@ class DebugLuaText extends FlxText
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
 		disableTime -= elapsed;
 		if (disableTime <= 0)
 		{

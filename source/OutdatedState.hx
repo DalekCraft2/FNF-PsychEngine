@@ -14,6 +14,9 @@ class OutdatedState extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -36,6 +39,8 @@ class OutdatedState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (!leftState)
 		{
 			if (controls.ACCEPT)
@@ -52,13 +57,12 @@ class OutdatedState extends MusicBeatState
 			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxTween.tween(warnText, {alpha: 0}, 1, {
-					onComplete: function(twn:FlxTween):Void
+					onComplete: (twn:FlxTween) ->
 					{
 						FlxG.switchState(new MainMenuState());
 					}
 				});
 			}
 		}
-		super.update(elapsed);
 	}
 }

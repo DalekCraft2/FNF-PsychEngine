@@ -30,6 +30,11 @@ class MasterEditorMenu extends MusicBeatState
 
 	override function create():Void
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
+
 		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
@@ -41,7 +46,7 @@ class MasterEditorMenu extends MusicBeatState
 		bg.color = 0xFF353535;
 		add(bg);
 
-		grpTexts = new FlxTypedGroup<Alphabet>();
+		grpTexts = new FlxTypedGroup();
 		add(grpTexts);
 
 		for (i in 0...options.length)
@@ -75,11 +80,12 @@ class MasterEditorMenu extends MusicBeatState
 		changeSelection();
 
 		FlxG.mouse.visible = false;
-		super.create();
 	}
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (controls.UI_UP_P)
 		{
 			changeSelection(-1);
@@ -142,7 +148,6 @@ class MasterEditorMenu extends MusicBeatState
 				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
-		super.update(elapsed);
 	}
 
 	function changeSelection(change:Int = 0):Void

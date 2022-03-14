@@ -7,8 +7,10 @@ using StringTools;
 
 class VisualsUISubState extends BaseOptionsMenu
 {
-	public function new()
+	override function create():Void
 	{
+		super.create();
+
 		title = 'Visuals and UI';
 		rpcTitle = 'Visuals & UI Settings Menu'; // for Discord Rich Presence
 
@@ -49,8 +51,6 @@ class VisualsUISubState extends BaseOptionsMenu
 			['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
-
-		super();
 	}
 
 	var changedMusic:Bool = false;
@@ -67,9 +67,10 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	override function destroy():Void
 	{
+		super.destroy();
+
 		if (changedMusic)
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-		super.destroy();
 	}
 
 	#if !mobile

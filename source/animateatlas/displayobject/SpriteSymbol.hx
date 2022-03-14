@@ -63,6 +63,7 @@ class SpriteSymbol extends Sprite
 	private function new(data:SymbolData, library:SpriteAnimationLibrary, texture:BitmapData)
 	{
 		super();
+
 		_data = data;
 		_library = library;
 		_composedFrame = -1;
@@ -82,7 +83,7 @@ class SpriteSymbol extends Sprite
 			if (layer.FrameMap != null)
 				return;
 
-			var map:Map<Int, LayerFrameData> = new Map();
+			var map:Map<Int, LayerFrameData> = [];
 
 			for (i in 0...layer.Frames.length)
 			{
@@ -255,7 +256,7 @@ class SpriteSymbol extends Sprite
 		{
 			throw new Error("You must not call this twice");
 		}
-		_layers = new Array<Sprite>();
+		_layers = [];
 
 		if (_numLayers <= 1)
 		{

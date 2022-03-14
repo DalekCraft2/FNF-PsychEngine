@@ -23,9 +23,12 @@ class NotesState extends MusicBeatState
 
 	var posX:Float = 230;
 
-	public function new()
+	override function create():Void
 	{
-		super();
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		super.create();
 
 		if (OptionsSubState.isInPause)
 		{
@@ -49,9 +52,9 @@ class NotesState extends MusicBeatState
 		blackBG.alpha = 0.4;
 		add(blackBG);
 
-		grpNotes = new FlxTypedGroup<FlxSprite>();
+		grpNotes = new FlxTypedGroup();
 		add(grpNotes);
-		grpNumbers = new FlxTypedGroup<Alphabet>();
+		grpNumbers = new FlxTypedGroup();
 		add(grpNumbers);
 
 		if (OptionUtils.options.arrowHSV == null)
@@ -94,6 +97,8 @@ class NotesState extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (changingNote)
 		{
 			if (holdTime < 0.5)
@@ -198,7 +203,6 @@ class NotesState extends MusicBeatState
 						item.alpha = 1;
 					}
 				}
-				super.update(elapsed);
 				return;
 			}
 		}
@@ -222,7 +226,6 @@ class NotesState extends MusicBeatState
 		{
 			nextAccept -= 1;
 		}
-		super.update(elapsed);
 	}
 
 	function changeSelection(change:Int = 0):Void

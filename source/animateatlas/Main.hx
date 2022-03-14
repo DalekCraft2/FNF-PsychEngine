@@ -31,6 +31,7 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+
 		graphics.beginFill(0x333333);
 		graphics.drawRect(0, 0, Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
 

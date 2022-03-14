@@ -28,9 +28,9 @@ class BaseOptionsMenu extends MusicBeatSubState
 	public var title:String;
 	public var rpcTitle:String;
 
-	public function new()
+	override function create():Void
 	{
-		super();
+		super.create();
 
 		if (title == null)
 			title = 'Options';
@@ -48,13 +48,13 @@ class BaseOptionsMenu extends MusicBeatSubState
 		add(bg);
 
 		// avoids lagspikes while scrolling through menus!
-		grpOptions = new FlxTypedGroup<Alphabet>();
+		grpOptions = new FlxTypedGroup();
 		add(grpOptions);
 
-		grpTexts = new FlxTypedGroup<AttachedText>();
+		grpTexts = new FlxTypedGroup();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedGroup();
 		add(checkboxGroup);
 
 		descBox = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -127,6 +127,8 @@ class BaseOptionsMenu extends MusicBeatSubState
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (controls.UI_UP_P)
 		{
 			changeSelection(-1);
@@ -281,7 +283,6 @@ class BaseOptionsMenu extends MusicBeatSubState
 		{
 			nextAccept -= 1;
 		}
-		super.update(elapsed);
 	}
 
 	function updateTextFrom(option:Option):Void

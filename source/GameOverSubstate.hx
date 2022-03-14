@@ -34,16 +34,17 @@ class GameOverSubState extends MusicBeatSubState
 
 	override function create():Void
 	{
+		super.create();
+
 		instance = this;
 		PlayState.instance.callOnLuas('onGameOverStart', []);
-
-		super.create();
 	}
 
 	public function new(x:Float, y:Float, camX:Float, camY:Float)
 	{
 		super();
 
+		// TODO Can this stuff be moved to create()?
 		PlayState.instance.setOnLuas('inGameOver', true);
 
 		Conductor.songPosition = 0;
@@ -149,9 +150,9 @@ class GameOverSubState extends MusicBeatSubState
 			boyfriend.playAnim('deathConfirm', true);
 			FlxG.sound.music.stop();
 			FlxG.sound.play(Paths.music(endSoundName));
-			new FlxTimer().start(0.7, function(tmr:FlxTimer)
+			new FlxTimer().start(0.7, (tmr:FlxTimer) ->
 			{
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
+				FlxG.camera.fade(FlxColor.BLACK, 2, false, () ->
 				{
 					FlxG.resetState();
 					PlayState.stageTesting = false;

@@ -76,11 +76,7 @@ class Character extends FlxSprite
 	{
 		super(x, y);
 
-		#if (haxe >= "4.0.0")
-		animOffsets = new Map();
-		#else
-		animOffsets = new Map<String, Array<Float>>();
-		#end
+		animOffsets = [];
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 		antialiasing = OptionUtils.options.globalAntialiasing;
@@ -222,6 +218,8 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (!debugMode && animation.curAnim != null)
 		{
 			if (heyTimer > 0)
@@ -262,7 +260,6 @@ class Character extends FlxSprite
 				playAnim(animation.curAnim.name + '-loop');
 			}
 		}
-		super.update(elapsed);
 	}
 
 	public var danced:Bool = false;

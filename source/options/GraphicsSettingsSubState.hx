@@ -7,8 +7,10 @@ import options.Options.OptionUtils;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
-	public function new()
+	override function create():Void
 	{
+		super.create();
+
 		title = 'Graphics';
 		rpcTitle = 'Graphics Settings Menu'; // for Discord Rich Presence
 		// I'd suggest using "Low Quality" as an example for making your own option since it is the simplest here
@@ -36,7 +38,6 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'imagesPersist', 'bool', false);
 		option.onChange = onChangePersistentData; // Persistent Cached Data changes FlxGraphic.defaultPersist
 		addOption(option);
-		super();
 	}
 
 	function onChangeAntiAliasing():Void

@@ -13,6 +13,7 @@ class AttachedText extends Alphabet
 	public function new(text:String = "", ?offsetX:Float = 0, ?offsetY:Float = 0, ?bold = false, ?scale:Float = 1)
 	{
 		super(0, 0, text, bold, false, 0.05, scale);
+
 		isMenuItem = false;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
@@ -20,6 +21,8 @@ class AttachedText extends Alphabet
 
 	override function update(elapsed:Float):Void
 	{
+		super.update(elapsed);
+
 		if (sprTracker != null)
 		{
 			setPosition(sprTracker.x + offsetX, sprTracker.y + offsetY);
@@ -32,7 +35,5 @@ class AttachedText extends Alphabet
 				alpha = sprTracker.alpha;
 			}
 		}
-
-		super.update(elapsed);
 	}
 }

@@ -9,17 +9,29 @@ class OptionsState extends MusicBeatState
 {
 	override function create():Void
 	{
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
+		// One day, I'll figure out how to both call the super method and open a SubState in the create() method
+		// super.create();
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xFFea71fd;
+		bg.color = 0xFFEA71FD;
 		bg.updateHitbox();
-
 		bg.screenCenter();
 		bg.antialiasing = OptionUtils.options.globalAntialiasing;
 		add(bg);
 
 		openSubState(new OptionsSubState());
 	}
+	/*override function update(elapsed:Float):Void
+		{
+			super.update(elapsed);
+
+			if (subState == null)
+			{
+				openSubState(new OptionsSubState());
+				Debug.logTrace('Opened SubState');
+			}
+	}*/
 }
