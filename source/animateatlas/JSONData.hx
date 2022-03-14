@@ -6,10 +6,10 @@ package animateatlas;
  */
 typedef AnimationData =
 {
-	?ANIMATION:SymbolData,
-	?SYMBOL_DICTIONARY:
+	?animation:SymbolData,
+	?symbolDictionary:
 		{
-			Symbols:Array<SymbolData>
+			symbols:Array<SymbolData>
 		},
 	?metadata:
 		{
@@ -19,9 +19,9 @@ typedef AnimationData =
 
 typedef AtlasData =
 {
-	?ATLAS:
+	?atlas:
 		{
-			SPRITES:Array<SpriteDummy>
+			sprites:Array<SpriteDummy>
 		},
 	?meta:
 		{
@@ -36,7 +36,7 @@ typedef AtlasData =
 
 typedef SpriteDummy =
 {
-	SPRITE:SpriteData
+	sprite:SpriteData
 }
 
 typedef SpriteData =
@@ -52,21 +52,21 @@ typedef SpriteData =
 typedef SymbolData =
 {
 	?name:String,
-	SYMBOL_name:String,
-	?TIMELINE:SymbolTimelineData
+	symbolName:String,
+	?timeline:SymbolTimelineData
 }
 
 typedef SymbolTimelineData =
 {
 	?sortedForRender:Bool,
-	LAYERS:Array<LayerData>
+	layers:Array<LayerData>
 }
 
 typedef LayerData =
 {
-	Layer_name:String,
-	Frames:Array<LayerFrameData>,
-	FrameMap:Map<Int, LayerFrameData>
+	layerName:String,
+	frames:Array<LayerFrameData>,
+	frameMap:Map<Int, LayerFrameData>
 }
 
 typedef LayerFrameData =
@@ -79,19 +79,19 @@ typedef LayerFrameData =
 
 typedef ElementData =
 {
-	?ATLAS_SPRITE_instance:Dynamic,
-	?SYMBOL_Instance:SymbolInstanceData
+	?atlasSpriteInstance:Dynamic,
+	?symbolInstance:SymbolInstanceData
 }
 
 typedef SymbolInstanceData =
 {
-	SYMBOL_name:String,
-	Instance_Name:String,
+	symbolName:String,
+	instanceName:String,
 	bitmap:BitmapPosData,
 	symbolType:String,
 	transformationPoint:PointData,
-	Matrix3D:Matrix3DData,
-	?DecomposedMatrix:Decomposed3DData,
+	matrix3D:Matrix3DData,
+	?decomposedMatrix:Decomposed3DData,
 	?color:ColorData,
 
 	?loop:String,
@@ -103,20 +103,20 @@ typedef ColorData =
 {
 	mode:String,
 
-	?RedMultiplier:Float,
+	?redMultiplier:Float,
 	?greenMultiplier:Float,
 	?blueMultiplier:Float,
 	?alphaMultiplier:Float,
 	?redOffset:Float,
 	?greenOffset:Float,
 	?blueOffset:Float,
-	?AlphaOffset:Float
+	?alphaOffset:Float
 }
 
 typedef BitmapPosData =
 {
 	name:String,
-	Position:PointData,
+	position:PointData,
 }
 
 typedef PointData =
@@ -148,14 +148,14 @@ typedef Matrix3DData =
 // tryna add more support gimme a sec
 typedef FilterData =
 {
-	?BlurFilter:
+	?blurFilter:
 		{
 			blurX:Float,
 			blurY:Float,
 			quality:Int
 		},
 
-	?GlowFilter:
+	?glowFilter:
 		{
 			blurX:Float,
 			blurY:Float,
@@ -170,15 +170,15 @@ typedef FilterData =
 
 typedef Decomposed3DData =
 {
-	Position:
+	position:
 	{
 		x:Float, y:Float, z:Float
 	},
-	Rotation:
+	rotation:
 	{
 		x:Float, y:Float, z:Float
 	},
-	Scaling:
+	scaling:
 	{
 		x:Float, y:Float, z:Float
 	},

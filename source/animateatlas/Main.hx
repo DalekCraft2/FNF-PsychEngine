@@ -19,14 +19,14 @@ import openfl.events.MouseEvent;
 
 class Main extends Sprite
 {
-	var aa:TileAnimationLibrary;
-	var ss:SpriteAnimationLibrary;
+	private var aa:TileAnimationLibrary;
+	private var ss:SpriteAnimationLibrary;
 
-	var tileSymbols:Array<TileContainerMovieClip>;
+	private var tileSymbols:Array<TileContainerMovieClip>;
 
-	var spriteSymbols:Array<SpriteMovieClip>;
+	private var spriteSymbols:Array<SpriteMovieClip>;
 
-	var renderer:Tilemap;
+	private var renderer:Tilemap;
 
 	public function new()
 	{

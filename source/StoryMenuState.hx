@@ -152,12 +152,12 @@ class StoryMenuState extends MusicBeatState
 		leftArrow.antialiasing = OptionUtils.options.globalAntialiasing;
 		difficultySelectors.add(leftArrow);
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
 		if (lastDifficultyName == '')
 		{
-			lastDifficultyName = CoolUtil.defaultDifficulty;
+			lastDifficultyName = CoolUtil.DEFAULT_DIFFICULTY;
 		}
-		curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(lastDifficultyName)));
+		curDifficulty = Math.round(Math.max(0, CoolUtil.DEFAULT_DIFFICULTIES.indexOf(lastDifficultyName)));
 
 		sprDifficulty = new FlxSprite(0, leftArrow.y);
 		sprDifficulty.antialiasing = OptionUtils.options.globalAntialiasing;
@@ -420,7 +420,7 @@ class StoryMenuState extends MusicBeatState
 		}
 		PlayState.storyWeek = curWeek;
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
 		var diffStr:String = Week.getCurrentWeek().difficulties;
 		if (diffStr != null)
 			diffStr = diffStr.trim(); // Fuck you HTML5
@@ -447,9 +447,9 @@ class StoryMenuState extends MusicBeatState
 			}
 		}
 
-		if (CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+		if (CoolUtil.difficulties.contains(CoolUtil.DEFAULT_DIFFICULTY))
 		{
-			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
+			curDifficulty = Math.round(Math.max(0, CoolUtil.DEFAULT_DIFFICULTIES.indexOf(CoolUtil.DEFAULT_DIFFICULTY)));
 		}
 		else
 		{

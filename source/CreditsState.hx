@@ -74,7 +74,7 @@ class CreditsState extends MusicBeatState
 				if (leMods.length > 1 && leMods[0].length > 0)
 				{
 					var modSplit:Array<String> = leMods[i].split('|');
-					if (!Paths.ignoreModFolders.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
+					if (!Paths.IGNORE_MOD_FOLDERS.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
 					{
 						if (modSplit[1] == '1')
 							pushModCreditsToList(modSplit[0]);

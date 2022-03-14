@@ -7,6 +7,10 @@ import openfl.display.Sprite;
 @:access(animateatlas.displayobject.SpriteSymbol)
 class SpriteMovieClip extends Sprite
 {
+	private var symbol:SpriteSymbol;
+	private var _framerate:Null<Float> = null;
+	private var frameElapsed:Float = 0;
+
 	public var framerate(get, set):Float;
 	public var currentLabel(get, set):String;
 	public var currentFrame(get, set):Int;
@@ -16,11 +20,6 @@ class SpriteMovieClip extends Sprite
 	public var numLayers(get, never):Int;
 	public var numFrames(get, never):Int;
 	public var layers(get, never):Array<Sprite>; // ! Dangerous AF.
-
-	private var symbol:SpriteSymbol;
-	private var _framerate:Null<Float> = null;
-
-	private var frameElapsed:Float = 0;
 
 	public function new(symbol:SpriteSymbol)
 	{
@@ -59,21 +58,15 @@ class SpriteMovieClip extends Sprite
 
 	// # region Property setter and getter
 
-	private function set_currentLabel(value:String):String
-	{
-		symbol.currentFrame = symbol.getFrame(value);
-		return value;
-	}
-
 	private function get_currentLabel():String
 	{
 		return symbol.currentLabel;
 	}
 
-	private function set_currentFrame(value:Int):Int
+	private function set_currentLabel(value:String):String
 	{
-		symbol.currentFrame = value;
-		return value;
+		symbol.currentFrame = symbol.getFrame(value);
+		return currentLabel;
 	}
 
 	private function get_currentFrame():Int
@@ -81,10 +74,10 @@ class SpriteMovieClip extends Sprite
 		return symbol.currentFrame;
 	}
 
-	private function set_type(value:SymbolType):SymbolType
+	private function set_currentFrame(value:Int):Int
 	{
-		symbol.type = value;
-		return value;
+		symbol.currentFrame = value;
+		return currentFrame;
 	}
 
 	private function get_type():SymbolType
@@ -92,15 +85,21 @@ class SpriteMovieClip extends Sprite
 		return symbol.type;
 	}
 
-	private function set_loopMode(value:LoopMode):LoopMode
+	private function set_type(value:SymbolType):SymbolType
 	{
-		symbol.loopMode = value;
-		return value;
+		symbol.type = value;
+		return type;
 	}
 
 	private function get_loopMode():LoopMode
 	{
 		return symbol.loopMode;
+	}
+
+	private function set_loopMode(value:LoopMode):LoopMode
+	{
+		symbol.loopMode = value;
+		return loopMode;
 	}
 
 	private function get_symbolName():String
@@ -123,14 +122,15 @@ class SpriteMovieClip extends Sprite
 		return symbol._layers;
 	}
 
-	private function set_framerate(value:Float):Float
-	{
-		return _framerate = value;
-	}
-
 	private function get_framerate():Float
 	{
 		return _framerate == null ? symbol._library.frameRate : _framerate;
+	}
+
+	private function set_framerate(value:Float):Float
+	{
+		_framerate = value;
+		return framerate;
 	}
 
 	// # end region

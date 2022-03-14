@@ -15,28 +15,28 @@ import options.Options.OptionUtils;
 
 class NoteOffsetState extends MusicBeatState
 {
-	var boyfriend:Character;
-	var gf:Character;
+	private var boyfriend:Character;
+	private var gf:Character;
 
-	public var camHUD:FlxCamera;
-	public var camGame:FlxCamera;
-	public var camOther:FlxCamera;
+	private var camHUD:FlxCamera;
+	private var camGame:FlxCamera;
+	private var camOther:FlxCamera;
 
-	var coolText:FlxText;
-	var rating:FlxSprite;
-	var comboNums:FlxSpriteGroup;
-	var dumbTexts:FlxTypedGroup<FlxText>;
+	private var coolText:FlxText;
+	private var rating:FlxSprite;
+	private var comboNums:FlxSpriteGroup;
+	private var dumbTexts:FlxTypedGroup<FlxText>;
 
-	var barPercent:Float = 0;
-	var delayMin:Int = 0;
-	var delayMax:Int = 500;
-	var timeBarBG:FlxSprite;
-	var timeBar:FlxBar;
-	var timeTxt:FlxText;
-	var beatText:Alphabet;
-	var beatTween:FlxTween;
+	private var barPercent:Float = 0;
+	private var delayMin:Int = 0;
+	private var delayMax:Int = 500;
+	private var timeBarBG:FlxSprite;
+	private var timeBar:FlxBar;
+	private var timeTxt:FlxText;
+	private var beatText:Alphabet;
+	private var beatTween:FlxTween;
 
-	var changeModeText:FlxText;
+	private var changeModeText:FlxText;
 
 	public function new()
 	{
@@ -208,12 +208,12 @@ class NoteOffsetState extends MusicBeatState
 		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
 	}
 
-	var holdTime:Float = 0;
-	var onComboMenu:Bool = true;
-	var holdingObjectType:Null<Bool> = null;
+	private var holdTime:Float = 0;
+	private var onComboMenu:Bool = true;
+	private var holdingObjectType:Null<Bool> = null;
 
-	var startMousePos:FlxPoint = new FlxPoint();
-	var startComboOffset:FlxPoint = new FlxPoint();
+	private var startMousePos:FlxPoint = new FlxPoint();
+	private var startComboOffset:FlxPoint = new FlxPoint();
 
 	override public function update(elapsed:Float):Void
 	{
@@ -381,8 +381,8 @@ class NoteOffsetState extends MusicBeatState
 		Conductor.songPosition = FlxG.sound.music.time;
 	}
 
-	var zoomTween:FlxTween;
-	var lastBeatHit:Int = -1;
+	private var zoomTween:FlxTween;
+	private var lastBeatHit:Int = -1;
 
 	override public function beatHit():Void
 	{
@@ -430,7 +430,7 @@ class NoteOffsetState extends MusicBeatState
 		lastBeatHit = curBeat;
 	}
 
-	function repositionCombo():Void
+	private function repositionCombo():Void
 	{
 		rating.screenCenter();
 		rating.x = coolText.x - 40 + OptionUtils.options.comboOffset[0];
@@ -442,7 +442,7 @@ class NoteOffsetState extends MusicBeatState
 		reloadTexts();
 	}
 
-	function createTexts():Void
+	private function createTexts():Void
 	{
 		for (i in 0...4)
 		{
@@ -460,7 +460,7 @@ class NoteOffsetState extends MusicBeatState
 		}
 	}
 
-	function reloadTexts():Void
+	private function reloadTexts():Void
 	{
 		for (i in 0...dumbTexts.length)
 		{
@@ -478,13 +478,13 @@ class NoteOffsetState extends MusicBeatState
 		}
 	}
 
-	function updateNoteDelay():Void
+	private function updateNoteDelay():Void
 	{
 		OptionUtils.options.noteOffset = Math.round(barPercent);
 		timeTxt.text = 'Current offset: ' + Math.floor(barPercent) + ' ms';
 	}
 
-	function updateMode():Void
+	private function updateMode():Void
 	{
 		rating.visible = onComboMenu;
 		comboNums.visible = onComboMenu;

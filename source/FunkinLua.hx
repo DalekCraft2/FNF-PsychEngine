@@ -39,8 +39,8 @@ using StringTools;
 
 class FunkinLua
 {
-	public static var Function_Stop:Int = 1;
-	public static var Function_Continue:Int = 0;
+	public static final FUNCTION_STOP:Int = 1;
+	public static final FUNCTION_CONTINUE:Int = 0;
 
 	#if FEATURE_LUA
 	public var lua:State = null;
@@ -79,8 +79,8 @@ class FunkinLua
 		Debug.logTrace('Lua file loaded succesfully: $script');
 
 		// Lua shit
-		set('Function_Stop', Function_Stop);
-		set('Function_Continue', Function_Continue);
+		set('FUNCTION_STOP', FUNCTION_STOP);
+		set('FUNCTION_CONTINUE', FUNCTION_CONTINUE);
 		set('luaDebugMode', false);
 		set('luaDeprecatedWarnings', true);
 		set('inChartEditor', false);
@@ -125,7 +125,7 @@ class FunkinLua
 		set('rating', 0);
 		set('ratingName', '');
 		set('ratingFC', '');
-		set('version', MainMenuState.psychEngineVersion.trim());
+		set('version', MainMenuState.PSYCH_ENGINE_VERSION.trim());
 
 		set('inGameOver', false);
 		set('mustHitSection', false);
@@ -2391,7 +2391,7 @@ class FunkinLua
 		#if FEATURE_LUA
 		if (lua == null)
 		{
-			return Function_Continue;
+			return FUNCTION_CONTINUE;
 		}
 
 		Lua.getglobal(lua, event);
@@ -2413,7 +2413,7 @@ class FunkinLua
 				Lua.pop(lua, 1);
 				if (error == 'attempt to call a nil value')
 				{ // Makes it ignore warnings and not break stuff if you didn't put the functions on your lua file
-					return Function_Continue;
+					return FUNCTION_CONTINUE;
 				}
 			}
 
@@ -2421,7 +2421,7 @@ class FunkinLua
 			return conv;
 		}
 		#end
-		return Function_Continue;
+		return FUNCTION_CONTINUE;
 	}
 
 	function getPropertyLoopThingWhatever(killMe:Array<String>, ?checkForTextsToo:Bool = true):Dynamic
@@ -2516,7 +2516,7 @@ class FunkinLua
 		return PlayState.instance.isDead ? GameOverSubState.instance : PlayState.instance;
 	}
 
-	static inline var CLENSE:String = "
+	static inline final CLENSE:String = "
 	os.execute = nil;
 	os.exit = nil;
 	package.loaded.os.execute = nil;
@@ -2525,6 +2525,7 @@ class FunkinLua
 	package.loaded.process = nil;
 
 	"; // Fuck this, I can't figure out linc_lua, so I'mma set everything in Lua itself - Super
+	// TODO Figure out linc_lua
 }
 
 class ModchartSprite extends FlxSprite

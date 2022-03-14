@@ -14,14 +14,15 @@ class NotesState extends MusicBeatState
 	private var grpNumbers:FlxTypedGroup<Alphabet>;
 	private var grpNotes:FlxTypedGroup<FlxSprite>;
 	private var shaderArray:Array<ColorSwap> = [];
-	var curValue:Float = 0;
-	var holdTime:Float = 0;
-	var nextAccept:Int = 5;
+	private var curValue:Float = 0;
+	private var holdTime:Float = 0;
+	private var nextAccept:Int = 5;
 
-	var blackBG:FlxSprite;
-	var hsbText:Alphabet;
+	private var blackBG:FlxSprite;
+	private var hsbText:Alphabet;
 
-	var posX:Float = 230;
+	private var posX:Float = 230;
+	private var changingNote:Bool = false;
 
 	override function create():Void
 	{
@@ -92,8 +93,6 @@ class NotesState extends MusicBeatState
 
 		changeSelection();
 	}
-
-	var changingNote:Bool = false;
 
 	override function update(elapsed:Float):Void
 	{
@@ -228,7 +227,7 @@ class NotesState extends MusicBeatState
 		}
 	}
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -264,7 +263,7 @@ class NotesState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	function changeType(change:Int = 0):Void
+	private function changeType(change:Int = 0):Void
 	{
 		typeSelected += change;
 		if (typeSelected < 0)
@@ -286,7 +285,7 @@ class NotesState extends MusicBeatState
 		}
 	}
 
-	function resetValue(selected:Int, type:Int):Void
+	private function resetValue(selected:Int, type:Int):Void
 	{
 		curValue = 0;
 		OptionUtils.options.arrowHSV[selected][type] = 0;
@@ -305,7 +304,7 @@ class NotesState extends MusicBeatState
 		item.offset.x = (40 * (item.lettersArray.length - 1)) / 2;
 	}
 
-	function updateValue(change:Float = 0):Void
+	private function updateValue(change:Float = 0):Void
 	{
 		curValue += change;
 		var roundedValue:Int = Math.round(curValue);

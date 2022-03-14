@@ -7,15 +7,10 @@ https://haxeflixel.com/documentation/code-style/
     static
     inline
 
--Order of fields: 
-    variables ( 
-        static fields
-        instance fields (
-            public fields
-            private fields
-        )
-    )
-    properties
+-Order of fields:
+    static fields before instance fields
+    public fields before private fields
+    normal variables before properties
 
 -Getters and Setters for properties at the end of class, as they should always be private.
 

@@ -143,9 +143,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			var isNumber:Bool = AlphaCharacter.numbers.contains(character);
-			var isSymbol:Bool = AlphaCharacter.symbols.contains(character);
-			var isAlphabet:Bool = AlphaCharacter.alphabet.contains(character.toLowerCase());
+			var isNumber:Bool = AlphaCharacter.NUMBERS.contains(character);
+			var isSymbol:Bool = AlphaCharacter.SYMBOLS.contains(character);
+			var isAlphabet:Bool = AlphaCharacter.LETTERS.contains(character.toLowerCase());
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null)
@@ -300,9 +300,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			var isNumber:Bool = AlphaCharacter.numbers.contains(splitWords[loopNum]);
-			var isSymbol:Bool = AlphaCharacter.symbols.contains(splitWords[loopNum]);
-			var isAlphabet:Bool = AlphaCharacter.alphabet.contains(splitWords[loopNum].toLowerCase());
+			var isNumber:Bool = AlphaCharacter.NUMBERS.contains(splitWords[loopNum]);
+			var isSymbol:Bool = AlphaCharacter.SYMBOLS.contains(splitWords[loopNum]);
+			var isAlphabet:Bool = AlphaCharacter.LETTERS.contains(splitWords[loopNum].toLowerCase());
 
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
@@ -424,11 +424,11 @@ class AlphaCharacter extends FlxSprite
 	 */
 	public static final Y_CORRECTION:Float = 90;
 
-	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyz";
+	public static final LETTERS:String = "abcdefghijklmnopqrstuvwxyz";
 
-	public static var numbers:String = "1234567890";
+	public static final NUMBERS:String = "1234567890";
 
-	public static var symbols:String = "!#$%&'()*+,./:;<=>?@[\\]^_|×-“”←↑→↓♥";
+	public static final SYMBOLS:String = "!#$%&'()*+,./:;<=>?@[\\]^_|×-“”←↑→↓♥";
 
 	public var row:Int = 0;
 

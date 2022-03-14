@@ -20,11 +20,11 @@ using StringTools;
 
 class EditorLua
 {
-	public static var Function_Stop:Int = 1;
-	public static var Function_Continue:Int = 0;
+	private static final FUNCTION_STOP:Int = 1;
+	private static final FUNCTION_CONTINUE:Int = 0;
 
 	#if FEATURE_LUA
-	public var lua:State = null;
+	private var lua:State = null;
 	#end
 
 	public function new(script:String)
@@ -49,8 +49,8 @@ class EditorLua
 		Debug.logTrace('Lua file loaded succesfully: $script');
 
 		// Lua variables
-		set('Function_Stop', Function_Stop);
-		set('Function_Continue', Function_Continue);
+		set('FUNCTION_STOP', FUNCTION_STOP);
+		set('FUNCTION_CONTINUE', FUNCTION_CONTINUE);
 		set('inChartEditor', true);
 
 		set('curBpm', Conductor.bpm);
@@ -209,7 +209,7 @@ class EditorLua
 		#if FEATURE_LUA
 		if (lua == null)
 		{
-			return Function_Continue;
+			return FUNCTION_CONTINUE;
 		}
 
 		Lua.getglobal(lua, event);
@@ -231,7 +231,7 @@ class EditorLua
 				Lua.pop(lua, 1);
 				if (error == 'attempt to call a nil value')
 				{ // Makes it ignore warnings and not break stuff if you didn't put the functions on your lua file
-					return Function_Continue;
+					return FUNCTION_CONTINUE;
 				}
 			}
 
@@ -239,11 +239,11 @@ class EditorLua
 			return conv;
 		}
 		#end
-		return Function_Continue;
+		return FUNCTION_CONTINUE;
 	}
 
 	#if FEATURE_LUA
-	function resultIsAllowed(leLua:State, leResult:Null<Int>):Bool
+	public function resultIsAllowed(leLua:State, leResult:Null<Int>):Bool
 	{ // Makes it ignore warnings
 		switch (Lua.type(leLua, leResult))
 		{

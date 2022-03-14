@@ -1,6 +1,5 @@
 package animateatlas.tilecontainer;
 
-import haxe.Exception;
 import animateatlas.HelperEnums.LoopMode;
 import animateatlas.HelperEnums.SymbolType;
 import animateatlas.JSONData.BitmapPosData;
@@ -12,6 +11,7 @@ import animateatlas.JSONData.Matrix3DData;
 import animateatlas.JSONData.SpriteData;
 import animateatlas.JSONData.SymbolData;
 import animateatlas.JSONData.SymbolInstanceData;
+import haxe.Exception;
 import openfl.display.FrameLabel;
 import openfl.display.Tile;
 import openfl.display.TileContainer;
@@ -23,14 +23,6 @@ import openfl.geom.Rectangle;
 
 class TileContainerSymbol extends TileContainer
 {
-	public var currentLabel(get, never):String;
-	public var currentFrame(get, set):Int;
-	public var type(get, set):String;
-	public var loopMode(get, set):String;
-	public var symbolName(get, never):String;
-	public var numLayers(get, never):Int;
-	public var numFrames(get, never):Int;
-
 	private var _data:SymbolData;
 	private var _library:TileAnimationLibrary;
 	private var _symbolName:String;
@@ -45,6 +37,14 @@ class TileContainerSymbol extends TileContainer
 	private var _colorTransform:ColorTransform;
 	private var _layers:Array<TileContainer>;
 
+	public var currentLabel(get, never):String;
+	public var currentFrame(get, set):Int;
+	public var type(get, set):String;
+	public var loopMode(get, set):String;
+	public var symbolName(get, never):String;
+	public var numLayers(get, never):Int;
+	public var numFrames(get, never):Int;
+
 	private function new(data:SymbolData, library:TileAnimationLibrary, tileset:Tileset)
 	{
 		super();
@@ -53,33 +53,33 @@ class TileContainerSymbol extends TileContainer
 		_data = data;
 		_library = library;
 		_composedFrame = -1;
-		_numLayers = data.TIMELINE.LAYERS.length;
+		_numLayers = data.timeline.layers.length;
 		_numFrames = getNumFrames();
 		_frameLabels = _getFrameLabels();
-		_symbolName = data.SYMBOL_name;
+		_symbolName = data.symbolName;
 		_type = SymbolType.GRAPHIC;
 		_loopMode = LoopMode.LOOP;
 
 		createLayers();
 
 		// Create FrameMap caches if don't exist
-		for (layer in data.TIMELINE.LAYERS)
+		for (layer in data.timeline.layers)
 		{
-			if (layer.FrameMap != null)
+			if (layer.frameMap != null)
 				return;
 
 			var map:Map<Int, LayerFrameData> = [];
 
-			for (i in 0...layer.Frames.length)
+			for (i in 0...layer.frames.length)
 			{
-				var frame:LayerFrameData = layer.Frames[i];
+				var frame:LayerFrameData = layer.frames[i];
 				for (j in 0...frame.duration)
 				{
 					map.set(i + j, frame);
 				}
 			}
 
-			layer.FrameMap = map;
+			layer.frameMap = map;
 		}
 	}
 
@@ -118,6 +118,92 @@ class TileContainerSymbol extends TileContainer
 		moveMovieclip_MovieClips(-1);
 	}
 
+	public function update():Void
+	{
+		for (i in 0..._numLayers)
+		{
+			updateLayer(i);
+		}
+
+		_composedFrame = _currentFrame;
+	}
+
+	@:access(animateatlas)
+	public function setBitmap(data:BitmapPosData):Void
+	{
+		if (data != null)
+		{
+			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
+
+			if (_bitmap == null)
+			{
+				_bitmap = new Tile(-1);
+				_bitmap.rect = new Rectangle();
+				addTile(_bitmap);
+			}
+
+			_bitmap.rect.setTo(spriteData.x, spriteData.y, spriteData.w, spriteData.h);
+			_bitmap.__setRenderDirty(); // setTo() doesn't trigger the renderdirty
+
+			// aditional checks for rotation
+			if (spriteData.rotated)
+			{
+				_bitmap.rotation = -90;
+				_bitmap.x = data.position.x;
+				_bitmap.y = data.position.y + spriteData.w;
+			}
+			else
+			{
+				_bitmap.rotation = 0;
+				_bitmap.x = data.position.x;
+				_bitmap.y = data.position.y;
+			}
+
+			addTileAt(_bitmap, 0);
+		}
+		else if (_bitmap != null)
+		{
+			if (_bitmap.parent != null)
+				_bitmap.parent.removeTile(_bitmap);
+		}
+	}
+
+	public function getFrameLabels():Array<String>
+	{
+		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
+	}
+
+	public function getNextLabel(afterLabel:String = null):String
+	{
+		var numLabels:Int = _frameLabels.length;
+		var startFrame:Int = getFrame(afterLabel == null ? currentLabel : afterLabel);
+
+		for (i in 0...numLabels)
+		{
+			var label:FrameLabel = _frameLabels[i];
+			if (label.frame > startFrame)
+			{
+				return label.name;
+			}
+		}
+
+		return (_frameLabels != null) ? _frameLabels[0].name : null;
+	}
+
+	public function getFrame(label:String):Int
+	{
+		var numLabels:Int = _frameLabels.length;
+		for (i in 0...numLabels)
+		{
+			var frameLabel:FrameLabel = _frameLabels[i];
+			if (frameLabel.name == label)
+			{
+				return frameLabel.frame;
+			}
+		}
+		return -1;
+	}
+
 	/** Moves all movie clips n frames, recursively. */
 	private function moveMovieclip_MovieClips(direction:Int = 1):Void
 	{
@@ -139,16 +225,6 @@ class TileContainerSymbol extends TileContainer
 		}
 	}
 
-	public function update():Void
-	{
-		for (i in 0..._numLayers)
-		{
-			updateLayer(i);
-		}
-
-		_composedFrame = _currentFrame;
-	}
-
 	@:access(animateatlas)
 	private function updateLayer(layerIndex:Int):Void
 	{
@@ -158,7 +234,7 @@ class TileContainerSymbol extends TileContainer
 		var numElements:Int = (elements != null) ? elements.length : 0;
 		for (i in 0...numElements)
 		{
-			var elementData:SymbolInstanceData = elements[i].SYMBOL_Instance;
+			var elementData:SymbolInstanceData = elements[i].symbolInstance;
 			if (elementData == null)
 			{
 				continue;
@@ -170,7 +246,7 @@ class TileContainerSymbol extends TileContainer
 				null : null;
 
 			var newSymbol:TileContainerSymbol = null;
-			var symbolName:String = elementData.SYMBOL_name;
+			var symbolName:String = elementData.symbolName;
 
 			if (!_library.hasSymbol(symbolName))
 			{
@@ -194,7 +270,7 @@ class TileContainerSymbol extends TileContainer
 				layer.addTileAt(newSymbol, i);
 			}
 
-			newSymbol.setTransformationMatrix(elementData.Matrix3D);
+			newSymbol.setTransformationMatrix(elementData.matrix3D);
 			newSymbol.setBitmap(elementData.bitmap);
 			newSymbol.setColor(elementData.color);
 			newSymbol.setLoop(elementData.loop);
@@ -238,7 +314,7 @@ class TileContainerSymbol extends TileContainer
 
 	private function createLayers():Void
 	{
-		// todo safety check for not initialiing twice
+		// TODO safety check for not initialiing twice
 		if (_layers != null)
 		{
 			throw new Error("You must not call this twice");
@@ -256,55 +332,15 @@ class TileContainerSymbol extends TileContainer
 				var layer:TileContainer = new TileContainer();
 				if (layer.data == null)
 				{
-					layer.data = {layerName: getLayerData(i).Layer_name};
+					layer.data = {layerName: getLayerData(i).layerName};
 				}
 				else
 				{
-					layer.data.layerName = getLayerData(i).Layer_name;
+					layer.data.layerName = getLayerData(i).layerName;
 				}
 				addTile(layer);
 				_layers.push(layer);
 			}
-		}
-	}
-
-	@:access(animateatlas)
-	public function setBitmap(data:BitmapPosData):Void
-	{
-		if (data != null)
-		{
-			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
-
-			if (_bitmap == null)
-			{
-				_bitmap = new Tile(-1);
-				_bitmap.rect = new Rectangle();
-				addTile(_bitmap);
-			}
-
-			_bitmap.rect.setTo(spriteData.x, spriteData.y, spriteData.w, spriteData.h);
-			_bitmap.__setRenderDirty(); // setTo() doesn't trigger the renderdirty
-
-			// aditional checks for rotation
-			if (spriteData.rotated)
-			{
-				_bitmap.rotation = -90;
-				_bitmap.x = data.Position.x;
-				_bitmap.y = data.Position.y + spriteData.w;
-			}
-			else
-			{
-				_bitmap.rotation = 0;
-				_bitmap.x = data.Position.x;
-				_bitmap.y = data.Position.y;
-			}
-
-			addTileAt(_bitmap, 0);
-		}
-		else if (_bitmap != null)
-		{
-			if (_bitmap.parent != null)
-				_bitmap.parent.removeTile(_bitmap);
 		}
 	}
 
@@ -330,9 +366,9 @@ class TileContainerSymbol extends TileContainer
 			newTransform.redOffset = (data.redOffset == null ? 0 : data.redOffset);
 			newTransform.greenOffset = (data.greenOffset == null ? 0 : data.greenOffset);
 			newTransform.blueOffset = (data.blueOffset == null ? 0 : data.blueOffset);
-			newTransform.alphaOffset = (data.AlphaOffset == null ? 0 : data.AlphaOffset);
+			newTransform.alphaOffset = (data.alphaOffset == null ? 0 : data.alphaOffset);
 
-			newTransform.redMultiplier = (data.RedMultiplier == null ? 1 : data.RedMultiplier);
+			newTransform.redMultiplier = (data.redMultiplier == null ? 1 : data.redMultiplier);
 			newTransform.greenMultiplier = (data.greenMultiplier == null ? 1 : data.greenMultiplier);
 			newTransform.blueMultiplier = (data.blueMultiplier == null ? 1 : data.blueMultiplier);
 			newTransform.alphaMultiplier = (data.alphaMultiplier == null ? 1 : data.alphaMultiplier);
@@ -367,7 +403,7 @@ class TileContainerSymbol extends TileContainer
 		for (i in 0..._numLayers)
 		{
 			var layer:LayerData = getLayerData(i);
-			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
+			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 			var layerNumFrames:Int = (numFrameDates != 0) ? frameDates[0].index : 0;
 
@@ -392,7 +428,7 @@ class TileContainerSymbol extends TileContainer
 		for (i in 0..._numLayers)
 		{
 			var layer:LayerData = getLayerData(i);
-			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
+			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 
 			for (j in 0...numFrameDates)
@@ -408,12 +444,7 @@ class TileContainerSymbol extends TileContainer
 		return labels;
 	}
 
-	public function getFrameLabels():Array<String>
-	{
-		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
-	}
-
-	function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
+	private function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
 	{
 		var f1:Int = i1.frame;
 		var f2:Int = i2.frame;
@@ -436,21 +467,18 @@ class TileContainerSymbol extends TileContainer
 		return _layers[layerIndex];
 	}
 
-	public function getNextLabel(afterLabel:String = null):String
+	private function getLayerData(layerIndex:Int):LayerData
 	{
-		var numLabels:Int = _frameLabels.length;
-		var startFrame:Int = getFrame(afterLabel == null ? currentLabel : afterLabel);
+		return _data.timeline.layers[layerIndex];
+	}
 
-		for (i in 0...numLabels)
-		{
-			var label:FrameLabel = _frameLabels[i];
-			if (label.frame > startFrame)
-			{
-				return label.name;
-			}
-		}
+	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
+	{
+		var layer:LayerData = getLayerData(layerIndex);
+		if (layer == null)
+			return null;
 
-		return (_frameLabels != null) ? _frameLabels[0].name : null;
+		return layer.frameMap.get(frameIndex);
 	}
 
 	private function get_currentLabel():String
@@ -473,20 +501,6 @@ class TileContainerSymbol extends TileContainer
 		}
 
 		return (highestLabel != null) ? highestLabel.name : null;
-	}
-
-	public function getFrame(label:String):Int
-	{
-		var numLabels:Int = _frameLabels.length;
-		for (i in 0...numLabels)
-		{
-			var frameLabel:FrameLabel = _frameLabels[i];
-			if (frameLabel.name == label)
-			{
-				return frameLabel.frame;
-			}
-		}
-		return -1;
 	}
 
 	private function get_currentFrame():Int
@@ -514,7 +528,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			update();
 		}
-		return value;
+		return currentFrame;
 	}
 
 	private function get_type():String
@@ -532,7 +546,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			throw new ArgumentError("Invalid symbol type: " + value);
 		}
-		return value;
+		return type;
 	}
 
 	private function get_loopMode():String
@@ -550,7 +564,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			throw new ArgumentError("Invalid loop mode: " + value);
 		}
-		return value;
+		return loopMode;
 	}
 
 	private function get_symbolName():String
@@ -558,29 +572,13 @@ class TileContainerSymbol extends TileContainer
 		return _symbolName;
 	}
 
-	public function get_numLayers():Int
+	private function get_numLayers():Int
 	{
 		return _numLayers;
 	}
 
-	public function get_numFrames():Int
+	private function get_numFrames():Int
 	{
 		return _numFrames;
-	}
-
-	// data access
-
-	private function getLayerData(layerIndex:Int):LayerData
-	{
-		return _data.TIMELINE.LAYERS[layerIndex];
-	}
-
-	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
-	{
-		var layer:LayerData = getLayerData(layerIndex);
-		if (layer == null)
-			return null;
-
-		return layer.FrameMap.get(frameIndex);
 	}
 }

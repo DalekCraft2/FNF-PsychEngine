@@ -44,7 +44,7 @@ class FPSMem extends TextField
 	@:noCompletion private var currentTime:Float;
 	@:noCompletion private var times:Array<Float>;
 
-	var lastUpdate:Float = 0;
+	private var lastUpdate:Float = 0;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{

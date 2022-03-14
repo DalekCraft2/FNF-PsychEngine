@@ -70,7 +70,7 @@ class Character extends FlxSprite
 	public var originalFlipX:Bool = false;
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
-	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
+	public static final DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
 	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
 	{
@@ -170,7 +170,7 @@ class Character extends FlxSprite
 
 		healthIcon = characterData.healthicon;
 		singDuration = characterData.sing_duration;
-		flipX = !!characterData.flip_x;
+		flipX = characterData.flip_x;
 		if (characterData.no_antialiasing)
 		{
 			antialiasing = false;
@@ -189,10 +189,10 @@ class Character extends FlxSprite
 		{
 			for (anim in animationsArray)
 			{
-				var animAnim:String = '' + anim.anim;
-				var animName:String = '' + anim.name;
+				var animAnim:String = anim.anim;
+				var animName:String = anim.name;
 				var animFps:Int = anim.fps;
-				var animLoop:Bool = !!anim.loop; // Bruh
+				var animLoop:Bool = anim.loop;
 				var animIndices:Array<Int> = anim.indices;
 				if (animIndices != null && animIndices.length > 0)
 				{

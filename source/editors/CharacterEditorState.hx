@@ -39,17 +39,19 @@ using StringTools;
  */
 class CharacterEditorState extends MusicBeatState
 {
-	var char:Character;
-	var ghostChar:Character;
-	var textAnim:FlxText;
-	var bgLayer:FlxTypedGroup<FlxSprite>;
-	var charLayer:FlxTypedGroup<Character>;
-	var dumbTexts:FlxTypedGroup<FlxText>;
-	// var animList:Array<String> = [];
-	var curAnim:Int = 0;
-	var daAnim:String = 'spooky';
-	var goToPlayState:Bool = true;
-	var camFollow:FlxObject;
+	private static final OFFSET_X:Float = 300;
+
+	private var char:Character;
+	private var ghostChar:Character;
+	private var textAnim:FlxText;
+	private var bgLayer:FlxTypedGroup<FlxSprite>;
+	private var charLayer:FlxTypedGroup<Character>;
+	private var dumbTexts:FlxTypedGroup<FlxText>;
+	// private var animList:Array<String> = [];
+	private var curAnim:Int = 0;
+	private var daAnim:String = 'spooky';
+	private var goToPlayState:Bool = true;
+	private var camFollow:FlxObject;
 
 	public function new(daAnim:String = 'spooky', goToPlayState:Bool = true)
 	{
@@ -59,19 +61,19 @@ class CharacterEditorState extends MusicBeatState
 		this.goToPlayState = goToPlayState;
 	}
 
-	var UI_box:FlxUITabMenu;
-	var UI_characterbox:FlxUITabMenu;
+	private var uiBox:FlxUITabMenu;
+	private var uiCharacterBox:FlxUITabMenu;
 
 	private var camEditor:FlxCamera;
 	private var camHUD:FlxCamera;
 	private var camMenu:FlxCamera;
 
-	var changeBGbutton:FlxButton;
-	var leHealthIcon:HealthIcon;
-	var characterList:Array<String> = [];
+	private var changeBGbutton:FlxButton;
+	private var healthIcon:HealthIcon;
+	private var characterList:Array<String> = [];
 
-	var cameraFollowPointer:FlxSprite;
-	var healthBarBG:FlxSprite;
+	private var cameraFollowPointer:FlxSprite;
+	private var healthBarBG:FlxSprite;
 
 	override function create():Void
 	{
@@ -117,10 +119,10 @@ class CharacterEditorState extends MusicBeatState
 		add(healthBarBG);
 		healthBarBG.cameras = [camHUD];
 
-		leHealthIcon = new HealthIcon(char.healthIcon, false);
-		leHealthIcon.y = FlxG.height - 150;
-		add(leHealthIcon);
-		leHealthIcon.cameras = [camHUD];
+		healthIcon = new HealthIcon(char.healthIcon, false);
+		healthIcon.y = FlxG.height - 150;
+		add(healthIcon);
+		healthIcon.cameras = [camHUD];
 
 		dumbTexts = new FlxTypedGroup();
 		add(dumbTexts);
@@ -168,27 +170,27 @@ class CharacterEditorState extends MusicBeatState
 			{name: 'Settings', label: 'Settings'},
 		];
 
-		UI_box = new FlxUITabMenu(null, tabs, true);
-		UI_box.cameras = [camMenu];
+		uiBox = new FlxUITabMenu(null, tabs, true);
+		uiBox.cameras = [camMenu];
 
-		UI_box.resize(250, 120);
-		UI_box.x = FlxG.width - 275;
-		UI_box.y = 25;
-		UI_box.scrollFactor.set();
+		uiBox.resize(250, 120);
+		uiBox.x = FlxG.width - 275;
+		uiBox.y = 25;
+		uiBox.scrollFactor.set();
 
 		var tabs:Array<{name:String, label:String}> = [
 			{name: 'Character', label: 'Character'},
 			{name: 'Animations', label: 'Animations'},
 		];
-		UI_characterbox = new FlxUITabMenu(null, tabs, true);
-		UI_characterbox.cameras = [camMenu];
+		uiCharacterBox = new FlxUITabMenu(null, tabs, true);
+		uiCharacterBox.cameras = [camMenu];
 
-		UI_characterbox.resize(350, 250);
-		UI_characterbox.x = UI_box.x - 100;
-		UI_characterbox.y = UI_box.y + UI_box.height;
-		UI_characterbox.scrollFactor.set();
-		add(UI_characterbox);
-		add(UI_box);
+		uiCharacterBox.resize(350, 250);
+		uiCharacterBox.x = uiBox.x - 100;
+		uiCharacterBox.y = uiBox.y + uiBox.height;
+		uiCharacterBox.scrollFactor.set();
+		add(uiCharacterBox);
+		add(uiBox);
 		add(changeBGbutton);
 
 		// addOffsetsUI();
@@ -196,16 +198,15 @@ class CharacterEditorState extends MusicBeatState
 
 		addCharacterUI();
 		addAnimationsUI();
-		UI_characterbox.selected_tab_id = 'Character';
+		uiCharacterBox.selected_tab_id = 'Character';
 
 		FlxG.mouse.visible = true;
 		reloadCharacterOptions();
 	}
 
-	var onPixelBG:Bool = false;
-	var OFFSET_X:Float = 300;
+	private var onPixelBG:Bool = false;
 
-	function reloadBGs():Void
+	private function reloadBGs():Void
 	{
 		var i:Int = bgLayer.members.length - 1;
 		while (i >= 0)
@@ -280,9 +281,9 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	/*var animationInputText:FlxUIInputText;
-		function addOffsetsUI():Void {
-			var tab_group:FlxUI = new FlxUI(null, UI_box);
+	/*private var animationInputText:FlxUIInputText;
+		private function addOffsetsUI():Void {
+			var tab_group:FlxUI = new FlxUI(null, uiBox);
 			tab_group.name = "Offsets";
 
 			animationInputText = new FlxUIInputText(15, 30, 100, 'idle', 8);
@@ -336,9 +337,9 @@ class CharacterEditorState extends MusicBeatState
 			tab_group.add(removeButton);
 			tab_group.add(saveButton);
 			tab_group.add(animationInputText);
-			UI_box.addGroup(tab_group);
+			uiBox.addGroup(tab_group);
 	}*/
-	var TemplateCharacter:String = '{
+	private var templateCharacter:String = '{
 			"animations": [
 				{
 					"loop": false,
@@ -417,11 +418,11 @@ class CharacterEditorState extends MusicBeatState
 			"scale": 1
 		}';
 
-	var charDropDown:FlxUIDropDownMenuCustom;
+	private var charDropDown:FlxUIDropDownMenuCustom;
 
-	function addSettingsUI():Void
+	private function addSettingsUI():Void
 	{
-		var tab_group:FlxUI = new FlxUI(null, UI_box);
+		var tab_group:FlxUI = new FlxUI(null, uiBox);
 		tab_group.name = "Settings";
 
 		var check_player:FlxUICheckBox = new FlxUICheckBox(10, 60, null, null, "Playable Character", 100);
@@ -454,7 +455,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var templateCharacter:FlxButton = new FlxButton(140, 50, "Load Template", () ->
 		{
-			var parsedJson:CharacterData = cast Json.parse(TemplateCharacter);
+			var parsedJson:CharacterData = cast Json.parse(templateCharacter);
 			var characters:Array<Character> = [char, ghostChar];
 			for (character in characters)
 			{
@@ -498,29 +499,29 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.add(charDropDown);
 		tab_group.add(reloadCharacter);
 		tab_group.add(templateCharacter);
-		UI_box.addGroup(tab_group);
+		uiBox.addGroup(tab_group);
 	}
 
-	var imageInputText:FlxUIInputText;
-	var healthIconInputText:FlxUIInputText;
+	private var imageInputText:FlxUIInputText;
+	private var healthIconInputText:FlxUIInputText;
 
-	var singDurationStepper:FlxUINumericStepper;
-	var scaleStepper:FlxUINumericStepper;
-	var positionXStepper:FlxUINumericStepper;
-	var positionYStepper:FlxUINumericStepper;
-	var positionCameraXStepper:FlxUINumericStepper;
-	var positionCameraYStepper:FlxUINumericStepper;
+	private var singDurationStepper:FlxUINumericStepper;
+	private var scaleStepper:FlxUINumericStepper;
+	private var positionXStepper:FlxUINumericStepper;
+	private var positionYStepper:FlxUINumericStepper;
+	private var positionCameraXStepper:FlxUINumericStepper;
+	private var positionCameraYStepper:FlxUINumericStepper;
 
-	var flipXCheckBox:FlxUICheckBox;
-	var noAntialiasingCheckBox:FlxUICheckBox;
+	private var flipXCheckBox:FlxUICheckBox;
+	private var noAntialiasingCheckBox:FlxUICheckBox;
 
-	var healthColorStepperR:FlxUINumericStepper;
-	var healthColorStepperG:FlxUINumericStepper;
-	var healthColorStepperB:FlxUINumericStepper;
+	private var healthColorStepperR:FlxUINumericStepper;
+	private var healthColorStepperG:FlxUINumericStepper;
+	private var healthColorStepperB:FlxUINumericStepper;
 
-	function addCharacterUI():Void
+	private function addCharacterUI():Void
 	{
-		var tab_group:FlxUI = new FlxUI(null, UI_box);
+		var tab_group:FlxUI = new FlxUI(null, uiBox);
 		tab_group.name = "Character";
 
 		imageInputText = new FlxUIInputText(15, 30, 200, 'characters/BOYFRIEND', 8);
@@ -536,7 +537,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var decideIconColor:FlxButton = new FlxButton(reloadImage.x, reloadImage.y + 30, "Get Icon Color", () ->
 		{
-			var coolColor:FlxColor = FlxColor.fromInt(CoolUtil.dominantColor(leHealthIcon));
+			var coolColor:FlxColor = FlxColor.fromInt(CoolUtil.dominantColor(healthIcon));
 			healthColorStepperR.value = coolColor.red;
 			healthColorStepperG.value = coolColor.green;
 			healthColorStepperB.value = coolColor.blue;
@@ -547,7 +548,7 @@ class CharacterEditorState extends MusicBeatState
 			getEvent(FlxUINumericStepper.CHANGE_EVENT, healthColorStepperB, null);
 		});
 
-		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, leHealthIcon.getCharacter(), 8);
+		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, healthIcon.getCharacter(), 8);
 
 		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 45, 0.1, 4, 0, 999, 1);
 
@@ -618,20 +619,20 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.add(healthColorStepperG);
 		tab_group.add(healthColorStepperB);
 		tab_group.add(saveCharacterButton);
-		UI_characterbox.addGroup(tab_group);
+		uiCharacterBox.addGroup(tab_group);
 	}
 
-	var ghostDropDown:FlxUIDropDownMenuCustom;
-	var animationDropDown:FlxUIDropDownMenuCustom;
-	var animationInputText:FlxUIInputText;
-	var animationNameInputText:FlxUIInputText;
-	var animationIndicesInputText:FlxUIInputText;
-	var animationNameFramerate:FlxUINumericStepper;
-	var animationLoopCheckBox:FlxUICheckBox;
+	private var ghostDropDown:FlxUIDropDownMenuCustom;
+	private var animationDropDown:FlxUIDropDownMenuCustom;
+	private var animationInputText:FlxUIInputText;
+	private var animationNameInputText:FlxUIInputText;
+	private var animationIndicesInputText:FlxUIInputText;
+	private var animationNameFramerate:FlxUINumericStepper;
+	private var animationLoopCheckBox:FlxUICheckBox;
 
-	function addAnimationsUI():Void
+	private function addAnimationsUI():Void
 	{
-		var tab_group:FlxUI = new FlxUI(null, UI_box);
+		var tab_group:FlxUI = new FlxUI(null, uiBox);
 		tab_group.name = "Animations";
 
 		animationInputText = new FlxUIInputText(15, 85, 80, '', 8);
@@ -805,7 +806,7 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.add(removeButton);
 		tab_group.add(ghostDropDown);
 		tab_group.add(animationDropDown);
-		UI_characterbox.addGroup(tab_group);
+		uiCharacterBox.addGroup(tab_group);
 	}
 
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>):Void
@@ -814,7 +815,7 @@ class CharacterEditorState extends MusicBeatState
 		{
 			if (sender == healthIconInputText)
 			{
-				leHealthIcon.changeIcon(healthIconInputText.text);
+				healthIcon.changeIcon(healthIconInputText.text);
 				char.healthIcon = healthIconInputText.text;
 				updatePresence();
 			}
@@ -883,7 +884,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function reloadCharacterImage():Void
+	private function reloadCharacterImage():Void
 	{
 		var lastAnim:String = '';
 		if (char.animation.curAnim != null)
@@ -908,8 +909,8 @@ class CharacterEditorState extends MusicBeatState
 		{
 			for (anim in char.animationsArray)
 			{
-				var animAnim:String = '' + anim.anim;
-				var animName:String = '' + anim.name;
+				var animAnim:String = anim.anim;
+				var animName:String = anim.name;
 				var animFps:Int = anim.fps;
 				var animLoop:Bool = anim.loop;
 				var animIndices:Array<Int> = anim.indices;
@@ -940,7 +941,7 @@ class CharacterEditorState extends MusicBeatState
 		reloadGhost();
 	}
 
-	function genBoyOffsets():Void
+	private function genBoyOffsets():Void
 	{
 		var daLoop:Int = 0;
 
@@ -981,7 +982,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function loadChar(isDad:Bool, blahBlahBlah:Bool = true):Void
+	private function loadChar(isDad:Bool, blahBlahBlah:Bool = true):Void
 	{
 		var i:Int = charLayer.members.length - 1;
 		while (i >= 0)
@@ -1030,7 +1031,7 @@ class CharacterEditorState extends MusicBeatState
 		updatePointerPos();
 	}
 
-	function updatePointerPos():Void
+	private function updatePointerPos():Void
 	{
 		var x:Float = char.getMidpoint().x;
 		var y:Float = char.getMidpoint().y;
@@ -1049,7 +1050,7 @@ class CharacterEditorState extends MusicBeatState
 		cameraFollowPointer.setPosition(x, y);
 	}
 
-	function findAnimationByName(name:String):AnimationData
+	private function findAnimationByName(name:String):AnimationData
 	{
 		for (anim in char.animationsArray)
 		{
@@ -1061,9 +1062,9 @@ class CharacterEditorState extends MusicBeatState
 		return null;
 	}
 
-	function reloadCharacterOptions():Void
+	private function reloadCharacterOptions():Void
 	{
-		if (UI_characterbox != null)
+		if (uiCharacterBox != null)
 		{
 			imageInputText.text = char.imageFile;
 			healthIconInputText.text = char.healthIcon;
@@ -1072,7 +1073,7 @@ class CharacterEditorState extends MusicBeatState
 			flipXCheckBox.checked = char.originalFlipX;
 			noAntialiasingCheckBox.checked = char.noAntialiasing;
 			resetHealthBarColor();
-			leHealthIcon.changeIcon(healthIconInputText.text);
+			healthIcon.changeIcon(healthIconInputText.text);
 			positionXStepper.value = char.positionArray[0];
 			positionYStepper.value = char.positionArray[1];
 			positionCameraXStepper.value = char.cameraPosition[0];
@@ -1082,7 +1083,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function reloadAnimationDropDown():Void
+	private function reloadAnimationDropDown():Void
 	{
 		var anims:Array<String> = [];
 		var ghostAnims:Array<String> = [''];
@@ -1099,15 +1100,15 @@ class CharacterEditorState extends MusicBeatState
 		reloadGhost();
 	}
 
-	function reloadGhost():Void
+	private function reloadGhost():Void
 	{
 		ghostChar.frames = char.frames;
 		for (anim in char.animationsArray)
 		{
-			var animAnim:String = '' + anim.anim;
-			var animName:String = '' + anim.name;
+			var animAnim:String = anim.anim;
+			var animName:String = anim.name;
 			var animFps:Int = anim.fps;
-			var animLoop:Bool = !!anim.loop; // Bruh
+			var animLoop:Bool = anim.loop;
 			var animIndices:Array<Int> = anim.indices;
 			if (animIndices != null && animIndices.length > 0)
 			{
@@ -1138,7 +1139,7 @@ class CharacterEditorState extends MusicBeatState
 		ghostChar.updateHitbox();
 	}
 
-	function reloadCharacterDropDown():Void
+	private function reloadCharacterDropDown():Void
 	{
 		#if FEATURE_MODS
 		var charsLoaded:Map<String, Bool> = [];
@@ -1176,7 +1177,7 @@ class CharacterEditorState extends MusicBeatState
 		charDropDown.selectedLabel = daAnim;
 	}
 
-	function resetHealthBarColor():Void
+	private function resetHealthBarColor():Void
 	{
 		healthColorStepperR.value = char.healthColorArray[0];
 		healthColorStepperG.value = char.healthColorArray[1];
@@ -1184,11 +1185,11 @@ class CharacterEditorState extends MusicBeatState
 		healthBarBG.color = FlxColor.fromRGB(char.healthColorArray[0], char.healthColorArray[1], char.healthColorArray[2]);
 	}
 
-	function updatePresence():Void
+	private function updatePresence():Void
 	{
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("Character Editor", "Character: " + daAnim, leHealthIcon.getCharacter());
+		DiscordClient.changePresence("Character Editor", "Character: " + daAnim, healthIcon.getCharacter());
 		#end
 	}
 
@@ -1224,7 +1225,7 @@ class CharacterEditorState extends MusicBeatState
 			{
 				if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && Clipboard.text != null)
 				{ // Copy paste
-					inputTexts[i].text = ClipboardAdd(inputTexts[i].text);
+					inputTexts[i].text = clipboardAdd(inputTexts[i].text);
 					inputTexts[i].caretIndex = inputTexts[i].text.length;
 					getEvent(FlxUIInputText.CHANGE_EVENT, inputTexts[i], null, []);
 				}
@@ -1372,7 +1373,7 @@ class CharacterEditorState extends MusicBeatState
 		ghostChar.setPosition(char.x, char.y);
 	}
 
-	var _file:FileReference;
+	private var _file:FileReference;
 
 	/*private function saveOffsets():Void
 		{
@@ -1390,7 +1391,7 @@ class CharacterEditorState extends MusicBeatState
 				_file.save(data, daAnim + "Offsets.txt");
 			}
 	}*/
-	function onSaveComplete(_):Void
+	private function onSaveComplete(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -1402,7 +1403,7 @@ class CharacterEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onSaveCancel(_):Void
+	private function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -1413,7 +1414,7 @@ class CharacterEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onSaveError(_):Void
+	private function onSaveError(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -1422,7 +1423,7 @@ class CharacterEditorState extends MusicBeatState
 		Debug.logError("Problem saving file");
 	}
 
-	function saveCharacter():Void
+	private function saveCharacter():Void
 	{
 		var json:CharacterData = {
 			"animations": char.animationsArray,
@@ -1451,7 +1452,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function ClipboardAdd(prefix:String = ''):String
+	private function clipboardAdd(prefix:String = ''):String
 	{
 		if (prefix.toLowerCase().endsWith('v')) // probably copy paste attempt
 		{

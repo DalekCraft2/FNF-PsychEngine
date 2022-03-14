@@ -24,7 +24,7 @@ class Paths
 	public static inline final VIDEO_EXT:String = "mp4";
 
 	#if FEATURE_MODS
-	public static var ignoreModFolders:Array<String> = [
+	public static final IGNORE_MOD_FOLDERS:Array<String> = [
 		'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'fonts', 'scripts'
 	];
 	#end
@@ -510,7 +510,7 @@ class Paths
 			for (folder in FileSystem.readDirectory(modsFolder))
 			{
 				var path:String = Path.join([modsFolder, folder]);
-				if (FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder) && !list.contains(folder))
+				if (FileSystem.isDirectory(path) && !IGNORE_MOD_FOLDERS.contains(folder) && !list.contains(folder))
 				{
 					list.push(folder);
 				}

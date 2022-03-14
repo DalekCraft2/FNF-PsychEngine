@@ -6,7 +6,6 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxMath;
 import flixel.util.FlxSave;
 
 class OptionUtils
@@ -14,7 +13,8 @@ class OptionUtils
 	private static var save:FlxSave = new FlxSave();
 	public static var noteSkins:Array<String> = [];
 
-	public static var shit:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
+	public static final UNBINDABLE_KEYS:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
+	// TODO Get rid of this, move the save to EngineData, and make it public
 	public static var options:Dynamic = {};
 
 	public static function bindSave(?saveName:String = "mockEngineOptions"):Void
@@ -309,9 +309,6 @@ class FloatOption extends Option
 
 		name = '${prefix}${Std.string(value)}${suffix}';
 	}
-
-	var holdTime:Float = 0;
-	var holdValue:Float = 0;
 
 	override function update(elapsed:Float):Void
 	{
@@ -786,7 +783,7 @@ class JudgementsOption extends Option
 	private var curValue:Int = 0;
 	private var defaultDesc:String = '';
 
-	function updateDescription():Void
+	private function updateDescription():Void
 	{
 		description = '${defaultDesc}.\nSkin description: ${Note.skinManifest.get(skinNames[curValue]).desc}';
 	}
@@ -942,7 +939,7 @@ class ControlOption extends Option
 
 	override public function keyPressed(pressed:FlxKey):Bool
 	{
-		for (k in OptionUtils.shit)
+		for (k in OptionUtils.UNBINDABLE_KEYS)
 		{
 			if (pressed == k)
 			{
@@ -958,7 +955,6 @@ class ControlOption extends Option
 			Debug.logTrace("pressed: " + pressed);
 			controls.setKeyboardScheme(CUSTOM, true);
 			allowMultiKeyInput = false;
-			return true;
 		}
 		return true;
 	}

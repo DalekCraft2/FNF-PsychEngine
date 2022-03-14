@@ -116,7 +116,7 @@ class Week
 					var path:String = Path.join([Paths.mods(), splitName[0]]);
 					// Debug.logTrace('Trying to push: ${splitName[0]}');
 					if (FileSystem.isDirectory(path)
-						&& !Paths.ignoreModFolders.contains(splitName[0])
+						&& !Paths.IGNORE_MOD_FOLDERS.contains(splitName[0])
 						&& !disabledMods.contains(splitName[0])
 						&& !directories.contains('$path/'))
 					{

@@ -25,6 +25,9 @@ using StringTools;
 
 class EditorPlayState extends MusicBeatState
 {
+	private static final COMBO_X:Float = 400;
+	private static final COMBO_Y:Float = 340;
+
 	// Yes, this is mostly a copy of PlayState, it's kinda dumb to make a direct copy of it but... ehhh
 	private var strumLine:FlxSprite;
 	private var comboGroup:FlxTypedGroup<FlxSprite>;
@@ -37,11 +40,11 @@ class EditorPlayState extends MusicBeatState
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
 
-	var generatedMusic:Bool = false;
-	var vocals:FlxSound;
+	private var generatedMusic:Bool = false;
+	private var vocals:FlxSound;
 
-	var startOffset:Float = 0;
-	var startPos:Float = 0;
+	private var startOffset:Float = 0;
+	private var startPos:Float = 0;
 
 	public function new(startPos:Float)
 	{
@@ -54,11 +57,11 @@ class EditorPlayState extends MusicBeatState
 		timerToStart = startOffset;
 	}
 
-	var scoreTxt:FlxText;
-	var stepTxt:FlxText;
-	var beatTxt:FlxText;
+	private var scoreTxt:FlxText;
+	private var stepTxt:FlxText;
+	private var beatTxt:FlxText;
 
-	var timerToStart:Float = 0;
+	private var timerToStart:Float = 0;
 	private var noteTypeMap:Map<String, Bool> = [];
 
 	// Less laggy controls
@@ -173,7 +176,7 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-	function sayGo():Void
+	private function sayGo():Void
 	{
 		var go:FlxSprite = new FlxSprite().loadGraphic(Paths.image('go'));
 		go.scrollFactor.set();
@@ -194,9 +197,9 @@ class EditorPlayState extends MusicBeatState
 	}
 
 	// var songScore:Int = 0;
-	var songHits:Int = 0;
-	var songMisses:Int = 0;
-	var startingSong:Bool = true;
+	private var songHits:Int = 0;
+	private var songMisses:Int = 0;
+	private var startingSong:Bool = true;
 
 	private function generateSong(dataPath:String):Void
 	{
@@ -250,7 +253,7 @@ class EditorPlayState extends MusicBeatState
 						swagNote.sustainLength = songNotes[2];
 						swagNote.noteType = songNotes[3];
 						if (!Std.isOfType(songNotes[3], String))
-							swagNote.noteType = editors.ChartingState.noteTypeList[songNotes[3]]; // Backward compatibility + compatibility with Week 7 charts
+							swagNote.noteType = ChartingState.NOTE_TYPES[songNotes[3]]; // Backward compatibility + compatibility with Week 7 charts
 						swagNote.scrollFactor.set();
 
 						var susLength:Float = swagNote.sustainLength;
@@ -316,7 +319,7 @@ class EditorPlayState extends MusicBeatState
 		generatedMusic = true;
 	}
 
-	function startSong():Void
+	private function startSong():Void
 	{
 		startingSong = false;
 		FlxG.sound.music.time = startPos;
@@ -327,7 +330,7 @@ class EditorPlayState extends MusicBeatState
 		vocals.play();
 	}
 
-	function sortByShit(Obj1:Note, Obj2:Note):Int
+	private function sortByShit(Obj1:Note, Obj2:Note):Int
 	{
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 	}
@@ -411,7 +414,7 @@ class EditorPlayState extends MusicBeatState
 
 				strumX += daNote.offsetX;
 				strumY += daNote.offsetY;
-				var center:Float = strumY + Note.swagWidth / 2;
+				var center:Float = strumY + Note.STRUM_WIDTH / 2;
 
 				if (daNote.copyX)
 				{
@@ -438,7 +441,7 @@ class EditorPlayState extends MusicBeatState
 									daNote.y -= 19;
 								}
 							}
-							daNote.y += (Note.swagWidth / 2) - (60.5 * (roundedSpeed - 1));
+							daNote.y += (Note.STRUM_WIDTH / 2) - (60.5 * (roundedSpeed - 1));
 							daNote.y += 27.5 * ((PlayState.song.bpm / 100) - 1) * (roundedSpeed - 1);
 
 							if (daNote.mustPress || !daNote.ignoreNote)
@@ -579,7 +582,7 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-	function resyncVocals():Void
+	private function resyncVocals():Void
 	{
 		vocals.pause();
 
@@ -765,9 +768,9 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-	var combo:Int = 0;
+	private var combo:Int = 0;
 
-	function goodNoteHit(note:Note):Void
+	private function goodNoteHit(note:Note):Void
 	{
 		if (!note.wasGoodHit)
 		{
@@ -825,7 +828,7 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-	function noteMiss(direction:Int = 1):Void
+	private function noteMiss(direction:Int = 1):Void
 	{
 		combo = 0;
 
@@ -835,9 +838,6 @@ class EditorPlayState extends MusicBeatState
 		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 		vocals.volume = 0;
 	}
-
-	var COMBO_X:Float = 400;
-	var COMBO_Y:Float = 340;
 
 	private function popUpScore(note:Note = null):Void
 	{
@@ -928,8 +928,8 @@ class EditorPlayState extends MusicBeatState
 		}
 		else
 		{
-			rating.setGraphicSize(Std.int(rating.width * PlayState.daPixelZoom * 0.85));
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * PlayState.daPixelZoom * 0.85));
+			rating.setGraphicSize(Std.int(rating.width * PlayState.PIXEL_ZOOM * 0.85));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * PlayState.PIXEL_ZOOM * 0.85));
 		}
 
 		comboSpr.updateHitbox();
@@ -963,7 +963,7 @@ class EditorPlayState extends MusicBeatState
 			}
 			else
 			{
-				numScore.setGraphicSize(Std.int(numScore.width * PlayState.daPixelZoom));
+				numScore.setGraphicSize(Std.int(numScore.width * PlayState.PIXEL_ZOOM));
 			}
 			numScore.updateHitbox();
 
@@ -1043,7 +1043,7 @@ class EditorPlayState extends MusicBeatState
 	}
 
 	// For Opponent's notes glow
-	function StrumPlayAnim(isDad:Bool, id:Int, time:Float):Void
+	private function StrumPlayAnim(isDad:Bool, id:Int, time:Float):Void
 	{
 		var spr:StrumNote = null;
 		if (isDad)
@@ -1063,7 +1063,7 @@ class EditorPlayState extends MusicBeatState
 	}
 
 	// Note splash shit, duh
-	function spawnNoteSplashOnNote(note:Note):Void
+	private function spawnNoteSplashOnNote(note:Note):Void
 	{
 		if (OptionUtils.options.noteSplashes && note != null)
 		{
@@ -1075,7 +1075,7 @@ class EditorPlayState extends MusicBeatState
 		}
 	}
 
-	function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null):Void
+	private function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null):Void
 	{
 		var skin:String = 'noteSplashes';
 		if (PlayState.song.splashSkin != null && PlayState.song.splashSkin.length > 0)

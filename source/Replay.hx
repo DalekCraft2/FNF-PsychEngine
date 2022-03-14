@@ -53,7 +53,7 @@ typedef ReplayJSON =
 
 class Replay
 {
-	public static var version:String = "1.2"; // replay file version
+	public static final REPLAY_VERSION:String = "1.2"; // replay file version
 
 	public var path:String = "";
 	public var replay:ReplayJSON;
@@ -67,7 +67,7 @@ class Replay
 			noteSpeed: 1.5,
 			isDownscroll: false,
 			songNotes: [],
-			replayGameVer: version,
+			replayGameVer: REPLAY_VERSION,
 			chartPath: "",
 			sm: false,
 			timestamp: Date.now(),
@@ -103,7 +103,7 @@ class Replay
 			"chartPath": chartPath,
 			"sm": PlayState.isSM,
 			"timestamp": Date.now(),
-			"replayGameVer": version,
+			"replayGameVer": REPLAY_VERSION,
 			"sf": OptionUtils.options.safeFrames,
 			"noteSpeed": PlayState.instance.songSpeed,
 			"isDownscroll": OptionUtils.options.downScroll,

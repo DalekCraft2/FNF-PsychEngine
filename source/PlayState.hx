@@ -58,8 +58,8 @@ class PlayState extends MusicBeatState
 {
 	public static var instance:PlayState = null;
 
-	public static var STRUM_X:Float = 42;
-	public static var STRUM_X_MIDDLESCROLL:Float = -278;
+	public static final STRUM_X:Float = 42;
+	public static final STRUM_X_MIDDLESCROLL:Float = -278;
 
 	public var modchartTweens:Map<String, FlxTween> = [];
 	public var modchartSprites:Map<String, ModchartSprite> = [];
@@ -260,7 +260,7 @@ class PlayState extends MusicBeatState
 	public var defaultCamZoom:Float = 1.05;
 
 	// how big to stretch the pixel art assets
-	public static var daPixelZoom:Float = 6;
+	public static final PIXEL_ZOOM:Float = 6;
 
 	private var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
@@ -732,7 +732,7 @@ class PlayState extends MusicBeatState
 					bgGirls = new BackgroundGirls(-100, 190);
 					bgGirls.scrollFactor.set(0.9, 0.9);
 
-					bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
+					bgGirls.setGraphicSize(Std.int(bgGirls.width * PIXEL_ZOOM));
 					bgGirls.updateHitbox();
 					add(bgGirls);
 				}
@@ -757,7 +757,7 @@ class PlayState extends MusicBeatState
 					add(bg);
 
 					bgGhouls = new BGSprite('weeb/bgGhouls', -100, 190, 0.9, 0.9, ['BG freaks glitch instance'], false);
-					bgGhouls.setGraphicSize(Std.int(bgGhouls.width * daPixelZoom));
+					bgGhouls.setGraphicSize(Std.int(bgGhouls.width * PIXEL_ZOOM));
 					bgGhouls.updateHitbox();
 					bgGhouls.visible = false;
 					bgGhouls.antialiasing = false;
@@ -1700,7 +1700,7 @@ class PlayState extends MusicBeatState
 
 		inCutscene = false;
 		var ret:Dynamic = callOnLuas('onStartCountdown', []);
-		if (ret != FunkinLua.Function_Stop)
+		if (ret != FunkinLua.FUNCTION_STOP)
 		{
 			if (skipCountdown || startOnTime > 0)
 				skipArrowStartTween = true;
@@ -1792,7 +1792,7 @@ class PlayState extends MusicBeatState
 						countdownReady.updateHitbox();
 
 						if (isPixelStage)
-							countdownReady.setGraphicSize(Std.int(countdownReady.width * daPixelZoom));
+							countdownReady.setGraphicSize(Std.int(countdownReady.width * PIXEL_ZOOM));
 
 						countdownReady.screenCenter();
 						countdownReady.antialiasing = antialias;
@@ -1811,7 +1811,7 @@ class PlayState extends MusicBeatState
 						countdownSet.scrollFactor.set();
 
 						if (isPixelStage)
-							countdownSet.setGraphicSize(Std.int(countdownSet.width * daPixelZoom));
+							countdownSet.setGraphicSize(Std.int(countdownSet.width * PIXEL_ZOOM));
 
 						countdownSet.screenCenter();
 						countdownSet.antialiasing = antialias;
@@ -1830,7 +1830,7 @@ class PlayState extends MusicBeatState
 						countdownGo.scrollFactor.set();
 
 						if (isPixelStage)
-							countdownGo.setGraphicSize(Std.int(countdownGo.width * daPixelZoom));
+							countdownGo.setGraphicSize(Std.int(countdownGo.width * PIXEL_ZOOM));
 
 						countdownGo.updateHitbox();
 
@@ -2070,7 +2070,7 @@ class PlayState extends MusicBeatState
 				swagNote.gfNote = (section.gfSection && (songNotes[1] < 4));
 				swagNote.noteType = songNotes[3];
 				if (!Std.isOfType(songNotes[3], String))
-					swagNote.noteType = editors.ChartingState.noteTypeList[songNotes[3]]; // Backward compatibility + compatibility with Week 7 charts
+					swagNote.noteType = editors.ChartingState.NOTE_TYPES[songNotes[3]]; // Backward compatibility + compatibility with Week 7 charts
 				swagNote.scrollFactor.set();
 				var susLength:Float = swagNote.sustainLength;
 				susLength = susLength / Conductor.stepCrochet;
@@ -2407,7 +2407,7 @@ class PlayState extends MusicBeatState
 		if (!paused && !inCutscene && !inResults)
 		{
 			var ret:Dynamic = callOnLuas('onPause', []);
-			if (ret != FunkinLua.Function_Stop)
+			if (ret != FunkinLua.FUNCTION_STOP)
 			{
 				Debug.logTrace("Lost Focus");
 				openSubState(new PauseSubState());
@@ -2639,7 +2639,7 @@ class PlayState extends MusicBeatState
 		if (controls.PAUSE && startedCountdown && canPause)
 		{
 			var ret:Dynamic = callOnLuas('onPause', []);
-			if (ret != FunkinLua.Function_Stop)
+			if (ret != FunkinLua.FUNCTION_STOP)
 			{
 				persistentUpdate = false;
 				persistentDraw = true;
@@ -2874,14 +2874,14 @@ class PlayState extends MusicBeatState
 							daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
 							if (isPixelStage)
 							{
-								daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * daPixelZoom;
+								daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * PIXEL_ZOOM;
 							}
 							else
 							{
 								daNote.y -= 19;
 							}
 						}
-						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
+						daNote.y += (Note.STRUM_WIDTH / 2) - (60.5 * (songSpeed - 1));
 						daNote.y += 27.5 * ((song.bpm / 100) - 1) * (songSpeed - 1);
 					}
 				}
@@ -2906,7 +2906,7 @@ class PlayState extends MusicBeatState
 					}
 				}
 
-				var center:Float = strumY + Note.swagWidth / 2;
+				var center:Float = strumY + Note.STRUM_WIDTH / 2;
 				if (strumGroup.members[daNote.noteData].sustainReduce
 					&& daNote.isSustainNote
 					&& (daNote.mustPress || !daNote.ignoreNote)
@@ -3000,7 +3000,7 @@ class PlayState extends MusicBeatState
 		if (((skipHealthCheck && PlayStateChangeables.instakill) || health <= 0) && !PlayStateChangeables.practice && !isDead)
 		{
 			var ret:Dynamic = callOnLuas('onGameOver', []);
-			if (ret != FunkinLua.Function_Stop)
+			if (ret != FunkinLua.FUNCTION_STOP)
 			{
 				boyfriend.stunned = true;
 				deathCounter++;
@@ -3683,10 +3683,10 @@ class PlayState extends MusicBeatState
 		#if FEATURE_LUA
 		var ret:Dynamic = callOnLuas('onEndSong', []);
 		#else
-		var ret:Dynamic = FunkinLua.Function_Continue;
+		var ret:Dynamic = FunkinLua.FUNCTION_CONTINUE;
 		#end
 
-		if (ret != FunkinLua.Function_Stop && !transitioning)
+		if (ret != FunkinLua.FUNCTION_STOP && !transitioning)
 		{
 			if (song.validScore)
 			{
@@ -4013,8 +4013,8 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			rating.setGraphicSize(Std.int(rating.width * daPixelZoom * 0.85));
-			comboSpr.setGraphicSize(Std.int(comboSpr.width * daPixelZoom * 0.85));
+			rating.setGraphicSize(Std.int(rating.width * PIXEL_ZOOM * 0.85));
+			comboSpr.setGraphicSize(Std.int(comboSpr.width * PIXEL_ZOOM * 0.85));
 		}
 
 		comboSpr.updateHitbox();
@@ -4052,7 +4052,7 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				numScore.setGraphicSize(Std.int(numScore.width * daPixelZoom));
+				numScore.setGraphicSize(Std.int(numScore.width * PIXEL_ZOOM));
 			}
 			numScore.updateHitbox();
 
@@ -5157,12 +5157,12 @@ class PlayState extends MusicBeatState
 
 	public function callOnLuas(event:String, args:Array<Dynamic>):Dynamic
 	{
-		var returnVal:Dynamic = FunkinLua.Function_Continue;
+		var returnVal:Dynamic = FunkinLua.FUNCTION_CONTINUE;
 		#if FEATURE_LUA
 		for (i in 0...luaArray.length)
 		{
 			var ret:Dynamic = luaArray[i].call(event, args);
-			if (ret != FunkinLua.Function_Continue)
+			if (ret != FunkinLua.FUNCTION_CONTINUE)
 			{
 				returnVal = ret;
 			}
@@ -5213,7 +5213,7 @@ class PlayState extends MusicBeatState
 		setOnLuas('hits', songHits);
 
 		var ret:Dynamic = callOnLuas('onRecalculateRating', []);
-		if (ret != FunkinLua.Function_Stop)
+		if (ret != FunkinLua.FUNCTION_STOP)
 		{
 			if (totalPlayed < 1) // Prevent divide by 0
 				ratingName = '?';

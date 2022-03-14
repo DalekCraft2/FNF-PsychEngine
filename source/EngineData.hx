@@ -5,7 +5,7 @@ import JudgementManager.JudgementInfo;
 class EngineData
 {
 	public static var validJudgements:Array<String> = ["epic", "sick", "good", "bad", "shit", "miss"];
-	public static var defaultJudgementData:JudgementInfo = {
+	public static final DEFAULT_JUDGEMENT_DATA:JudgementInfo = {
 		comboBreakJudgements: ["shit"],
 		judgementHealth: {
 			sick: 0.8,

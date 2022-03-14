@@ -144,7 +144,7 @@ class FlxUIDropDownMenuCustom extends FlxUIGroup implements IFlxUIWidget impleme
 		return dropDirection;
 	}
 
-	public static inline var CLICK_EVENT:String = "click_dropdown";
+	public static inline final CLICK_EVENT:String = "click_dropdown";
 
 	public var callback:(String) -> Void;
 

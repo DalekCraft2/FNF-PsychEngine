@@ -65,7 +65,7 @@ class JudgementData
 
 class JudgementManager
 {
-	public static var judgementDisplayNames:Map<String, String> = [
+	public static final JUDGEMENT_DISPLAY_NAMES:Map<String, String> = [
 		"epic" => "Epic",
 		"sick" => "Sick",
 		"good" => "Good",
@@ -78,7 +78,7 @@ class JudgementManager
 	var highestAcc:Float = 0;
 
 	public static var rawJudgements:AnonType;
-	public static var defaultJudgement:JudgementData = new JudgementData(EngineData.defaultJudgementData);
+	public static final DEFAULT_JUDGEMENT:JudgementData = new JudgementData(EngineData.DEFAULT_JUDGEMENT_DATA);
 
 	public var judgementCounter:Map<String, Int> = [];
 
@@ -112,7 +112,7 @@ class JudgementManager
 				return new JudgementData(Reflect.field(rawJudgements, name));
 			}
 		}
-		return defaultJudgement;
+		return DEFAULT_JUDGEMENT;
 	}
 
 	public function getHighestWindow():Float

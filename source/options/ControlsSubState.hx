@@ -11,7 +11,7 @@ class ControlsSubState extends MusicBeatSubState
 	private static var curSelected:Int = -1;
 	private static var curAlt:Bool = false;
 
-	private static var defaultKey:String = 'Reset to Default Keys';
+	private static final RESET_BUTTON_TEXT:String = 'Reset to Default Keys';
 
 	private var bindLength:Int = 0;
 

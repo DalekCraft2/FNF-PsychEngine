@@ -11,8 +11,8 @@ using StringTools;
 
 class CoolUtil
 {
-	public static var defaultDifficulties:Array<String> = ['Easy', 'Normal', 'Hard'];
-	public static var defaultDifficulty:String = 'Normal'; // The chart that has no suffix and starting difficulty on Freeplay/Story Mode
+	public static final DEFAULT_DIFFICULTIES:Array<String> = ['Easy', 'Normal', 'Hard'];
+	public static final DEFAULT_DIFFICULTY:String = 'Normal'; // The chart that has no suffix and starting difficulty on Freeplay/Story Mode
 
 	public static var difficulties:Array<String> = [];
 
@@ -23,8 +23,8 @@ class CoolUtil
 
 		var fileSuffix:String = difficulties[num];
 		if (fileSuffix == null)
-			fileSuffix = defaultDifficulty;
-		if (fileSuffix != defaultDifficulty)
+			fileSuffix = DEFAULT_DIFFICULTY;
+		if (fileSuffix != DEFAULT_DIFFICULTY)
 		{
 			fileSuffix = '-' + fileSuffix;
 		}

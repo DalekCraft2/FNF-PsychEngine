@@ -7,6 +7,10 @@ import openfl.display.TileContainer;
 @:access(animateatlas.tilecontainer.TileContainerSymbol)
 class TileContainerMovieClip extends TileContainer
 {
+	private var symbol:TileContainerSymbol;
+	private var _framerate:Null<Float> = null;
+	private var frameElapsed:Float = 0;
+
 	public var framerate(get, set):Float;
 	public var currentLabel(get, set):String;
 	public var currentFrame(get, set):Int;
@@ -16,11 +20,6 @@ class TileContainerMovieClip extends TileContainer
 	public var numLayers(get, never):Int;
 	public var numFrames(get, never):Int;
 	public var layers(get, never):Array<TileContainer>; // ! Dangerous AF.
-
-	private var symbol:TileContainerSymbol;
-	private var _framerate:Null<Float> = null;
-
-	private var frameElapsed:Float = 0;
 
 	public function new(symbol:TileContainerSymbol)
 	{
@@ -59,7 +58,6 @@ class TileContainerMovieClip extends TileContainer
 
 	public function getFramesofAnim(label:String):Int
 	{
-		var framesArray:Array<Int>;
 		var uncalculatedArray:Array<Int> = [];
 		var uncalculatedFrames:Int = 0;
 
@@ -75,26 +73,15 @@ class TileContainerMovieClip extends TileContainer
 
 	// # region Property setter and getter
 
-	private function set_currentLabel(value:String):String
-	{
-		symbol.currentFrame = symbol.getFrame(value);
-		return value;
-	}
-
 	private function get_currentLabel():String
 	{
 		return symbol.currentLabel;
 	}
 
-	private function set_currentFrame(value:Int):Int
+	private function set_currentLabel(value:String):String
 	{
-		symbol.currentFrame = value;
-		return value;
-	}
-
-	public function get_animFrames():Int
-	{
-		return symbol.get_numFrames();
+		symbol.currentFrame = symbol.getFrame(value);
+		return currentLabel;
 	}
 
 	private function get_currentFrame():Int
@@ -102,10 +89,10 @@ class TileContainerMovieClip extends TileContainer
 		return symbol.currentFrame;
 	}
 
-	private function set_type(value:SymbolType):SymbolType
+	private function set_currentFrame(value:Int):Int
 	{
-		symbol.type = value;
-		return value;
+		symbol.currentFrame = value;
+		return currentFrame;
 	}
 
 	private function get_type():SymbolType
@@ -113,10 +100,10 @@ class TileContainerMovieClip extends TileContainer
 		return symbol.type;
 	}
 
-	private function set_loopMode(value:LoopMode):LoopMode
+	private function set_type(value:SymbolType):SymbolType
 	{
-		symbol.loopMode = value;
-		return value;
+		symbol.type = value;
+		return type;
 	}
 
 	private function get_loopMode():LoopMode
@@ -124,12 +111,18 @@ class TileContainerMovieClip extends TileContainer
 		return symbol.loopMode;
 	}
 
+	private function set_loopMode(value:LoopMode):LoopMode
+	{
+		symbol.loopMode = value;
+		return loopMode;
+	}
+
 	private function get_symbolName():String
 	{
 		return symbol.symbolName;
 	}
 
-	public function get_numLayers():Int
+	private function get_numLayers():Int
 	{
 		return symbol.numLayers;
 	}
@@ -139,19 +132,20 @@ class TileContainerMovieClip extends TileContainer
 		return symbol.numFrames;
 	}
 
-	public function get_layers():Array<TileContainer>
+	private function get_layers():Array<TileContainer>
 	{
 		return symbol._layers;
-	}
-
-	private function set_framerate(value:Float):Float
-	{
-		return _framerate = value;
 	}
 
 	private function get_framerate():Float
 	{
 		return _framerate == null ? symbol._library.frameRate : _framerate;
+	}
+
+	private function set_framerate(value:Float):Float
+	{
+		_framerate = value;
+		return framerate;
 	}
 
 	// # end region

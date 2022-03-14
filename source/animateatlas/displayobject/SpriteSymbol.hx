@@ -29,20 +29,15 @@ import openfl.geom.Rectangle;
 
 class SpriteSymbol extends Sprite
 {
-	public var currentLabel(get, never):String;
-	public var currentFrame(get, set):Int;
-	public var type(get, set):String;
-	public var loopMode(get, set):String;
-	public var symbolName(get, never):String;
-	public var numLayers(get, never):Int;
-	public var numFrames(get, never):Int;
+	private static final S_MATRIX:Matrix = new Matrix();
+
+	public var smoothing:Bool = true;
 
 	private var _data:SymbolData;
 	private var _library:SpriteAnimationLibrary;
 	private var _symbolName:String;
 	private var _type:String;
 	private var _loopMode:String;
-
 	private var _currentFrame:Int;
 	private var _composedFrame:Int;
 	private var _bitmap:Bitmap;
@@ -56,9 +51,13 @@ class SpriteSymbol extends Sprite
 	private var _zeroPoint = new Point(0, 0);
 	private var filterHelper:BitmapData;
 
-	public var smoothing:Bool = true;
-
-	private static var sMatrix:Matrix = new Matrix();
+	public var currentLabel(get, never):String;
+	public var currentFrame(get, set):Int;
+	public var type(get, set):String;
+	public var loopMode(get, set):String;
+	public var symbolName(get, never):String;
+	public var numLayers(get, never):Int;
+	public var numFrames(get, never):Int;
 
 	private function new(data:SymbolData, library:SpriteAnimationLibrary, texture:BitmapData)
 	{
@@ -67,10 +66,10 @@ class SpriteSymbol extends Sprite
 		_data = data;
 		_library = library;
 		_composedFrame = -1;
-		_numLayers = data.TIMELINE.LAYERS.length;
+		_numLayers = data.timeline.layers.length;
 		_numFrames = getNumFrames();
 		_frameLabels = _getFrameLabels();
-		_symbolName = data.SYMBOL_name;
+		_symbolName = data.symbolName;
 		_type = SymbolType.GRAPHIC;
 		_loopMode = LoopMode.LOOP;
 		_texture = texture;
@@ -78,30 +77,30 @@ class SpriteSymbol extends Sprite
 		createLayers();
 
 		// Create FrameMap caches if don't exist
-		for (layer in data.TIMELINE.LAYERS)
+		for (layer in data.timeline.layers)
 		{
-			if (layer.FrameMap != null)
+			if (layer.frameMap != null)
 				return;
 
 			var map:Map<Int, LayerFrameData> = [];
 
-			for (i in 0...layer.Frames.length)
+			for (i in 0...layer.frames.length)
 			{
-				var frame:LayerFrameData = layer.Frames[i];
+				var frame:LayerFrameData = layer.frames[i];
 				for (j in 0...frame.duration)
 				{
 					map.set(i + j, frame);
 				}
 			}
 
-			layer.FrameMap = map;
+			layer.frameMap = map;
 		}
 	}
 
 	public function reset():Void
 	{
-		sMatrix.identity();
-		transform.matrix = sMatrix.clone();
+		S_MATRIX.identity();
+		transform.matrix = S_MATRIX.clone();
 		alpha = 1.0;
 		_currentFrame = 0;
 		_composedFrame = -1;
@@ -127,6 +126,102 @@ class SpriteSymbol extends Sprite
 		moveMovieclip_MovieClips(-1);
 	}
 
+	public function update():Void
+	{
+		for (i in 0..._numLayers)
+		{
+			updateLayer(i);
+		}
+
+		_composedFrame = _currentFrame;
+	}
+
+	@:access(animateatlas)
+	public function setBitmap(data:BitmapPosData):Void
+	{
+		if (data != null)
+		{
+			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
+
+			if (_bitmap == null)
+			{
+				_bitmap = new Bitmap(new BitmapData(1, 1), PixelSnapping.AUTO, smoothing);
+				addChild(_bitmap);
+			}
+
+			if (_tempRect.x != spriteData.x || _tempRect.y != spriteData.y || _tempRect.width != spriteData.w || _tempRect.height != spriteData.h)
+			{
+				var clippedTexture:BitmapData = new BitmapData(spriteData.w, spriteData.h);
+				_tempRect.setTo(spriteData.x, spriteData.y, spriteData.w, spriteData.h);
+				clippedTexture.copyPixels(_texture, _tempRect, _zeroPoint);
+				_bitmap.bitmapData = clippedTexture;
+				_bitmap.smoothing = smoothing;
+			}
+			// aditional checks for rotation
+			if (spriteData.rotated)
+			{
+				_bitmap.rotation = -90;
+				_bitmap.x = data.position.x;
+				_bitmap.y = data.position.y + spriteData.w;
+			}
+			else
+			{
+				_bitmap.rotation = 0;
+				_bitmap.x = data.position.x;
+				_bitmap.y = data.position.y;
+			}
+
+			addChildAt(_bitmap, 0);
+		}
+		else if (_bitmap != null)
+		{
+			if (_bitmap.parent != null)
+				_bitmap.parent.removeChild(_bitmap);
+		}
+	}
+
+	public function getFrameLabels():Array<String>
+	{
+		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
+	}
+
+	public function getTexture():BitmapData
+	{
+		// THIS GETS THE ENTIRE THING I'M RETARDED LOL
+		return _texture;
+	}
+
+	public function getNextLabel(?afterLabel:String):String
+	{
+		var numLabels:Int = _frameLabels.length;
+		var startFrame:Int = getFrame(afterLabel == null ? currentLabel : afterLabel);
+
+		for (i in 0...numLabels)
+		{
+			var label:FrameLabel = _frameLabels[i];
+			if (label.frame > startFrame)
+			{
+				return label.name;
+			}
+		}
+
+		return (_frameLabels != null) ? _frameLabels[0].name : null;
+	}
+
+	public function getFrame(label:String):Int
+	{
+		var numLabels:Int = _frameLabels.length;
+		for (i in 0...numLabels)
+		{
+			var frameLabel:FrameLabel = _frameLabels[i];
+			if (frameLabel.name == label)
+			{
+				return frameLabel.frame;
+			}
+		}
+		return -1;
+	}
+
 	/** Moves all movie clips n frames, recursively. */
 	private function moveMovieclip_MovieClips(direction:Int = 1):Void
 	{
@@ -148,16 +243,6 @@ class SpriteSymbol extends Sprite
 		}
 	}
 
-	public function update():Void
-	{
-		for (i in 0..._numLayers)
-		{
-			updateLayer(i);
-		}
-
-		_composedFrame = _currentFrame;
-	}
-
 	@:access(animateatlas)
 	private function updateLayer(layerIndex:Int):Void
 	{
@@ -167,7 +252,7 @@ class SpriteSymbol extends Sprite
 		var numElements:Int = (elements != null) ? elements.length : 0;
 		for (i in 0...numElements)
 		{
-			var elementData:SymbolInstanceData = elements[i].SYMBOL_Instance;
+			var elementData:SymbolInstanceData = elements[i].symbolInstance;
 
 			if (elementData == null)
 			{
@@ -182,7 +267,7 @@ class SpriteSymbol extends Sprite
 
 			var newSymbol:SpriteSymbol = null;
 
-			var symbolName:String = elementData.SYMBOL_name;
+			var symbolName:String = elementData.symbolName;
 
 			if (!_library.hasSymbol(symbolName))
 			{
@@ -206,7 +291,7 @@ class SpriteSymbol extends Sprite
 				layer.addChildAt(newSymbol, i);
 			}
 
-			newSymbol.setTransformationMatrix(elementData.Matrix3D);
+			newSymbol.setTransformationMatrix(elementData.matrix3D);
 			newSymbol.setBitmap(elementData.bitmap);
 			newSymbol.setFilterData(elementData.filters);
 			newSymbol.setColor(elementData.color);
@@ -251,7 +336,7 @@ class SpriteSymbol extends Sprite
 
 	private function createLayers():Void
 	{
-		// todo safety check for not initialiing twice
+		// TODO safety check for not initialiing twice
 		if (_layers != null)
 		{
 			throw new Error("You must not call this twice");
@@ -267,54 +352,10 @@ class SpriteSymbol extends Sprite
 			for (i in 0..._numLayers)
 			{
 				var layer:Sprite = new Sprite();
-				layer.name = getLayerData(i).Layer_name;
+				layer.name = getLayerData(i).layerName;
 				addChild(layer);
 				_layers.push(layer);
 			}
-		}
-	}
-
-	@:access(animateatlas)
-	public function setBitmap(data:BitmapPosData):Void
-	{
-		if (data != null)
-		{
-			var spriteData:SpriteData = _library.getSpriteData(data.name + "");
-
-			if (_bitmap == null)
-			{
-				_bitmap = new Bitmap(new BitmapData(1, 1), PixelSnapping.AUTO, smoothing);
-				addChild(_bitmap);
-			}
-
-			if (_tempRect.x != spriteData.x || _tempRect.y != spriteData.y || _tempRect.width != spriteData.w || _tempRect.height != spriteData.h)
-			{
-				var clippedTexture:BitmapData = new BitmapData(spriteData.w, spriteData.h);
-				_tempRect.setTo(spriteData.x, spriteData.y, spriteData.w, spriteData.h);
-				clippedTexture.copyPixels(_texture, _tempRect, _zeroPoint);
-				_bitmap.bitmapData = clippedTexture;
-				_bitmap.smoothing = smoothing;
-			}
-			// aditional checks for rotation
-			if (spriteData.rotated)
-			{
-				_bitmap.rotation = -90;
-				_bitmap.x = data.Position.x;
-				_bitmap.y = data.Position.y + spriteData.w;
-			}
-			else
-			{
-				_bitmap.rotation = 0;
-				_bitmap.x = data.Position.x;
-				_bitmap.y = data.Position.y;
-			}
-
-			addChildAt(_bitmap, 0);
-		}
-		else if (_bitmap != null)
-		{
-			if (_bitmap.parent != null)
-				_bitmap.parent.removeChild(_bitmap);
 		}
 	}
 
@@ -325,27 +366,27 @@ class SpriteSymbol extends Sprite
 		var glow:GlowFilter;
 		if (data != null)
 		{
-			if (data.BlurFilter != null)
+			if (data.blurFilter != null)
 			{
 				blur = new BlurFilter();
-				blur.blurX = data.BlurFilter.blurX;
-				blur.blurY = data.BlurFilter.blurY;
-				blur.quality = data.BlurFilter.quality;
+				blur.blurX = data.blurFilter.blurX;
+				blur.blurY = data.blurFilter.blurY;
+				blur.quality = data.blurFilter.quality;
 				// _bitmap.bitmapData.applyFilter(_bitmap.bitmapData,new Rectangle(0,0,_bitmap.bitmapData.width,_bitmap.bitmapData.height),new Point(0,0),blur);
 				// filters.push(blur);
 			}
-			if (data.GlowFilter != null)
+			if (data.glowFilter != null)
 			{
-				// Debug.logTrace('GLOW${data.GlowFilter}');
-				// glow = new GlowFilter();
-				// glow.blurX = data.GlowFilter.blurX;
-				// glow.blurY = data.GlowFilter.blurY;
-				// glow.color = data.GlowFilter.color;
-				// glow.alpha = data.GlowFilter.alpha;
-				// glow.quality = data.GlowFilter.quality;
-				// glow.strength = data.GlowFilter.strength;
-				// glow.knockout = data.GlowFilter.knockout;
-				// glow.inner = data.GlowFilter.inner;
+				// Debug.logTrace('GLOW${data.glowFilter}');
+				// glow = new glowFilter();
+				// glow.blurX = data.glowFilter.blurX;
+				// glow.blurY = data.glowFilter.blurY;
+				// glow.color = data.glowFilter.color;
+				// glow.alpha = data.glowFilter.alpha;
+				// glow.quality = data.glowFilter.quality;
+				// glow.strength = data.glowFilter.strength;
+				// glow.knockout = data.glowFilter.knockout;
+				// glow.inner = data.glowFilter.inner;
 				// filters.push(glow);
 			}
 		}
@@ -353,10 +394,10 @@ class SpriteSymbol extends Sprite
 
 	private function setTransformationMatrix(data:Matrix3DData):Void
 	{
-		sMatrix.setTo(data.m00, data.m01, data.m10, data.m11, data.m30, data.m31);
-		if (sMatrix.a != transform.matrix.a || sMatrix.b != transform.matrix.b || sMatrix.c != transform.matrix.c || sMatrix.d != transform.matrix.d
-			|| sMatrix.tx != transform.matrix.tx || sMatrix.ty != transform.matrix.ty)
-			transform.matrix = sMatrix.clone(); // todo stop the cloning :(
+		S_MATRIX.setTo(data.m00, data.m01, data.m10, data.m11, data.m30, data.m31);
+		if (S_MATRIX.a != transform.matrix.a || S_MATRIX.b != transform.matrix.b || S_MATRIX.c != transform.matrix.c || S_MATRIX.d != transform.matrix.d
+			|| S_MATRIX.tx != transform.matrix.tx || S_MATRIX.ty != transform.matrix.ty)
+			transform.matrix = S_MATRIX.clone(); // TODO stop the cloning :(
 	}
 
 	private function setColor(data:ColorData):Void
@@ -367,9 +408,9 @@ class SpriteSymbol extends Sprite
 			newTransform.redOffset = (data.redOffset == null ? 0 : data.redOffset);
 			newTransform.greenOffset = (data.greenOffset == null ? 0 : data.greenOffset);
 			newTransform.blueOffset = (data.blueOffset == null ? 0 : data.blueOffset);
-			newTransform.alphaOffset = (data.AlphaOffset == null ? 0 : data.AlphaOffset);
+			newTransform.alphaOffset = (data.alphaOffset == null ? 0 : data.alphaOffset);
 
-			newTransform.redMultiplier = (data.RedMultiplier == null ? 1 : data.RedMultiplier);
+			newTransform.redMultiplier = (data.redMultiplier == null ? 1 : data.redMultiplier);
 			newTransform.greenMultiplier = (data.greenMultiplier == null ? 1 : data.greenMultiplier);
 			newTransform.blueMultiplier = (data.blueMultiplier == null ? 1 : data.blueMultiplier);
 			newTransform.alphaMultiplier = (data.alphaMultiplier == null ? 1 : data.alphaMultiplier);
@@ -404,7 +445,7 @@ class SpriteSymbol extends Sprite
 		for (i in 0..._numLayers)
 		{
 			var layer:LayerData = getLayerData(i);
-			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
+			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 			var layerNumFrames:Int = (numFrameDates != 0) ? frameDates[0].index : 0;
 
@@ -429,7 +470,7 @@ class SpriteSymbol extends Sprite
 		for (i in 0..._numLayers)
 		{
 			var layer:LayerData = getLayerData(i);
-			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.Frames);
+			var frameDates:Array<LayerFrameData> = (layer == null ? [] : layer.frames);
 			var numFrameDates:Int = (frameDates != null) ? frameDates.length : 0;
 
 			for (j in 0...numFrameDates)
@@ -445,12 +486,7 @@ class SpriteSymbol extends Sprite
 		return labels;
 	}
 
-	public function getFrameLabels():Array<String>
-	{
-		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
-	}
-
-	function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
+	private function sortLabels(i1:FrameLabel, i2:FrameLabel):Int
 	{
 		var f1:Int = i1.frame;
 		var f2:Int = i2.frame;
@@ -473,27 +509,18 @@ class SpriteSymbol extends Sprite
 		return _layers[layerIndex];
 	}
 
-	public function getTexture():BitmapData
+	private function getLayerData(layerIndex:Int):LayerData
 	{
-		// THIS GETS THE ENTIRE THING I'M RETARDED LOL
-		return _texture;
+		return _data.timeline.layers[layerIndex];
 	}
 
-	public function getNextLabel(afterLabel:String = null):String
+	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
 	{
-		var numLabels:Int = _frameLabels.length;
-		var startFrame:Int = getFrame(afterLabel == null ? currentLabel : afterLabel);
+		var layer:LayerData = getLayerData(layerIndex);
+		if (layer == null)
+			return null;
 
-		for (i in 0...numLabels)
-		{
-			var label:FrameLabel = _frameLabels[i];
-			if (label.frame > startFrame)
-			{
-				return label.name;
-			}
-		}
-
-		return (_frameLabels != null) ? _frameLabels[0].name : null;
+		return layer.frameMap.get(frameIndex);
 	}
 
 	private function get_currentLabel():String
@@ -516,20 +543,6 @@ class SpriteSymbol extends Sprite
 		}
 
 		return (highestLabel != null) ? highestLabel.name : null;
-	}
-
-	public function getFrame(label:String):Int
-	{
-		var numLabels:Int = _frameLabels.length;
-		for (i in 0...numLabels)
-		{
-			var frameLabel:FrameLabel = _frameLabels[i];
-			if (frameLabel.name == label)
-			{
-				return frameLabel.frame;
-			}
-		}
-		return -1;
 	}
 
 	private function get_currentFrame():Int
@@ -609,21 +622,5 @@ class SpriteSymbol extends Sprite
 	private function get_numFrames():Int
 	{
 		return _numFrames;
-	}
-
-	// data access
-
-	private function getLayerData(layerIndex:Int):LayerData
-	{
-		return _data.TIMELINE.LAYERS[layerIndex];
-	}
-
-	private function getFrameData(layerIndex:Int, frameIndex:Int):LayerFrameData
-	{
-		var layer:LayerData = getLayerData(layerIndex);
-		if (layer == null)
-			return null;
-
-		return layer.FrameMap.get(frameIndex);
 	}
 }

@@ -47,9 +47,9 @@ typedef DialogueLine =
 
 class DialogueCharacter extends FlxSprite
 {
-	private static var IDLE_SUFFIX:String = '-IDLE';
-	public static var DEFAULT_CHARACTER:String = 'bf';
-	public static var DEFAULT_SCALE:Float = 0.7;
+	private static final IDLE_SUFFIX:String = '-IDLE';
+	public static final DEFAULT_CHARACTER:String = 'bf';
+	public static final DEFAULT_SCALE:Float = 0.7;
 
 	public var jsonFile:DialogueCharacterData = null;
 	public var dialogueAnimations:Map<String, DialogueAnimationData> = [];
@@ -229,9 +229,9 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var dialogueStarted:Bool = false;
 	var dialogueEnded:Bool = false;
 
-	public static var LEFT_CHAR_X:Float = -60;
-	public static var RIGHT_CHAR_X:Float = -100;
-	public static var DEFAULT_CHAR_Y:Float = 60;
+	public static final LEFT_CHAR_X:Float = -60;
+	public static final RIGHT_CHAR_X:Float = -100;
+	public static final DEFAULT_CHAR_Y:Float = 60;
 
 	function spawnCharacters():Void
 	{
@@ -281,8 +281,8 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 	}
 
-	public static var DEFAULT_TEXT_X:Float = 90;
-	public static var DEFAULT_TEXT_Y:Float = 430;
+	public static final DEFAULT_TEXT_X:Float = 90;
+	public static final DEFAULT_TEXT_Y:Float = 430;
 
 	var scrollSpeed:Float = 4500;
 	var daText:Alphabet = null;

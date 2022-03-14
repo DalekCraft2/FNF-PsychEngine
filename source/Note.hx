@@ -51,11 +51,11 @@ class Note extends FlxSprite
 
 	private var earlyHitMult:Float = 0.5;
 
-	public static var swagWidth:Float = 160 * 0.7;
-	public static var PURPLE_NOTE:Int = 0;
-	public static var BLUE_NOTE:Int = 1;
-	public static var GREEN_NOTE:Int = 2;
-	public static var RED_NOTE:Int = 3;
+	public static final STRUM_WIDTH:Float = 160 * 0.7;
+	public static final PURPLE_NOTE:Int = 0;
+	public static final BLUE_NOTE:Int = 1;
+	public static final GREEN_NOTE:Int = 2;
+	public static final RED_NOTE:Int = 3;
 
 	// Lua shit
 	public var noteSplashDisabled:Bool = false;
@@ -164,7 +164,7 @@ class Note extends FlxSprite
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
 
-			x += swagWidth * (noteData % 4);
+			x += STRUM_WIDTH * (noteData % 4);
 			if (!isSustainNote)
 			{ // Doing this 'if' check to fix the warnings on Senpai songs
 				var animToPlay:String = '';
@@ -246,7 +246,7 @@ class Note extends FlxSprite
 
 			if (PlayState.isPixelStage)
 			{
-				scale.y *= PlayState.daPixelZoom;
+				scale.y *= PlayState.PIXEL_ZOOM;
 				updateHitbox();
 			}
 		}
@@ -309,14 +309,14 @@ class Note extends FlxSprite
 				height = height / 5;
 				loadGraphic(Paths.image('pixelUI/$blahblah'), true, Math.floor(width), Math.floor(height));
 			}
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 			loadPixelNoteAnims();
 			antialiasing = false;
 
 			if (isSustainNote)
 			{
 				offsetX += lastNoteOffsetXForPixelAutoAdjusting;
-				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.daPixelZoom / 2);
+				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.PIXEL_ZOOM / 2);
 				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
 
 				/*if(animName != null && !animName.endsWith('end'))

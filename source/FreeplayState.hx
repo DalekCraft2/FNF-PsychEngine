@@ -213,9 +213,9 @@ class FreeplayState extends MusicBeatState
 
 		if (lastDifficultyName == '')
 		{
-			lastDifficultyName = CoolUtil.defaultDifficulty;
+			lastDifficultyName = CoolUtil.DEFAULT_DIFFICULTY;
 		}
-		curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(lastDifficultyName)));
+		curDifficulty = Math.round(Math.max(0, CoolUtil.DEFAULT_DIFFICULTIES.indexOf(lastDifficultyName)));
 
 		changeSelection();
 		changeDiff();
@@ -571,7 +571,7 @@ class FreeplayState extends MusicBeatState
 		Paths.currentModDirectory = songs[curSelected].folder;
 		PlayState.storyWeek = songs[curSelected].week;
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
 		var diffStr:String = Week.getCurrentWeek().difficulties;
 		if (diffStr != null)
 			diffStr = diffStr.trim(); // Fuck you HTML5
@@ -597,9 +597,9 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 
-		if (CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
+		if (CoolUtil.difficulties.contains(CoolUtil.DEFAULT_DIFFICULTY))
 		{
-			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
+			curDifficulty = Math.round(Math.max(0, CoolUtil.DEFAULT_DIFFICULTIES.indexOf(CoolUtil.DEFAULT_DIFFICULTY)));
 		}
 		else
 		{

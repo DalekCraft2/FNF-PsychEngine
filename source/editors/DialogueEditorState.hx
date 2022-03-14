@@ -29,15 +29,26 @@ using StringTools;
 
 class DialogueEditorState extends MusicBeatState
 {
-	var character:DialogueCharacter;
-	var box:FlxSprite;
-	var daText:Alphabet;
+	private static final DEFAULT_LINE:DialogueLine = {
+		portrait: DialogueCharacter.DEFAULT_CHARACTER,
+		expression: 'talk',
+		text: DEFAULT_TEXT,
+		boxState: DEFAULT_BUBBLETYPE,
+		speed: 0.05,
+		sound: ''
+	};
+	private static final DEFAULT_TEXT:String = "coolswag";
+	private static final DEFAULT_SPEED:Float = 0.05;
+	private static final DEFAULT_BUBBLETYPE:String = "normal";
 
-	var selectedText:FlxText;
-	var animText:FlxText;
+	private var character:DialogueCharacter;
+	private var box:FlxSprite;
+	private var daText:Alphabet;
 
-	var defaultLine:DialogueLine;
-	var dialogueFile:DialogueData = null;
+	private var selectedText:FlxText;
+	private var animText:FlxText;
+
+	private var dialogueFile:DialogueData = null;
 
 	override function create():Void
 	{
@@ -48,15 +59,6 @@ class DialogueEditorState extends MusicBeatState
 
 		persistentUpdate = persistentDraw = true;
 		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
-
-		defaultLine = {
-			portrait: DialogueCharacter.DEFAULT_CHARACTER,
-			expression: 'talk',
-			text: DEFAULT_TEXT,
-			boxState: DEFAULT_BUBBLETYPE,
-			speed: 0.05,
-			sound: ''
-		};
 
 		dialogueFile = {
 			dialogue: [copyDefaultLine()]
@@ -100,9 +102,9 @@ class DialogueEditorState extends MusicBeatState
 		changeText();
 	}
 
-	var UI_box:FlxUITabMenu;
+	private var UI_box:FlxUITabMenu;
 
-	function addEditorBox():Void
+	private function addEditorBox():Void
 	{
 		var tabs:Array<{name:String, label:String}> = [{name: 'Dialogue Line', label: 'Dialogue Line'},];
 		UI_box = new FlxUITabMenu(null, tabs, true);
@@ -115,13 +117,13 @@ class DialogueEditorState extends MusicBeatState
 		add(UI_box);
 	}
 
-	var characterInputText:FlxUIInputText;
-	var lineInputText:FlxUIInputText;
-	var angryCheckbox:FlxUICheckBox;
-	var speedStepper:FlxUINumericStepper;
-	var soundInputText:FlxUIInputText;
+	private var characterInputText:FlxUIInputText;
+	private var lineInputText:FlxUIInputText;
+	private var angryCheckbox:FlxUICheckBox;
+	private var speedStepper:FlxUINumericStepper;
+	private var soundInputText:FlxUIInputText;
 
-	function addDialogueLineUI():Void
+	private function addDialogueLineUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_box);
 		tab_group.name = "Dialogue Line";
@@ -167,20 +169,20 @@ class DialogueEditorState extends MusicBeatState
 		UI_box.addGroup(tab_group);
 	}
 
-	function copyDefaultLine():DialogueLine
+	private function copyDefaultLine():DialogueLine
 	{
 		var copyLine:DialogueLine = {
-			portrait: defaultLine.portrait,
-			expression: defaultLine.expression,
-			text: defaultLine.text,
-			boxState: defaultLine.boxState,
-			speed: defaultLine.speed,
+			portrait: DEFAULT_LINE.portrait,
+			expression: DEFAULT_LINE.expression,
+			text: DEFAULT_LINE.text,
+			boxState: DEFAULT_LINE.boxState,
+			speed: DEFAULT_LINE.speed,
 			sound: ''
 		};
 		return copyLine;
 	}
 
-	function updateTextBox():Void
+	private function updateTextBox():Void
 	{
 		box.flipX = false;
 		var isAngry:Bool = angryCheckbox.checked;
@@ -204,7 +206,7 @@ class DialogueEditorState extends MusicBeatState
 		DialogueBoxPsych.updateBoxOffsets(box);
 	}
 
-	function reloadCharacter():Void
+	private function reloadCharacter():Void
 	{
 		character.frames = Paths.getSparrowAtlas('dialogue/${character.jsonFile.image}');
 		character.jsonFile = character.jsonFile;
@@ -244,11 +246,7 @@ class DialogueEditorState extends MusicBeatState
 		}
 	}
 
-	private static var DEFAULT_TEXT:String = "coolswag";
-	private static var DEFAULT_SPEED:Float = 0.05;
-	private static var DEFAULT_BUBBLETYPE:String = "normal";
-
-	function reloadText(speed:Float = 0.05):Void
+	private function reloadText(speed:Float = 0.05):Void
 	{
 		if (daText != null)
 		{
@@ -345,10 +343,10 @@ class DialogueEditorState extends MusicBeatState
 		}
 	}
 
-	var curSelected:Int = 0;
-	var curAnim:Int = 0;
-	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
-	var transitioning:Bool = false;
+	private var curSelected:Int = 0;
+	private var curAnim:Int = 0;
+	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
+	private var transitioning:Bool = false;
 
 	override function update(elapsed:Float):Void
 	{
@@ -386,7 +384,7 @@ class DialogueEditorState extends MusicBeatState
 
 				if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && Clipboard.text != null)
 				{ // Copy paste
-					inputText.text = ClipboardAdd(inputText.text);
+					inputText.text = clipboardAdd(inputText.text);
 					inputText.caretIndex = inputText.text.length;
 					getEvent(FlxUIInputText.CHANGE_EVENT, inputText, null, []);
 				}
@@ -466,7 +464,7 @@ class DialogueEditorState extends MusicBeatState
 		}
 	}
 
-	function changeText(add:Int = 0):Void
+	private function changeText(add:Int = 0):Void
 	{
 		curSelected += add;
 		if (curSelected < 0)
@@ -516,7 +514,7 @@ class DialogueEditorState extends MusicBeatState
 		selectedText.text = 'Line: (' + (curSelected + 1) + ' / ' + dialogueFile.dialogue.length + ') - Press A or D to scroll';
 	}
 
-	function characterAnimSpeed():Void
+	private function characterAnimSpeed():Void
 	{
 		if (character.animation.curAnim != null)
 		{
@@ -530,7 +528,7 @@ class DialogueEditorState extends MusicBeatState
 		}
 	}
 
-	function ClipboardAdd(prefix:String = ''):String
+	private function clipboardAdd(prefix:String = ''):String
 	{
 		if (prefix.toLowerCase().endsWith('v')) // probably copy paste attempt
 		{
@@ -541,9 +539,9 @@ class DialogueEditorState extends MusicBeatState
 		return text;
 	}
 
-	var _file:FileReference = null;
+	private var _file:FileReference = null;
 
-	function loadDialogue():Void
+	private function loadDialogue():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
 		_file = new FileReference();
@@ -553,7 +551,7 @@ class DialogueEditorState extends MusicBeatState
 		_file.browse([jsonFilter]);
 	}
 
-	function onLoadComplete(_):Void
+	private function onLoadComplete(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -591,7 +589,7 @@ class DialogueEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onLoadCancel(_):Void
+	private function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -603,7 +601,7 @@ class DialogueEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onLoadError(_):Void
+	private function onLoadError(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -612,7 +610,7 @@ class DialogueEditorState extends MusicBeatState
 		Debug.logError("Problem loading file");
 	}
 
-	function saveDialogue():Void
+	private function saveDialogue():Void
 	{
 		var data:String = Json.stringify(dialogueFile, "\t");
 		if (data.length > 0)
@@ -625,7 +623,7 @@ class DialogueEditorState extends MusicBeatState
 		}
 	}
 
-	function onSaveComplete(_):Void
+	private function onSaveComplete(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -637,7 +635,7 @@ class DialogueEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onSaveCancel(_):Void
+	private function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -648,7 +646,7 @@ class DialogueEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onSaveError(_):Void
+	private function onSaveError(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);

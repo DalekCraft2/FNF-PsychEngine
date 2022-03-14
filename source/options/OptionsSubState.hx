@@ -18,16 +18,13 @@ using StringTools;
 class OptionsSubState extends MusicBeatSubState
 {
 	public static var instance:OptionsSubState;
+	public static var isInPause:Bool = false;
+	private static var category:OptionCategory;
 
 	private var defCat:OptionCategory;
-
 	private var optionText:FlxTypedGroup<Option>;
 	private var optionDesc:FlxText;
 	private var curSelected:Int = 0;
-
-	public static var category:OptionCategory;
-
-	public static var isInPause:Bool = false;
 
 	public function new(isInPause:Bool = false)
 	{

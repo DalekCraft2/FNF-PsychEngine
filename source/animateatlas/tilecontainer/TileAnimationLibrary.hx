@@ -21,17 +21,9 @@ import openfl.errors.ArgumentError;
  */
 class TileAnimationLibrary
 {
-	public var frameRate:Float;
+	public static inline final BITMAP_SYMBOL_NAME:String = "___atlas_sprite___";
 
-	private var _atlas:Map<String, SpriteData>;
-	private var _symbolData:Map<String, SymbolData>;
-	private var _symbolPool:Map<String, Array<TileContainerSymbol>>;
-	private var _defaultSymbolName:String;
-	private var _texture:Tileset;
-
-	public static inline var BITMAP_SYMBOL_NAME:String = "___atlas_sprite___";
-
-	private static var STD_MATRIX3D_DATA:Matrix3DData = {
+	private static final STD_MATRIX3D_DATA:Matrix3DData = {
 		m00: 1,
 		m01: 0,
 		m02: 0,
@@ -49,6 +41,14 @@ class TileAnimationLibrary
 		m32: 0,
 		m33: 1
 	};
+
+	public var frameRate:Float;
+
+	private var _atlas:Map<String, SpriteData>;
+	private var _symbolData:Map<String, SymbolData>;
+	private var _symbolPool:Map<String, Array<TileContainerSymbol>>;
+	private var _defaultSymbolName:String;
+	private var _texture:Tileset;
 
 	public function new(data:AnimationData, atlas:AtlasData, texture:BitmapData)
 	{
@@ -85,7 +85,6 @@ class TileAnimationLibrary
 			}
 		}
 
-		// but... why?
 		out.sort((a1, a2) ->
 		{
 			a1 = a1.toLowerCase();
@@ -117,7 +116,7 @@ class TileAnimationLibrary
 	}
 
 	// # region Pooling
-	// todo migrate this to lime pool
+	// TODO migrate this to lime pool
 
 	@:access(animateatlas)
 	private function getSymbol(name:String):TileContainerSymbol

@@ -18,7 +18,7 @@ using StringTools;
 
 class LoadingState extends MusicBeatState
 {
-	static inline var MIN_TIME:Float = 1.0;
+	static inline final MIN_TIME:Float = 1.0;
 
 	// Browsers will load create(), you can make your song load a custom directory there
 	// If you're compiling to desktop (or something that doesn't use NO_PRELOAD_ALL), search for getNextState instead

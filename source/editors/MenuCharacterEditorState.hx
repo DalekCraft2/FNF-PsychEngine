@@ -28,10 +28,10 @@ using StringTools;
 
 class MenuCharacterEditorState extends MusicBeatState
 {
-	var grpWeekCharacters:FlxTypedGroup<MenuCharacter>;
-	var characterFile:MenuCharacterData = null;
-	var txtOffsets:FlxText;
-	var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
+	private var grpWeekCharacters:FlxTypedGroup<MenuCharacter>;
+	private var characterFile:MenuCharacterData = null;
+	private var txtOffsets:FlxText;
+	private var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
 
 	override function create():Void
 	{
@@ -81,11 +81,11 @@ class MenuCharacterEditorState extends MusicBeatState
 		updateCharTypeBox();
 	}
 
-	var UI_typebox:FlxUITabMenu;
-	var UI_mainbox:FlxUITabMenu;
-	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
+	private var UI_typebox:FlxUITabMenu;
+	private var UI_mainbox:FlxUITabMenu;
+	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 
-	function addEditorBox():Void
+	private function addEditorBox():Void
 	{
 		var tabs:Array<{name:String, label:String}> = [{name: 'Character Type', label: 'Character Type'},];
 		UI_typebox = new FlxUITabMenu(null, tabs, true);
@@ -122,12 +122,12 @@ class MenuCharacterEditorState extends MusicBeatState
 		add(saveButton);
 	}
 
-	var opponentCheckbox:FlxUICheckBox;
-	var boyfriendCheckbox:FlxUICheckBox;
-	var girlfriendCheckbox:FlxUICheckBox;
-	var curTypeSelected:Int = 0; // 0 = Dad, 1 = BF, 2 = GF
+	private var opponentCheckbox:FlxUICheckBox;
+	private var boyfriendCheckbox:FlxUICheckBox;
+	private var girlfriendCheckbox:FlxUICheckBox;
+	private var curTypeSelected:Int = 0; // 0 = Dad, 1 = BF, 2 = GF
 
-	function addTypeUI():Void
+	private function addTypeUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_typebox);
 		tab_group.name = "Character Type";
@@ -159,14 +159,14 @@ class MenuCharacterEditorState extends MusicBeatState
 		UI_typebox.addGroup(tab_group);
 	}
 
-	var imageInputText:FlxUIInputText;
-	var idleInputText:FlxUIInputText;
-	var confirmInputText:FlxUIInputText;
-	var confirmDescText:FlxText;
-	var scaleStepper:FlxUINumericStepper;
-	var flipXCheckbox:FlxUICheckBox;
+	private var imageInputText:FlxUIInputText;
+	private var idleInputText:FlxUIInputText;
+	private var confirmInputText:FlxUIInputText;
+	private var confirmDescText:FlxText;
+	private var scaleStepper:FlxUINumericStepper;
+	private var flipXCheckbox:FlxUICheckBox;
 
-	function addCharacterUI():Void
+	private function addCharacterUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_mainbox);
 		tab_group.name = "Character";
@@ -206,7 +206,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		UI_mainbox.addGroup(tab_group);
 	}
 
-	function updateCharTypeBox():Void
+	private function updateCharTypeBox():Void
 	{
 		opponentCheckbox.checked = false;
 		boyfriendCheckbox.checked = false;
@@ -225,7 +225,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		updateCharacters();
 	}
 
-	function updateCharacters():Void
+	private function updateCharacters():Void
 	{
 		for (i in 0...3)
 		{
@@ -237,7 +237,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		reloadSelectedCharacter();
 	}
 
-	function reloadSelectedCharacter():Void
+	private function reloadSelectedCharacter():Void
 	{
 		var char:MenuCharacter = grpWeekCharacters.members[curTypeSelected];
 
@@ -358,16 +358,16 @@ class MenuCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function updateOffset():Void
+	private function updateOffset():Void
 	{
 		var char:MenuCharacter = grpWeekCharacters.members[curTypeSelected];
 		char.offset.set(characterFile.position[0], characterFile.position[1]);
-		txtOffsets.text = '' + characterFile.position;
+		txtOffsets.text = Std.string(characterFile.position);
 	}
 
-	var _file:FileReference = null;
+	private var _file:FileReference = null;
 
-	function loadCharacter():Void
+	private function loadCharacter():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
 		_file = new FileReference();
@@ -377,7 +377,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		_file.browse([jsonFilter]);
 	}
 
-	function onLoadComplete(_):Void
+	private function onLoadComplete(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -420,7 +420,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onLoadCancel(_):Void
+	private function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -432,7 +432,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onLoadError(_):Void
+	private function onLoadError(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -441,7 +441,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		Debug.logError("Problem loading file");
 	}
 
-	function saveCharacter():Void
+	private function saveCharacter():Void
 	{
 		var data:String = Json.stringify(characterFile, "\t");
 		if (data.length > 0)
@@ -457,7 +457,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function onSaveComplete(_):Void
+	private function onSaveComplete(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -469,7 +469,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onSaveCancel(_):Void
+	private function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -480,7 +480,7 @@ class MenuCharacterEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onSaveError(_):Void
+	private function onSaveError(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);

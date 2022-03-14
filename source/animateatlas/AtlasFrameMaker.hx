@@ -23,10 +23,10 @@ class AtlasFrameMaker extends FlxFramesCollection
 
 	/**
 
-		* Creates Frames from TextureAtlas(very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
+		* Creates Frames from TextureAtlas (very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
 		*
-		* @param   key                 The file path.
-		* @param   _excludeArray       Use this to only create selected animations. Keep null to create all of them.
+		* @param key The file path.
+		* @param _excludeArray Use this to only create selected animations. Keep null to create all of them.
 		*
 	 */
 	public static function construct(key:String, ?_excludeArray:Array<String> = null, ?noAntialiasing:Bool = false):FlxFramesCollection
@@ -73,7 +73,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 		return frameCollection;
 	}
 
-	@:noCompletion static function getFramesArray(t:SpriteMovieClip, animation:String):Array<FlxFrame>
+	@:noCompletion private static function getFramesArray(t:SpriteMovieClip, animation:String):Array<FlxFrame>
 	{
 		var sizeInfo:Rectangle = new Rectangle(0, 0);
 		t.currentLabel = animation;

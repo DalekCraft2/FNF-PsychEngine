@@ -31,16 +31,13 @@ using StringTools;
 
 class DialogueCharacterEditorState extends MusicBeatState
 {
-	var box:FlxSprite;
-	var daText:Alphabet = null;
-
-	private static var TIP_TEXT_MAIN:String = 'JKLI - Move camera (Hold Shift to move 4x faster)
+	private static final TIP_TEXT_MAIN:String = 'JKLI - Move camera (Hold Shift to move 4x faster)
 	\nQ/E - Zoom out/in
 	\nR - Reset Camera
 	\nH - Toggle Speech Bubble
 	\nSpace - Reset text';
 
-	private static var TIP_TEXT_OFFSET:String = 'JKLI - Move camera (Hold Shift to move 4x faster)
+	private static final TIP_TEXT_OFFSET:String = 'JKLI - Move camera (Hold Shift to move 4x faster)
 	\nQ/E - Zoom out/in
 	\nR - Reset Camera
 	\nH - Toggle Ghosts
@@ -48,22 +45,26 @@ class DialogueCharacterEditorState extends MusicBeatState
 	\nArrow Keys - Move Idle/Finished animation offset (Blue)
 	\nHold Shift to move offsets 10x faster';
 
-	var tipText:FlxText;
-	var offsetLoopText:FlxText;
-	var offsetIdleText:FlxText;
-	var animText:FlxText;
+	private static final DEFAULT_TEXT:String = 'Lorem ipsum dolor sit amet';
 
-	var camGame:FlxCamera;
-	var camOther:FlxCamera;
+	private var box:FlxSprite;
+	private var daText:Alphabet = null;
+	private var tipText:FlxText;
+	private var offsetLoopText:FlxText;
+	private var offsetIdleText:FlxText;
+	private var animText:FlxText;
 
-	var mainGroup:FlxSpriteGroup;
-	var hudGroup:FlxSpriteGroup;
+	private var camGame:FlxCamera;
+	private var camOther:FlxCamera;
 
-	var character:DialogueCharacter;
-	var ghostLoop:DialogueCharacter;
-	var ghostIdle:DialogueCharacter;
+	private var mainGroup:FlxSpriteGroup;
+	private var hudGroup:FlxSpriteGroup;
 
-	var curAnim:Int = 0;
+	private var character:DialogueCharacter;
+	private var ghostLoop:DialogueCharacter;
+	private var ghostIdle:DialogueCharacter;
+
+	private var curAnim:Int = 0;
 
 	override function create():Void
 	{
@@ -156,10 +157,10 @@ class DialogueCharacterEditorState extends MusicBeatState
 		updateCharTypeBox();
 	}
 
-	var UI_typebox:FlxUITabMenu;
-	var UI_mainbox:FlxUITabMenu;
+	private var UI_typebox:FlxUITabMenu;
+	private var UI_mainbox:FlxUITabMenu;
 
-	function addEditorBox():Void
+	private function addEditorBox():Void
 	{
 		var tabs:Array<{name:String, label:String}> = [{name: 'Character Type', label: 'Character Type'},];
 		UI_typebox = new FlxUITabMenu(null, tabs, true);
@@ -188,11 +189,11 @@ class DialogueCharacterEditorState extends MusicBeatState
 		lastTab = UI_mainbox.selected_tab_id;
 	}
 
-	var leftCheckbox:FlxUICheckBox;
-	var centerCheckbox:FlxUICheckBox;
-	var rightCheckbox:FlxUICheckBox;
+	private var leftCheckbox:FlxUICheckBox;
+	private var centerCheckbox:FlxUICheckBox;
+	private var rightCheckbox:FlxUICheckBox;
 
-	function addTypeUI():Void
+	private function addTypeUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_typebox);
 		tab_group.name = "Character Type";
@@ -224,14 +225,14 @@ class DialogueCharacterEditorState extends MusicBeatState
 		UI_typebox.addGroup(tab_group);
 	}
 
-	var curSelectedAnim:String;
-	var animationArray:Array<String> = [];
-	var animationDropDown:FlxUIDropDownMenuCustom;
-	var animationInputText:FlxUIInputText;
-	var loopInputText:FlxUIInputText;
-	var idleInputText:FlxUIInputText;
+	private var curSelectedAnim:String;
+	private var animationArray:Array<String> = [];
+	private var animationDropDown:FlxUIDropDownMenuCustom;
+	private var animationInputText:FlxUIInputText;
+	private var loopInputText:FlxUIInputText;
+	private var idleInputText:FlxUIInputText;
 
-	function addAnimationsUI():Void
+	private function addAnimationsUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_mainbox);
 		tab_group.name = "Animations";
@@ -349,7 +350,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		reloadAnimationsDropDown();
 	}
 
-	function reloadAnimationsDropDown():Void
+	private function reloadAnimationsDropDown():Void
 	{
 		animationArray = [];
 		for (anim in character.jsonFile.animations)
@@ -362,13 +363,13 @@ class DialogueCharacterEditorState extends MusicBeatState
 		animationDropDown.setData(FlxUIDropDownMenuCustom.makeStrIdLabelArray(animationArray, true));
 	}
 
-	var imageInputText:FlxUIInputText;
-	var scaleStepper:FlxUINumericStepper;
-	var xStepper:FlxUINumericStepper;
-	var yStepper:FlxUINumericStepper;
-	var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
+	private var imageInputText:FlxUIInputText;
+	private var scaleStepper:FlxUINumericStepper;
+	private var xStepper:FlxUINumericStepper;
+	private var yStepper:FlxUINumericStepper;
+	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
 
-	function addCharacterUI():Void
+	private function addCharacterUI():Void
 	{
 		var tab_group:FlxUI = new FlxUI(null, UI_mainbox);
 		tab_group.name = "Character";
@@ -415,7 +416,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		UI_mainbox.addGroup(tab_group);
 	}
 
-	function updateCharTypeBox():Void
+	private function updateCharTypeBox():Void
 	{
 		leftCheckbox.checked = false;
 		centerCheckbox.checked = false;
@@ -434,9 +435,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		updateTextBox();
 	}
 
-	private static var DEFAULT_TEXT:String = 'Lorem ipsum dolor sit amet';
-
-	function reloadText():Void
+	private function reloadText():Void
 	{
 		if (daText != null)
 		{
@@ -451,7 +450,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		hudGroup.add(daText);
 	}
 
-	function reloadCharacter():Void
+	private function reloadCharacter():Void
 	{
 		var charsArray:Array<DialogueCharacter> = [character, ghostLoop, ghostIdle];
 		for (char in charsArray)
@@ -496,7 +495,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		#end
 	}
 
-	function updateTextBox():Void
+	private function updateTextBox():Void
 	{
 		box.flipX = false;
 		var anim:String = 'normal';
@@ -537,9 +536,9 @@ class DialogueCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	var currentGhosts:Int = 0;
-	var lastTab:String = 'Character';
-	var transitioning:Bool = false;
+	private var currentGhosts:Int = 0;
+	private var lastTab:String = 'Character';
+	private var transitioning:Bool = false;
 
 	override function update(elapsed:Float):Void
 	{
@@ -577,7 +576,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 				if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && Clipboard.text != null)
 				{ // Copy paste
-					inputText.text = ClipboardAdd(inputText.text);
+					inputText.text = clipboardAdd(inputText.text);
 					inputText.caretIndex = inputText.text.length;
 					getEvent(FlxUIInputText.CHANGE_EVENT, inputText, null, []);
 				}
@@ -806,9 +805,9 @@ class DialogueCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	var _file:FileReference = null;
+	private var _file:FileReference = null;
 
-	function loadCharacter():Void
+	private function loadCharacter():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
 		_file = new FileReference();
@@ -818,7 +817,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		_file.browse([jsonFilter]);
 	}
 
-	function onLoadComplete(_):Void
+	private function onLoadComplete(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -864,7 +863,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onLoadCancel(_):Void
+	private function onLoadCancel(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -876,7 +875,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onLoadError(_):Void
+	private function onLoadError(_):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
@@ -885,7 +884,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		Debug.logError("Problem loading file");
 	}
 
-	function saveCharacter():Void
+	private function saveCharacter():Void
 	{
 		var data:String = Json.stringify(character.jsonFile, "\t");
 		if (data.length > 0)
@@ -901,7 +900,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		}
 	}
 
-	function onSaveComplete(_):Void
+	private function onSaveComplete(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -913,7 +912,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	function onSaveCancel(_):Void
+	private function onSaveCancel(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -924,7 +923,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 	/**
 	 * Called if there is an error while saving the gameplay recording.
 	 */
-	function onSaveError(_):Void
+	private function onSaveError(_):Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
@@ -933,7 +932,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		Debug.logError("Problem saving file");
 	}
 
-	function ClipboardAdd(prefix:String = ''):String
+	private function clipboardAdd(prefix:String = ''):String
 	{
 		if (prefix.toLowerCase().endsWith('v')) // probably copy paste attempt
 		{

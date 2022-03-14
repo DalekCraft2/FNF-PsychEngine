@@ -19,9 +19,9 @@ import options.Options.OptionUtils;
  */
 class HitGraph extends Sprite
 {
-	static inline var AXIS_COLOR:FlxColor = FlxColor.WHITE;
-	static inline var AXIS_ALPHA:Float = 0.5;
-	static inline var HISTORY_MAX:Int = 30;
+	static inline final AXIS_COLOR:FlxColor = FlxColor.WHITE;
+	static inline final AXIS_ALPHA:Float = 0.5;
+	static inline final HISTORY_MAX:Int = 30;
 
 	public var minLabel:TextField;
 	public var curLabel:TextField;

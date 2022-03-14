@@ -38,7 +38,7 @@ class ModsMenuState extends MusicBeatState
 	var needaReset:Bool = false;
 
 	private static var curSelected:Int = 0;
-	public static var defaultColor:FlxColor = 0xFF665AFF;
+	public static final DEFAULT_COLOR:FlxColor = 0xFF665AFF;
 
 	var buttonDown:FlxButton;
 	var buttonTop:FlxButton;
@@ -95,7 +95,7 @@ class ModsMenuState extends MusicBeatState
 				if (leMods.length > 1 && leMods[0].length > 0)
 				{
 					var modSplit:Array<String> = leMods[i].split('|');
-					if (!Paths.ignoreModFolders.contains(modSplit[0].toLowerCase()))
+					if (!Paths.IGNORE_MOD_FOLDERS.contains(modSplit[0].toLowerCase()))
 					{
 						addToModsList([modSplit[0], (modSplit[1] == '1')]);
 						// Debug.logTrace(modSplit[1]);
@@ -110,7 +110,7 @@ class ModsMenuState extends MusicBeatState
 		{
 			for (folder in Paths.getModDirectories())
 			{
-				if (!Paths.ignoreModFolders.contains(folder))
+				if (!Paths.IGNORE_MOD_FOLDERS.contains(folder))
 				{
 					addToModsList([folder, true]); // i like it false by default. -bb //Well, i like it True! -Shadow
 				}
@@ -368,7 +368,7 @@ class ModsMenuState extends MusicBeatState
 			curSelected = 0;
 
 		if (mods.length < 1)
-			bg.color = defaultColor;
+			bg.color = DEFAULT_COLOR;
 		else
 			bg.color = mods[curSelected].color;
 
@@ -756,7 +756,7 @@ class ModMetadata
 		this.folder = folder;
 		this.name = folder;
 		this.description = "No description provided.";
-		this.color = ModsMenuState.defaultColor;
+		this.color = ModsMenuState.DEFAULT_COLOR;
 		this.restart = false;
 
 		#if FEATURE_FILESYSTEM

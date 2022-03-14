@@ -62,7 +62,7 @@ class StrumNote extends FlxSprite
 			loadGraphic(Paths.image('pixelUI/$texture'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 
 			animation.add('purple', [4]);
 			animation.add('blue', [5]);
@@ -130,7 +130,7 @@ class StrumNote extends FlxSprite
 	public function postAddedToGroup():Void
 	{
 		playAnim('static');
-		x += Note.swagWidth * noteData;
+		x += Note.STRUM_WIDTH * noteData;
 		x += 50;
 		x += ((FlxG.width / 2) * player);
 		ID = noteData;
