@@ -131,7 +131,7 @@ class Debug
 	 * @param name
 	 * @param value
 	 */
-	public inline static function quickWatch(name:String, value:Dynamic):Void
+	public static inline function quickWatch(name:String, value:Dynamic):Void
 	{
 		#if debug
 		FlxG.watch.addQuick(name == null ? "QuickWatch" : name, value);
@@ -143,7 +143,7 @@ class Debug
 	 * The Console window already supports most hScript, meaning you can do most things you could already do in Haxe.
 	 		* However, you can also add custom commands using this function.
 	 */
-	public inline static function addConsoleCommand(name:String, callbackFn:Dynamic):Void
+	public static inline function addConsoleCommand(name:String, callbackFn:Dynamic):Void
 	{
 		FlxG.console.registerFunction(name, callbackFn);
 	}
@@ -151,7 +151,7 @@ class Debug
 	/**
 	 * Add an object with a custom alias so that it can be accessed via the console.
 	 */
-	public inline static function addObject(name:String, object:Dynamic):Void
+	public static inline function addObject(name:String, object:Dynamic):Void
 	{
 		FlxG.console.registerObject(name, object);
 	}
@@ -163,7 +163,7 @@ class Debug
 	 * 
 	 * @param obj The object to display.
 	 */
-	public inline static function trackObject(obj:Dynamic):Void
+	public static inline function trackObject(obj:Dynamic):Void
 	{
 		if (obj == null)
 		{
@@ -276,7 +276,7 @@ class Debug
 	 * Defines some commands you can run in the console for easy use of important debugging functions.
 	 * Feel free to add your own!
 	 */
-	inline static function defineConsoleCommands():Void
+	static inline function defineConsoleCommands():Void
 	{
 		// Example: This will display Boyfriend's sprite properties in a debug window.
 		addConsoleCommand("trackBoyfriend", () ->

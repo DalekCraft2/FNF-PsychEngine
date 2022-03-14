@@ -18,7 +18,7 @@ using StringTools;
 
 class LoadingState extends MusicBeatState
 {
-	inline static var MIN_TIME:Float = 1.0;
+	static inline var MIN_TIME:Float = 1.0;
 
 	// Browsers will load create(), you can make your song load a custom directory there
 	// If you're compiling to desktop (or something that doesn't use NO_PRELOAD_ALL), search for getNextState instead
@@ -158,7 +158,7 @@ class LoadingState extends MusicBeatState
 		return Paths.voices(PlayState.song.songId);
 	}
 
-	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false):Void
+	public static inline function loadAndSwitchState(target:FlxState, stopMusic = false):Void
 	{
 		FlxG.switchState(getNextState(target, stopMusic));
 	}

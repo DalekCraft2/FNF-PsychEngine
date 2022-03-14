@@ -1,0 +1,33 @@
+I'm really nitpicky about code conventions.
+https://haxeflixel.com/documentation/code-style/
+
+-Order of keywords: 
+    override
+    public/private
+    static
+    inline
+
+-Order of fields: 
+    variables ( 
+        static fields
+        instance fields (
+            public fields
+            private fields
+        )
+    )
+    properties
+
+-Getters and Setters for properties at the end of class, as they should always be private.
+
+-Comments should only be used when one can not find a way to express something through code
+    My own note on this: Try to not comment out code, because it can become outdated very quickly,
+    and will be unclear to the user whether it is meant to be uncommented optionally.
+    For example, at the time of writing this, the Gitaroo easter egg is commented out in PlayState, but is described as being optional.
+    Try to instead use conditionals in those situations.
+
+-Try to use "final" instead of "var" if the variable is meant to be a constant (in which case, it is by definition not a variable).
+
+-Enum names are always all-uppercase (I do the same with static constants because Java).
+-All other variables must be lowerCamelCase.
+
+Once I find documentation for the hxformat.json file, I'm putting the link in here.

@@ -9,13 +9,13 @@ import flixel.util.FlxSignal.FlxTypedSignal;
 // import props.Player;
 class PlayerSettings
 {
-	static public var numPlayers(default, null):Int = 0;
-	static public var numAvatars(default, null):Int = 0;
-	static public var player1(default, null):PlayerSettings;
-	static public var player2(default, null):PlayerSettings;
+	public static var numPlayers(default, null):Int = 0;
+	public static var numAvatars(default, null):Int = 0;
+	public static var player1(default, null):PlayerSettings;
+	public static var player2(default, null):PlayerSettings;
 
-	static public final onAvatarAdd:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
-	static public final onAvatarRemove:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
+	public static final onAvatarAdd:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
+	public static final onAvatarRemove:FlxTypedSignal<(PlayerSettings) -> Void> = new FlxTypedSignal();
 
 	public var id(default, null):Int;
 
@@ -36,7 +36,7 @@ class PlayerSettings
 	}
 
 	/* 
-		static public function addAvatar(avatar:Player):PlayerSettings
+		public static function addAvatar(avatar:Player):PlayerSettings
 		{
 			var settings:PlayerSettings;
 
@@ -75,7 +75,7 @@ class PlayerSettings
 			return settings;
 		}
 
-		static public function removeAvatar(avatar:Player):Void
+		public static function removeAvatar(avatar:Player):Void
 		{
 			var settings:PlayerSettings;
 
@@ -106,7 +106,7 @@ class PlayerSettings
 		}
 
 	 */
-	static public function init():Void
+	public static function init():Void
 	{
 		if (player1 == null)
 		{
@@ -142,7 +142,7 @@ class PlayerSettings
 		// DeviceManager.init();
 	}
 
-	static public function reset():Void
+	public static function reset():Void
 	{
 		player1 = null;
 		player2 = null;

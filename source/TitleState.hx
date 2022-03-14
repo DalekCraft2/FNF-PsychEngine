@@ -78,6 +78,7 @@ class TitleState extends MusicBeatState
 
 		// Debug.logTrace(path, FileSystem.exists(path));
 
+		// TODO Try to switch to Polymod because I am so sick of this custom asset system.
 		/*#if (polymod && !html5)
 			if (FileSystem.exists('mods/')) {
 				var folders:Array<String> = [];

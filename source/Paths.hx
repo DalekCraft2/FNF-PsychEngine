@@ -20,8 +20,8 @@ using StringTools;
 
 class Paths
 {
-	inline public static var SOUND_EXT:String = #if web "mp3" #else "ogg" #end;
-	inline public static var VIDEO_EXT:String = "mp4";
+	public static inline final SOUND_EXT:String = #if web "mp3" #else "ogg" #end;
+	public static inline final VIDEO_EXT:String = "mp4";
 
 	#if FEATURE_MODS
 	public static var ignoreModFolders:Array<String> = [
@@ -99,10 +99,10 @@ class Paths
 		Assets.cache.clear("songs");
 	}
 
-	static public var currentModDirectory:String = '';
-	static public var currentLevel:String;
+	public static var currentModDirectory:String = '';
+	public static var currentLevel:String;
 
-	static public function setCurrentLevel(name:String):Void
+	public static function setCurrentLevel(name:String):Void
 	{
 		currentLevel = name.toLowerCase();
 	}
@@ -130,7 +130,7 @@ class Paths
 		return getPreloadPath(file);
 	}
 
-	static public function loadJson(key:String, ?library:String):Dynamic
+	public static function loadJson(key:String, ?library:String):Dynamic
 	{
 		var rawJson:String = null;
 
@@ -174,57 +174,57 @@ class Paths
 		}
 	}
 
-	static public function getLibraryPath(file:String, library = "preload"):String
+	public static function getLibraryPath(file:String, library = "preload"):String
 	{
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
 	}
 
-	inline static function getLibraryPathForce(file:String, library:String):String
+	static inline function getLibraryPathForce(file:String, library:String):String
 	{
 		return '$library:assets/$library/$file';
 	}
 
-	inline public static function getPreloadPath(file:String = ''):String
+	public static inline function getPreloadPath(file:String = ''):String
 	{
 		return 'assets/$file';
 	}
 
-	inline static public function file(file:String, type:AssetType = TEXT, ?library:String):String
+	public static inline function file(file:String, type:AssetType = TEXT, ?library:String):String
 	{
 		return getPath(file, type, library);
 	}
 
-	inline static public function txt(key:String, ?library:String):String
+	public static inline function txt(key:String, ?library:String):String
 	{
 		return getPath('data/$key.txt', TEXT, library);
 	}
 
-	inline static public function xml(key:String, ?library:String):String
+	public static inline function xml(key:String, ?library:String):String
 	{
 		return getPath('data/$key.xml', TEXT, library);
 	}
 
-	inline static public function json(key:String, ?library:String):String
+	public static inline function json(key:String, ?library:String):String
 	{
 		return getPath('data/$key.json', TEXT, library);
 	}
 
-	inline static public function shaderFragment(key:String, ?library:String):String
+	public static inline function shaderFragment(key:String, ?library:String):String
 	{
 		return getPath('shaders/$key.frag', TEXT, library);
 	}
 
-	inline static public function shaderVertex(key:String, ?library:String):String
+	public static inline function shaderVertex(key:String, ?library:String):String
 	{
 		return getPath('shaders/$key.vert', TEXT, library);
 	}
 
-	inline static public function lua(key:String, ?library:String):String
+	public static inline function lua(key:String, ?library:String):String
 	{
 		return getPath('$key.lua', TEXT, library);
 	}
 
-	static public function video(key:String):String
+	public static function video(key:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsVideo(key);
@@ -237,42 +237,42 @@ class Paths
 	}
 
 	// Whose idea was it to make the sound and music methods return actual sound objects instead of paths like almost every other method?
-	static public function sound(key:String, ?library:String):FlxSoundAsset
+	public static function sound(key:String, ?library:String):FlxSoundAsset
 	{
 		// return getPath('sounds/$key.$SOUND_EXT', SOUND, library);
 		return returnSound('sounds', key, library);
 	}
 
-	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
+	public static inline function soundRandom(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
 	{
 		return returnSound('$key${FlxG.random.int(min, max)}', library);
 	}
 
-	inline static public function music(key:String, ?library:String):FlxSoundAsset
+	public static inline function music(key:String, ?library:String):FlxSoundAsset
 	{
 		// return getPath('music/$key.$SOUND_EXT', MUSIC, library);
 		return returnSound('music', key, library);
 	}
 
-	inline static public function voices(song:String):FlxSoundAsset
+	public static inline function voices(song:String):FlxSoundAsset
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		return returnSound('songs', songKey);
 	}
 
-	inline static public function inst(song:String):FlxSoundAsset
+	public static inline function inst(song:String):FlxSoundAsset
 	{
 		var songKey:String = '${formatToSongPath(song)}/Inst';
 		return returnSound('songs', songKey);
 	}
 
-	inline static public function image(key:String, ?library:String):FlxGraphic
+	public static inline function image(key:String, ?library:String):FlxGraphic
 	{
 		// streamlined the assets process more
 		return returnGraphic(key, library);
 	}
 
-	static public function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
+	public static function getTextFromFile(key:String, ?ignoreMods:Bool = false):String
 	{
 		#if FEATURE_FILESYSTEM
 		#if FEATURE_MODS
@@ -301,7 +301,7 @@ class Paths
 		return Assets.getText(getPath(key, TEXT));
 	}
 
-	inline static public function font(key:String):String
+	public static inline function font(key:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsFont(key);
@@ -313,7 +313,7 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String):Bool
+	public static inline function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String):Bool
 	{
 		#if FEATURE_MODS
 		if (FileSystem.exists(mods('$currentModDirectory/$key')) || FileSystem.exists(mods(key)))
@@ -329,7 +329,7 @@ class Paths
 		return false;
 	}
 
-	inline static public function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
+	public static inline function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if FEATURE_MODS
 		var imageLoaded:FlxGraphic = returnGraphic(key);
@@ -346,7 +346,7 @@ class Paths
 		#end
 	}
 
-	inline static public function getPackerAtlas(key:String, ?library:String):FlxAtlasFrames
+	public static inline function getPackerAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if FEATURE_MODS
 		var imageLoaded:FlxGraphic = returnGraphic(key);
@@ -363,7 +363,7 @@ class Paths
 		#end
 	}
 
-	inline static public function formatToSongPath(path:String):String
+	public static inline function formatToSongPath(path:String):String
 	{
 		return path.toLowerCase().replace(' ', '-');
 	}
@@ -438,57 +438,57 @@ class Paths
 	}
 
 	#if FEATURE_MODS
-	inline static public function mods(key:String = ''):String
+	public static inline function mods(key:String = ''):String
 	{
 		return 'mods/$key';
 	}
 
-	inline static public function modsFont(key:String):String
+	public static inline function modsFont(key:String):String
 	{
 		return modFolders('fonts/$key');
 	}
 
-	inline static public function modsJson(key:String):String
+	public static inline function modsJson(key:String):String
 	{
 		return modFolders('data/$key.json');
 	}
 
-	inline static public function modsVideo(key:String):String
+	public static inline function modsVideo(key:String):String
 	{
 		return modFolders('videos/$key.$VIDEO_EXT');
 	}
 
-	inline static public function modsSounds(path:String, key:String):String
+	public static inline function modsSounds(path:String, key:String):String
 	{
 		return modFolders('$path/$key.$SOUND_EXT');
 	}
 
-	inline static public function modsImages(key:String):String
+	public static inline function modsImages(key:String):String
 	{
 		return modFolders('images/$key.png');
 	}
 
-	inline static public function modsXml(key:String):String
+	public static inline function modsXml(key:String):String
 	{
 		return modFolders('images/$key.xml');
 	}
 
-	inline static public function modsTxt(key:String):String
+	public static inline function modsTxt(key:String):String
 	{
 		return modFolders('images/$key.txt');
 	}
 
-	inline static public function modsShaderFragment(key:String):String
+	public static inline function modsShaderFragment(key:String):String
 	{
 		return modFolders('shaders/$key.frag');
 	}
 
-	inline static public function modsShaderVertex(key:String):String
+	public static inline function modsShaderVertex(key:String):String
 	{
 		return modFolders('shaders/$key.vert');
 	}
 
-	static public function modFolders(key:String):String
+	public static function modFolders(key:String):String
 	{
 		if (currentModDirectory != null && currentModDirectory.length > 0)
 		{
@@ -501,7 +501,7 @@ class Paths
 		return 'mods/$key';
 	}
 
-	static public function getModDirectories():Array<String>
+	public static function getModDirectories():Array<String>
 	{
 		var list:Array<String> = [];
 		var modsFolder:String = mods();

@@ -67,7 +67,7 @@ class StateOption extends Option
 		this.name = name;
 	}
 
-	public override function accept():Bool
+	override public function accept():Bool
 	{
 		FlxG.switchState(state);
 		return false;
@@ -168,7 +168,7 @@ class BooleanOption extends Option
 		add(checkbox);
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (text == null)
 		{
@@ -186,7 +186,7 @@ class BooleanOption extends Option
 		return text;
 	}
 
-	public override function accept():Bool
+	override public function accept():Bool
 	{
 		Reflect.setField(OptionUtils.options, property, !Reflect.field(OptionUtils.options, property));
 		checkbox.changeState(Reflect.field(OptionUtils.options, property));
@@ -220,7 +220,7 @@ class IntegerOption extends Option
 		name = prefix + " " + Std.string(value) + " " + suffix;
 	}
 
-	public override function left():Bool
+	override public function left():Bool
 	{
 		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) - 1);
 
@@ -234,7 +234,7 @@ class IntegerOption extends Option
 		return true;
 	}
 
-	public override function right():Bool
+	override public function right():Bool
 	{
 		var value:Int = Std.int(Reflect.field(OptionUtils.options, property) + 1);
 
@@ -353,7 +353,7 @@ class FloatOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		Debug.logTrace('createOptionText($curSelected, $optionText)');
 		if (labelAlphabet == null || text == null)
@@ -384,7 +384,7 @@ class FloatOption extends Option
 		text.changeText(name);
 	}
 
-	public override function left():Bool
+	override public function left():Bool
 	{
 		Debug.logTrace('left()');
 		var value:Float = Reflect.field(OptionUtils.options, property) - step;
@@ -406,7 +406,7 @@ class FloatOption extends Option
 		return true;
 	}
 
-	public override function right():Bool
+	override public function right():Bool
 	{
 		Debug.logTrace('right()');
 		var value:Float = Reflect.field(OptionUtils.options, property) + step;
@@ -519,7 +519,7 @@ class StringOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (labelAlphabet == null || text == null)
 		{
@@ -544,7 +544,7 @@ class StringOption extends Option
 		return text;
 	}
 
-	public override function left():Bool
+	override public function left():Bool
 	{
 		var value:String = Std.string(Reflect.field(OptionUtils.options, property));
 		var index:Int = names.indexOf(value) - 1;
@@ -573,7 +573,7 @@ class StringOption extends Option
 		return true;
 	}
 
-	public override function right():Bool
+	override public function right():Bool
 	{
 		var value:String = Std.string(Reflect.field(OptionUtils.options, property));
 		var index:Int = names.indexOf(value) + 1;
@@ -714,7 +714,7 @@ class JudgementsOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (labelAlphabet == null || text == null)
 		{
@@ -739,7 +739,7 @@ class JudgementsOption extends Option
 		return text;
 	}
 
-	public override function left():Bool
+	override public function left():Bool
 	{
 		var value:Int = curValue - 1;
 
@@ -756,7 +756,7 @@ class JudgementsOption extends Option
 		return true;
 	}
 
-	public override function right():Bool
+	override public function right():Bool
 	{
 		var value:Int = curValue + 1;
 
@@ -873,7 +873,7 @@ class JudgementsOption extends Option
 		rightArrow.y = text.y - 10;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		remove(text);
 		remove(labelAlphabet);
@@ -888,7 +888,7 @@ class JudgementsOption extends Option
 		return text;
 	}
 
-	public override function left():Bool
+	override public function left():Bool
 	{
 		var value:Int = curValue - 1;
 		if (value < 0)
@@ -902,7 +902,7 @@ class JudgementsOption extends Option
 		return true;
 	}
 
-	public override function right():Bool
+	override public function right():Bool
 	{
 		var value:Int = curValue + 1;
 		if (value < 0)
@@ -940,7 +940,7 @@ class ControlOption extends Option
 		name = '${controlType.toUpperCase()} : ${OptionUtils.getKey(controlType)[0].toString()}';
 	}
 
-	public override function keyPressed(pressed:FlxKey):Bool
+	override public function keyPressed(pressed:FlxKey):Bool
 	{
 		for (k in OptionUtils.shit)
 		{
@@ -963,7 +963,7 @@ class ControlOption extends Option
 		return true;
 	}
 
-	public override function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
+	override public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		if (text == null)
 		{
@@ -979,7 +979,7 @@ class ControlOption extends Option
 		return text;
 	}
 
-	public override function accept():Bool
+	override public function accept():Bool
 	{
 		controls.setKeyboardScheme(NONE, true);
 		allowMultiKeyInput = true;

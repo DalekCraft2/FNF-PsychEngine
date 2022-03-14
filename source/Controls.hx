@@ -296,7 +296,6 @@ class Controls extends FlxActionSet
 		setKeyboardScheme(scheme, false);
 	}
 
-	// inline
 	public function checkByName(name:Action):Bool
 	{
 		#if debug
@@ -448,7 +447,7 @@ class Controls extends FlxActionSet
 		}
 	}
 
-	inline public function copyTo(controls:Controls, ?device:Device):Void
+	public inline function copyTo(controls:Controls, ?device:Device):Void
 	{
 		controls.copyFrom(this, device);
 	}
@@ -499,7 +498,7 @@ class Controls extends FlxActionSet
 		inline forEachBound(control, (action, _) -> removeKeys(action, copyKeys));
 	}
 
-	inline static function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState):Void
+	static inline function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState):Void
 	{
 		for (key in keys)
 			if (key != NONE)
@@ -684,7 +683,7 @@ class Controls extends FlxActionSet
 		inline forEachBound(control, (action, _) -> removeButtons(action, gamepadID, buttons));
 	}
 
-	inline static function addButtons(action:FlxActionDigital, buttons:Array<FlxGamepadInputID>, state, id):Void
+	static inline function addButtons(action:FlxActionDigital, buttons:Array<FlxGamepadInputID>, state, id):Void
 	{
 		for (button in buttons)
 			action.addGamepad(button, state, id);
@@ -744,7 +743,7 @@ class Controls extends FlxActionSet
 		}
 	}
 
-	inline static function isGamepad(input:FlxActionInput, deviceID:Int):Bool
+	static inline function isGamepad(input:FlxActionInput, deviceID:Int):Bool
 	{
 		return input.device == GAMEPAD && (deviceID == FlxInputDeviceID.ALL || input.deviceID == deviceID);
 	}

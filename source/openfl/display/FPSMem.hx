@@ -80,8 +80,9 @@ class FPSMem extends TextField
 	}
 
 	// Event Handlers
+
 	@:noCompletion
-	private #if !flash override #end function __enterFrame(d:Float):Void
+	override private function __enterFrame(d:Float):Void
 	{
 		// TODO Can I add a super.__enterFrame(d) call here?
 		// super.__enterFrame(d);

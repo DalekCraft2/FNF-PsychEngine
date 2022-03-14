@@ -14,7 +14,6 @@ import openfl.events.Event;
 import openfl.geom.Rectangle;
 
 /**
- * ...
  * @author Tommy S
  */
 @:cppFileCode('#include "LibVLC.cpp"')
@@ -85,14 +84,14 @@ class VlcBitmap extends Bitmap
 		init();
 	}
 
-	function mThread()
+	function mThread():Void
 	{
 		init();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function init()
+	function init():Void
 	{
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}
@@ -108,7 +107,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	public function play(?source:String)
+	public function play(?source:String):Void
 	{
 		libvlc.setRepeat(repeat);
 
@@ -133,7 +132,7 @@ class VlcBitmap extends Bitmap
 			onPlay();
 	}
 
-	public function stop()
+	public function stop():Void
 	{
 		isPlaying = false;
 		libvlc.stop();
@@ -144,7 +143,7 @@ class VlcBitmap extends Bitmap
 			onStop();
 	}
 
-	public function pause()
+	public function pause():Void
 	{
 		isPlaying = false;
 		libvlc.pause();
@@ -152,7 +151,7 @@ class VlcBitmap extends Bitmap
 			onPause();
 	}
 
-	public function resume()
+	public function resume():Void
 	{
 		isPlaying = true;
 		libvlc.resume();
@@ -160,7 +159,7 @@ class VlcBitmap extends Bitmap
 			onResume();
 	}
 
-	public function seek(seekTotime:Float)
+	public function seek(seekTotime:Float):Void
 	{
 		libvlc.setPosition(seekTotime);
 		if (onSeek != null)
@@ -185,7 +184,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function checkFlags()
+	function checkFlags():Void
 	{
 		if (!isDisposed)
 		{
@@ -260,7 +259,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function videoInitComplete()
+	function videoInitComplete():Void
 	{
 		videoWidth = libvlc.getWidth();
 		videoHeight = libvlc.getHeight();
@@ -309,7 +308,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function vLoop(e)
+	function vLoop(e):Void
 	{
 		checkFlags();
 		render();
@@ -317,9 +316,9 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function render()
+	function render():Void
 	{
-		var cTime = Lib.getTimer();
+		var cTime:Int = Lib.getTimer();
 
 		if ((cTime - oldTime) > 8.3) // min 8.3 ms between renders, but this is not a good way to do it...
 		{
@@ -355,7 +354,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function setVolume(vol:Float)
+	function setVolume(vol:Float):Void
 	{
 		if (libvlc != null && initComplete)
 			libvlc.setVolume(vol * 100);
@@ -371,13 +370,13 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function statusOnOpening()
+	function statusOnOpening():Void
 	{
 		if (onOpening != null)
 			onOpening();
 	}
 
-	function statusOnBuffering()
+	function statusOnBuffering():Void
 	{
 		Debug.logTrace("buffering");
 
@@ -385,7 +384,7 @@ class VlcBitmap extends Bitmap
 			onBuffer();
 	}
 
-	function statusOnPlaying()
+	function statusOnPlaying():Void
 	{
 		if (!initComplete)
 		{
@@ -395,7 +394,7 @@ class VlcBitmap extends Bitmap
 		}
 	}
 
-	function statusOnPaused()
+	function statusOnPaused():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
@@ -404,7 +403,7 @@ class VlcBitmap extends Bitmap
 			onPause();
 	}
 
-	function statusOnStopped()
+	function statusOnStopped():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
@@ -413,7 +412,7 @@ class VlcBitmap extends Bitmap
 			onStop();
 	}
 
-	function statusOnEndReached()
+	function statusOnEndReached():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
@@ -423,37 +422,37 @@ class VlcBitmap extends Bitmap
 			onComplete();
 	}
 
-	function statusOnTimeChanged(newTime:Int)
+	function statusOnTimeChanged(newTime:Int):Void
 	{
 		time = newTime;
 		if (onProgress != null)
 			onProgress();
 	}
 
-	function statusOnPositionChanged(newPos:Int)
+	function statusOnPositionChanged(newPos:Int):Void
 	{
 	}
 
-	function statusOnSeekableChanged(newPos:Int)
+	function statusOnSeekableChanged(newPos:Int):Void
 	{
 		if (onSeek != null)
 			onSeek();
 	}
 
-	function statusOnForward()
+	function statusOnForward():Void
 	{
 	}
 
-	function statusOnBackward()
+	function statusOnBackward():Void
 	{
 	}
 
-	function onDisplay()
+	function onDisplay():Void
 	{
 		// render();
 	}
 
-	function statusOnError()
+	function statusOnError():Void
 	{
 		Debug.logError("VLC ERROR - File not found?");
 
@@ -463,23 +462,23 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	private override function get_width():Float
+	override private function get_width():Float
 	{
 		return _width;
 	}
 
-	public override function set_width(value:Float):Float
+	override public function set_width(value:Float):Float
 	{
 		_width = value;
 		return super.set_width(value);
 	}
 
-	private override function get_height():Float
+	override private function get_height():Float
 	{
 		return _height;
 	}
 
-	public override function set_height(value:Float):Float
+	override public function set_height(value:Float):Float
 	{
 		_height = value;
 		return super.set_height(value);
@@ -500,7 +499,7 @@ class VlcBitmap extends Bitmap
 	// Dispose
 	//-----------------------------------------------------------------------------------
 
-	public function dispose()
+	public function dispose():Void
 	{
 		libvlc.stop();
 
