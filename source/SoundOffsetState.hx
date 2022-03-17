@@ -7,7 +7,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 import options.OptionsState;
 
 // TODO: turn this into a chart thing
@@ -17,7 +16,7 @@ class SoundOffsetState extends MusicBeatState
 	public var status:FlxText;
 	public var beatCounter:Float = 0;
 	public var beatCounts:Array<Float> = [];
-	public var currOffset:Int = OptionUtils.options.noteOffset;
+	public var currOffset:Int = Options.save.data.noteOffset;
 	public var offsetTxt:FlxText;
 	public var metronome:Character;
 
@@ -116,7 +115,7 @@ class SoundOffsetState extends MusicBeatState
 			playingAudio = !playingAudio;
 			if (playingAudio == false)
 			{
-				OptionUtils.options.noteOffset = currOffset;
+				Options.save.data.noteOffset = currOffset;
 			}
 		}
 
@@ -140,8 +139,8 @@ class SoundOffsetState extends MusicBeatState
 		}
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
-			OptionUtils.options.noteOffset = currOffset;
-			OptionUtils.saveOptions(OptionUtils.options);
+			Options.save.data.noteOffset = currOffset;
+			EngineData.saveOptions();
 			FlxG.switchState(new OptionsState());
 		}
 

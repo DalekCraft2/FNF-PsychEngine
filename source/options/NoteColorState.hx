@@ -4,9 +4,8 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 
-class NotesState extends MusicBeatState
+class NoteColorState extends MusicBeatState
 {
 	private static var curSelected:Int = 0;
 	private static var typeSelected:Int = 0;
@@ -45,7 +44,7 @@ class NotesState extends MusicBeatState
 			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 			bg.color = 0xFFea71fd;
 			bg.screenCenter();
-			bg.antialiasing = OptionUtils.options.globalAntialiasing;
+			bg.antialiasing = Options.save.data.globalAntialiasing;
 			add(bg);
 		}
 
@@ -58,15 +57,15 @@ class NotesState extends MusicBeatState
 		grpNumbers = new FlxTypedGroup();
 		add(grpNumbers);
 
-		if (OptionUtils.options.arrowHSV == null)
-			OptionUtils.options.arrowHSV = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+		if (Options.save.data.arrowHSV == null)
+			Options.save.data.arrowHSV = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
 
-		for (i in 0...OptionUtils.options.arrowHSV.length)
+		for (i in 0...Options.save.data.arrowHSV.length)
 		{
 			var yPos:Float = (165 * i) + 35;
 			for (j in 0...3)
 			{
-				var optionText:Alphabet = new Alphabet(0, yPos + 60, Std.string(OptionUtils.options.arrowHSV[i][j]), true);
+				var optionText:Alphabet = new Alphabet(0, yPos + 60, Std.string(Options.save.data.arrowHSV[i][j]), true);
 				optionText.x = posX + (225 * j) + 250;
 				grpNumbers.add(optionText);
 			}
@@ -76,14 +75,14 @@ class NotesState extends MusicBeatState
 			var animations:Array<String> = ['purple', 'blue', 'green', 'red'];
 			note.animation.addByPrefix('idle', animations[i] + ' alone');
 			note.animation.play('idle');
-			note.antialiasing = OptionUtils.options.globalAntialiasing;
+			note.antialiasing = Options.save.data.globalAntialiasing;
 			grpNotes.add(note);
 
 			var newShader:ColorSwap = new ColorSwap();
 			note.shader = newShader.shader;
-			newShader.hue = OptionUtils.options.arrowHSV[i][0] / 360;
-			newShader.saturation = OptionUtils.options.arrowHSV[i][1] / 100;
-			newShader.brightness = OptionUtils.options.arrowHSV[i][2] / 100;
+			newShader.hue = Options.save.data.arrowHSV[i][0] / 360;
+			newShader.saturation = Options.save.data.arrowHSV[i][1] / 100;
+			newShader.brightness = Options.save.data.arrowHSV[i][2] / 100;
 			shaderArray.push(newShader);
 		}
 
@@ -210,7 +209,7 @@ class NotesState extends MusicBeatState
 		{
 			if (!changingNote)
 			{
-				OptionUtils.saveOptions(OptionUtils.options);
+				Options.saveOptions();
 				FlxG.switchState(new OptionsState());
 			}
 			else
@@ -231,11 +230,11 @@ class NotesState extends MusicBeatState
 	{
 		curSelected += change;
 		if (curSelected < 0)
-			curSelected = cast(OptionUtils.options.arrowHSV.length, Int) - 1;
-		if (curSelected >= OptionUtils.options.arrowHSV.length)
+			curSelected = cast(Options.save.data.arrowHSV.length, Int) - 1;
+		if (curSelected >= Options.save.data.arrowHSV.length)
 			curSelected = 0;
 
-		curValue = OptionUtils.options.arrowHSV[curSelected][typeSelected];
+		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();
 
 		for (i in 0...grpNumbers.length)
@@ -271,7 +270,7 @@ class NotesState extends MusicBeatState
 		if (typeSelected > 2)
 			typeSelected = 0;
 
-		curValue = OptionUtils.options.arrowHSV[curSelected][typeSelected];
+		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();
 
 		for (i in 0...grpNumbers.length)
@@ -288,7 +287,7 @@ class NotesState extends MusicBeatState
 	private function resetValue(selected:Int, type:Int):Void
 	{
 		curValue = 0;
-		OptionUtils.options.arrowHSV[selected][type] = 0;
+		Options.save.data.arrowHSV[selected][type] = 0;
 		switch (type)
 		{
 			case 0:
@@ -324,7 +323,7 @@ class NotesState extends MusicBeatState
 			curValue = max;
 		}
 		roundedValue = Math.round(curValue);
-		OptionUtils.options.arrowHSV[curSelected][typeSelected] = roundedValue;
+		Options.save.data.arrowHSV[curSelected][typeSelected] = roundedValue;
 
 		switch (typeSelected)
 		{

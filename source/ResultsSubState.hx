@@ -10,7 +10,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import openfl.display.BitmapData;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -80,7 +79,7 @@ class ResultsSubState extends FlxSubState
 		comboText.scrollFactor.set();
 		add(comboText);
 
-		contText = new FlxText(FlxG.width - 475, FlxG.height + 50, 0, 'Press ${OptionUtils.options.controllerMode ? 'A' : 'ENTER'} to continue.');
+		contText = new FlxText(FlxG.width - 475, FlxG.height + 50, 0, 'Press ${Options.save.data.controllerMode ? 'A' : 'ENTER'} to continue.');
 		contText.size = 28;
 		contText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		contText.color = FlxColor.WHITE;

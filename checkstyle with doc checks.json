@@ -1,0 +1,316 @@
+{
+    "defaultSeverity": "INFO",
+    "checks": [
+        {
+            "type": "Anonymous"
+        },
+        {
+            "type": "ArrayAccess",
+            "props": {
+                "spaceBefore": false,
+                "spaceInside": false
+            }
+        },
+        {
+            "type": "ArrowFunction",
+            "props": {}
+        },
+        {
+            "type": "AvoidIdentifier",
+            "props": {}
+        },
+        {
+            "type": "AvoidStarImport"
+        },
+        {
+            "type": "BlockBreakingConditional"
+        },
+        {
+            "type": "CatchParameterName",
+            "props": {}
+        },
+        {
+            "type": "CodeSimilarity",
+            "props": {}
+        },
+        {
+            "type": "ConditionalCompilation",
+            "props": {
+                "allowSingleline": true
+            }
+        },
+        {
+            "type": "ConstantName",
+            "props": {}
+        },
+        {
+            "type": "CyclomaticComplexity",
+            "props": {}
+        },
+        {
+            "type": "DefaultComesLast"
+        },
+        {
+            "type": "DocCommentStyle",
+            "props": {}
+        },
+        {
+            "type": "Dynamic"
+        },
+        {
+            "type": "EmptyBlock",
+            "props": {
+                "option": "stmt"
+            }
+        },
+        {
+            "type": "EmptyLines",
+            "props": {
+                "requireEmptyLineAfterPackage": true
+            }
+        },
+        {
+            "type": "EmptyPackage",
+            "props": {
+                "enforceEmptyPackage": true
+            }
+        },
+        {
+            "type": "EnforceVarTypeHint",
+            "props": {
+                "ignoreEnumAbstractValues": false
+            }
+        },
+        {
+            "type": "ExtendedEmptyLines",
+            "props": {}
+        },
+        {
+            "type": "FieldDocComment",
+            "props": {}
+        },
+        {
+            "type": "FileLength",
+            "props": {}
+        },
+        {
+            "type": "Final"
+        },
+        {
+            "type": "HexadecimalLiteral",
+            "props": {
+                "option": "upperCase"
+            }
+        },
+        {
+            "type": "HiddenField",
+            "props": {
+                "ignoreConstructorParameter": true,
+                "ignoreSetter": true
+            }
+        },
+        {
+            "type": "Indentation",
+            "props": {
+                "character": "tab"
+            }
+        },
+        {
+            "type": "IndentationCharacter",
+            "props": {
+                "character": "tab"
+            }
+        },
+        {
+            "type": "InnerAssignment",
+            "props": {
+                "ignoreReturnAssignments": false
+            }
+        },
+        {
+            "type": "LeftCurly",
+            "props": {
+                "option": "nl"
+            }
+        },
+        {
+            "type": "ListenerName",
+            "props": {}
+        },
+        {
+            "type": "LocalVariableName",
+            "props": {}
+        },
+        {
+            "type": "MagicNumber",
+            "props": {}
+        },
+        {
+            "type": "MemberName",
+            "props": {}
+        },
+        {
+            "type": "MethodCount",
+            "props": {}
+        },
+        {
+            "type": "MethodLength",
+            "props": {}
+        },
+        {
+            "type": "MethodName",
+            "props": {}
+        },
+        {
+            "type": "ModifierOrder",
+            "props": {}
+        },
+        {
+            "type": "MultipleStringLiterals",
+            "props": {}
+        },
+        {
+            "type": "MultipleVariableDeclarations",
+            "props": {}
+        },
+        {
+            "type": "NeedBraces",
+            "props": {
+                "allowSingleLineStatement": true
+            }
+        },
+        {
+            "type": "NestedControlFlow",
+            "props": {}
+        },
+        {
+            "type": "NullableParameter",
+            "props": {
+                "option": "questionMark"
+            }
+        },
+        {
+            "type": "OperatorWhitespace",
+            "props": {}
+        },
+        {
+            "type": "ParameterName",
+            "props": {}
+        },
+        {
+            "type": "ParameterNumber",
+            "props": {}
+        },
+        {
+            "type": "PublicAccessor"
+        },
+        {
+            "type": "RedundantAccessMeta",
+            "props": {
+                "prohibitMeta": true
+            }
+        },
+        {
+            "type": "RedundantAllowMeta",
+            "props": {
+                "prohibitMeta": true
+            }
+        },
+        {
+            "type": "RedundantModifier",
+            "props": {
+                "enforcePrivate": true,
+                "enforcePublic": true,
+                "enforcePublicPrivate": true
+            }
+        },
+        {
+            "type": "Return",
+            "props": {
+                "enforceReturnType": true
+            }
+        },
+        {
+            "type": "RightCurly",
+            "props": {
+                "option": "alone"
+            }
+        },
+        {
+            "type": "SeparatorWhitespace",
+            "props": {}
+        },
+        {
+            "type": "SeparatorWrap",
+            "props": {}
+        },
+        {
+            "type": "SimplifyBooleanExpression"
+        },
+        {
+            "type": "SimplifyBooleanReturn"
+        },
+        {
+            "type": "Spacing",
+            "props": {}
+        },
+        {
+            "type": "StringLiteral",
+            "props": {
+                "policy": "onlySingle"
+            }
+        },
+        {
+            "type": "TabForAligning",
+            "props": {}
+        },
+        {
+            "type": "TODOComment",
+            "props": {
+                "format": "TODO|FIXME|XXX",
+                "severity": "INFO"
+            }
+        },
+        {
+            "type": "Trace",
+            "props": {
+                "severity": "INFO"
+            }
+        },
+        {
+            "type": "TrailingWhitespace"
+        },
+        {
+            "type": "Type",
+            "props": {
+                "ignoreEnumAbstractValues": false
+            }
+        },
+        {
+            "type": "TypeDocComment",
+            "props": {}
+        },
+        {
+            "type": "TypeName",
+            "props": {}
+        },
+        {
+            "type": "UnnecessaryConstructor"
+        },
+        {
+            "type": "UnusedImport",
+            "props": {}
+        },
+        {
+            "type": "UnusedLocalVar"
+        },
+        {
+            "type": "WhitespaceAfter",
+            "props": {}
+        },
+        {
+            "type": "WhitespaceAround",
+            "props": {}
+        }
+    ]
+}

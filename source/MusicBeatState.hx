@@ -1,9 +1,9 @@
 package;
 
+import flixel.addons.transition.FlxTransitionableState;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIState;
-import options.Options.OptionUtils;
 
 class MusicBeatState extends FlxUIState
 {
@@ -17,6 +17,14 @@ class MusicBeatState extends FlxUIState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
+
+	override public function create():Void
+	{
+		super.create();
+
+		transIn = FlxTransitionableState.defaultTransIn;
+		transOut = FlxTransitionableState.defaultTransOut;
+	}
 
 	#if (FEATURE_VIDEOS && windows)
 	override public function onFocus():Void
@@ -68,7 +76,7 @@ class MusicBeatState extends FlxUIState
 				lastChange = Conductor.bpmChangeMap[i];
 		}
 
-		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - OptionUtils.options.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
+		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
 	public function stepHit():Void

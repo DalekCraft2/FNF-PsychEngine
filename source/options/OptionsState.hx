@@ -2,9 +2,8 @@ package options;
 
 import flixel.FlxSprite;
 import flixel.addons.transition.FlxTransitionableState;
-import options.Options.OptionUtils;
 
-// FIXME Transition to this menu has no fade-in
+// FIXME The transition to this menu has no fade-in
 class OptionsState extends MusicBeatState
 {
 	override function create():Void
@@ -19,7 +18,7 @@ class OptionsState extends MusicBeatState
 		bg.color = 0xFFEA71FD;
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
+		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 
 		openSubState(new OptionsSubState());

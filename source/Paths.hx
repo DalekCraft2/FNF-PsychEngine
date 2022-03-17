@@ -104,6 +104,7 @@ class Paths
 
 	public static function setCurrentLevel(name:String):Void
 	{
+		Debug.logTrace('Setting asset folder to $name');
 		currentLevel = name.toLowerCase();
 	}
 
@@ -224,7 +225,7 @@ class Paths
 		return getPath('$key.lua', TEXT, library);
 	}
 
-	public static function video(key:String):String
+	public static function video(key:String, ?library:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsVideo(key);
@@ -234,6 +235,7 @@ class Paths
 		}
 		#end
 		return 'assets/videos/$key.$VIDEO_EXT';
+		// return getPath('videos/$key.$VIDEO_EXT', BINARY, library);
 	}
 
 	// Whose idea was it to make the sound and music methods return actual sound objects instead of paths like almost every other method?
@@ -268,7 +270,6 @@ class Paths
 
 	public static inline function image(key:String, ?library:String):FlxGraphic
 	{
-		// streamlined the assets process more
 		return returnGraphic(key, library);
 	}
 
@@ -301,7 +302,7 @@ class Paths
 		return Assets.getText(getPath(key, TEXT));
 	}
 
-	public static inline function font(key:String):String
+	public static inline function font(key:String, ?library:String):String
 	{
 		#if FEATURE_MODS
 		var file:String = modsFont(key);
@@ -311,6 +312,7 @@ class Paths
 		}
 		#end
 		return 'assets/fonts/$key';
+		// return getPath('fonts/$key', FONT, library);
 	}
 
 	public static inline function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String):Bool

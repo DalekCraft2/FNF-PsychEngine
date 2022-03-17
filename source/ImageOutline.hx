@@ -40,11 +40,11 @@ class ImageOutline
 		else if (Std.isOfType(src, BitmapData))
 		{
 			var bmp:BitmapData = cast(src, BitmapData);
-			w = Std.int(bmp.width);
-			h = Std.int(bmp.height);
+			w = bmp.width;
+			h = bmp.height;
 		}
 
-		var render:BitmapData = new BitmapData(w, h, true, FlxColor.BLACK);
+		var render:BitmapData = new BitmapData(w, h, true, FlxColor.TRANSPARENT);
 		render.draw(src, m);
 
 		return new Bitmap(ImageOutline.outline(render, weight, color, alpha, antialias, threshold));
@@ -69,14 +69,14 @@ class ImageOutline
 		_weight = weight;
 		_brush = (weight * 2) + 1;
 
-		var copy:BitmapData = new BitmapData(Std.int(src.width + _brush), Std.int(src.height + _brush), true, FlxColor.BLACK);
+		var copy:BitmapData = new BitmapData(Std.int(src.width + _brush), Std.int(src.height + _brush), true, FlxColor.TRANSPARENT);
 
 		for (iy in 0...src.height)
 		{
 			for (ix in 0...src.width)
 			{
 				// get current pixel's alpha component.
-				var a:Float = (src.getPixel32(ix, iy) >> 24 & 0xFF);
+				var a:Float = src.getPixel32(ix, iy) >> 24 & 0xFF;
 
 				if (antialias)
 				{
@@ -136,7 +136,7 @@ class ImageOutline
 	 */
 	private static function _parseARGB(a:Int):UInt
 	{
-		return Std.parseInt("0x" + StringTools.hex(a) + _hex);
+		return Std.parseInt('0x${StringTools.hex(a)}$_hex');
 	}
 
 	/**

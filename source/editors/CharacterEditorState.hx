@@ -26,7 +26,6 @@ import lime.system.Clipboard;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
-import options.Options.OptionUtils;
 #if FEATURE_MODS
 import haxe.io.Path;
 import sys.FileSystem;
@@ -91,7 +90,7 @@ class CharacterEditorState extends MusicBeatState
 		FlxG.cameras.reset(camEditor);
 		FlxG.cameras.add(camHUD);
 		FlxG.cameras.add(camMenu);
-		FlxCamera.defaultCameras = [camEditor];
+		FlxG.cameras.add(camEditor, true);
 
 		bgLayer = new FlxTypedGroup();
 		add(bgLayer);
@@ -573,7 +572,7 @@ class CharacterEditorState extends MusicBeatState
 		noAntialiasingCheckBox.callback = () ->
 		{
 			char.antialiasing = false;
-			if (!noAntialiasingCheckBox.checked && OptionUtils.options.globalAntialiasing)
+			if (!noAntialiasingCheckBox.checked && Options.save.data.globalAntialiasing)
 			{
 				char.antialiasing = true;
 			}

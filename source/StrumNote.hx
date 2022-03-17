@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import options.Options.OptionUtils;
 
 class StrumNote extends FlxSprite
 {
@@ -56,10 +55,10 @@ class StrumNote extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('pixelUI/$texture'));
+			loadGraphic(Paths.image('weeb/pixelUI/$texture', 'week6'));
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/$texture'), true, Math.floor(width), Math.floor(height));
+			loadGraphic(Paths.image('weeb/pixelUI/$texture', 'week6'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
@@ -96,7 +95,7 @@ class StrumNote extends FlxSprite
 			animation.addByPrefix('green', 'arrowUP');
 			animation.addByPrefix('red', 'arrowRIGHT');
 
-			antialiasing = OptionUtils.options.globalAntialiasing;
+			antialiasing = Options.save.data.globalAntialiasing;
 			setGraphicSize(Std.int(width * 0.7));
 
 			switch (Math.abs(noteData))
@@ -170,9 +169,9 @@ class StrumNote extends FlxSprite
 		}
 		else
 		{
-			colorSwap.hue = OptionUtils.options.arrowHSV[noteData % 4][0] / 360;
-			colorSwap.saturation = OptionUtils.options.arrowHSV[noteData % 4][1] / 100;
-			colorSwap.brightness = OptionUtils.options.arrowHSV[noteData % 4][2] / 100;
+			colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
+			colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
+			colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
 
 			if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
 			{

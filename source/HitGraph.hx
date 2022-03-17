@@ -12,7 +12,6 @@ import openfl.display.Bitmap;
 import openfl.display.BitmapData;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
-import options.Options.OptionUtils;
 
 /**
  * stolen from https://github.com/HaxeFlixel/flixel/blob/master/flixel/system/debug/stats/StatsGraph.hx
@@ -31,7 +30,7 @@ class HitGraph extends Sprite
 	public var minValue:Float = -(Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95);
 	public var maxValue:Float = Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95;
 
-	public var showInput:Bool = OptionUtils.options.inputShow;
+	public var showInput:Bool = Options.save.data.inputShow;
 
 	public var graphColor:FlxColor;
 

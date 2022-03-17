@@ -17,7 +17,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import openfl.utils.Assets;
-import options.Options.OptionUtils;
 #if FEATURE_MODS
 import sys.FileSystem;
 #end
@@ -139,19 +138,20 @@ class FreeplayState extends MusicBeatState
 		}
 		Week.loadTheFirstEnabledMod();
 
-		/*//KIND OF BROKEN NOW AND ALSO PRETTY USELESS//
+		/*// KIND OF BROKEN NOW AND ALSO PRETTY USELESS
 
 			var initSonglist:Array<String> = CoolUtil.coolTextFile(Paths.txt('freeplaySonglist'));
 			for (i in 0...initSonglist.length)
 			{
-				if(initSonglist[i] != null && initSonglist[i].length > 0) {
+				if (initSonglist[i] != null && initSonglist[i].length > 0)
+				{
 					var songArray:Array<String> = initSonglist[i].split(":");
 					addSong(songArray[0], 0, songArray[1], Std.parseInt(songArray[2]));
 				}
 		}*/
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
+		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
 

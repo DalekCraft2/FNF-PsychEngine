@@ -4,7 +4,6 @@ import animateatlas.AtlasFrameMaker;
 import flixel.FlxSprite;
 import flixel.tweens.FlxTween;
 import openfl.utils.Assets;
-import options.Options.OptionUtils;
 #if FEATURE_MODS
 import sys.FileSystem;
 #end
@@ -79,7 +78,7 @@ class Character extends FlxSprite
 		animOffsets = [];
 		curCharacter = character;
 		this.isPlayer = isPlayer;
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 		switch (curCharacter)
 		{
 			// case 'your character name in case you want to hardcode them instead':
@@ -181,7 +180,7 @@ class Character extends FlxSprite
 			healthColorArray = characterData.healthbar_colors;
 
 		antialiasing = !noAntialiasing;
-		if (!OptionUtils.options.globalAntialiasing)
+		if (!Options.save.data.globalAntialiasing)
 			antialiasing = false;
 
 		animationsArray = characterData.animations;
@@ -316,10 +315,6 @@ class Character extends FlxSprite
 				danced = !danced;
 			}
 		}
-
-		// I'm frickin' cheating.
-		if (PlayState.instance != null)
-			PlayState.instance.updateDirectionalCamera();
 	}
 
 	public var danceEveryNumBeats:Int = 2;

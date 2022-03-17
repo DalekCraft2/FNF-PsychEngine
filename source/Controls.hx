@@ -8,7 +8,6 @@ import flixel.input.actions.FlxActionManager;
 import flixel.input.actions.FlxActionSet;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
-import options.Options.OptionUtils;
 
 enum abstract Action(String) to String from String
 {
@@ -83,178 +82,178 @@ enum KeyboardScheme
  */
 class Controls extends FlxActionSet
 {
-	var _ui_up:FlxActionDigital = new FlxActionDigital(Action.UI_UP);
-	var _ui_left:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT);
-	var _ui_right:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT);
-	var _ui_down:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN);
-	var _ui_upP:FlxActionDigital = new FlxActionDigital(Action.UI_UP_P);
-	var _ui_leftP:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT_P);
-	var _ui_rightP:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT_P);
-	var _ui_downP:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN_P);
-	var _ui_upR:FlxActionDigital = new FlxActionDigital(Action.UI_UP_R);
-	var _ui_leftR:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT_R);
-	var _ui_rightR:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT_R);
-	var _ui_downR:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN_R);
-	var _note_up:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP);
-	var _note_left:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT);
-	var _note_right:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT);
-	var _note_down:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN);
-	var _note_upP:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP_P);
-	var _note_leftP:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT_P);
-	var _note_rightP:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT_P);
-	var _note_downP:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN_P);
-	var _note_upR:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP_R);
-	var _note_leftR:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT_R);
-	var _note_rightR:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT_R);
-	var _note_downR:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN_R);
-	var _accept:FlxActionDigital = new FlxActionDigital(Action.ACCEPT);
-	var _back:FlxActionDigital = new FlxActionDigital(Action.BACK);
-	var _pause:FlxActionDigital = new FlxActionDigital(Action.PAUSE);
-	var _reset:FlxActionDigital = new FlxActionDigital(Action.RESET);
+	private var _ui_up:FlxActionDigital = new FlxActionDigital(Action.UI_UP);
+	private var _ui_left:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT);
+	private var _ui_right:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT);
+	private var _ui_down:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN);
+	private var _ui_upP:FlxActionDigital = new FlxActionDigital(Action.UI_UP_P);
+	private var _ui_leftP:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT_P);
+	private var _ui_rightP:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT_P);
+	private var _ui_downP:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN_P);
+	private var _ui_upR:FlxActionDigital = new FlxActionDigital(Action.UI_UP_R);
+	private var _ui_leftR:FlxActionDigital = new FlxActionDigital(Action.UI_LEFT_R);
+	private var _ui_rightR:FlxActionDigital = new FlxActionDigital(Action.UI_RIGHT_R);
+	private var _ui_downR:FlxActionDigital = new FlxActionDigital(Action.UI_DOWN_R);
+	private var _note_up:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP);
+	private var _note_left:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT);
+	private var _note_right:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT);
+	private var _note_down:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN);
+	private var _note_upP:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP_P);
+	private var _note_leftP:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT_P);
+	private var _note_rightP:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT_P);
+	private var _note_downP:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN_P);
+	private var _note_upR:FlxActionDigital = new FlxActionDigital(Action.NOTE_UP_R);
+	private var _note_leftR:FlxActionDigital = new FlxActionDigital(Action.NOTE_LEFT_R);
+	private var _note_rightR:FlxActionDigital = new FlxActionDigital(Action.NOTE_RIGHT_R);
+	private var _note_downR:FlxActionDigital = new FlxActionDigital(Action.NOTE_DOWN_R);
+	private var _accept:FlxActionDigital = new FlxActionDigital(Action.ACCEPT);
+	private var _back:FlxActionDigital = new FlxActionDigital(Action.BACK);
+	private var _pause:FlxActionDigital = new FlxActionDigital(Action.PAUSE);
+	private var _reset:FlxActionDigital = new FlxActionDigital(Action.RESET);
 
-	var byName:Map<String, FlxActionDigital> = [];
+	private var byName:Map<String, FlxActionDigital> = [];
 
 	public var gamepadsAdded:Array<Int> = [];
 	public var keyboardScheme:KeyboardScheme = NONE;
 
 	public var UI_UP(get, never):Bool;
 
-	inline function get_UI_UP():Bool
+	private inline function get_UI_UP():Bool
 		return _ui_up.check();
 
 	public var UI_LEFT(get, never):Bool;
 
-	inline function get_UI_LEFT():Bool
+	private inline function get_UI_LEFT():Bool
 		return _ui_left.check();
 
 	public var UI_RIGHT(get, never):Bool;
 
-	inline function get_UI_RIGHT():Bool
+	private inline function get_UI_RIGHT():Bool
 		return _ui_right.check();
 
 	public var UI_DOWN(get, never):Bool;
 
-	inline function get_UI_DOWN():Bool
+	private inline function get_UI_DOWN():Bool
 		return _ui_down.check();
 
 	public var UI_UP_P(get, never):Bool;
 
-	inline function get_UI_UP_P():Bool
+	private inline function get_UI_UP_P():Bool
 		return _ui_upP.check();
 
 	public var UI_LEFT_P(get, never):Bool;
 
-	inline function get_UI_LEFT_P():Bool
+	private inline function get_UI_LEFT_P():Bool
 		return _ui_leftP.check();
 
 	public var UI_RIGHT_P(get, never):Bool;
 
-	inline function get_UI_RIGHT_P():Bool
+	private inline function get_UI_RIGHT_P():Bool
 		return _ui_rightP.check();
 
 	public var UI_DOWN_P(get, never):Bool;
 
-	inline function get_UI_DOWN_P():Bool
+	private inline function get_UI_DOWN_P():Bool
 		return _ui_downP.check();
 
 	public var UI_UP_R(get, never):Bool;
 
-	inline function get_UI_UP_R():Bool
+	private inline function get_UI_UP_R():Bool
 		return _ui_upR.check();
 
 	public var UI_LEFT_R(get, never):Bool;
 
-	inline function get_UI_LEFT_R():Bool
+	private inline function get_UI_LEFT_R():Bool
 		return _ui_leftR.check();
 
 	public var UI_RIGHT_R(get, never):Bool;
 
-	inline function get_UI_RIGHT_R():Bool
+	private inline function get_UI_RIGHT_R():Bool
 		return _ui_rightR.check();
 
 	public var UI_DOWN_R(get, never):Bool;
 
-	inline function get_UI_DOWN_R():Bool
+	private inline function get_UI_DOWN_R():Bool
 		return _ui_downR.check();
 
 	public var NOTE_UP(get, never):Bool;
 
-	inline function get_NOTE_UP():Bool
+	private inline function get_NOTE_UP():Bool
 		return _note_up.check();
 
 	public var NOTE_LEFT(get, never):Bool;
 
-	inline function get_NOTE_LEFT():Bool
+	private inline function get_NOTE_LEFT():Bool
 		return _note_left.check();
 
 	public var NOTE_RIGHT(get, never):Bool;
 
-	inline function get_NOTE_RIGHT():Bool
+	private inline function get_NOTE_RIGHT():Bool
 		return _note_right.check();
 
 	public var NOTE_DOWN(get, never):Bool;
 
-	inline function get_NOTE_DOWN():Bool
+	private inline function get_NOTE_DOWN():Bool
 		return _note_down.check();
 
 	public var NOTE_UP_P(get, never):Bool;
 
-	inline function get_NOTE_UP_P():Bool
+	private inline function get_NOTE_UP_P():Bool
 		return _note_upP.check();
 
 	public var NOTE_LEFT_P(get, never):Bool;
 
-	inline function get_NOTE_LEFT_P():Bool
+	private inline function get_NOTE_LEFT_P():Bool
 		return _note_leftP.check();
 
 	public var NOTE_RIGHT_P(get, never):Bool;
 
-	inline function get_NOTE_RIGHT_P():Bool
+	private inline function get_NOTE_RIGHT_P():Bool
 		return _note_rightP.check();
 
 	public var NOTE_DOWN_P(get, never):Bool;
 
-	inline function get_NOTE_DOWN_P():Bool
+	private inline function get_NOTE_DOWN_P():Bool
 		return _note_downP.check();
 
 	public var NOTE_UP_R(get, never):Bool;
 
-	inline function get_NOTE_UP_R():Bool
+	private inline function get_NOTE_UP_R():Bool
 		return _note_upR.check();
 
 	public var NOTE_LEFT_R(get, never):Bool;
 
-	inline function get_NOTE_LEFT_R():Bool
+	private inline function get_NOTE_LEFT_R():Bool
 		return _note_leftR.check();
 
 	public var NOTE_RIGHT_R(get, never):Bool;
 
-	inline function get_NOTE_RIGHT_R():Bool
+	private inline function get_NOTE_RIGHT_R():Bool
 		return _note_rightR.check();
 
 	public var NOTE_DOWN_R(get, never):Bool;
 
-	inline function get_NOTE_DOWN_R():Bool
+	private inline function get_NOTE_DOWN_R():Bool
 		return _note_downR.check();
 
 	public var ACCEPT(get, never):Bool;
 
-	inline function get_ACCEPT():Bool
+	private inline function get_ACCEPT():Bool
 		return _accept.check();
 
 	public var BACK(get, never):Bool;
 
-	inline function get_BACK():Bool
+	private inline function get_BACK():Bool
 		return _back.check();
 
 	public var PAUSE(get, never):Bool;
 
-	inline function get_PAUSE():Bool
+	private inline function get_PAUSE():Bool
 		return _pause.check();
 
 	public var RESET(get, never):Bool;
 
-	inline function get_RESET():Bool
+	private inline function get_RESET():Bool
 		return _reset.check();
 
 	public function new(name:String, scheme:KeyboardScheme = NONE)
@@ -522,7 +521,7 @@ class Controls extends FlxActionSet
 			removeKeyboard();
 
 		keyboardScheme = scheme;
-		var keysMap:Map<String, Array<FlxKey>> = OptionUtils.options.keyBinds;
+		var keyBinds:Map<String, Array<FlxKey>> = Options.save.data.keyBinds;
 
 		switch (scheme)
 		{
@@ -573,20 +572,20 @@ class Controls extends FlxActionSet
 				inline bindKeys(Control.RESET, [BACKSPACE]);
 			case NONE: // nothing
 			case CUSTOM:
-				inline bindKeys(Control.NOTE_LEFT, keysMap.get('note_left'));
-				inline bindKeys(Control.NOTE_DOWN, keysMap.get('note_down'));
-				inline bindKeys(Control.NOTE_UP, keysMap.get('note_up'));
-				inline bindKeys(Control.NOTE_RIGHT, keysMap.get('note_right'));
+				inline bindKeys(Control.NOTE_LEFT, keyBinds.get('note_left'));
+				inline bindKeys(Control.NOTE_DOWN, keyBinds.get('note_down'));
+				inline bindKeys(Control.NOTE_UP, keyBinds.get('note_up'));
+				inline bindKeys(Control.NOTE_RIGHT, keyBinds.get('note_right'));
 
-				inline bindKeys(Control.UI_LEFT, keysMap.get('ui_left'));
-				inline bindKeys(Control.UI_DOWN, keysMap.get('ui_down'));
-				inline bindKeys(Control.UI_UP, keysMap.get('ui_up'));
-				inline bindKeys(Control.UI_RIGHT, keysMap.get('ui_right'));
+				inline bindKeys(Control.UI_LEFT, keyBinds.get('ui_left'));
+				inline bindKeys(Control.UI_DOWN, keyBinds.get('ui_down'));
+				inline bindKeys(Control.UI_UP, keyBinds.get('ui_up'));
+				inline bindKeys(Control.UI_RIGHT, keyBinds.get('ui_right'));
 
-				inline bindKeys(Control.ACCEPT, keysMap.get('accept'));
-				inline bindKeys(Control.BACK, keysMap.get('back'));
-				inline bindKeys(Control.PAUSE, keysMap.get('pause'));
-				inline bindKeys(Control.RESET, keysMap.get('reset'));
+				inline bindKeys(Control.ACCEPT, keyBinds.get('accept'));
+				inline bindKeys(Control.BACK, keyBinds.get('back'));
+				inline bindKeys(Control.PAUSE, keyBinds.get('pause'));
+				inline bindKeys(Control.RESET, keyBinds.get('reset'));
 		}
 	}
 

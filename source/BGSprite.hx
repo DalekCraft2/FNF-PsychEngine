@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxSprite;
-import options.Options.OptionUtils;
 
 class BGSprite extends FlxSprite
 {
@@ -33,7 +32,7 @@ class BGSprite extends FlxSprite
 			active = false;
 		}
 		scrollFactor.set(scrollX, scrollY);
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
 	public function dance(?forceplay:Bool = false):Void

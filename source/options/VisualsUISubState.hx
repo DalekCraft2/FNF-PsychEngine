@@ -1,7 +1,6 @@
 package options;
 
 import flixel.FlxG;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -57,10 +56,10 @@ class VisualsUISubState extends BaseOptionsMenu
 
 	function onChangePauseMusic():Void
 	{
-		if (OptionUtils.options.pauseMusic == 'None')
+		if (Options.save.data.pauseMusic == 'None')
 			FlxG.sound.music.volume = 0;
 		else
-			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(OptionUtils.options.pauseMusic)));
+			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(Options.save.data.pauseMusic)));
 
 		changedMusic = true;
 	}
@@ -77,7 +76,7 @@ class VisualsUISubState extends BaseOptionsMenu
 	function onChangeFPSCounter():Void
 	{
 		if (Main.fpsVar != null)
-			Main.fpsVar.visible = OptionUtils.options.showFPS;
+			Main.fpsVar.visible = Options.save.data.showFPS;
 	}
 	#end
 }

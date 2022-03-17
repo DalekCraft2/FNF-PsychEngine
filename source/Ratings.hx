@@ -1,13 +1,11 @@
 package;
 
-import options.Options.OptionUtils;
-
 class Ratings
 {
 	public static function generateComboRank():String // generate a combo ranking
 	{
 		var ranking:String = "N/A";
-		// if (OptionUtils.options.botPlay && !PlayState.loadRep)
+		// if (Options.save.data.botPlay && !PlayState.loadRep)
 		// 	ranking = "BotPlay";
 
 		if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods == 0) // Marvelous (SICK) Full Combo
@@ -24,7 +22,7 @@ class Ratings
 
 		// if (PlayState.instance.totalPlayed == 0)
 		// 	ranking = "N/A";
-		// else if (OptionUtils.options.botPlay && !PlayState.loadRep)
+		// else if (Options.save.data.botPlay && !PlayState.loadRep)
 		// 	ranking = "BotPlay";
 
 		return ranking;
@@ -105,14 +103,14 @@ class Ratings
 	public static function generateComboLetterRank(accuracy:Float):String // generate a letter ranking
 	{
 		var ranking:String = "N/A";
-		if (OptionUtils.options.botPlay && !PlayState.loadRep)
+		if (Options.save.data.botPlay && !PlayState.loadRep)
 			ranking = "BotPlay";
 
 		ranking = '(${generateComboRank()}) ${generateLetterRank(accuracy)}';
 
 		if (accuracy == 0)
 			ranking = "N/A";
-		else if (OptionUtils.options.botPlay && !PlayState.loadRep)
+		else if (Options.save.data.botPlay && !PlayState.loadRep)
 			ranking = "BotPlay";
 
 		return ranking;
@@ -147,7 +145,7 @@ class Ratings
 
 	public static function calculateRanking(score:Int, scoreDef:Int, nps:Int, maxNPS:Int, accuracy:Float):String
 	{
-		return (OptionUtils.options.npsDisplay ? // NPS Toggle
+		return (Options.save.data.npsDisplay ? // NPS Toggle
 			"NPS: "
 			+ nps
 			+ " (Max "
@@ -155,8 +153,8 @@ class Ratings
 			+ ")"
 			+ (!PlayStateChangeables.botPlay || PlayState.loadRep ? " | " : "") : "") + // 	NPS
 			(!PlayStateChangeables.botPlay
-				|| PlayState.loadRep ? "Score:" + (OptionUtils.options.safeFrames != 10 ? score + " (" + scoreDef + ")" : "" + score) + // Score
-					(OptionUtils.options.accuracyDisplay ? // Accuracy Toggle
+				|| PlayState.loadRep ? "Score:" + (Options.save.data.safeFrames != 10 ? score + " (" + scoreDef + ")" : "" + score) + // Score
+					(Options.save.data.accuracyDisplay ? // Accuracy Toggle
 						" | Combo Breaks:"
 						+ PlayState.instance.misses
 						+ // 	Misses/Combo Breaks

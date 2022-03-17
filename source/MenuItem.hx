@@ -4,7 +4,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 
 class MenuItem extends FlxSprite
 {
@@ -17,7 +16,7 @@ class MenuItem extends FlxSprite
 
 		loadGraphic(Paths.image('storymenu/$weekName'));
 		// Debug.logTrace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
 	private var isFlashing:Bool = false;

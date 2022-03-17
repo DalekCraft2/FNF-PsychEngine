@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxSprite;
-import options.Options.OptionUtils;
 
 class CheckboxThingie extends FlxSprite
 {
@@ -21,7 +20,7 @@ class CheckboxThingie extends FlxSprite
 		animation.addByPrefix("checking", "checking", 24, false);
 		animation.addByPrefix("checked", "checked", 24, false);
 
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 		setGraphicSize(Std.int(0.9 * width));
 		updateHitbox();
 

@@ -8,7 +8,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import options.Options.OptionUtils;
 
 class FlashingState extends MusicBeatState
 {
@@ -50,8 +49,8 @@ class FlashingState extends MusicBeatState
 				FlxTransitionableState.skipNextTransOut = true;
 				if (!back)
 				{
-					OptionUtils.options.flashing = false;
-					OptionUtils.saveOptions(OptionUtils.options);
+					Options.save.data.flashing = false;
+					Options.saveOptions();
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 					FlxFlicker.flicker(warnText, 1, 0.1, false, true, (flk:FlxFlicker) ->
 					{

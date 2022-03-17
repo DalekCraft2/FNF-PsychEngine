@@ -5,7 +5,6 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -64,10 +63,10 @@ class GameplayChangersSubState extends MusicBeatSubState
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Instakill on Miss', 'instakill', 'bool', false);
+		var option:GameplayOption = new GameplayOption('Instakill on Miss', 'instakillOnMiss', 'bool', false);
 		optionsArray.push(option);
 
-		var option:GameplayOption = new GameplayOption('Practice Mode', 'practice', 'bool', false);
+		var option:GameplayOption = new GameplayOption('Practice Mode', 'practiceMode', 'bool', false);
 		optionsArray.push(option);
 
 		var option:GameplayOption = new GameplayOption('BotPlay', 'botPlay', 'bool', false);
@@ -160,7 +159,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		if (controls.BACK)
 		{
 			close();
-			OptionUtils.saveOptions(OptionUtils.options);
+			Options.saveOptions();
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
 

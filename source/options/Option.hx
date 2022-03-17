@@ -6,23 +6,20 @@ import flixel.input.keyboard.FlxKey;
 
 class Option extends FlxTypedGroup<FlxSprite>
 {
-	public var type:String = "Option";
+	public var name:String;
+	public var description:String;
+
 	public var parent:OptionCategory;
-	public var name:String = "Option";
-	public var description:String = "";
 	public var allowMultiKeyInput:Bool = false;
 	public var text:Alphabet;
 	public var isSelected:Bool = false;
 
-	public function new(?name:String)
+	public function new(?name:String = 'Option', ?description:String = '')
 	{
 		super();
 
-		this.type = "Option";
-		if (name != null)
-		{
-			this.name = name;
-		}
+		this.name = name;
+		this.description = description;
 	}
 
 	public function keyPressed(key:FlxKey):Bool
@@ -43,13 +40,13 @@ class Option extends FlxTypedGroup<FlxSprite>
 		return false;
 	}
 
-	public function right():Bool
+	public function left():Bool
 	{
 		// Debug.logTrace("Unset");
 		return false;
 	}
 
-	public function left():Bool
+	public function right():Bool
 	{
 		// Debug.logTrace("Unset");
 		return false;
@@ -69,17 +66,15 @@ class Option extends FlxTypedGroup<FlxSprite>
 
 	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
-		if (text == null)
-		{
-			remove(text);
-			text = new Alphabet(0, (70 * curSelected), name, true, false);
-			text.isMenuItem = true;
-			add(text);
-		}
-		else
-		{
-			text.changeText(name);
-		}
+		remove(text);
+		text = new Alphabet(0, (70 * curSelected), name, false, false);
+		text.isMenuItem = true;
+		add(text);
 		return text;
+	}
+
+	public function updateOptionText():Void
+	{
+		text.changeText(name);
 	}
 }

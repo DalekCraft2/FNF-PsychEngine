@@ -12,7 +12,6 @@ import lime.utils.Assets as LimeAssets;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
 import openfl.utils.Assets;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -54,14 +53,14 @@ class LoadingState extends MusicBeatState
 		funkay = new FlxSprite(0, 0).loadGraphic(Paths.image('funkay'));
 		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
-		funkay.antialiasing = OptionUtils.options.globalAntialiasing;
-		add(funkay);
+		funkay.antialiasing = Options.save.data.globalAntialiasing;
 		funkay.scrollFactor.set();
 		funkay.screenCenter();
+		add(funkay);
 
 		loadBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xFFFF16D2);
 		loadBar.screenCenter(X);
-		loadBar.antialiasing = OptionUtils.options.globalAntialiasing;
+		loadBar.antialiasing = Options.save.data.globalAntialiasing;
 		add(loadBar);
 
 		initSongsManifest().onComplete((lib) ->
@@ -173,7 +172,6 @@ class LoadingState extends MusicBeatState
 			directory = weekDir;
 
 		Paths.setCurrentLevel(directory);
-		Debug.logTrace('Setting asset folder to $directory');
 
 		#if !PRELOAD_ALL
 		var loaded:Bool = false;

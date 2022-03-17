@@ -10,7 +10,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxStringUtil;
-import options.Options.OptionUtils;
 
 class PauseSubState extends MusicBeatSubState
 {
@@ -70,13 +69,11 @@ class PauseSubState extends MusicBeatSubState
 			pauseMusic = new FlxSound();
 			if (songName != null)
 			{
-				Debug.logTrace('songName: $songName');
 				pauseMusic.loadEmbedded(Paths.music(songName), true, true);
 			}
-			else if (OptionUtils.options.pauseMusic != 'None')
+			else if (Options.save.data.pauseMusic != 'None')
 			{
-				Debug.logTrace('pauseMusic: ${OptionUtils.options.pauseMusic}');
-				pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(OptionUtils.options.pauseMusic)), true, true);
+				pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(Options.save.data.pauseMusic)), true, true);
 			}
 			pauseMusic.volume = 0;
 			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
@@ -124,7 +121,7 @@ class PauseSubState extends MusicBeatSubState
 		practiceText.setFormat(Paths.font('vcr.ttf'), 32);
 		practiceText.x = FlxG.width - (practiceText.width + 20);
 		practiceText.updateHitbox();
-		practiceText.visible = PlayStateChangeables.practice;
+		practiceText.visible = PlayStateChangeables.practiceMode;
 		add(practiceText);
 
 		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, "CHARTING MODE", 32);
@@ -241,6 +238,7 @@ class PauseSubState extends MusicBeatSubState
 				case "Restart Song":
 					restartSong();
 				case "Options":
+					// FIXME Pause music never stops if one enters the options menu and then leaves both it and the pause menu
 					goToOptions = true;
 					close();
 				case 'Change Difficulty':
@@ -268,9 +266,9 @@ class PauseSubState extends MusicBeatSubState
 					close();
 					PlayState.instance.finishSong(true);
 				case 'Toggle Practice Mode':
-					PlayStateChangeables.practice = !PlayStateChangeables.practice;
+					PlayStateChangeables.practiceMode = !PlayStateChangeables.practiceMode;
 					PlayState.changedDifficulty = true;
-					practiceText.visible = PlayStateChangeables.practice;
+					practiceText.visible = PlayStateChangeables.practiceMode;
 				case 'Toggle BotPlay':
 					PlayStateChangeables.botPlay = !PlayStateChangeables.botPlay;
 					PlayState.changedDifficulty = true;
@@ -283,9 +281,9 @@ class PauseSubState extends MusicBeatSubState
 
 					if (PlayState.loadRep)
 					{
-						OptionUtils.options.botPlay = false;
-						OptionUtils.options.scrollSpeed = 1;
-						OptionUtils.options.downScroll = false;
+						Options.save.data.botPlay = false;
+						Options.save.data.scrollSpeed = 1;
+						Options.save.data.downScroll = false;
 					}
 					PlayState.loadRep = false;
 					PlayState.stageTesting = false;

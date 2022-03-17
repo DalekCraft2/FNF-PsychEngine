@@ -16,7 +16,6 @@ import flixel.util.FlxColor;
 import haxe.Json;
 // import haxe.zip.Uncompress;
 import openfl.display.BitmapData;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
@@ -63,6 +62,9 @@ class ModsMenuState extends MusicBeatState
 
 		super.create();
 
+		persistentUpdate = true;
+		persistentDraw = true;
+
 		Week.setDirectoryFromWeek();
 
 		#if FEATURE_DISCORD
@@ -71,7 +73,7 @@ class ModsMenuState extends MusicBeatState
 		#end
 
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
+		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
 
@@ -489,6 +491,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.mouse.visible = false;
+			persistentUpdate = false;
 			#if FEATURE_FILESYSTEM
 			saveTxt();
 			#end

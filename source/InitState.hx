@@ -14,15 +14,12 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import lime.app.Application;
-import openfl.display.FPSMem;
-import options.Options.OptionUtils;
-import options.OptionsSubState;
 
 class InitState extends FlxUIState
 {
-	public static var muteKeys:Array<FlxKey> = [ZERO];
-	public static var volumeDownKeys:Array<FlxKey> = [NUMPADMINUS, MINUS];
-	public static var volumeUpKeys:Array<FlxKey> = [NUMPADPLUS, PLUS];
+	public static var muteKeys:Array<FlxKey> = [ZERO, NUMPADZERO];
+	public static var volumeDownKeys:Array<FlxKey> = [MINUS, NUMPADMINUS];
+	public static var volumeUpKeys:Array<FlxKey> = [PLUS, NUMPADPLUS];
 
 	public static function initTransition():Void
 	{
@@ -35,34 +32,20 @@ class InitState extends FlxUIState
 			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 	}
 
-	override function create():Void
+	override public function create():Void
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
 		super.create();
 
-		OptionUtils.bindSave();
-		OptionUtils.loadOptions(OptionUtils.options);
-		var currentOptions:Dynamic = OptionUtils.options;
+		Options.bindOptions(); //
+		Options.fillMissingOptionFields(); // Load default options in case any are null
+		Options.saveOptions(); // Save initialized options
 
-		FPSMem.showFPS = currentOptions.showFPS;
-		FPSMem.showMem = currentOptions.showMem;
-		FPSMem.showMemPeak = currentOptions.showMemPeak;
-
-		ClientPrefs.loadDefaultKeys();
-
-		if (currentOptions.keyBinds == null)
-		{
-			Debug.logInfo('Keybinds are null; setting them to defaults (${ClientPrefs.defaultKeys})');
-			currentOptions.keyBinds = ClientPrefs.defaultKeys.copy();
-		}
+		Conductor.initializeSafeZoneOffset(); // Now that the options are loaded, this can be initialized
 
 		PlayerSettings.init();
-		// TODO Figure out a less stupid way of initializing options which is simple enough to keep in one class
-		// (That means not having a separate class for default values)
-		new OptionsSubState().createDefault(); // Load default options in case any are null
-		OptionUtils.saveOptions(currentOptions); // Save initialized options
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();
@@ -90,25 +73,17 @@ class InitState extends FlxUIState
 			FlxG.fullscreen = FlxG.save.data.fullscreen;
 		}
 
-		// #if !FORCED_JUDGE
-		// if (!JudgementManager.dataExists(currentOptions.judgementWindow))
-		// {
-		// 	OptionUtils.options.judgementWindow = 'Andromeda';
-		// 	OptionUtils.saveOptions(OptionUtils.options);
-		// }
-		// #end
-
 		if (FlxG.save.data.weekCompleted != null)
 		{
 			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
 		}
 
-		if (currentOptions.fps < 30 || currentOptions.fps > 360)
+		if (Options.save.data.framerate < 30 || Options.save.data.framerate > 360)
 		{
-			currentOptions.fps = 120;
+			Options.save.data.framerate = 120;
 		}
 
-		Main.setFPSCap(currentOptions.fps);
+		Main.setFPSCap(Options.save.data.framerate);
 
 		#if FEATURE_DISCORD
 		if (!DiscordClient.isInitialized)
@@ -121,7 +96,7 @@ class InitState extends FlxUIState
 		}
 		#end
 
-		// FlxGraphic.defaultPersist = currentOptions.persistentImages;
+		// FlxGraphic.defaultPersist = Options.save.data.persistentImages;
 
 		FlxG.fixedTimestep = false;
 
@@ -133,14 +108,14 @@ class InitState extends FlxUIState
 		#end
 		if (canCache)
 		{
-			if (!currentOptions.cacheCharacters && !currentOptions.cacheSongs && !currentOptions.cacheSounds && !currentOptions.cachePreload)
+			if (!Options.save.data.cacheCharacters && !Options.save.data.cacheSongs && !Options.save.data.cacheSounds && !Options.save.data.cachePreload)
 				canCache = false;
 		}
 
 		var nextState:FlxUIState = new TitleState();
 		// TODO Implement caching
 		/*#if sys
-			if (currentOptions.shouldCache && canCache)
+			if (Options.save.data.shouldCache && canCache)
 			{
 				nextState = new Caching(nextState);
 			}
@@ -149,6 +124,9 @@ class InitState extends FlxUIState
 		{
 			initTransition();
 		}
+
+		transIn = FlxTransitionableState.defaultTransIn;
+		transOut = FlxTransitionableState.defaultTransOut;
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());

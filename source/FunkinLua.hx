@@ -1,10 +1,10 @@
 package;
 
-import Type.ValueType;
 import DialogueBoxPsych.DialogueData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
+import Type.ValueType;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
@@ -30,7 +30,6 @@ import llua.LuaL;
 import llua.State;
 #end
 import openfl.display.BlendMode;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 #end
@@ -125,7 +124,7 @@ class FunkinLua
 		set('rating', 0);
 		set('ratingName', '');
 		set('ratingFC', '');
-		set('version', MainMenuState.PSYCH_ENGINE_VERSION.trim());
+		set('version', EngineData.ENGINE_VERSION.trim());
 
 		set('inGameOver', false);
 		set('mustHitSection', false);
@@ -135,9 +134,9 @@ class FunkinLua
 		// Gameplay settings
 		set('healthGainMult', PlayStateChangeables.healthGain);
 		set('healthLossMult', PlayStateChangeables.healthLoss);
-		set('instakillOnMiss', PlayStateChangeables.instakill);
+		set('instakillOnMiss', PlayStateChangeables.instakillOnMiss);
 		set('botPlay', PlayStateChangeables.botPlay);
-		set('practice', PlayStateChangeables.practice);
+		set('practiceMode', PlayStateChangeables.practiceMode);
 
 		for (i in 0...4)
 		{
@@ -161,19 +160,19 @@ class FunkinLua
 		set('gfName', PlayState.song.gfVersion);
 
 		// Some settings, no jokes
-		set('downscroll', OptionUtils.options.downScroll);
-		set('middlescroll', OptionUtils.options.middleScroll);
-		set('framerate', OptionUtils.options.framerate);
-		set('ghostTapping', OptionUtils.options.ghostTapping);
-		set('hideHud', OptionUtils.options.hideHud);
-		set('timeBarType', OptionUtils.options.timeBarType);
-		set('scoreZoom', OptionUtils.options.scoreZoom);
-		set('cameraZoomOnBeat', OptionUtils.options.camZooms);
-		set('flashingLights', OptionUtils.options.flashing);
-		set('noteOffset', OptionUtils.options.noteOffset);
-		set('healthBarAlpha', OptionUtils.options.healthBarAlpha);
-		set('resetButton', OptionUtils.options.resetKey);
-		set('lowQuality', OptionUtils.options.lowQuality);
+		set('downscroll', Options.save.data.downScroll);
+		set('middlescroll', Options.save.data.middleScroll);
+		set('framerate', Options.save.data.framerate);
+		set('ghostTapping', Options.save.data.ghostTapping);
+		set('hideHud', Options.save.data.hideHud);
+		set('timeBarType', Options.save.data.timeBarType);
+		set('scoreZoom', Options.save.data.scoreZoom);
+		set('cameraZoomOnBeat', Options.save.data.camZooms);
+		set('flashingLights', Options.save.data.flashing);
+		set('noteOffset', Options.save.data.noteOffset);
+		set('healthBarAlpha', Options.save.data.healthBarAlpha);
+		set('resetButton', Options.save.data.resetKey);
+		set('lowQuality', Options.save.data.lowQuality);
 
 		#if windows
 		set('buildTarget', 'windows');
@@ -549,7 +548,7 @@ class FunkinLua
 			{
 				var color:Int = Std.parseInt(targetColor);
 				if (!targetColor.startsWith('0x'))
-					color = Std.parseInt('0xFF' + targetColor);
+					color = Std.parseInt('0xFF$targetColor');
 
 				var curColor:FlxColor = penisExam.color;
 				curColor.alphaFloat = penisExam.alpha;
@@ -824,7 +823,7 @@ class FunkinLua
 		Lua_helper.add_callback(lua, "getColorFromHex", function(color:String):Int
 		{
 			if (!color.startsWith('0x'))
-				color = '0xFF' + color;
+				color = '0xFF$color';
 			return Std.parseInt(color);
 		});
 		Lua_helper.add_callback(lua, "keyJustPressed", function(name:String):Bool
@@ -1026,14 +1025,14 @@ class FunkinLua
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF' + color);
+				colorNum = Std.parseInt('0xFF$color');
 			cameraFromString(camera).flash(colorNum, duration, null, forced);
 		});
 		Lua_helper.add_callback(lua, "cameraFade", function(camera:String, color:String, duration:Float, forced:Bool):Void
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF' + color);
+				colorNum = Std.parseInt('0xFF$color');
 			cameraFromString(camera).fade(colorNum, duration, false, null, forced);
 		});
 		Lua_helper.add_callback(lua, "setRatingPercent", function(value:Float):Void
@@ -1145,7 +1144,7 @@ class FunkinLua
 			{
 				leSprite.loadGraphic(Paths.image(image));
 			}
-			leSprite.antialiasing = OptionUtils.options.globalAntialiasing;
+			leSprite.antialiasing = Options.save.data.globalAntialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 			leSprite.active = true;
 		});
@@ -1156,7 +1155,7 @@ class FunkinLua
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 
 			loadFrames(leSprite, image, spriteType);
-			leSprite.antialiasing = OptionUtils.options.globalAntialiasing;
+			leSprite.antialiasing = Options.save.data.globalAntialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 		});
 
@@ -1164,7 +1163,7 @@ class FunkinLua
 		{
 			var colorNum:Int = Std.parseInt(color);
 			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF' + color);
+				colorNum = Std.parseInt('0xFF$color');
 
 			if (PlayState.instance.modchartSprites.exists(obj))
 			{
@@ -1804,7 +1803,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF' + color);
+					colorNum = Std.parseInt('0xFF$color');
 
 				obj.borderSize = size;
 				obj.borderColor = colorNum;
@@ -1817,7 +1816,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF' + color);
+					colorNum = Std.parseInt('0xFF$color');
 
 				obj.color = colorNum;
 			}
@@ -1983,7 +1982,7 @@ class FunkinLua
 			{
 				var colorNum:Int = Std.parseInt(color);
 				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF' + color);
+					colorNum = Std.parseInt('0xFF$color');
 
 				PlayState.instance.modchartSprites.get(tag).makeGraphic(width, height, colorNum);
 			}
@@ -2538,7 +2537,7 @@ class ModchartSprite extends FlxSprite
 	{
 		super(x, y);
 
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 	}
 }
 

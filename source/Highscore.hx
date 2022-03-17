@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxG;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -67,7 +66,7 @@ class Highscore
 		var daSong:String = formatSong(song, diff);
 		var finalCombo:String = combo.split(')')[0].replace('(', '');
 
-		if (!OptionUtils.options.botPlay)
+		if (!Options.save.data.botPlay)
 		{
 			if (songCombos.exists(daSong))
 			{

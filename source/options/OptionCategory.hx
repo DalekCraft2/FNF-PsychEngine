@@ -25,7 +25,6 @@ class OptionCategory extends Option
 	{
 		super();
 
-		this.type = "Category";
 		this.name = name;
 		for (opt in opts)
 		{

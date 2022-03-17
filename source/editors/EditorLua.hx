@@ -14,7 +14,6 @@ import llua.Lua;
 import llua.LuaL;
 import llua.State;
 #end
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -73,8 +72,8 @@ class EditorLua
 			set('defaultOpponentStrumY' + i, 0);
 		}
 
-		set('downscroll', OptionUtils.options.downScroll);
-		set('middlescroll', OptionUtils.options.middleScroll);
+		set('downscroll', Options.save.data.downScroll);
+		set('middlescroll', Options.save.data.middleScroll);
 
 		// stuff 4 noobz like you B)
 		Lua_helper.add_callback(lua, "getProperty", (variable:String) ->

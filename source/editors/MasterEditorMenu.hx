@@ -35,6 +35,9 @@ class MasterEditorMenu extends MusicBeatState
 
 		super.create();
 
+		persistentUpdate = true;
+		persistentDraw = true;
+
 		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
@@ -107,11 +110,13 @@ class MasterEditorMenu extends MusicBeatState
 
 		if (controls.BACK)
 		{
+			persistentUpdate = false;
 			FlxG.switchState(new MainMenuState());
 		}
 
 		if (controls.ACCEPT)
 		{
+			persistentUpdate = false;
 			switch (options[curSelected])
 			{
 				case 'Character Editor':

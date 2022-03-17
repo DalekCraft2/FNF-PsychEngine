@@ -14,7 +14,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -68,7 +67,8 @@ class StoryMenuState extends MusicBeatState
 		Week.reloadWeekData(true);
 		if (curWeek >= Week.weeksList.length)
 			curWeek = 0;
-		persistentUpdate = persistentDraw = true;
+		persistentUpdate = true;
+		persistentDraw = true;
 
 		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
@@ -86,7 +86,7 @@ class StoryMenuState extends MusicBeatState
 		var ui_tex:FlxAtlasFrames = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 		bgSprite = new FlxSprite(0, 56);
-		bgSprite.antialiasing = OptionUtils.options.globalAntialiasing;
+		bgSprite.antialiasing = Options.save.data.globalAntialiasing;
 
 		grpWeekText = new FlxTypedGroup();
 		add(grpWeekText);
@@ -114,7 +114,7 @@ class StoryMenuState extends MusicBeatState
 				grpWeekText.add(weekThing);
 
 				weekThing.screenCenter(X);
-				weekThing.antialiasing = OptionUtils.options.globalAntialiasing;
+				weekThing.antialiasing = Options.save.data.globalAntialiasing;
 				// weekThing.updateHitbox();
 
 				// Needs an offset thingie
@@ -125,7 +125,7 @@ class StoryMenuState extends MusicBeatState
 					lock.animation.addByPrefix('lock', 'lock');
 					lock.animation.play('lock');
 					lock.ID = i;
-					lock.antialiasing = OptionUtils.options.globalAntialiasing;
+					lock.antialiasing = Options.save.data.globalAntialiasing;
 					grpLocks.add(lock);
 				}
 				num++;
@@ -149,7 +149,7 @@ class StoryMenuState extends MusicBeatState
 		leftArrow.animation.addByPrefix('idle', "arrow left");
 		leftArrow.animation.addByPrefix('press', "arrow push left");
 		leftArrow.animation.play('idle');
-		leftArrow.antialiasing = OptionUtils.options.globalAntialiasing;
+		leftArrow.antialiasing = Options.save.data.globalAntialiasing;
 		difficultySelectors.add(leftArrow);
 
 		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
@@ -160,7 +160,7 @@ class StoryMenuState extends MusicBeatState
 		curDifficulty = Math.round(Math.max(0, CoolUtil.DEFAULT_DIFFICULTIES.indexOf(lastDifficultyName)));
 
 		sprDifficulty = new FlxSprite(0, leftArrow.y);
-		sprDifficulty.antialiasing = OptionUtils.options.globalAntialiasing;
+		sprDifficulty.antialiasing = Options.save.data.globalAntialiasing;
 		difficultySelectors.add(sprDifficulty);
 
 		rightArrow = new FlxSprite(leftArrow.x + 376, leftArrow.y);
@@ -168,7 +168,7 @@ class StoryMenuState extends MusicBeatState
 		rightArrow.animation.addByPrefix('idle', 'arrow right');
 		rightArrow.animation.addByPrefix('press', "arrow push right", 24, false);
 		rightArrow.animation.play('idle');
-		rightArrow.antialiasing = OptionUtils.options.globalAntialiasing;
+		rightArrow.antialiasing = Options.save.data.globalAntialiasing;
 		difficultySelectors.add(rightArrow);
 
 		add(bgYellow);
@@ -176,7 +176,7 @@ class StoryMenuState extends MusicBeatState
 		add(grpWeekCharacters);
 
 		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.image('Menu_Tracks'));
-		tracksSprite.antialiasing = OptionUtils.options.globalAntialiasing;
+		tracksSprite.antialiasing = Options.save.data.globalAntialiasing;
 		add(tracksSprite);
 
 		txtTracklist = new FlxText(FlxG.width * 0.05, tracksSprite.y + 60, 0, "", 32);
@@ -265,6 +265,7 @@ class StoryMenuState extends MusicBeatState
 
 		if (controls.BACK && !movedBack && !selectedWeek)
 		{
+			persistentUpdate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			movedBack = true;
 			FlxG.switchState(new MainMenuState());
@@ -350,7 +351,7 @@ class StoryMenuState extends MusicBeatState
 
 		var diff:String = CoolUtil.difficulties[curDifficulty];
 		var newImage:FlxGraphic = Paths.image('menudifficulties/${Paths.formatToSongPath(diff)}');
-		Debug.logTrace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
+		// Debug.logTrace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
 
 		if (sprDifficulty.graphic != newImage)
 		{

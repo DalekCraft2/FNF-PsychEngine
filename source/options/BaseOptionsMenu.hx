@@ -9,7 +9,6 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 
 class BaseOptionsMenu extends MusicBeatSubState
 {
@@ -44,7 +43,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
 		bg.screenCenter();
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
+		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 
 		// avoids lagspikes while scrolling through menus!

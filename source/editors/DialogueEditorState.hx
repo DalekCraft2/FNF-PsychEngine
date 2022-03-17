@@ -20,7 +20,6 @@ import lime.system.Clipboard;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.io.File;
 #end
@@ -57,7 +56,8 @@ class DialogueEditorState extends MusicBeatState
 
 		super.create();
 
-		persistentUpdate = persistentDraw = true;
+		persistentUpdate = true;
+		persistentDraw = true;
 		FlxG.camera.bgColor = FlxColor.fromHSL(0, 0, 0.5);
 
 		dialogueFile = {
@@ -71,7 +71,7 @@ class DialogueEditorState extends MusicBeatState
 		box = new FlxSprite(70, 370);
 		box.frames = Paths.getSparrowAtlas('speech_bubble');
 		box.scrollFactor.set();
-		box.antialiasing = OptionUtils.options.globalAntialiasing;
+		box.antialiasing = Options.save.data.globalAntialiasing;
 		box.animation.addByPrefix('normal', 'speech bubble normal', 24);
 		box.animation.addByPrefix('angry', 'AHH speech bubble', 24);
 		box.animation.addByPrefix('center', 'speech bubble middle', 24);

@@ -1,10 +1,8 @@
 package;
 
-import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
-import openfl.display.FPSMem;
 
 class ClientPrefs
 {
@@ -46,8 +44,8 @@ class ClientPrefs
 		'songSpeed' => 1.0,
 		'healthGain' => 1.0,
 		'healthLoss' => 1.0,
-		'instakill' => false,
-		'practice' => false,
+		'instakillOnMiss' => false,
+		'practiceMode' => false,
 		'botPlay' => false,
 		'opponentPlay' => false
 	];
@@ -146,7 +144,6 @@ class ClientPrefs
 		if (FlxG.save.data.showFPS != null)
 		{
 			showFPS = FlxG.save.data.showFPS;
-			FPSMem.showFPS = showFPS;
 		}
 		if (FlxG.save.data.flashing != null)
 		{

@@ -8,7 +8,6 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.util.FlxTimer;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -444,7 +443,7 @@ class AlphaCharacter extends FlxSprite
 		setGraphicSize(Std.int(width * textSize));
 		updateHitbox();
 		this.textSize = textSize;
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
 	public function createBoldLetter(letter:String):Void

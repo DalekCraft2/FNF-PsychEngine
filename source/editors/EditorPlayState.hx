@@ -16,7 +16,6 @@ import flixel.util.FlxColor;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
 import openfl.events.KeyboardEvent;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 #end
@@ -84,14 +83,14 @@ class EditorPlayState extends MusicBeatState
 		add(bg);
 
 		keysArray = [
-			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_left')),
-			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_down')),
-			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_up')),
-			ClientPrefs.copyKey(OptionUtils.options.keyBinds.get('note_right'))
+			Options.copyKey(Options.save.data.keyBinds.get('note_left')),
+			Options.copyKey(Options.save.data.keyBinds.get('note_down')),
+			Options.copyKey(Options.save.data.keyBinds.get('note_up')),
+			Options.copyKey(Options.save.data.keyBinds.get('note_right'))
 		];
 
-		strumLine = new FlxSprite(OptionUtils.options.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X, 50).makeGraphic(FlxG.width, 10);
-		if (OptionUtils.options.downScroll)
+		strumLine = new FlxSprite(Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X, 50).makeGraphic(FlxG.width, 10);
+		if (Options.save.data.downScroll)
 			strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
 
@@ -105,7 +104,7 @@ class EditorPlayState extends MusicBeatState
 
 		generateStaticArrows(0);
 		generateStaticArrows(1);
-		/*if(OptionUtils.options.middleScroll) {
+		/*if(Options.save.data.middleScroll) {
 			opponentStrums.forEachAlive(function (note:StrumNote):Void {
 				note.visible = false;
 			});
@@ -146,7 +145,7 @@ class EditorPlayState extends MusicBeatState
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
-		scoreTxt.visible = !OptionUtils.options.hideHud;
+		scoreTxt.visible = !Options.save.data.hideHud;
 		add(scoreTxt);
 
 		beatTxt = new FlxText(10, 610, FlxG.width, "Beat: 0", 20);
@@ -169,7 +168,7 @@ class EditorPlayState extends MusicBeatState
 		FlxG.mouse.visible = false;
 
 		// sayGo();
-		if (!OptionUtils.options.controllerMode)
+		if (!Options.save.data.controllerMode)
 		{
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -184,7 +183,7 @@ class EditorPlayState extends MusicBeatState
 		go.updateHitbox();
 
 		go.screenCenter();
-		go.antialiasing = OptionUtils.options.globalAntialiasing;
+		go.antialiasing = Options.save.data.globalAntialiasing;
 		add(go);
 		FlxTween.tween(go, {y: go.y += 100, alpha: 0}, Conductor.crochet / 1000, {
 			ease: FlxEase.cubeInOut,
@@ -281,7 +280,7 @@ class EditorPlayState extends MusicBeatState
 								{
 									sustainNote.x += FlxG.width / 2; // general offset
 								}
-								else if (OptionUtils.options.middleScroll)
+								else if (Options.save.data.middleScroll)
 								{
 									sustainNote.x += 310;
 									if (daNoteData > 1)
@@ -296,7 +295,7 @@ class EditorPlayState extends MusicBeatState
 						{
 							swagNote.x += FlxG.width / 2; // general offset
 						}
-						else if (OptionUtils.options.middleScroll)
+						else if (Options.save.data.middleScroll)
 						{
 							swagNote.x += 310;
 							if (daNoteData > 1) // Up and Right
@@ -422,7 +421,7 @@ class EditorPlayState extends MusicBeatState
 				}
 				if (daNote.copyY)
 				{
-					if (OptionUtils.options.downScroll)
+					if (Options.save.data.downScroll)
 					{
 						daNote.y = (strumY + 0.45 * (Conductor.songPosition - daNote.strumTime) * roundedSpeed);
 						if (daNote.isSustainNote)
@@ -500,7 +499,7 @@ class EditorPlayState extends MusicBeatState
 				}
 
 				var doKill:Bool = daNote.y < -daNote.height;
-				if (OptionUtils.options.downScroll)
+				if (Options.save.data.downScroll)
 					doKill = daNote.y > FlxG.height;
 
 				if (doKill)
@@ -568,7 +567,7 @@ class EditorPlayState extends MusicBeatState
 
 		if (generatedMusic)
 		{
-			notes.sort(FlxSort.byY, OptionUtils.options.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
+			notes.sort(FlxSort.byY, Options.save.data.downScroll ? FlxSort.ASCENDING : FlxSort.DESCENDING);
 		}
 	}
 
@@ -598,7 +597,7 @@ class EditorPlayState extends MusicBeatState
 		var key:Int = getKeyFromEvent(eventKey);
 		// Debug.logTrace('Pressed: $eventKey');
 
-		if (key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || OptionUtils.options.controllerMode))
+		if (key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || Options.save.data.controllerMode))
 		{
 			if (generatedMusic)
 			{
@@ -606,7 +605,7 @@ class EditorPlayState extends MusicBeatState
 				var lastTime:Float = Conductor.songPosition;
 				Conductor.songPosition = FlxG.sound.music.time;
 
-				var canMiss:Bool = !OptionUtils.options.ghostTapping;
+				var canMiss:Bool = !Options.save.data.ghostTapping;
 
 				// heavily based on my own code LOL if it aint broke dont fix it
 				var pressNotes:Array<Note> = [];
@@ -654,7 +653,7 @@ class EditorPlayState extends MusicBeatState
 						}
 					}
 				}
-				else if (canMiss && !OptionUtils.options.ghostTapping)
+				else if (canMiss && !Options.save.data.ghostTapping)
 				{
 					noteMiss(key);
 				}
@@ -716,7 +715,7 @@ class EditorPlayState extends MusicBeatState
 		var controlHoldArray:Array<Bool> = [left, down, up, right];
 
 		// TODO: Find a better way to handle controller inputs, this should work for now
-		if (OptionUtils.options.controllerMode)
+		if (Options.save.data.controllerMode)
 		{
 			var controlArray:Array<Bool> = [
 				controls.NOTE_LEFT_P,
@@ -749,7 +748,7 @@ class EditorPlayState extends MusicBeatState
 		}
 
 		// TODO: Find a better way to handle controller inputs, this should work for now
-		if (OptionUtils.options.controllerMode)
+		if (Options.save.data.controllerMode)
 		{
 			var controlArray:Array<Bool> = [
 				controls.NOTE_LEFT_R,
@@ -841,7 +840,7 @@ class EditorPlayState extends MusicBeatState
 
 	private function popUpScore(note:Note = null):Void
 	{
-		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + OptionUtils.options.ratingOffset);
+		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + Options.save.data.ratingOffset);
 
 		vocals.volume = 1;
 
@@ -892,7 +891,7 @@ class EditorPlayState extends MusicBeatState
 
 		if (PlayState.isPixelStage)
 		{
-			pixelShitPart1 = 'pixelUI/';
+			pixelShitPart1 = 'weeb/pixelUI/';
 			pixelShitPart2 = '-pixel';
 		}
 
@@ -903,18 +902,18 @@ class EditorPlayState extends MusicBeatState
 		rating.acceleration.y = 550;
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
-		rating.visible = !OptionUtils.options.hideHud;
-		rating.x += OptionUtils.options.comboOffset[0];
-		rating.y -= OptionUtils.options.comboOffset[1];
+		rating.visible = !Options.save.data.hideHud;
+		rating.x += Options.save.data.comboOffset[0];
+		rating.y -= Options.save.data.comboOffset[1];
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}combo$pixelShitPart2'));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
 		comboSpr.velocity.y -= 150;
-		comboSpr.visible = !OptionUtils.options.hideHud;
-		comboSpr.x += OptionUtils.options.comboOffset[0];
-		comboSpr.y -= OptionUtils.options.comboOffset[1];
+		comboSpr.visible = !Options.save.data.hideHud;
+		comboSpr.x += Options.save.data.comboOffset[0];
+		comboSpr.y -= Options.save.data.comboOffset[1];
 
 		comboSpr.velocity.x += FlxG.random.int(1, 10);
 		comboGroup.add(rating);
@@ -922,9 +921,9 @@ class EditorPlayState extends MusicBeatState
 		if (!PlayState.isPixelStage)
 		{
 			rating.setGraphicSize(Std.int(rating.width * 0.7));
-			rating.antialiasing = OptionUtils.options.globalAntialiasing;
+			rating.antialiasing = Options.save.data.globalAntialiasing;
 			comboSpr.setGraphicSize(Std.int(comboSpr.width * 0.7));
-			comboSpr.antialiasing = OptionUtils.options.globalAntialiasing;
+			comboSpr.antialiasing = Options.save.data.globalAntialiasing;
 		}
 		else
 		{
@@ -953,12 +952,12 @@ class EditorPlayState extends MusicBeatState
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 80;
 
-			numScore.x += OptionUtils.options.comboOffset[2];
-			numScore.y -= OptionUtils.options.comboOffset[3];
+			numScore.x += Options.save.data.comboOffset[2];
+			numScore.y -= Options.save.data.comboOffset[3];
 
 			if (!PlayState.isPixelStage)
 			{
-				numScore.antialiasing = OptionUtils.options.globalAntialiasing;
+				numScore.antialiasing = Options.save.data.globalAntialiasing;
 				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			}
 			else
@@ -970,7 +969,7 @@ class EditorPlayState extends MusicBeatState
 			numScore.acceleration.y = FlxG.random.int(200, 300);
 			numScore.velocity.y -= FlxG.random.int(140, 160);
 			numScore.velocity.x = FlxG.random.float(-5, 5);
-			numScore.visible = !OptionUtils.options.hideHud;
+			numScore.visible = !Options.save.data.hideHud;
 
 			if (combo >= 10 || combo == 0)
 				insert(members.indexOf(strumLineNotes), numScore);
@@ -1013,10 +1012,10 @@ class EditorPlayState extends MusicBeatState
 		{
 			// Debug.logTrace(i);
 			var targetAlpha:Float = 1;
-			if (player < 1 && OptionUtils.options.middleScroll)
+			if (player < 1 && Options.save.data.middleScroll)
 				targetAlpha = 0.35;
 
-			var babyArrow:StrumNote = new StrumNote(OptionUtils.options.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X, strumLine.y, i,
+			var babyArrow:StrumNote = new StrumNote(Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X, strumLine.y, i,
 				player);
 			babyArrow.alpha = targetAlpha;
 
@@ -1026,7 +1025,7 @@ class EditorPlayState extends MusicBeatState
 			}
 			else
 			{
-				if (OptionUtils.options.middleScroll)
+				if (Options.save.data.middleScroll)
 				{
 					babyArrow.x += 310;
 					if (i > 1)
@@ -1065,7 +1064,7 @@ class EditorPlayState extends MusicBeatState
 	// Note splash shit, duh
 	private function spawnNoteSplashOnNote(note:Note):Void
 	{
-		if (OptionUtils.options.noteSplashes && note != null)
+		if (Options.save.data.noteSplashes && note != null)
 		{
 			var strum:StrumNote = playerStrums.members[note.noteData];
 			if (strum != null)
@@ -1081,9 +1080,9 @@ class EditorPlayState extends MusicBeatState
 		if (PlayState.song.splashSkin != null && PlayState.song.splashSkin.length > 0)
 			skin = PlayState.song.splashSkin;
 
-		var hue:Float = OptionUtils.options.arrowHSV[data % 4][0] / 360;
-		var sat:Float = OptionUtils.options.arrowHSV[data % 4][1] / 100;
-		var brt:Float = OptionUtils.options.arrowHSV[data % 4][2] / 100;
+		var hue:Float = Options.save.data.arrowHSV[data % 4][0] / 360;
+		var sat:Float = Options.save.data.arrowHSV[data % 4][1] / 100;
+		var brt:Float = Options.save.data.arrowHSV[data % 4][2] / 100;
 		if (note != null)
 		{
 			skin = note.noteSplashTexture;
@@ -1105,7 +1104,7 @@ class EditorPlayState extends MusicBeatState
 		vocals.stop();
 		vocals.destroy();
 
-		if (!OptionUtils.options.controllerMode)
+		if (!Options.save.data.controllerMode)
 		{
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);

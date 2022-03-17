@@ -7,7 +7,6 @@ import flixel.math.FlxPoint;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 import options.OptionsState;
 
 class JudgeCustomizationState extends MusicBeatState
@@ -36,8 +35,8 @@ class JudgeCustomizationState extends MusicBeatState
 		FlxG.mouse.visible = true;
 
 		defaultPos = FlxPoint.get();
-		judgePlacementPos = FlxPoint.get(OptionUtils.options.judgeX, OptionUtils.options.judgeY);
-		stage = new Stage('stage', OptionUtils.options);
+		judgePlacementPos = FlxPoint.get(Options.save.data.judgeX, Options.save.data.judgeY);
+		stage = new Stage('stage', Options.save.data);
 		add(stage);
 
 		add(stage.layers.get("gf"));
@@ -60,7 +59,7 @@ class JudgeCustomizationState extends MusicBeatState
 		judge.setGraphicSize(Std.int(judge.width * 0.7));
 		judge.updateHitbox();
 
-		if (OptionUtils.options.ratingInHUD)
+		if (Options.save.data.ratingInHUD)
 		{
 			coolText.scrollFactor.set(0, 0);
 			judge.scrollFactor.set(0, 0);
@@ -74,8 +73,8 @@ class JudgeCustomizationState extends MusicBeatState
 
 		add(judge);
 		defaultPos.set(judge.x, judge.y);
-		judge.x += OptionUtils.options.judgeX;
-		judge.y += OptionUtils.options.judgeY;
+		judge.x += Options.save.data.judgeX;
+		judge.y += Options.save.data.judgeY;
 
 		var title:FlxText = new FlxText(0, 20, 0, "Judgement Movement", 32);
 		title.scrollFactor.set(0, 0);
@@ -110,7 +109,7 @@ class JudgeCustomizationState extends MusicBeatState
 		var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.55;
-		if (OptionUtils.options.ratingInHUD)
+		if (Options.save.data.ratingInHUD)
 		{
 			coolText.scrollFactor.set(0, 0);
 			coolText.screenCenter();
@@ -134,7 +133,7 @@ class JudgeCustomizationState extends MusicBeatState
 			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			numScore.updateHitbox();
 
-			if (OptionUtils.options.ratingInHUD)
+			if (Options.save.data.ratingInHUD)
 			{
 				numScore.scrollFactor.set(0, 0);
 				numScore.y += 50;
@@ -177,9 +176,9 @@ class JudgeCustomizationState extends MusicBeatState
 		{
 			if (FlxG.keys.justPressed.ENTER)
 			{
-				OptionUtils.options.judgeX = judgePlacementPos.x;
-				OptionUtils.options.judgeY = judgePlacementPos.y;
-				OptionUtils.saveOptions(OptionUtils.options);
+				Options.save.data.judgeX = judgePlacementPos.x;
+				Options.save.data.judgeY = judgePlacementPos.y;
+				EngineData.saveOptions();
 			}
 			FlxG.switchState(new OptionsState());
 		}

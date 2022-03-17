@@ -1,7 +1,6 @@
 package;
 
 import haxe.Json;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
@@ -71,7 +70,7 @@ class Replay
 			chartPath: "",
 			sm: false,
 			timestamp: Date.now(),
-			sf: OptionUtils.options.safeFrames,
+			sf: Options.save.data.safeFrames,
 			ana: new Analysis(),
 			songJudgements: []
 		};
@@ -104,9 +103,9 @@ class Replay
 			"sm": PlayState.isSM,
 			"timestamp": Date.now(),
 			"replayGameVer": REPLAY_VERSION,
-			"sf": OptionUtils.options.safeFrames,
+			"sf": Options.save.data.safeFrames,
 			"noteSpeed": PlayState.instance.songSpeed,
-			"isDownscroll": OptionUtils.options.downScroll,
+			"isDownscroll": Options.save.data.downScroll,
 			"songNotes": notearray,
 			"songJudgements": judge,
 			"ana": ana

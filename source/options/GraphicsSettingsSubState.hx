@@ -3,7 +3,6 @@ package options;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
-import options.Options.OptionUtils;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -47,22 +46,22 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			var sprite:FlxSprite = cast(basic, FlxSprite);
 			if (sprite != null && (sprite is FlxSprite) && !(sprite is FlxText))
 			{
-				sprite.antialiasing = OptionUtils.options.globalAntialiasing;
+				sprite.antialiasing = Options.save.data.globalAntialiasing;
 			}
 		}
 	}
 
 	function onChangeFramerate():Void
 	{
-		if (OptionUtils.options.framerate > FlxG.drawFramerate)
+		if (Options.save.data.framerate > FlxG.drawFramerate)
 		{
-			FlxG.updateFramerate = OptionUtils.options.framerate;
-			FlxG.drawFramerate = OptionUtils.options.framerate;
+			FlxG.updateFramerate = Options.save.data.framerate;
+			FlxG.drawFramerate = Options.save.data.framerate;
 		}
 		else
 		{
-			FlxG.drawFramerate = OptionUtils.options.framerate;
-			FlxG.updateFramerate = OptionUtils.options.framerate;
+			FlxG.drawFramerate = Options.save.data.framerate;
+			FlxG.updateFramerate = Options.save.data.framerate;
 		}
 	}
 }

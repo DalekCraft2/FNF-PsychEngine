@@ -1,7 +1,6 @@
 package;
 
 import Song.SongData;
-import options.Options.OptionUtils;
 
 /**
  * @author
@@ -22,18 +21,25 @@ class Conductor
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
-	public static var safeZoneOffset:Float = (OptionUtils.options.safeFrames / 60) * 1000; // is calculated in create(), is safeFrames in milliseconds
+	// safeFrames in milliseconds
+	// Must be initialized in a method, otherwise it will try to use Options.save before it is loaded and cause an NPE
+	public static var safeZoneOffset:Float;
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
+
+	public static function initializeSafeZoneOffset():Void
+	{
+		safeZoneOffset = (Options.save.data.safeFrames / 60) * 1000;
+	}
 
 	public static function judgeNote(note:Note,
 			diff:Float = 0):String // STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
 	{
 		// tryna do MS based judgment due to popular demand
 		var timingWindows:Array<Int> = [
-			OptionUtils.options.sickWindow,
-			OptionUtils.options.goodWindow,
-			OptionUtils.options.badWindow
+			Options.save.data.sickWindow,
+			Options.save.data.goodWindow,
+			Options.save.data.badWindow
 		];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 

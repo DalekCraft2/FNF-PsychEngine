@@ -5,12 +5,10 @@ import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import openfl.display.FPSMem;
 import options.Options;
 
 using StringTools;
@@ -18,7 +16,7 @@ using StringTools;
 class OptionsSubState extends MusicBeatSubState
 {
 	public static var instance:OptionsSubState;
-	public static var isInPause:Bool = false;
+	public static var isInPause:Bool;
 	private static var category:OptionCategory;
 
 	private var defCat:OptionCategory;
@@ -34,155 +32,114 @@ class OptionsSubState extends MusicBeatSubState
 	}
 
 	// TODO Make some of these not changeable whilst in PlayState, like in Kade Engine
+	// TODO Also, try to sort these a bit, maybe?
 	public function createDefault():Void
 	{
 		defCat = new OptionCategory("Default", [
 			new OptionCategory("Gameplay", [
 				new OptionCategory("Controls",
 					[
-						// TODO: rewrite
 						// TODO Reimplement the ability to change the second keybind
-						new ControlOption(controls, 'note_left', [A, LEFT]),
-						new ControlOption(controls, 'note_down', [S, DOWN]),
-						new ControlOption(controls, 'note_up', [W, UP]),
-						new ControlOption(controls, 'note_right', [D, RIGHT]),
+						// TODO Make option categories for these five control groups? (Notes, UI, Misc., Volume, Debug)
+						new ControlOption('note_left', controls),
+						new ControlOption('note_down', controls),
+						new ControlOption('note_up', controls),
+						new ControlOption('note_right', controls),
 
-						new ControlOption(controls, 'ui_left', [A, LEFT]),
-						new ControlOption(controls, 'ui_down', [S, DOWN]),
-						new ControlOption(controls, 'ui_up', [W, UP]),
-						new ControlOption(controls, 'ui_right', [D, RIGHT]),
+						new ControlOption('ui_left', controls),
+						new ControlOption('ui_down', controls),
+						new ControlOption('ui_up', controls),
+						new ControlOption('ui_right', controls),
 
-						new ControlOption(controls, 'accept', [SPACE, ENTER]),
-						new ControlOption(controls, 'back', [BACKSPACE, ESCAPE]),
-						new ControlOption(controls, 'pause', [ENTER, ESCAPE]),
-						new ControlOption(controls, 'reset', [R, NONE]),
+						new ControlOption('accept', controls),
+						new ControlOption('back', controls),
+						new ControlOption('pause', controls),
+						new ControlOption('reset', controls),
 
-						new ControlOption(controls, 'volume_mute', [ZERO, NONE]),
-						new ControlOption(controls, 'volume_up', [NUMPADPLUS, PLUS]),
-						new ControlOption(controls, 'volume_down', [NUMPADMINUS, MINUS]),
+						new ControlOption('volume_mute', controls),
+						new ControlOption('volume_up', controls),
+						new ControlOption('volume_down', controls),
 
-						new ControlOption(controls, 'debug_1', [SEVEN, NONE]),
-						new ControlOption(controls, 'debug_2', [EIGHT, NONE])
+						new ControlOption('debug_1', controls),
+						new ControlOption('debug_2', controls)
 					]),
-				new BooleanOption("controllerMode", false, "Controller Mode",
-					"Check this if you want to play with a controller instead of using your Keyboard."),
-				new BooleanOption("resetKey", true, "Reset Key", "Toggle pressing the bound key to instantly die"),
-				#if !FORCE_LUA_MODCHARTS new BooleanOption("loadModcharts", true, "Load Lua modcharts", "Toggles lua modcharts"),
+				new BooleanOption("controllerMode", "Controller Mode", "Toggle playing with a controller instead of a keyboard."),
+				new BooleanOption("resetKey", "Reset Key", "Toggle pressing the Reset keybind to game-over."),
+				#if !FORCE_LUA_MODCHARTS new BooleanOption("loadModcharts", "Load Lua Modcharts", "Toggle lua modcharts."),
 				#end
-				new BooleanOption("ghostTapping", true, "Ghost-Tapping", "Allows you to press keys while no notes are able to be hit."),
+				new BooleanOption("ghostTapping", "Ghost-Tapping", "Toggle being able to pressing keys while no notes are able to be hit."),
 				// TODO Finish the descriptions of these
 				// TODO Make this option change the suffix of the scrollSpeed option when changed
-				new StringOption("scrollType", 'multiplicative', "Scroll Type", "", 0, 1,
-					["multiplicative", "constant"] /*,
-						(i1, s, i2) ->
-						{
-							if (defCat != null)
-							{
-								var gameplayCategory:OptionCategory = defCat.options[0];
-
-							}
-					}*/),
-
-				new FloatOption("scrollSpeed", 1, "Scroll Speed", 0.1, 0.5, (OptionUtils.options.scrollType == 'multiplicative' ? 3 : 6),
-					(OptionUtils.options.scrollType == 'multiplicative' ? "X" : "")),
-				new FloatOption("healthGain", 1, "Health Gain Multiplier", 0.1, 0, 5, "X"),
-				new FloatOption("healthLoss", 1, "Health Loss Multiplier", 0.1, 0.5, 5, "X"),
-				new BooleanOption("instakill", false, "Instakill on Miss", "FC or die"),
-				new BooleanOption("practice ", false, "Practice Mode", ""),
-				#if !NO_BOTPLAY new BooleanOption("botPlay", false, "BotPlay", "Let a bot play for you"), #end
-				// new FloatOption("noteOffset", 0, "Note Delay", "Changes how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
-				// 	1, 0, 500, "ms", ""),
-				new FloatOption("ratingOffset", 0, "Rating Offset",
-					"Changes how late/early you have to hit for a \"Sick!\" Higher values mean you have to hit later.", 1, -30, 30, "ms"),
-				new FloatOption("sickWindow", 45, "Sick! Hit Window", "Changes the amount of time you have for hitting a \"Sick!\" in milliseconds.", 1, 15,
-					45, "ms"),
-				new FloatOption("goodWindow", 90, "Good Hit Window", "Changes the amount of time you have for hitting a \"Good\" in milliseconds.", 1, 15, 90,
-					"ms"),
-				new FloatOption("badWindow", 135, "Bad Hit Window", "Changes the amount of time you have for hitting a \"Bad\" in milliseconds.", 1, 15, 135,
-					"ms"),
-				new FloatOption("safeFrames", 10, "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
-				#if !NO_FREEPLAY_MODS
-				/*new OptionCategory("Freeplay Modifiers", [
-						new FloatOption("cMod", 0, "Speed Constant", "A constant speed to override the scroll speed. 0 for chart-dependant speed", 0.1, 0,
-							10, "", "", true),
-						new FloatOption("xMod", 1, "Speed Mult", "A multiplier to a chart's scroll speed", 0.1, 0, 2, "", "x", true),
-						new FloatOption("mMod", 1, "Minimum Speed", "The minimum scroll speed a chart can have", 0.1, 0, 10, "", "", true),
-						new BooleanOption("noFail", false, "No Fail", "You can't blueball, but there's an indicator that you failed and you don't save the score."),
-					]), */
+				new StringOption("scrollType", "Scroll Type", 0, 1, ["multiplicative", "constant"]),
+				new FloatOption("scrollSpeed", "Scroll Speed", 0.1, 0.5, (Options.save.data.scrollType == 'multiplicative' ? 3 : 6),
+					(Options.save.data.scrollType == 'multiplicative' ? "X" : "")),
+				new FloatOption("healthGain", "Health Gain Multiplier", 0.1, 0, 5, "X"),
+				new FloatOption("healthLoss", "Health Loss Multiplier", 0.1, 0.5, 5, "X"),
+				new BooleanOption("instakillOnMiss", "Instakill on Miss", "Toggle instantly getting a game over after a miss."),
+				new BooleanOption("practiceMode", "Practice Mode"),
+				#if !NO_BOTPLAY new BooleanOption("botPlay", "BotPlay", "Let a bot play for you."), #end
+				// TODO Try to rename this and change the description because it looks like the same thing as sickWindow
+				new IntegerOption("ratingOffset", "Rating Offset",
+					"Change how late/early a note must be hit for a \"Sick!\". Higher values mean notes must be hit later.", 1, -30, 30, "ms"),
+				new IntegerOption("sickWindow", "Sick! Hit Window", "Change the hit window for hitting a \"Sick!\", in milliseconds.", 1, 15, 45, "ms"),
+				new IntegerOption("goodWindow", "Good Hit Window", "Change the hit window for hitting a \"Good\", in milliseconds.", 1, 15, 90, "ms"),
+				new IntegerOption("badWindow", "Bad Hit Window", "Change the hit window for hitting a \"Bad\", in milliseconds.", 1, 15, 135, "ms"),
+				new FloatOption("safeFrames", "Safe Frames", "Changes how many frames you have for hitting a note earlier or later.", 0.1, 2, 10, "ms"),
+				// new IntegerOption("noteOffset", "Note Delay", "Change how late a note is spawned.\nUseful for preventing audio lag from wireless earphones.",
+				// 	1, 0, 500, "ms"),
 				new StateOption("Delay and Combo Offset", new NoteOffsetState()),
-				#end
-				/*new OptionCategory("Advanced", [
-						#if !FORCED_JUDGE new JudgementsOption("judgementWindow", "ITG", "Judgements",
-							"The judgement windows to use"), new BooleanOption("useEpic", true, "Use Epics", "Allows the 'Epic' judgement to be used"),
-						#end
-						new StringOption("accuracySystem", "Basic", "Accuracy System", "How accuracy is determined", 0, 2, ["Basic", "Stepmania", "Wife3"]),
-						// new BooleanOption("attemptToAdjust", false, "Better Sync", "Attempts to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual pos")
-					]
-					), */
-				new StateOption("Calibrate Offset", new SoundOffsetState()) // TODO: make a better 'calibrate offset'
+				// new StringOption("accuracySystem", "Accuracy System", "How accuracy is calculated.", 0, 2, ["Basic", "Stepmania", "Wife3"]),
+				// new BooleanOption("attemptToAdjust", "Better Sync",
+				// 	"Have the game attempt to sync the song position to the instrumental better by using the average offset between the\ninstrumental and the visual position."),
+				// new StateOption("Calibrate Offset", new SoundOffsetState()) // TODO: make a better 'calibrate offset'
 			]),
 			new OptionCategory("Appearance", [
-				new StateOption("Note Colors", new NotesState()),
-				new BooleanOption("showComboCounter", true, "Show Combo", "Shows your combo when you hit a note"),
-				new BooleanOption("showRatings", true, "Show Judgements", "Shows judgements when you hit a note"),
-				new BooleanOption("showMS", false, "Show Hit MS", "Shows millisecond difference when you hit a note"),
-				new BooleanOption("showCounters", true, "Show Judgement Counters", "Whether judgement counters get shown on the side"),
-				new BooleanOption("downScroll", false, "Downscroll", "Arrows come from the top down instead of the bottom up."),
-				new BooleanOption("middleScroll", false, "Centered Notes",
-					"Places your notes in the center of the screen and hides the opponent's. \"Middlescroll\""),
-				new BooleanOption("allowNoteModifiers", true, "Allow Note Modifiers", "Whether note modifiers (e.g pixel notes in week 6) get used"),
-				new FloatOption("backTrans", 0, "BG Darkness", "How dark the background is", 10, 0, 100, "%", "", true),
-				new StringOption("staticCam", "Default", "Camera Focus", "Who the camera should focus on", 0, 3, ["Default", "BF", "Dad", "Center"]),
-				// new BooleanOption("oldMenus", false, "Vanilla Menus", "Forces the vanilla menus to be used"),
-				// new BooleanOption("oldTitle", false, "Vanilla Title Screen", "Forces the vanilla title to be used"),
-				new BooleanOption("healthBarColors", true, "Healthbar Colours", "Whether the healthbar colour changes with the character"),
-				new BooleanOption("onlyScore", false, "Minimal Information", "Only shows your score below the hp bar"),
-				new BooleanOption("smoothHPBar", false, "Smooth Healthbar", "Makes the HP Bar smoother"),
-				new BooleanOption("fcBasedComboColor", false, "FC Combo Colouring", "Makes the combo's colour changes with type of FC you have"),
-				new BooleanOption("holdsBehindReceptors", false, "Stepmania Clipping", "Makes holds clip behind the receptors"),
-				// new NoteskinOption("noteSkin", "NoteSkin", "The noteskin to use"),
+				new StateOption("Note Colors", new NoteColorState()),
+				new BooleanOption("showComboCounter", "Show Combo", "Show the combo pop-up when a note is hit."),
+				new BooleanOption("showRatings", "Show Judgements", "Show judgements when a note is hit."),
+				new BooleanOption("showHitMS", "Show Hit MS", "Show millisecond difference when a note is hit."),
+				new BooleanOption("showCounters", "Show Judgement Counters", "Toggle the judgement counters on the side of the screen."),
+				new BooleanOption("downScroll", "DownScroll", "Arrows come from the top down instead of the bottom up."),
+				new BooleanOption("middleScroll", "MiddleScroll", "Place your notes in the center of the screen and hides the opponent's."),
+				new BooleanOption("allowNoteModifiers", "Allow Note Modifiers", "Toggle whether note modifiers (e.g pixel notes in week 6) get used."),
+				new FloatOption("bgAlpha", "BG Opacity", "How opaque the background is.", 10, 0, 100, "%", "", true),
+				new StringOption("cameraFocus", "Camera Focus", "Who the camera should focus on.", 0, 3, ["Default", "BF", "Dad", "Center"]),
+				new BooleanOption("healthBarColors", "Healthbar Colors", "Whether the healthbar color changes with the character."),
+				new BooleanOption("onlyScore", "Minimal Information", "Only show the score below the HP Bar"),
+				new BooleanOption("smoothHPBar", "Smooth Healthbar", "Make the HP Bar smoother."),
+				new BooleanOption("fcBasedComboColor", "FC Combo Coloring", "Make the combo's color change depending on the combo rank."),
+				new BooleanOption("holdsBehindStrums", "Stepmania Clipping", "Make note holds clip behind the strums."),
+				// new NoteskinOption("noteSkin", "NoteSkin", "The noteskin to use."),
 				new OptionCategory("Effects", [
-					new BooleanOption("picoCamshake", true, "Train camera shake", "Whether the train in week 3's background shakes the camera"),
-					// new BooleanOption("senpaiShaders", true, "Week 6 shaders","Is the CRT effect active in week 6"),
-					new StringOption("senpaiShaderStrength", "All", "Week 6 shaders", "How strong the week 6 shaders are", 0, 2, ["Off", "CRT", "All"])
+					new BooleanOption("picoCameraShake", "Train Camera Shake", "Whether the train in week 3's background shakes the camera."),
+					new StringOption("senpaiShaderStrength", "Week 6 Shaders", "How strong the week 6 shaders are.", 0, 2, ["Off", "CRT", "All"])
 				])
 			]),
 			new OptionCategory("Preferences", [
-				new BooleanOption("noteSplashes", true, "Show NoteSplashes", "Notesplashes showing up on sicks and above."),
-				new BooleanOption("camFollowsAnims", false, "Directional Camera", "Camera moving depending on a character's animations"),
-				new BooleanOption("hideHud", false, "Hide HUD", "If checked, hides most HUD elements."),
-				new StringOption("timeBarType", "Time Left", "Time Bar", "What should the Time Bar display?", 0, 3,
+				new BooleanOption("noteSplashes", "Show NoteSplashes", "Whether notesplashes show up on Sicks and above."),
+				new BooleanOption("camFollowsAnims", "Directional Camera", "Toggle moving the camera when a note is hit."),
+				new BooleanOption("hideHUD", "Hide HUD", "Hide most HUD elements."),
+				new StringOption("timeBarType", "Time Bar", "Change what is displayed on the Time Bar.", 0, 3,
 					['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']),
-				new BooleanOption("scoreScreen", false, "Score Screen", "Show the score screen after the end of a song"),
-				new BooleanOption("inputShow", false, "Score Screen Debug", "Display every single input on the score screen."),
-				new BooleanOption("accuracyDisplay", true, "Accuracy Display", "Display accuracy information on the info bar."),
-				new BooleanOption("npsDisplay", false, "NPS Display", "Shows your current Notes Per Second on the info bar."),
-				new BooleanOption("flashing", true, "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
-				new BooleanOption("camZooms", true, "Camera Zooms", "If unchecked, the camera won't zoom in on a beat hit."),
-				new BooleanOption("scoreZoom", true, "Score Text Zoom on Hit", "If unchecked, disables the Score text zooming\neverytime you hit a note."),
-				new FloatOption("healthBarAlpha", 1, "Health Bar Transparency", "How much transparent should the health bar and icons be.", 0.1, 0, 1, true),
-				new BooleanOption("ratingInHUD", false, "Fixed Judgements", "Fixes judgements, milliseconds and combo to the screen"),
-				new BooleanOption("ratingOverNotes", false, "Judgements over Notes", "Places judgements, milliseconds and combo above the playfield"),
-				new BooleanOption("smJudges", false, "Simply Judgements", "Animates judgements like ITG's Simply Love theme"),
-				new BooleanOption("persistentCombo", false, "Simply Combos", "Animates combos like ITG's Simply Love theme"),
-				new BooleanOption("pauseHoldAnims", true, "Holds Pause Animations", "Whether to pause animations on their first frame"),
-				new BooleanOption("menuFlash", true, "Flashing in Menus", "Whether buttons and the background should flash in menus"),
-				new BooleanOption("hitSound", false, "Hit Sounds", "Play a click sound when you hit a note"),
-				new BooleanOption("showFPS", false, "Show FPS", "Shows your FPS in the top left", (state:Bool) ->
-				{
-					FPSMem.showFPS = state;
-				}),
-				new BooleanOption("showMem", false, "Show Memory", "Shows memory usage in the top left", (state:Bool) ->
-				{
-					FPSMem.showMem = state;
-				}),
-				new BooleanOption("showMemPeak", false, "Show Memory Peak", "Shows peak memory usage in the top left",
-					(state:Bool) ->
-					{
-						FPSMem.showMemPeak = state;
-					}),
-				new StringOption("pauseMusic", "Tea Time", "Pause Screen Song", "What song do you prefer for the Pause Screen?", 0, 2,
-					["None", "Breakfast", "Tea Time"],
+				new BooleanOption("scoreScreen", "Score Screen", "Show the score screen after the end of a song."),
+				new BooleanOption("inputShow", "Score Screen Debug", "Display every input on the score screen."),
+				new BooleanOption("accuracyDisplay", "Accuracy Display", "Display accuracy information on the info bar."),
+				new BooleanOption("npsDisplay", "NPS Display", "Shows your current Notes Per Second on the info bar."),
+				new BooleanOption("flashing", "Flashing Lights", "Uncheck this if you're sensitive to flashing lights!"),
+				new BooleanOption("camZooms", "Camera Zooms", "Whether the camera zooms on each beat hit."),
+				new BooleanOption("scoreZoom", "Score Text Zoom on Hit", "Whether the Score text should zoom everytime a note is hit."),
+				new FloatOption("healthBarAlpha", "Health Bar Opacity", "How opaque the health bar and icons should be.", 0.1, 0, 1, true),
+				new BooleanOption("ratingInHUD", "Fixed Judgements", "Fix judgements, milliseconds, and combo to the screen."),
+				new BooleanOption("ratingOverNotes", "Judgements over Notes", "Place judgements, milliseconds and combo above the playfield."),
+				new BooleanOption("smJudges", "Simply Judgements", "Use judgement animated like ITG's Simply Love theme."),
+				new BooleanOption("persistentCombo", "Simply Combos", "Use combos animated like ITG's Simply Love theme."),
+				new BooleanOption("pauseHoldAnims", "Holds Pause Animations", "Whether to pause animations on their first frame."),
+				new BooleanOption("menuFlash", "Flashing in Menus", "Whether buttons and the background should flash in menus."),
+				new BooleanOption("hitSound", "Hit Sounds", "Play a click sound when a note is hit."),
+				new BooleanOption("showFPS", "Show FPS", "Show the current FPS in the top left."),
+				new BooleanOption("showMem", "Show Memory", "Show the memory usage in the top left."),
+				new BooleanOption("showMemPeak", "Show Memory Peak", "Show the peak memory usage in the top left."),
+				new StringOption("pauseMusic", "Pause Screen Song", "The song which plays in the pause menu.", 0, 2, ["None", "Breakfast", "Tea Time"],
 					(index:Int, name:String, indexAdd:Int) ->
 					{
 						if (name == 'None')
@@ -192,32 +149,30 @@ class OptionsSubState extends MusicBeatSubState
 
 						// changedMusic = true;
 					}),
-				new BooleanOption("ghosttapSounds", false, "Ghost-tap Hit Sounds", "Play a click sound when you ghost-tap"),
-				new FloatOption("hitsoundVol", 50, "Hit Sound Volume", "What volume the hitsound should be", 10, 0, 100, "%", "", true),
-				// new BooleanOption("freeplayPreview", false, "Song Preview in Freeplay", "Whether songs get played as you hover over them in Freeplay"),
-				new BooleanOption("fastTransitions", false, "Fast Transitions", "Makes transitions between states faster"),
+				new BooleanOption("ghostTapSounds", "Ghost-Tap Hit Sounds", "Play a click sound for each ghost-tap."),
+				new FloatOption("hitSoundVolume", "Hit Sound Volume", "The volume used for the hit sounds.", 10, 0, 100, "%", "", true),
+				new BooleanOption("fastTransitions", "Fast Transitions", "Makes transitions between states faster."),
 				// new StateOption("Judgement Position", new JudgeCustomizationState())
 			]),
 			new OptionCategory("Performance", [
-				new FloatOption("framerate", 120, "FPS Cap", "The FPS the game tries to run at", 30, 30, 360, "", "", true, (value:Float, step:Float) ->
+				new IntegerOption("framerate", "FPS Cap", "The FPS the game tries to run at.", 30, 30, 360, "", "", (value:Float, step:Float) ->
 				{
-					Main.setFPSCap(Std.int(value));
+					Main.setFPSCap(value);
 				}),
-				new BooleanOption("recycleComboJudges", false, "Recycling",
+				new BooleanOption("recycleComboJudges", "Recycling",
 					"Instead of making a new sprite for each judgement and combo number, objects are reused when possible.\nMay cause layering issues."),
-				new BooleanOption("lowQuality", false, "Low Quality",
-					"If checked, disables some background details,\ndecreases loading times and improves performance."),
-				new BooleanOption("noChars", false, "Hide Characters", "Hides characters ingame"),
-				new BooleanOption("noStage", false, "Hide Background", "Hides stage ingame"),
-				new BooleanOption("globalAntialiasing", true, "Antialiasing", "Toggles the ability for sprites to have antialiasing"),
-				new BooleanOption("allowOrderSorting", true, "Sort notes by order",
+				new BooleanOption("lowQuality", "Low Quality", "Disables some background details,\ndecreases loading times, and improves performance."),
+				new BooleanOption("noChars", "Hide Characters", "Hide characters in-game."),
+				new BooleanOption("noStage", "Hide Background", "Hide stages in-game."),
+				new BooleanOption("globalAntialiasing", "Antialiasing", "Toggle the ability for sprites to have antialiasing."),
+				new BooleanOption("allowOrderSorting", "Sort Notes by Order",
 					"Allows notes to go infront and behind other notes. May cause FPS drops on very high note-density charts."),
 				/*new OptionCategory("Caching", [
-						new BooleanOption("shouldCache", false, "Cache on startup", "Whether the engine caches stuff when the game starts"),
-						new BooleanOption("cacheSongs", false, "Cache songs", "Whether the engine caches songs if it caches on startup"),
-						new BooleanOption("cacheSounds", false, "Cache sounds", "Whether the engine caches misc sounds if it caches on startup"),
-						new BooleanOption("cacheImages", false, "Cache images", "Whether the engine caches misc images if it caches on startup"),
-						new BooleanOption("persistentImages", false, "Persistent Images", "Whether images should persist in memory", (state:Bool) ->
+						new BooleanOption("shouldCache", false, "Cache on Startup", "Whether the engine caches assets when the game starts."),
+						new BooleanOption("cacheSongs", false, "Cache Songs", "Whether the engine caches songs if it caches on startup."),
+						new BooleanOption("cacheSounds", false, "Cache Sounds", "Whether the engine caches misc sounds if it caches on startup."),
+						new BooleanOption("cacheImages", false, "Cache Images", "Whether the engine caches misc images if it caches on startup."),
+						new BooleanOption("persistentImages", false, "Persistent Images", "Whether images should persist in memory.", (state:Bool) ->
 						{
 							FlxGraphic.defaultPersist = state;
 						})
@@ -279,8 +234,8 @@ class OptionsSubState extends MusicBeatSubState
 		curSelected += diff;
 
 		if (curSelected < 0)
-			curSelected = Std.int(category.options.length) - 1;
-		if (curSelected >= Std.int(category.options.length))
+			curSelected = category.options.length - 1;
+		if (curSelected >= category.options.length)
 			curSelected = 0;
 
 		for (i in 0...optionText.length)
@@ -363,16 +318,16 @@ class OptionsSubState extends MusicBeatSubState
 					close();
 				}
 				Debug.logTrace("Save options");
-				OptionUtils.saveOptions(OptionUtils.options);
+				Options.saveOptions();
 			}
 		}
-		if (option.type != "Category")
+		if (!Std.isOfType(option, OptionCategory))
 		{
 			if (leftP)
 			{
 				if (option.left())
 				{
-					option.createOptionText(curSelected, optionText);
+					option.updateOptionText();
 					changeSelection();
 				}
 			}
@@ -380,7 +335,7 @@ class OptionsSubState extends MusicBeatSubState
 			{
 				if (option.right())
 				{
-					option.createOptionText(curSelected, optionText);
+					option.updateOptionText();
 					changeSelection();
 				}
 			}
@@ -394,7 +349,7 @@ class OptionsSubState extends MusicBeatSubState
 			{
 				if (option.keyPressed(pressed))
 				{
-					option.createOptionText(curSelected, optionText);
+					option.updateOptionText();
 					changeSelection();
 				}
 			}
@@ -402,7 +357,7 @@ class OptionsSubState extends MusicBeatSubState
 			{
 				if (option.keyReleased(released))
 				{
-					option.createOptionText(curSelected, optionText);
+					option.updateOptionText();
 					changeSelection();
 				}
 			}
@@ -411,14 +366,14 @@ class OptionsSubState extends MusicBeatSubState
 		if (accepted)
 		{
 			Debug.logTrace("shit");
-			if (option.type == 'Category')
+			if (Std.isOfType(option, OptionCategory))
 			{
 				category = cast(option, OptionCategory);
 				refresh();
 			}
 			else if (option.accept())
 			{
-				option.createOptionText(curSelected, optionText);
+				option.updateOptionText();
 			}
 			changeSelection();
 			Debug.logTrace("cum");
@@ -431,7 +386,7 @@ class OptionsSubState extends MusicBeatSubState
 			{
 				controlOption.forceUpdate = false;
 				// optionText.remove(optionText.members[curSelected]);
-				controlOption.createOptionText(curSelected, optionText);
+				controlOption.updateOptionText();
 				changeSelection();
 			}
 		}

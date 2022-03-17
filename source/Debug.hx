@@ -214,7 +214,7 @@ class Debug
 		#end
 		logInfo('HaxeFlixel version: ${Std.string(FlxG.VERSION)}');
 		logInfo('Friday Night Funkin\' version: ${Application.current.meta.get('version')}');
-		logInfo('Psych Engine version: ${MainMenuState.PSYCH_ENGINE_VERSION}');
+		logInfo('Psych Engine version: ${EngineData.ENGINE_VERSION}');
 	}
 
 	/**

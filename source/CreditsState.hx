@@ -44,7 +44,7 @@ class CreditsState extends MusicBeatState
 
 	var offsetThing:Float = -75;
 
-	override function create():Void
+	override public function create():Void
 	{
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
@@ -216,6 +216,7 @@ class CreditsState extends MusicBeatState
 				{
 					colorTween.cancel();
 				}
+				persistentUpdate = false;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxG.switchState(new MainMenuState());
 				quitting = true;

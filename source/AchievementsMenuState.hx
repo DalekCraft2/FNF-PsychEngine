@@ -10,7 +10,6 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-import options.Options.OptionUtils;
 
 using StringTools;
 
@@ -33,6 +32,9 @@ class AchievementsMenuState extends MusicBeatState
 
 		super.create();
 
+		persistentUpdate = true;
+		persistentDraw = true;
+
 		#if FEATURE_DISCORD
 		DiscordClient.changePresence("Achievements Menu", null);
 		#end
@@ -42,7 +44,7 @@ class AchievementsMenuState extends MusicBeatState
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
-		menuBG.antialiasing = OptionUtils.options.globalAntialiasing;
+		menuBG.antialiasing = Options.save.data.globalAntialiasing;
 		add(menuBG);
 
 		grpOptions = new FlxTypedGroup();
@@ -101,6 +103,7 @@ class AchievementsMenuState extends MusicBeatState
 
 		if (controls.BACK)
 		{
+			persistentUpdate = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.switchState(new MainMenuState());
 		}

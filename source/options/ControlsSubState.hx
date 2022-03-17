@@ -4,7 +4,6 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
-import options.Options.OptionUtils;
 
 class ControlsSubState extends MusicBeatSubState
 {
@@ -33,19 +32,19 @@ class ControlsSubState extends MusicBeatSubState
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = 0xFFea71fd;
 		bg.screenCenter();
-		bg.antialiasing = OptionUtils.options.globalAntialiasing;
+		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 
 		grpOptions = new FlxTypedGroup();
 		add(grpOptions);
 
 		optionShit.push(['']);
-		optionShit.push([defaultKey]);
+		optionShit.push([RESET_BUTTON_TEXT]);
 
 		for (i in 0...optionShit.length)
 		{
 			var isCentered:Bool = false;
-			var isDefaultKey:Bool = (optionShit[i][0] == defaultKey);
+			var isDefaultKey:Bool = (optionShit[i][0] == RESET_BUTTON_TEXT);
 			if (unselectableCheck(i, true))
 			{
 				isCentered = true;
@@ -109,9 +108,9 @@ class ControlsSubState extends MusicBeatSubState
 
 			if (controls.ACCEPT && nextAccept <= 0)
 			{
-				if (optionShit[curSelected][0] == defaultKey)
+				if (optionShit[curSelected][0] == RESET_BUTTON_TEXT)
 				{
-					OptionUtils.options.keyBinds = ClientPrefs.defaultKeys.copy();
+					Options.save.data.keyBinds = ClientPrefs.defaultKeys.copy();
 					reloadKeys();
 					changeSelection();
 					FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -137,7 +136,7 @@ class ControlsSubState extends MusicBeatSubState
 			var keyPressed:Int = FlxG.keys.firstJustPressed();
 			if (keyPressed > -1)
 			{
-				var keysArray:Array<FlxKey> = OptionUtils.options.keyBinds.get(optionShit[curSelected][1]);
+				var keysArray:Array<FlxKey> = Options.save.data.keyBinds.get(optionShit[curSelected][1]);
 				keysArray[curAlt ? 1 : 0] = keyPressed;
 
 				var opposite:Int = (curAlt ? 0 : 1);
@@ -145,7 +144,7 @@ class ControlsSubState extends MusicBeatSubState
 				{
 					keysArray[opposite] = NONE;
 				}
-				OptionUtils.options.keyBinds.set(optionShit[curSelected][1], keysArray);
+				Options.save.data.keyBinds.set(optionShit[curSelected][1], keysArray);
 
 				reloadKeys();
 				FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -282,16 +281,16 @@ class ControlsSubState extends MusicBeatSubState
 
 	private function unselectableCheck(num:Int, ?checkDefaultKey:Bool = false):Bool
 	{
-		if (optionShit[num][0] == defaultKey)
+		if (optionShit[num][0] == RESET_BUTTON_TEXT)
 		{
 			return checkDefaultKey;
 		}
-		return optionShit[num].length < 2 && optionShit[num][0] != defaultKey;
+		return optionShit[num].length < 2 && optionShit[num][0] != RESET_BUTTON_TEXT;
 	}
 
 	private function addBindTexts(optionText:Alphabet, num:Int):Void
 	{
-		var keys:Array<FlxKey> = OptionUtils.options.keyBinds.get(optionShit[num][1]);
+		var keys:Array<FlxKey> = Options.save.data.keyBinds.get(optionShit[num][1]);
 		var text1:AttachedText = new AttachedText(InputFormatter.getKeyName(keys[0]), 400, -55);
 		text1.setPosition(optionText.x + 400, optionText.y - 55);
 		text1.sprTracker = optionText;
@@ -322,7 +321,7 @@ class ControlsSubState extends MusicBeatSubState
 			item.destroy();
 		}
 
-		Debug.logTrace('Reloaded keys: ${OptionUtils.options.keyBinds}');
+		Debug.logTrace('Reloaded keys: ${Options.save.data.keyBinds}');
 
 		for (i in 0...grpOptions.length)
 		{

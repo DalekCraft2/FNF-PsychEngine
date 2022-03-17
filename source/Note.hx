@@ -2,9 +2,8 @@ package;
 
 import editors.ChartingState;
 import flixel.FlxSprite;
-import options.Options.OptionUtils;
 
-typedef EventNote =
+typedef EventNoteData =
 {
 	strumTime:Float,
 	event:String,
@@ -101,9 +100,9 @@ class Note extends FlxSprite
 	private function set_noteType(value:String):String
 	{
 		noteSplashTexture = PlayState.song.splashSkin;
-		colorSwap.hue = OptionUtils.options.arrowHSV[noteData % 4][0] / 360;
-		colorSwap.saturation = OptionUtils.options.arrowHSV[noteData % 4][1] / 100;
-		colorSwap.brightness = OptionUtils.options.arrowHSV[noteData % 4][2] / 100;
+		colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
+		colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
+		colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
 
 		if (noteData > -1 && noteType != value)
 		{
@@ -149,12 +148,12 @@ class Note extends FlxSprite
 		isSustainNote = sustainNote;
 		this.inEditor = inEditor;
 
-		x += (OptionUtils.options.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
+		x += (Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
 		if (!inEditor)
-			this.strumTime += OptionUtils.options.noteOffset;
+			this.strumTime += Options.save.data.noteOffset;
 
 		this.noteData = noteData;
 
@@ -190,7 +189,7 @@ class Note extends FlxSprite
 			alpha = 0.6;
 			multAlpha = 0.6;
 			hitsoundDisabled = true;
-			if (OptionUtils.options.downScroll)
+			if (Options.save.data.downScroll)
 				flipY = true;
 
 			offsetX += width / 2;
@@ -296,18 +295,18 @@ class Note extends FlxSprite
 		{
 			if (isSustainNote)
 			{
-				loadGraphic(Paths.image('pixelUI/${blahblah}ENDS'));
+				loadGraphic(Paths.image('weeb/pixelUI/${blahblah}ENDS', 'week6'));
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.image('pixelUI/${blahblah}ENDS'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('weeb/pixelUI/${blahblah}ENDS', 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			else
 			{
-				loadGraphic(Paths.image('pixelUI/$blahblah'));
+				loadGraphic(Paths.image('weeb/pixelUI/$blahblah', 'week6'));
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.image('pixelUI/$blahblah'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.image('weeb/pixelUI/$blahblah', 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 			loadPixelNoteAnims();
@@ -331,7 +330,7 @@ class Note extends FlxSprite
 		{
 			frames = Paths.getSparrowAtlas(blahblah);
 			loadNoteAnims();
-			antialiasing = OptionUtils.options.globalAntialiasing;
+			antialiasing = Options.save.data.globalAntialiasing;
 		}
 		if (isSustainNote)
 		{

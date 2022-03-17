@@ -25,7 +25,6 @@ import haxe.Exception;
 import lime.app.Application;
 import openfl.display.BitmapData;
 import openfl.utils.Assets as OpenFlAssets;
-import options.Options.OptionUtils;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
@@ -78,17 +77,17 @@ class Caching extends MusicBeatState
 		text.y -= kadeLogo.height / 2 - 125;
 		text.x -= 170;
 		kadeLogo.setGraphicSize(Std.int(kadeLogo.width * 0.6));
-		if (OptionUtils.options.antialiasing != null)
+		if (Options.save.data.antialiasing != null)
 			kadeLogo.antialiasing = FlxG.save.data.antialiasing;
 		else
 			kadeLogo.antialiasing = true;
 
 		kadeLogo.alpha = 0;
 
-		FlxGraphic.defaultPersist = OptionUtils.options.persistentImages;
+		FlxGraphic.defaultPersist = Options.save.data.persistentImages;
 
 		#if FEATURE_FILESYSTEM
-		if (OptionUtils.options.cacheImages)
+		if (Options.save.data.cacheImages)
 		{
 			Debug.logTrace("caching images...");
 

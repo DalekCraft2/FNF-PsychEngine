@@ -1,20 +1,17 @@
 package openfl.display;
 
-import haxe.Timer;
 import openfl.display.Bitmap;
+#if flash
+import openfl.Lib;
+import openfl.events.Event;
+#end
 #if gl_stats
 import openfl.display._internal.stats.Context3DStats;
 import openfl.display._internal.stats.DrawCallContext;
 #end
-#if flash
-import openfl.events.Event;
-#end
 import openfl.system.System;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
-import options.Options.OptionUtils;
-
-// TODO Make this look more like Kade's without having it lag the game to an absurd degree
 
 /**
 	The FPS class provides an easy-to-use monitor to display
@@ -35,16 +32,11 @@ class FPSMem extends TextField
 
 	public var highestMem:Float;
 
-	// public var bitmap:Bitmap;
-	public static var showFPS:Bool = true;
-	public static var showMem:Bool = true;
-	public static var showMemPeak:Bool = true;
+	public var bitmap:Bitmap;
 
 	@:noCompletion private var cacheCount:Int;
 	@:noCompletion private var currentTime:Float;
 	@:noCompletion private var times:Array<Float>;
-
-	private var lastUpdate:Float = 0;
 
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
@@ -56,12 +48,10 @@ class FPSMem extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		// defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 12, color);
+		// defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 14, color);
 		defaultTextFormat = new TextFormat("_sans", 14, color);
-		width = 1280;
-		height = 720;
-
-		text = "FPS: ";
+		text = 'FPS: $currentFPS\n';
+		width += 200;
 
 		cacheCount = 0;
 		currentTime = 0;
@@ -71,70 +61,63 @@ class FPSMem extends TextField
 		#if flash
 		addEventListener(Event.ENTER_FRAME, (e) ->
 		{
-			__enterFrame(Timer.stamp() - lastUpdate);
+			var time:Int = Lib.getTimer();
+			__enterFrame(time - currentTime);
 		});
 		#end
-
-		// bitmap = ImageOutline.renderImage(this, 1, 0x000000, 1, true);
-		// (cast(Lib.current.getChildAt(0), Main)).addChild(bitmap);
 	}
 
 	// Event Handlers
-
 	@:noCompletion
-	override private function __enterFrame(d:Float):Void
+	#if !flash override #end private function __enterFrame(deltaTime:Float):Void
 	{
-		// TODO Can I add a super.__enterFrame(d) call here?
-		// super.__enterFrame(d);
-		// Nope. Can't. The super method has an Int for a parameter.
+		// super.__enterFrame(deltaTime);
 
-		currentTime = Timer.stamp();
-		lastUpdate = currentTime;
+		currentTime += deltaTime;
 		times.push(currentTime);
-		while (times[0] < currentTime - 1)
+		while (times[0] < currentTime - 1000)
 			times.shift();
 
 		var currentCount:Int = times.length;
-		currentFPS = currentCount;
-		currentMem = Math.abs(Math.round(System.totalMemory / (1e+6)));
+		currentFPS = Math.round((currentCount + cacheCount) / 2);
+		currentMem = Math.round(System.totalMemory / (1e+6));
 
 		if (currentMem > highestMem)
 			highestMem = currentMem;
 		if (currentCount != cacheCount /*&& visible*/)
 		{
-			text = "";
-			if (showFPS)
-				text += "FPS: " + currentFPS + "\n";
-			if (showMem)
+			text = '';
+
+			if (Options.save.data.showFPS)
+				text += 'FPS: $currentFPS\n';
+
+			if (Options.save.data.showMem)
 			{
 				if (currentMem < 0)
-				{
-					text += "Memory: Leaking " + Math.abs(currentMem) + " MB\n";
-				}
+					text += 'RAM: Leaking ${Math.abs(currentMem)} MB\n';
 				else
-				{
-					text += "Memory: " + currentMem + " MB\n";
-				}
+					text += 'RAM: $currentMem MB\n';
 			}
-			if (showMemPeak)
-				text += "Mem Peak: " + highestMem + " MB\n";
+			if (Options.save.data.showMemPeak)
+				text += 'RAM Peak: $highestMem MB\n';
 
-			textColor = 0xFFFFFFFF;
-			if (currentMem > 3000 || currentFPS <= OptionUtils.options.framerate / 2)
+			textColor = 0xFFFFFF;
+			if (currentMem > 3000 || currentFPS <= Options.save.data.framerate / 2)
 			{
-				textColor = 0xFFFF0000;
+				textColor = 0xFF0000;
 			}
+
+			#if (gl_stats && !disable_cffi && (!html5 || !canvas))
+			text += 'totalDC: ${Context3DStats.totalDrawCalls()}\n';
+
+			text += 'stageDC: ${Context3DStats.contextDrawCalls(DrawCallContext.STAGE)}\n';
+			text += 'stage3DDC: ${Context3DStats.contextDrawCalls(DrawCallContext.STAGE3D)}\n';
+			#end
 		}
-
-		// visible = true;
-
-		// Main.instance.removeChild(bitmap);
-
-		// bitmap = ImageOutline.renderImage(this, 2, 0x000000, 1);
-
-		// Main.instance.addChild(bitmap);
-
-		// visible = false;
+		Main.instance.removeChild(bitmap);
+		bitmap = ImageOutline.renderImage(this, 2, 0x000000, 1);
+		bitmap.smoothing = true;
+		Main.instance.addChild(bitmap);
 
 		cacheCount = currentCount;
 	}

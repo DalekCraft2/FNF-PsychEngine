@@ -1,7 +1,12 @@
 package;
 
 import flixel.FlxSprite;
-import options.Options.OptionUtils;
+import haxe.Json;
+import openfl.utils.Assets;
+#if FEATURE_MODS
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 typedef MenuCharacterData =
 {
@@ -35,7 +40,7 @@ class MenuCharacter extends FlxSprite
 			return;
 
 		this.character = character;
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 		visible = true;
 
 		var dontPlayAnim:Bool = false;
@@ -51,13 +56,30 @@ class MenuCharacter extends FlxSprite
 			default:
 				var characterPath:String = 'menucharacters/$character';
 
-				var rawJson:Dynamic = Paths.loadJson(characterPath);
-				if (rawJson == null)
+				var rawJson:String = null;
+
+				#if FEATURE_MODS
+				var path:String = Paths.modsJson(characterPath);
+				if (!FileSystem.exists(path))
 				{
-					rawJson = Paths.loadJson('menucharacters/$DEFAULT_CHARACTER');
+					path = Paths.json(characterPath);
 				}
 
-				var menuCharacterData:MenuCharacterData = cast rawJson;
+				if (!FileSystem.exists(path))
+				{
+					path = Paths.json('menucharacters/$DEFAULT_CHARACTER');
+				}
+				rawJson = File.getContent(path);
+				#else
+				var path:String = Paths.json(characterPath);
+				if (!Assets.exists(path))
+				{
+					path = Paths.json('menucharacters/$DEFAULT_CHARACTER');
+				}
+				rawJson = Assets.getText(path);
+				#end
+
+				var menuCharacterData:MenuCharacterData = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/${menuCharacterData.image}');
 				animation.addByPrefix('idle', menuCharacterData.idle_anim, 24);
 

@@ -10,7 +10,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import haxe.Json;
 import openfl.utils.Assets;
-import options.Options.OptionUtils;
 #if FEATURE_MODS
 import haxe.io.Path;
 import sys.FileSystem;
@@ -29,6 +28,7 @@ typedef AchievementData =
 	var customGoal:Bool;
 }
 
+// TODO Move the static stuff to the Achievement class so we can change the file name to the singular form because consistency
 class Achievements
 {
 	// Gets filled when loading achievements
@@ -254,7 +254,7 @@ class AttachedAchievement extends FlxSprite
 		super(x, y);
 
 		changeAchievement(name);
-		antialiasing = OptionUtils.options.globalAntialiasing;
+		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
 	public function changeAchievement(tag:String):Void
@@ -299,7 +299,7 @@ class Achievement extends FlxSpriteGroup
 	{
 		super(x, y);
 
-		OptionUtils.saveOptions(OptionUtils.options);
+		Options.saveOptions();
 
 		var id:Int = Achievements.getAchievementIndex(name);
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
@@ -309,7 +309,7 @@ class Achievement extends FlxSpriteGroup
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
-		achievementIcon.antialiasing = OptionUtils.options.globalAntialiasing;
+		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
 		var achievementId:String = Achievements.achievementList[id];
 		var achievement:AchievementData = Achievements.achievementsLoaded.get(achievementId);
