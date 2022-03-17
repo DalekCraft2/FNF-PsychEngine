@@ -1,7 +1,6 @@
 package;
 
-import Achievements.Achievement;
-import Achievements.AchievementData;
+import Achievement.AchievementData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -153,14 +152,14 @@ class MainMenuState extends MusicBeatState
 		changeItem();
 
 		#if FEATURE_ACHIEVEMENTS
-		Achievements.loadAchievements();
+		Achievement.loadAchievements();
 		var leDate:Date = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 		{
-			var achievement:AchievementData = Achievements.achievementsLoaded.get('friday_night_play');
-			if (!Achievements.isAchievementUnlocked(achievement.icon))
+			var achievement:AchievementData = Achievement.achievementsLoaded.get('friday_night_play');
+			if (!Achievement.isAchievementUnlocked(achievement.icon))
 			{ // It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievements.achievementsMap.set(achievement.icon, true);
+				Achievement.achievementsMap.set(achievement.icon, true);
 				giveAchievement();
 				Options.saveOptions();
 			}

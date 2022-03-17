@@ -109,8 +109,8 @@ class ClientPrefs
 		FlxG.save.data.resetKey = resetKey;
 		FlxG.save.data.healthBarAlpha = healthBarAlpha;
 		FlxG.save.data.comboOffset = comboOffset;
-		FlxG.save.data.achievementsMap = Achievements.achievementsMap;
-		FlxG.save.data.henchmenDeath = Achievements.henchmenDeath;
+		FlxG.save.data.achievementsMap = Achievement.achievementsMap;
+		FlxG.save.data.henchmenDeath = Achievement.henchmenDeath;
 
 		FlxG.save.data.ratingOffset = ratingOffset;
 		FlxG.save.data.sickWindow = sickWindow;

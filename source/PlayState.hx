@@ -1,6 +1,5 @@
 package;
 
-import Achievements;
 import DialogueBoxPsych.DialogueData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
@@ -4855,8 +4854,8 @@ class PlayState extends MusicBeatState
 				limoKillingState = 1;
 
 				#if FEATURE_ACHIEVEMENTS
-				Achievements.henchmenDeath++;
-				FlxG.save.data.henchmenDeath = Achievements.henchmenDeath;
+				Achievement.henchmenDeath++;
+				FlxG.save.data.henchmenDeath = Achievement.henchmenDeath;
 				var achieve:String = checkForAchievement(['roadkill_enthusiast']);
 				if (achieve != null)
 				{
@@ -4866,7 +4865,7 @@ class PlayState extends MusicBeatState
 				{
 					FlxG.save.flush();
 				}
-				Debug.logTrace('Deaths: ${Achievements.henchmenDeath}');
+				Debug.logTrace('Deaths: ${Achievement.henchmenDeath}');
 				#end
 			}
 		}
@@ -5245,7 +5244,7 @@ class PlayState extends MusicBeatState
 	{
 		if (achievesToCheck == null)
 		{
-			achievesToCheck = Achievements.achievementList;
+			achievesToCheck = Achievement.achievementList;
 		}
 
 		if (chartingMode)
@@ -5254,7 +5253,7 @@ class PlayState extends MusicBeatState
 		var usedPractice:Bool = (PlayStateChangeables.practiceMode || PlayStateChangeables.botPlay);
 		for (achievementId in achievesToCheck)
 		{
-			if (!Achievements.isAchievementUnlocked(achievementId) && !PlayStateChangeables.botPlay)
+			if (!Achievement.isAchievementUnlocked(achievementId) && !PlayStateChangeables.botPlay)
 			{
 				var unlock:Bool = false;
 				switch (achievementId)
@@ -5297,7 +5296,7 @@ class PlayState extends MusicBeatState
 							unlock = true;
 						}
 					case 'roadkill_enthusiast':
-						if (Achievements.henchmenDeath >= 100)
+						if (Achievement.henchmenDeath >= 100)
 						{
 							unlock = true;
 						}
@@ -5342,7 +5341,7 @@ class PlayState extends MusicBeatState
 
 				if (unlock)
 				{
-					Achievements.unlockAchievement(achievementId);
+					Achievement.unlockAchievement(achievementId);
 					return achievementId;
 				}
 			}

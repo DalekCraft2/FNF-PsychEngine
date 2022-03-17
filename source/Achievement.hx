@@ -28,8 +28,7 @@ typedef AchievementData =
 	var customGoal:Bool;
 }
 
-// TODO Move the static stuff to the Achievement class so we can change the file name to the singular form because consistency
-class Achievements
+class Achievement extends FlxSpriteGroup
 {
 	// Gets filled when loading achievements
 	public static var achievementList:Array<String> = [];
@@ -37,6 +36,10 @@ class Achievements
 	public static var achievementsLoaded:Map<String, AchievementData> = [];
 
 	public static var henchmenDeath:Int = 0;
+
+	public var onFinish:() -> Void = null;
+
+	var alphaTween:FlxTween;
 
 	public static function unlockAchievement(name:String):Void
 	{
@@ -164,7 +167,7 @@ class Achievements
 					if (achievementData != null)
 					{
 						achievementsLoaded.set(achievementId, achievementData);
-						Achievements.achievementList.push(achievementId);
+						Achievement.achievementList.push(achievementId);
 					}
 				}
 			}
@@ -213,13 +216,6 @@ class Achievements
 		}
 	}
 
-	/*private static function getAchievementData(achievement:String):AchievementData
-		{
-			var achievementPath:String = 'achievements/$achievement';
-			var rawJson:Dynamic = Paths.loadJson(achievementPath);
-			var achievementData:AchievementData = cast rawJson;
-			return achievementData;
-	}*/
 	private static function getAchievementData(achievementPath:String):AchievementData
 	{
 		var rawJson:String = null;
@@ -241,59 +237,6 @@ class Achievements
 		}
 		return null;
 	}
-}
-
-class AttachedAchievement extends FlxSprite
-{
-	public var sprTracker:FlxSprite;
-
-	private var tag:String;
-
-	public function new(x:Float = 0, y:Float = 0, name:String)
-	{
-		super(x, y);
-
-		changeAchievement(name);
-		antialiasing = Options.save.data.globalAntialiasing;
-	}
-
-	public function changeAchievement(tag:String):Void
-	{
-		this.tag = tag;
-		reloadAchievementImage();
-	}
-
-	public function reloadAchievementImage():Void
-	{
-		if (Achievements.isAchievementUnlocked(tag))
-		{
-			var graphic:FlxGraphic = Paths.image('achievements/$tag');
-			if (graphic == null)
-				graphic = Paths.image('achievements/missing');
-			loadGraphic(graphic);
-		}
-		else
-		{
-			loadGraphic(Paths.image('achievements/locked'));
-		}
-		scale.set(0.7, 0.7);
-		updateHitbox();
-	}
-
-	override function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		if (sprTracker != null)
-			setPosition(sprTracker.x - 130, sprTracker.y + 25);
-	}
-}
-
-class Achievement extends FlxSpriteGroup
-{
-	public var onFinish:() -> Void = null;
-
-	var alphaTween:FlxTween;
 
 	public function new(name:String, ?camera:FlxCamera = null)
 	{
@@ -301,7 +244,7 @@ class Achievement extends FlxSpriteGroup
 
 		Options.saveOptions();
 
-		var id:Int = Achievements.getAchievementIndex(name);
+		var id:Int = getAchievementIndex(name);
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
@@ -311,8 +254,8 @@ class Achievement extends FlxSpriteGroup
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
-		var achievementId:String = Achievements.achievementList[id];
-		var achievement:AchievementData = Achievements.achievementsLoaded.get(achievementId);
+		var achievementId:String = achievementList[id];
+		var achievement:AchievementData = achievementsLoaded.get(achievementId);
 
 		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievement.name, 16);
 		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
@@ -362,5 +305,51 @@ class Achievement extends FlxSpriteGroup
 		{
 			alphaTween.cancel();
 		}
+	}
+}
+
+class AttachedAchievement extends FlxSprite
+{
+	public var sprTracker:FlxSprite;
+
+	private var tag:String;
+
+	public function new(x:Float = 0, y:Float = 0, name:String)
+	{
+		super(x, y);
+
+		changeAchievement(name);
+		antialiasing = Options.save.data.globalAntialiasing;
+	}
+
+	public function changeAchievement(tag:String):Void
+	{
+		this.tag = tag;
+		reloadAchievementImage();
+	}
+
+	public function reloadAchievementImage():Void
+	{
+		if (Achievement.isAchievementUnlocked(tag))
+		{
+			var graphic:FlxGraphic = Paths.image('achievements/$tag');
+			if (graphic == null)
+				graphic = Paths.image('achievements/missing');
+			loadGraphic(graphic);
+		}
+		else
+		{
+			loadGraphic(Paths.image('achievements/locked'));
+		}
+		scale.set(0.7, 0.7);
+		updateHitbox();
+	}
+
+	override function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		if (sprTracker != null)
+			setPosition(sprTracker.x - 130, sprTracker.y + 25);
 	}
 }
