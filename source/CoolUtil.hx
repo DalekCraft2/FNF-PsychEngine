@@ -16,7 +16,7 @@ class CoolUtil
 
 	public static var difficulties:Array<String> = [];
 
-	public static function getDifficultyFilePath(num:Null<Int> = null)
+	public static function getDifficultyFilePath(?num:Int):String
 	{
 		if (num == null)
 			num = PlayState.storyDifficulty;

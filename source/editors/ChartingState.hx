@@ -234,7 +234,7 @@ class ChartingState extends MusicBeatState
 
 		vortex = FlxG.save.data.chart_vortex;
 		ignoreWarnings = FlxG.save.data.ignoreWarnings;
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.scrollFactor.set();
 		bg.color = 0xFF222222;
 		add(bg);
@@ -245,7 +245,7 @@ class ChartingState extends MusicBeatState
 		waveformSprite = new FlxSprite(GRID_SIZE, 0).makeGraphic(FlxG.width, FlxG.height, 0x00FFFFFF);
 		add(waveformSprite);
 
-		var eventIcon:FlxSprite = new FlxSprite(-GRID_SIZE - 5, -90).loadGraphic(Paths.image('eventArrow'));
+		var eventIcon:FlxSprite = new FlxSprite(-GRID_SIZE - 5, -90).loadGraphic(Paths.getGraphic('eventArrow'));
 		leftIcon = new HealthIcon('bf');
 		rightIcon = new HealthIcon('dad');
 		eventIcon.scrollFactor.set(1, 1);
@@ -450,11 +450,7 @@ class ChartingState extends MusicBeatState
 		var loadEventJson:FlxButton = new FlxButton(loadAutosaveBtn.x, loadAutosaveBtn.y + 30, 'Load Events', () ->
 		{
 			var file:String = Paths.json('songs/${_song.songId}/events');
-			#if FEATURE_FILESYSTEM
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsJson('songs/${_song.songId}/events')) || #end FileSystem.exists(file))
-			#else
-			if (Assets.exists(file))
-			#end
+			if (#if FEATURE_MODS FileSystem.exists(file) || #end Assets.exists(file))
 			{
 				clearEvents();
 				var events:SongData = Song.loadFromJson('events', '', _song.songId);
@@ -2121,48 +2117,32 @@ class ChartingState extends MusicBeatState
 			audioBuffers[0].dispose();
 		}
 		audioBuffers[0] = null;
+		var inst:String = Paths.inst(currentSongName);
 		#if FEATURE_MODS
-		if (FileSystem.exists(Paths.modFolders('songs/$currentSongName/Inst.ogg')))
-		{
-			audioBuffers[0] = AudioBuffer.fromFile(Paths.modFolders('songs/$currentSongName/Inst.ogg'));
-			// Debug.logTrace('Custom vocals found');
-		}
-		else
-		{
+		if (FileSystem.exists(inst))
+		#else
+		if (Assets.exists(inst))
 		#end
-			var leVocals:String = Paths.getPath('$currentSongName/Inst.${Paths.SOUND_EXT}', SOUND, 'songs');
-			if (Assets.exists(leVocals))
-			{ // Vanilla inst
-				audioBuffers[0] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				// Debug.logTrace('Inst found');
-			}
-		#if FEATURE_MODS
+		{
+			audioBuffers[0] = AudioBuffer.fromFile(inst);
+			// Debug.logTrace('Inst found');
 		}
-		#end
 
 		if (audioBuffers[1] != null)
 		{
 			audioBuffers[1].dispose();
 		}
 		audioBuffers[1] = null;
+		var voices:String = Paths.voices(currentSongName);
 		#if FEATURE_MODS
-		if (FileSystem.exists(Paths.modFolders('songs/$currentSongName/Voices.ogg')))
-		{
-			audioBuffers[1] = AudioBuffer.fromFile(Paths.modFolders('songs/$currentSongName/Voices.ogg'));
-			// Debug.logTrace('Custom vocals found');
-		}
-		else
-		{
+		if (FileSystem.exists(voices))
+		#else
+		if (Assets.exists(voices))
 		#end
-			var leVocals:String = Paths.getPath('$currentSongName/Voices.${Paths.SOUND_EXT}', SOUND, 'songs');
-			if (Assets.exists(leVocals))
-			{ // Vanilla voices
-				audioBuffers[1] = AudioBuffer.fromFile('./' + leVocals.substr(6));
-				// Debug.logTrace('Voices found');
-			}
-		#if FEATURE_MODS
+		{
+			audioBuffers[1] = AudioBuffer.fromFile(voices);
+			// Debug.logTrace('Voices found');
 		}
-		#end
 	}
 
 	private function reloadGridLayer():Void
@@ -2422,14 +2402,12 @@ class ChartingState extends MusicBeatState
 	{
 		var characterPath:String = 'characters/$char';
 
-		var rawJson:Dynamic = Paths.loadJson(characterPath);
-		if (rawJson == null)
-		{
-			rawJson = Paths.loadJson('characters/${Character.DEFAULT_CHARACTER}');
-		}
-
 		// FIXME This crashes the game if the save window is open
-		var characterData:CharacterData = cast rawJson;
+		var characterData:CharacterData = Paths.getJson(characterPath);
+		if (characterData == null)
+		{
+			characterData = Paths.getJson('characters/${Character.DEFAULT_CHARACTER}');
+		}
 		return characterData.healthicon;
 	}
 
@@ -2620,7 +2598,7 @@ class ChartingState extends MusicBeatState
 		}
 		else
 		{ // Event note
-			note.loadGraphic(Paths.image('eventArrow'));
+			note.loadGraphic(Paths.getGraphic('eventArrow'));
 			note.eventName = getEventName(i[1]);
 			note.eventLength = i[1].length;
 			if (i[1].length < 2)

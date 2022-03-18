@@ -113,8 +113,6 @@ class Stage
 	public static function getStageData(stage:String):StageData
 	{
 		var stagePath:String = 'stages/$stage';
-		var rawJson:Dynamic = Paths.loadJson(stagePath);
-		var stageData:StageData = cast rawJson;
-		return stageData;
+		return Paths.getJson(stagePath);
 	}
 }

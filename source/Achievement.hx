@@ -248,7 +248,7 @@ class Achievement extends FlxSpriteGroup
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
-		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.image('achievements/$name'));
+		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.getGraphic('achievements/$name'));
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
@@ -270,16 +270,7 @@ class Achievement extends FlxSpriteGroup
 		add(achievementText);
 		add(achievementIcon);
 
-		var cam:Array<FlxCamera> = FlxCamera.defaultCameras;
-		if (camera != null)
-		{
-			cam = [camera];
-		}
 		alpha = 0;
-		achievementBG.cameras = cam;
-		achievementName.cameras = cam;
-		achievementText.cameras = cam;
-		achievementIcon.cameras = cam;
 		alphaTween = FlxTween.tween(this, {alpha: 1}, 0.5, {
 			onComplete: (twn:FlxTween) ->
 			{
@@ -332,14 +323,14 @@ class AttachedAchievement extends FlxSprite
 	{
 		if (Achievement.isAchievementUnlocked(tag))
 		{
-			var graphic:FlxGraphic = Paths.image('achievements/$tag');
+			var graphic:FlxGraphic = Paths.getGraphic('achievements/$tag');
 			if (graphic == null)
-				graphic = Paths.image('achievements/missing');
+				graphic = Paths.getGraphic('achievements/missing');
 			loadGraphic(graphic);
 		}
 		else
 		{
-			loadGraphic(Paths.image('achievements/locked'));
+			loadGraphic(Paths.getGraphic('achievements/locked'));
 		}
 		scale.set(0.7, 0.7);
 		updateHitbox();

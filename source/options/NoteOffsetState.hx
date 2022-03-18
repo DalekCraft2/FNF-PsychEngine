@@ -60,9 +60,8 @@ class NoteOffsetState extends MusicBeatState
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
-		FlxG.cameras.add(camHUD);
-		FlxG.cameras.add(camOther);
-		FlxG.cameras.add(camGame, true);
+		FlxG.cameras.add(camHUD, false);
+		FlxG.cameras.add(camOther, false);
 
 		FlxG.camera.scroll.set(120, 130);
 
@@ -112,7 +111,7 @@ class NoteOffsetState extends MusicBeatState
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.35;
 
-		rating = new FlxSprite().loadGraphic(Paths.image('sick'));
+		rating = new FlxSprite().loadGraphic(Paths.getGraphic('sick'));
 		rating.cameras = [camHUD];
 		rating.setGraphicSize(Std.int(rating.width * 0.7));
 		rating.updateHitbox();
@@ -133,7 +132,7 @@ class NoteOffsetState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.image('num$i'));
+			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.getGraphic('num$i'));
 			numScore.cameras = [camHUD];
 			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			numScore.updateHitbox();
@@ -168,7 +167,7 @@ class NoteOffsetState extends MusicBeatState
 		barPercent = Options.save.data.noteOffset;
 		updateNoteDelay();
 
-		timeBarBG = new FlxSprite(0, timeTxt.y + 8).loadGraphic(Paths.image('timeBar'));
+		timeBarBG = new FlxSprite(0, timeTxt.y + 8).loadGraphic(Paths.getGraphic('timeBar'));
 		timeBarBG.setGraphicSize(Std.int(timeBarBG.width * 1.2));
 		timeBarBG.updateHitbox();
 		timeBarBG.cameras = [camHUD];

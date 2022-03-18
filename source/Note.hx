@@ -295,18 +295,18 @@ class Note extends FlxSprite
 		{
 			if (isSustainNote)
 			{
-				loadGraphic(Paths.image('weeb/pixelUI/${blahblah}ENDS', 'week6'));
+				loadGraphic(Paths.getGraphic('weeb/pixelUI/${blahblah}ENDS', 'week6'));
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.image('weeb/pixelUI/${blahblah}ENDS', 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.getGraphic('weeb/pixelUI/${blahblah}ENDS', 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			else
 			{
-				loadGraphic(Paths.image('weeb/pixelUI/$blahblah', 'week6'));
+				loadGraphic(Paths.getGraphic('weeb/pixelUI/$blahblah', 'week6'));
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.image('weeb/pixelUI/$blahblah', 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.getGraphic('weeb/pixelUI/$blahblah', 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 			loadPixelNoteAnims();

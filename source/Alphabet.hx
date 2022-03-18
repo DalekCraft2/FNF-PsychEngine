@@ -222,9 +222,9 @@ class Alphabet extends FlxSpriteGroup
 	{
 		if (name == null || name.trim() == '')
 			name = 'dialogue';
-		soundDialog = Paths.sound(name);
+		soundDialog = Paths.getSound('sounds', name);
 		if (soundDialog == null)
-			soundDialog = Paths.sound('dialogue');
+			soundDialog = Paths.getSound('sounds', 'dialogue');
 	}
 
 	var typeTimer:FlxTimer = null;

@@ -56,30 +56,12 @@ class MenuCharacter extends FlxSprite
 			default:
 				var characterPath:String = 'menucharacters/$character';
 
-				var rawJson:String = null;
-
-				#if FEATURE_MODS
-				var path:String = Paths.modsJson(characterPath);
-				if (!FileSystem.exists(path))
+				var menuCharacterData:MenuCharacterData = Paths.getJson(characterPath);
+				if (menuCharacterData == null)
 				{
-					path = Paths.json(characterPath);
+					menuCharacterData = Paths.getJson('menucharacters/$DEFAULT_CHARACTER');
 				}
 
-				if (!FileSystem.exists(path))
-				{
-					path = Paths.json('menucharacters/$DEFAULT_CHARACTER');
-				}
-				rawJson = File.getContent(path);
-				#else
-				var path:String = Paths.json(characterPath);
-				if (!Assets.exists(path))
-				{
-					path = Paths.json('menucharacters/$DEFAULT_CHARACTER');
-				}
-				rawJson = Assets.getText(path);
-				#end
-
-				var menuCharacterData:MenuCharacterData = cast Json.parse(rawJson);
 				frames = Paths.getSparrowAtlas('menucharacters/${menuCharacterData.image}');
 				animation.addByPrefix('idle', menuCharacterData.idle_anim, 24);
 

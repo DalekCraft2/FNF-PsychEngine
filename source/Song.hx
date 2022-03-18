@@ -130,8 +130,8 @@ class Song
 		var songPath:String = 'songs/$folder/$songId$difficulty';
 		var songMetaPath:String = 'songs/$folder/_meta';
 
-		var rawJson:Dynamic = Paths.loadJson(songPath);
-		var rawMetaJson:Dynamic = Paths.loadJson(songMetaPath);
+		var rawJson:SongData = Paths.getJson(songPath);
+		var rawMetaJson:SongMeta = Paths.getJson(songMetaPath);
 
 		var songData:SongData = parseJson(songId, rawJson, rawMetaJson);
 		onLoadJson(songData);

@@ -25,4 +25,7 @@ https://haxeflixel.com/documentation/code-style/
 -Enum names are always all-uppercase (I do the same with static constants because Java).
 -All other variables must be lowerCamelCase.
 
+-Currently unsure on how to deal with single-line "if" statements.
+No braces looks cleaner, but braces are easier to work with and can lead to fewer errors if the code is edited.
+
 Once I find documentation for the hxformat.json file, I'm putting the link in here.

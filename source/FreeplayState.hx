@@ -150,7 +150,7 @@ class FreeplayState extends MusicBeatState
 				}
 		}*/
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
@@ -305,11 +305,7 @@ class FreeplayState extends MusicBeatState
 		var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
 		var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 		var songPath:String = 'songs/$songId/$songId$difficulty';
-		#if FEATURE_MODS
-		if (!FileSystem.exists(Paths.modsJson(songPath)) && !FileSystem.exists(Paths.json(songPath)))
-		#else
-		if (!Assets.exists(Paths.json(songPath)))
-		#end
+		if (#if FEATURE_MODS !FileSystem.exists(Paths.json(songPath)) && #end!Assets.exists(Paths.json(songPath)))
 		{
 			Debug.logWarn('Couldn\'t find song file "$songPath"');
 			difficulty = '';
@@ -439,11 +435,7 @@ class FreeplayState extends MusicBeatState
 				var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
 				var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 				var songPath:String = 'songs/$songId/$songId$difficulty';
-				#if FEATURE_MODS
-				if (!FileSystem.exists(Paths.modsJson(songPath)) && !FileSystem.exists(Paths.json(songPath)))
-				#else
-				if (!Assets.exists(Paths.json(songPath)))
-				#end
+				if (#if FEATURE_MODS !FileSystem.exists(Paths.json(songPath)) && #end!Assets.exists(Paths.json(songPath)))
 				{
 					Debug.logWarn('Couldn\'t find song file "$songPath"');
 					difficulty = '';

@@ -73,14 +73,13 @@ class MainMenuState extends MusicBeatState
 		camAchievement.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
-		FlxG.cameras.add(camAchievement);
-		FlxG.cameras.add(camGame, true);
+		FlxG.cameras.add(camAchievement, false);
 
 		persistentUpdate = true;
 		persistentDraw = true;
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuBG'));
 		// bg.color = 0xFFFDE871;
 		bg.scrollFactor.set(0, yScroll);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
@@ -94,7 +93,7 @@ class MainMenuState extends MusicBeatState
 		add(camFollow);
 		add(camFollowPos);
 
-		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
+		magenta = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuDesat'));
 		magenta.scrollFactor.set(0, yScroll);
 		magenta.setGraphicSize(Std.int(magenta.width * 1.175));
 		magenta.updateHitbox();
@@ -171,7 +170,9 @@ class MainMenuState extends MusicBeatState
 	// Unlocks "Freaky on a Friday Night" achievement
 	function giveAchievement():Void
 	{
-		add(new Achievement('friday_night_play', camAchievement));
+		var achievement:Achievement = new Achievement('friday_night_play');
+		achievement.cameras = [camAchievement];
+		add(achievement);
 		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
 		Debug.logTrace('Giving achievement "friday_night_play"');
 	}

@@ -5,6 +5,7 @@ package;
 import Discord.DiscordClient;
 #end
 import flash.geom.Rectangle;
+import flash.net.FileFilter;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -14,8 +15,12 @@ import flixel.tweens.FlxTween;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import haxe.Json;
-// import haxe.zip.Uncompress;
+import haxe.io.Bytes;
+import haxe.zip.Uncompress;
 import openfl.display.BitmapData;
+import openfl.events.Event;
+import openfl.events.IOErrorEvent;
+import openfl.net.FileReference;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
 import sys.io.File;
@@ -48,7 +53,7 @@ class ModsMenuState extends MusicBeatState
 	var buttonsArray:Array<FlxButton> = [];
 
 	var installButton:FlxButton;
-	var removeButton:FlxButton;
+	var uninstallButton:FlxButton;
 
 	var modsList:Array<Array<Dynamic>> = [];
 
@@ -72,7 +77,7 @@ class ModsMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
@@ -107,7 +112,6 @@ class ModsMenuState extends MusicBeatState
 		}
 
 		// FIND MOD FOLDERS
-		var boolshit:Bool = true;
 		if (FileSystem.exists("modsList.txt"))
 		{
 			for (folder in Paths.getModDirectories())
@@ -202,6 +206,7 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonTop);
 		visibleWhenHasMods.push(buttonTop);
 
+		// TODO Make the "Disable/Enable all" buttons part of the menu itself and not part of each mod entry
 		startX -= 190;
 		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", () ->
 		{
@@ -259,56 +264,31 @@ class ModsMenuState extends MusicBeatState
 		// more buttons
 		var startX:Int = 1100;
 
-		/*installButton = new FlxButton(startX, 620, "Install Mod", () ->
-			{
-				installMod();
-			});
-			installButton.setGraphicSize(150, 70);
-			installButton.updateHitbox();
-			installButton.color = FlxColor.GREEN;
-			installButton.label.fieldWidth = 135;
-			installButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
-			setAllLabelsOffset(installButton, 2, 24);
-			add(installButton);
-			startX -= 180;
+		installButton = new FlxButton(startX, 620, "Install Mod", () ->
+		{
+			installMod();
+		});
+		installButton.setGraphicSize(150, 70);
+		installButton.updateHitbox();
+		installButton.color = FlxColor.GREEN;
+		installButton.label.fieldWidth = 135;
+		installButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		setAllLabelsOffset(installButton, 2, 24);
+		add(installButton);
+		startX -= 180;
 
-			removeButton = new FlxButton(startX, 620, "Delete Selected Mod", () ->
-			{
-				var path:String = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
-				if (FileSystem.exists(path) && FileSystem.isDirectory(path))
-				{
-					Debug.logTrace('Trying to delete directory $path');
-					try
-					{
-						FileSystem.deleteFile(path); // FUCK YOU HAXE WHY DONT YOU WORK WAAAAAAAAAAAAH
-
-						var icon:AttachedSprite = mods[curSelected].icon;
-						var alphabet:Alphabet = mods[curSelected].alphabet;
-						remove(icon);
-						remove(alphabet);
-						icon.destroy();
-						alphabet.destroy();
-						modsList.remove(modsList[curSelected]);
-						mods.remove(mods[curSelected]);
-
-						if (curSelected >= mods.length)
-							--curSelected;
-						changeSelection();
-					}
-					catch (e)
-					{
-						Debug.logError('Error deleting directory "$path": $e');
-					}
-				}
-			});
-			removeButton.setGraphicSize(150, 70);
-			removeButton.updateHitbox();
-			removeButton.color = FlxColor.RED;
-			removeButton.label.fieldWidth = 135;
-			removeButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
-			setAllLabelsOffset(removeButton, 2, 15);
-			add(removeButton);
-			visibleWhenHasMods.push(removeButton); */
+		uninstallButton = new FlxButton(startX, 620, "Uninstall Selected Mod", () ->
+		{
+			uninstallMod();
+		});
+		uninstallButton.setGraphicSize(150, 70);
+		uninstallButton.updateHitbox();
+		uninstallButton.color = FlxColor.RED;
+		uninstallButton.label.fieldWidth = 135;
+		uninstallButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		setAllLabelsOffset(uninstallButton, 2, 15);
+		add(uninstallButton);
+		visibleWhenHasMods.push(uninstallButton);
 
 		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, "", 32);
 		descriptionTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT);
@@ -357,7 +337,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				newMod.icon.loadGraphic(Paths.image('unknownMod'));
+				newMod.icon.loadGraphic(Paths.getGraphic('unknownMod'));
 			}
 			newMod.icon.sprTracker = newMod.alphabet;
 			newMod.icon.xAdd = -newMod.icon.width - 30;
@@ -591,7 +571,7 @@ class ModsMenuState extends MusicBeatState
 
 				// correct layering
 				var stuffArray:Array<FlxSprite> = [
-					/*removeButton, installButton,*/ selector,
+					/*uninstallButton, installButton,*/ selector,
 					descriptionTxt,
 					mod.alphabet,
 					mod.icon
@@ -679,69 +659,123 @@ class ModsMenuState extends MusicBeatState
 		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)), 5, 1), FlxColor.BLACK);
 		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)), 3, 1), FlxColor.BLACK);
 	}
-	/*var _file:FileReference = null;
 
-		function installMod():Void
+	var _file:FileReference = null;
+
+	function installMod():Void
+	{
+		var zipFilter:FileFilter = new FileFilter('ZIP', 'zip');
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file.browse([zipFilter]);
+		canExit = false;
+	}
+
+	function onLoadComplete(_):Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file.removeEventListener(Event.CANCEL, onLoadCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+
+		var fullPath:String = null;
+		@:privateAccess
+		if (_file.__path != null)
+			fullPath = _file.__path;
+
+		if (fullPath != null)
 		{
-			var zipFilter:FileFilter = new FileFilter('ZIP', 'zip');
-			_file = new FileReference();
-			_file.addEventListener(Event.SELECT, onLoadComplete);
-			_file.addEventListener(Event.CANCEL, onLoadCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-			_file.browse([zipFilter]);
-			canExit = false;
-		}
-
-		function onLoadComplete(_):Void
-		{
-			_file.removeEventListener(Event.SELECT, onLoadComplete);
-			_file.removeEventListener(Event.CANCEL, onLoadCancel);
-			_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-
-			var fullPath:String = null;
-			@:privateAccess
-			if (_file.__path != null)
-				fullPath = _file.__path;
-
-			if (fullPath != null)
+			var rawZip:String = File.getContent(fullPath);
+			if (rawZip != null)
 			{
-				var rawZip:String = File.getContent(fullPath);
-				if (rawZip != null)
+				FlxG.resetState();
+				var uncompressingFile:Bytes = Uncompress.run(File.getBytes(rawZip));
+				// if (uncompressingFile)
 				{
-					FlxG.resetState();
-					var uncompressingFile:Bytes = new Uncompress().run(File.getBytes(rawZip));
-					if (uncompressingFile.done)
-					{
-						Debug.logTrace('test');
-						_file = null;
-						return;
-					}
+					Debug.logTrace('test');
+					_file = null;
+					return;
 				}
 			}
-			_file = null;
-			canExit = true;
-			Debug.logError("File couldn't be loaded! Wtf?");
 		}
+		_file = null;
+		canExit = true;
+		Debug.logError("File couldn't be loaded! Wtf?");
+	}
 
-		function onLoadCancel(_):Void
+	function onLoadCancel(_):Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file.removeEventListener(Event.CANCEL, onLoadCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+		canExit = true;
+		Debug.logTrace("Cancelled file loading.");
+	}
+
+	function onLoadError(_):Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file.removeEventListener(Event.CANCEL, onLoadCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+		canExit = true;
+		Debug.logError("Problem loading file");
+	}
+
+	function uninstallMod():Void
+	{
+		var path:String = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
+
+		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 		{
-			_file.removeEventListener(Event.SELECT, onLoadComplete);
-			_file.removeEventListener(Event.CANCEL, onLoadCancel);
-			_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-			_file = null;
-			canExit = true;
-			Debug.logTrace("Cancelled file loading.");
+			Debug.logTrace('Trying to delete directory $path');
+			try
+			{
+				deleteDirRecursively(path);
+				var icon:AttachedSprite = mods[curSelected].icon;
+				var alphabet:Alphabet = mods[curSelected].alphabet;
+
+				remove(icon);
+				remove(alphabet);
+				icon.destroy();
+				alphabet.destroy();
+				modsList.remove(modsList[curSelected]);
+				mods.remove(mods[curSelected]);
+				if (curSelected >= mods.length)
+					--curSelected;
+				changeSelection();
+			}
+			catch (e)
+			{
+				Debug.logError('Error deleting directory "$path": $e');
+			}
 		}
+	}
 
-		function onLoadError(_):Void
+	/**
+	 * https://ashes999.github.io/learnhaxe/recursively-delete-a-directory-in-haxe.html
+	 */
+	private function deleteDirRecursively(path:String):Void
+	{
+		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 		{
-			_file.removeEventListener(Event.SELECT, onLoadComplete);
-			_file.removeEventListener(Event.CANCEL, onLoadCancel);
-			_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-			_file = null;
-			canExit = true;
-			Debug.logError("Problem loading file");
-	}*/
+			var entries = FileSystem.readDirectory(path);
+			for (entry in entries)
+			{
+				if (FileSystem.isDirectory('$path/$entry'))
+				{
+					deleteDirRecursively('$path/$entry');
+					FileSystem.deleteDirectory('$path/$entry');
+				}
+				else
+				{
+					FileSystem.deleteFile('$path/$entry');
+				}
+			}
+		}
+	}
 }
 
 class ModMetadata

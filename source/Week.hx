@@ -141,7 +141,7 @@ class Week
 		var directories:Array<String> = [Paths.getPreloadPath()];
 		#end
 
-		var weekList:Array<String> = CoolUtil.coolTextFile(Paths.txt('weeks/weekList'));
+		var weekList:Array<String> = CoolUtil.coolTextFile(Paths.getPreloadPath('data/weeks/weekList.txt'));
 		for (weekId in weekList)
 		{
 			for (directory in directories)
@@ -218,13 +218,6 @@ class Week
 		}
 	}
 
-	/*private static function getWeekData(week:String):WeekData
-		{
-			var weekPath:String = 'weeks/$week';
-				var rawJson:Dynamic = Paths.loadJson(weekPath);
-				var weekData:WeekData = cast rawJson;
-				return weekData;
-	}*/
 	private static function getWeekData(weekPath:String):WeekData
 	{
 		var rawJson:String = null;
@@ -260,7 +253,7 @@ class Week
 		return weeksLoaded.get(weeksList[PlayState.storyWeek]);
 	}
 
-	public static function setDirectoryFromWeek(?data:Week = null):Void
+	public static function setDirectoryFromWeek(?data:Week):Void
 	{
 		Paths.currentModDirectory = '';
 		if (data != null && data.folder != null && data.folder.length > 0)

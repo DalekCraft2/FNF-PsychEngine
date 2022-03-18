@@ -31,7 +31,7 @@ class SoundOffsetState extends MusicBeatState
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Calibrating audio", null);
 		#end
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image("menuBG"));
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic("menuBG"));
 		// menuBG.color = 0xFFA271DE;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();

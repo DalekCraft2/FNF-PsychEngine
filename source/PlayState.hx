@@ -361,13 +361,10 @@ class PlayState extends MusicBeatState
 		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
-		FlxG.cameras.add(camHUD);
-		FlxG.cameras.add(camOther);
-		grpNoteSplashes = new FlxTypedGroup();
+		FlxG.cameras.add(camHUD, false);
+		FlxG.cameras.add(camOther, false);
 
-		// TODO Attempt to stop using this deprecated code
-		FlxCamera.defaultCameras = [camGame];
-		// FlxG.cameras.add(camGame, true);
+		grpNoteSplashes = new FlxTypedGroup();
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -837,23 +834,11 @@ class PlayState extends MusicBeatState
 		// STAGE SCRIPTS
 		#if (FEATURE_MODS && FEATURE_LUA)
 		var doPush:Bool = false;
-		var luaFile:String = 'data/stages/$curStage.lua';
-		if (FileSystem.exists(Paths.modFolders(luaFile)))
+		var luaFile:String = Paths.lua('data/stages/$curStage');
+		if (FileSystem.exists(luaFile))
 		{
-			luaFile = Paths.modFolders(luaFile);
-			doPush = true;
-		}
-		else
-		{
-			luaFile = Paths.getPreloadPath(luaFile);
-			if (FileSystem.exists(luaFile))
-			{
-				doPush = true;
-			}
-		}
-
-		if (doPush)
 			luaArray.push(new FunkinLua(luaFile));
+		}
 		#end
 
 		if (!modchartSprites.exists('blammedLightsBlack'))
@@ -1059,34 +1044,18 @@ class PlayState extends MusicBeatState
 		#if FEATURE_LUA
 		for (notetype in noteTypeMap.keys())
 		{
-			var luaToLoad:String = Paths.modFolders('custom_notetypes/$notetype.lua');
+			var luaToLoad:String = Paths.lua('custom_notetypes/$notetype');
 			if (FileSystem.exists(luaToLoad))
 			{
 				luaArray.push(new FunkinLua(luaToLoad));
-			}
-			else
-			{
-				luaToLoad = Paths.getPreloadPath('custom_notetypes/$notetype.lua');
-				if (FileSystem.exists(luaToLoad))
-				{
-					luaArray.push(new FunkinLua(luaToLoad));
-				}
 			}
 		}
 		for (event in eventPushedMap.keys())
 		{
-			var luaToLoad:String = Paths.modFolders('custom_events/$event.lua');
+			var luaToLoad:String = Paths.lua('custom_events/$event');
 			if (FileSystem.exists(luaToLoad))
 			{
 				luaArray.push(new FunkinLua(luaToLoad));
-			}
-			else
-			{
-				luaToLoad = Paths.getPreloadPath('custom_events/$event.lua');
-				if (FileSystem.exists(luaToLoad))
-				{
-					luaArray.push(new FunkinLua(luaToLoad));
-				}
 			}
 		}
 		#end
@@ -1260,7 +1229,7 @@ class PlayState extends MusicBeatState
 							startCountdown();
 						}
 					});
-					FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
+					FlxG.sound.play(Paths.getRandomSound('thunder_', 1, 2));
 					if (gf != null)
 						gf.playAnim('scared', true);
 					boyfriend.playAnim('scared', true);
@@ -1443,22 +1412,8 @@ class PlayState extends MusicBeatState
 	{
 		#if FEATURE_LUA
 		var doPush:Bool = false;
-		var luaFile:String = 'data/characters/$name.lua';
-		if (FileSystem.exists(Paths.modFolders(luaFile)))
-		{
-			luaFile = Paths.modFolders(luaFile);
-			doPush = true;
-		}
-		else
-		{
-			luaFile = Paths.getPreloadPath(luaFile);
-			if (FileSystem.exists(luaFile))
-			{
-				doPush = true;
-			}
-		}
-
-		if (doPush)
+		var luaFile:String = Paths.lua('data/characters/$name');
+		if (FileSystem.exists(luaFile))
 		{
 			for (lua in luaArray)
 			{
@@ -1486,26 +1441,16 @@ class PlayState extends MusicBeatState
 	{
 		#if FEATURE_VIDEOS
 		var foundFile:Bool = false;
-		var fileName:String = #if FEATURE_MODS Paths.modFolders('videos/$name.${Paths.VIDEO_EXT}'); #else ''; #end
+		var fileName:String = Paths.video(name);
 		#if FEATURE_FILESYSTEM
 		if (FileSystem.exists(fileName))
+		#else
+		if (Assets.exists(fileName))
+		#end
 		{
 			foundFile = true;
 		}
-		#end
 
-		if (!foundFile)
-		{
-			fileName = Paths.video(name);
-			#if FEATURE_FILESYSTEM
-			if (FileSystem.exists(fileName))
-			#else
-			if (Assets.exists(fileName))
-			#end
-			{
-				foundFile = true;
-			}
-		}
 		if (foundFile)
 		{
 			inCutscene = true;
@@ -1784,7 +1729,7 @@ class PlayState extends MusicBeatState
 					case 0:
 						FlxG.sound.play(Paths.sound('intro3$introSoundsSuffix'), 0.6);
 					case 1:
-						countdownReady = new FlxSprite().loadGraphic(Paths.image(introAlts[0]));
+						countdownReady = new FlxSprite().loadGraphic(Paths.getGraphic(introAlts[0]));
 						countdownReady.scrollFactor.set();
 						countdownReady.updateHitbox();
 
@@ -1804,7 +1749,7 @@ class PlayState extends MusicBeatState
 						});
 						FlxG.sound.play(Paths.sound('intro2$introSoundsSuffix'), 0.6);
 					case 2:
-						countdownSet = new FlxSprite().loadGraphic(Paths.image(introAlts[1]));
+						countdownSet = new FlxSprite().loadGraphic(Paths.getGraphic(introAlts[1]));
 						countdownSet.scrollFactor.set();
 
 						if (isPixelStage)
@@ -1823,7 +1768,7 @@ class PlayState extends MusicBeatState
 						});
 						FlxG.sound.play(Paths.sound('intro1$introSoundsSuffix'), 0.6);
 					case 3:
-						countdownGo = new FlxSprite().loadGraphic(Paths.image(introAlts[2]));
+						countdownGo = new FlxSprite().loadGraphic(Paths.getGraphic(introAlts[2]));
 						countdownGo.scrollFactor.set();
 
 						if (isPixelStage)
@@ -2015,11 +1960,7 @@ class PlayState extends MusicBeatState
 		noteData = song.notes;
 
 		var file:String = Paths.json('songs/${song.songId}/events');
-		#if FEATURE_FILESYSTEM
-		if (FileSystem.exists(Paths.modsJson('songs/${song.songId}/events')) || FileSystem.exists(file))
-		#else
-		if (Assets.exists(file))
-		#end
+		if (#if FEATURE_MODS FileSystem.exists(file) || #end Assets.exists(file))
 		{
 			var eventsData:Array<Dynamic> = Song.loadFromJson('events', '', song.songId).events;
 			for (event in eventsData) // Event Notes
@@ -3656,9 +3597,8 @@ class PlayState extends MusicBeatState
 		seenCutscene = false;
 
 		#if FEATURE_ACHIEVEMENTS
-		if (achievementObj != null)
+		if (achievement != null)
 		{
-			// Debug.logTrace('AchievementObject: $achievementObj');
 			return;
 		}
 		else
@@ -3838,19 +3778,20 @@ class PlayState extends MusicBeatState
 	}
 
 	#if FEATURE_ACHIEVEMENTS
-	var achievementObj:Achievement = null;
+	var achievement:Achievement = null;
 
 	function startAchievement(achieve:String):Void
 	{
-		achievementObj = new Achievement(achieve, camOther);
-		achievementObj.onFinish = achievementEnd;
-		add(achievementObj);
+		achievement = new Achievement(achieve);
+		achievement.onFinish = achievementEnd;
+		achievement.cameras = [camOther];
+		add(achievement);
 		Debug.logTrace('Giving achievement $achieve');
 	}
 
 	function achievementEnd():Void
 	{
-		achievementObj = null;
+		achievement = null;
 		Debug.logTrace('Achievement end; endingSong: $endingSong, inCutscene: $inCutscene');
 		if (endingSong && !inCutscene)
 		{
@@ -3972,7 +3913,7 @@ class PlayState extends MusicBeatState
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic(Paths.image('$pixelShitPart1$daRating$pixelShitPart2'));
+		rating.loadGraphic(Paths.getGraphic('$pixelShitPart1$daRating$pixelShitPart2'));
 		rating.cameras = [camHUD];
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
@@ -3984,7 +3925,7 @@ class PlayState extends MusicBeatState
 		rating.x += Options.save.data.comboOffset[0];
 		rating.y -= Options.save.data.comboOffset[1];
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(pixelShitPart1 + 'combo' + pixelShitPart2));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}combo$pixelShitPart2'));
 		comboSpr.cameras = [camHUD];
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
@@ -4029,7 +3970,7 @@ class PlayState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}num$i$pixelShitPart2'));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}num$i$pixelShitPart2'));
 			numScore.cameras = [camHUD];
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
@@ -4442,7 +4383,7 @@ class PlayState extends MusicBeatState
 			totalPlayed++;
 			recalculateRating();
 
-			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+			FlxG.sound.play(Paths.getRandomSound('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
 			// Debug.logTrace('Played miss sound');
 
@@ -4728,7 +4669,7 @@ class PlayState extends MusicBeatState
 	function fastCarDrive():Void
 	{
 		// Debug.logTrace('Car drive');
-		FlxG.sound.play(Paths.soundRandom('carPass', 0, 1), 0.7);
+		FlxG.sound.play(Paths.getRandomSound('carPass', 0, 1), 0.7);
 
 		fastCar.velocity.x = (FlxG.random.int(170, 220) / FlxG.elapsed) * 3;
 		fastCarCanDrive = false;
@@ -4803,7 +4744,7 @@ class PlayState extends MusicBeatState
 
 	function lightningStrikeShit():Void
 	{
-		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
+		FlxG.sound.play(Paths.getRandomSound('thunder_', 1, 2));
 		if (!Options.save.data.lowQuality)
 			halloweenBG.animation.play('halloweem bg lightning strike');
 

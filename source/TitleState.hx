@@ -193,7 +193,7 @@ class TitleState extends MusicBeatState
 
 		if (titleJSON.backgroundSprite != null && titleJSON.backgroundSprite.length > 0 && titleJSON.backgroundSprite != "none")
 		{
-			bg.loadGraphic(Paths.image(titleJSON.backgroundSprite));
+			bg.loadGraphic(Paths.getGraphic(titleJSON.backgroundSprite));
 		}
 		else
 		{
@@ -281,7 +281,7 @@ class TitleState extends MusicBeatState
 		// titleText.screenCenter(X);
 		add(titleText);
 
-		var logo:FlxSprite = new FlxSprite().loadGraphic(Paths.image('logo'));
+		var logo:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('logo'));
 		logo.screenCenter();
 		logo.antialiasing = Options.save.data.globalAntialiasing;
 		// add(logo);
@@ -303,7 +303,7 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.getGraphic('newgrounds_logo'));
 		add(ngSpr);
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));

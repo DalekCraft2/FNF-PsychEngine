@@ -175,7 +175,7 @@ class StoryMenuState extends MusicBeatState
 		add(bgSprite);
 		add(grpWeekCharacters);
 
-		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.image('Menu_Tracks'));
+		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.getGraphic('Menu_Tracks'));
 		tracksSprite.antialiasing = Options.save.data.globalAntialiasing;
 		add(tracksSprite);
 
@@ -350,7 +350,7 @@ class StoryMenuState extends MusicBeatState
 		Week.setDirectoryFromWeek(loadedWeeks[curWeek]);
 
 		var diff:String = CoolUtil.difficulties[curDifficulty];
-		var newImage:FlxGraphic = Paths.image('menudifficulties/${Paths.formatToSongPath(diff)}');
+		var newImage:FlxGraphic = Paths.getGraphic('menudifficulties/${Paths.formatToSongPath(diff)}');
 		// Debug.logTrace('${Paths.currentModDirectory}, menudifficulties/${Paths.formatToSongPath(diff)}');
 
 		if (sprDifficulty.graphic != newImage)
@@ -417,7 +417,7 @@ class StoryMenuState extends MusicBeatState
 		}
 		else
 		{
-			bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_$assetName'));
+			bgSprite.loadGraphic(Paths.getGraphic('menubackgrounds/menu_$assetName'));
 		}
 		PlayState.storyWeek = curWeek;
 

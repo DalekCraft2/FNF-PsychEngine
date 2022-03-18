@@ -77,7 +77,7 @@ class EditorPlayState extends MusicBeatState
 
 		instance = this;
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.scrollFactor.set();
 		bg.color = FlxColor.fromHSB(FlxG.random.int(0, 359), FlxG.random.float(0, 0.8), FlxG.random.float(0.3, 1));
 		add(bg);
@@ -126,7 +126,7 @@ class EditorPlayState extends MusicBeatState
 		#if (FEATURE_LUA && FEATURE_FILESYSTEM)
 		for (notetype in noteTypeMap.keys())
 		{
-			var luaToLoad:String = Paths.modFolders('custom_notetypes/$notetype.lua');
+			var luaToLoad:String = Paths.lua('custom_notetypes/$notetype');
 			if (FileSystem.exists(luaToLoad))
 			{
 				var lua:EditorLua = new EditorLua(luaToLoad);
@@ -177,7 +177,7 @@ class EditorPlayState extends MusicBeatState
 
 	private function sayGo():Void
 	{
-		var go:FlxSprite = new FlxSprite().loadGraphic(Paths.image('go'));
+		var go:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('go'));
 		go.scrollFactor.set();
 
 		go.updateHitbox();
@@ -834,7 +834,7 @@ class EditorPlayState extends MusicBeatState
 		// songScore -= 10;
 		songMisses++;
 
-		FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
+		FlxG.sound.play(Paths.getRandomSound('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 		vocals.volume = 0;
 	}
 
@@ -895,7 +895,7 @@ class EditorPlayState extends MusicBeatState
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic(Paths.image('$pixelShitPart1$daRating$pixelShitPart2'));
+		rating.loadGraphic(Paths.getGraphic('$pixelShitPart1$daRating$pixelShitPart2'));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y -= 60;
@@ -906,7 +906,7 @@ class EditorPlayState extends MusicBeatState
 		rating.x += Options.save.data.comboOffset[0];
 		rating.y -= Options.save.data.comboOffset[1];
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}combo$pixelShitPart2'));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}combo$pixelShitPart2'));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
@@ -947,7 +947,7 @@ class EditorPlayState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('${pixelShitPart1}num${Std.int(i)}$pixelShitPart2'));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}num${Std.int(i)}$pixelShitPart2'));
 			numScore.screenCenter();
 			numScore.x = coolText.x + (43 * daLoop) - 90;
 			numScore.y += 80;

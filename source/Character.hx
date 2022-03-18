@@ -103,42 +103,31 @@ class Character extends FlxSprite
 	{
 		var characterPath:String = 'characters/$curCharacter';
 
-		var rawJson:Dynamic = Paths.loadJson(characterPath);
-		if (rawJson == null)
+		var characterData:CharacterData = Paths.getJson(characterPath);
+		if (characterData == null)
 		{
-			rawJson = Paths.loadJson('characters/$DEFAULT_CHARACTER');
+			characterData = Paths.getJson('characters/$DEFAULT_CHARACTER');
 		}
 
-		var characterData:CharacterData = cast rawJson;
 		var spriteType:String = "sparrow";
 		// sparrow
 		// packer
 		// texture
-		#if FEATURE_MODS
-		var modTxtToFind:String = Paths.modsTxt(characterData.image);
 		var txtToFind:String = Paths.getPath('images/${characterData.image}.txt', TEXT);
-
-		// var modTextureToFind:String = Paths.modFolders('images/${characterData.image}');
-		// var textureToFind:String = Paths.getPath('images/${characterData.image}', new AssetType());
-
-		if (FileSystem.exists(modTxtToFind) || FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
+		#if FEATURE_MODS
+		if (FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
 		#else
-		if (Assets.exists(Paths.getPath('images/${characterData.image}.txt', TEXT)))
+		if (Assets.exists(txtToFind))
 		#end
 		{
 			spriteType = "packer";
 		}
 
-		#if FEATURE_MODS
-		var modAnimToFind:String = Paths.modFolders('images/${characterData.image}/Animation.json');
 		var animToFind:String = Paths.getPath('images/${characterData.image}/Animation.json', TEXT);
-
-		// var modTextureToFind:String = Paths.modFolders('images/${characterData.image}');
-		// var textureToFind:String = Paths.getPath('images/${characterData.image}', new AssetType());
-
-		if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
+		#if FEATURE_MODS
+		if (FileSystem.exists(animToFind) || Assets.exists(animToFind))
 		#else
-		if (Assets.exists(Paths.getPath('images/${characterData.image}/Animation.json', TEXT)))
+		if (Assets.exists(animToFind))
 		#end
 		{
 			spriteType = "texture";

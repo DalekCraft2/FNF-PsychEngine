@@ -41,7 +41,7 @@ class NoteColorState extends MusicBeatState
 		}
 		else
 		{
-			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 			bg.color = 0xFFea71fd;
 			bg.screenCenter();
 			bg.antialiasing = Options.save.data.globalAntialiasing;
@@ -71,7 +71,7 @@ class NoteColorState extends MusicBeatState
 			}
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
-			note.frames = Paths.getSparrowAtlas('NOTE_assets', 'shared');
+			note.frames = Paths.getSparrowAtlas('NOTE_assets');
 			var animations:Array<String> = ['purple', 'blue', 'green', 'red'];
 			note.animation.addByPrefix('idle', animations[i] + ' alone');
 			note.animation.play('idle');

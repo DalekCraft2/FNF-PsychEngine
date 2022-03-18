@@ -105,7 +105,7 @@ class WeekEditorState extends MusicBeatState
 		add(bgSprite);
 		add(grpWeekCharacters);
 
-		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 435).loadGraphic(Paths.image('Menu_Tracks'));
+		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 435).loadGraphic(Paths.getGraphic('Menu_Tracks'));
 		tracksSprite.antialiasing = Options.save.data.globalAntialiasing;
 		add(tracksSprite);
 
@@ -345,10 +345,10 @@ class WeekEditorState extends MusicBeatState
 		var isMissing:Bool = true;
 		if (assetName != null && assetName.length > 0)
 		{
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsImages('menubackgrounds/menu_$assetName'))
-				|| #end Assets.exists(Paths.getPath('images/menubackgrounds/menu_$assetName.png', IMAGE), IMAGE))
+			var path:String = Paths.image('menubackgrounds/menu_$assetName');
+			if (#if FEATURE_MODS FileSystem.exists(path) || #end Assets.exists(path, IMAGE))
 			{
-				bgSprite.loadGraphic(Paths.image('menubackgrounds/menu_$assetName'));
+				bgSprite.loadGraphic(path);
 				isMissing = false;
 			}
 		}
@@ -368,10 +368,10 @@ class WeekEditorState extends MusicBeatState
 		var isMissing:Bool = true;
 		if (assetName != null && assetName.length > 0)
 		{
-			if (#if FEATURE_MODS FileSystem.exists(Paths.modsImages('storymenu/$assetName'))
-				|| #end Assets.exists(Paths.getPath('images/storymenu/$assetName.png', IMAGE), IMAGE))
+			var path:String = Paths.image('storymenu/$assetName');
+			if (#if FEATURE_MODS FileSystem.exists(path) || #end Assets.exists(path, IMAGE))
 			{
-				weekThing.loadGraphic(Paths.image('storymenu/$assetName'));
+				weekThing.loadGraphic(path);
 				isMissing = false;
 			}
 		}
@@ -658,7 +658,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 	{
 		super.create();
 
-		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 
 		bg.color = FlxColor.WHITE;

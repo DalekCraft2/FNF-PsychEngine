@@ -190,23 +190,8 @@ class FunkinLua
 
 		Lua_helper.add_callback(lua, "addLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false):Void
 		{ // would be dope asf.
-			var cervix:String = '$luaFile.lua';
-			var doPush:Bool = false;
-			if (FileSystem.exists(Paths.modFolders(cervix)))
-			{
-				cervix = Paths.modFolders(cervix);
-				doPush = true;
-			}
-			else
-			{
-				cervix = Paths.getPreloadPath(cervix);
-				if (FileSystem.exists(cervix))
-				{
-					doPush = true;
-				}
-			}
-
-			if (doPush)
+			var cervix:String = Paths.lua(luaFile);
+			if (FileSystem.exists(cervix))
 			{
 				if (!ignoreAlreadyRunning)
 				{
@@ -222,27 +207,13 @@ class FunkinLua
 				PlayState.instance.luaArray.push(new FunkinLua(cervix));
 				return;
 			}
+
 			luaTrace('The script "$cervix" doesn\'t exist!');
 		});
 		Lua_helper.add_callback(lua, "removeLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false):Void
 		{ // would be dope asf.
-			var cervix:String = '$luaFile.lua';
-			var doPush:Bool = false;
-			if (FileSystem.exists(Paths.modFolders(cervix)))
-			{
-				cervix = Paths.modFolders(cervix);
-				doPush = true;
-			}
-			else
-			{
-				cervix = Paths.getPreloadPath(cervix);
-				if (FileSystem.exists(cervix))
-				{
-					doPush = true;
-				}
-			}
-
-			if (doPush)
+			var cervix:String = Paths.lua(luaFile);
+			if (FileSystem.exists(cervix))
 			{
 				if (!ignoreAlreadyRunning)
 				{
@@ -259,6 +230,7 @@ class FunkinLua
 				}
 				return;
 			}
+
 			luaTrace('The script "$cervix" doesn\'t exist!');
 		});
 
@@ -902,7 +874,7 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "precacheImage", function(name:String):Void
 		{
-			Paths.returnGraphic(name);
+			Paths.getGraphic(name);
 		});
 		Lua_helper.add_callback(lua, "precacheSound", function(name:String):Void
 		{
@@ -1142,7 +1114,7 @@ class FunkinLua
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 			if (image != null && image.length > 0)
 			{
-				leSprite.loadGraphic(Paths.image(image));
+				leSprite.loadGraphic(Paths.getGraphic(image));
 			}
 			leSprite.antialiasing = Options.save.data.globalAntialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
@@ -1533,7 +1505,7 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "startDialogue", function(dialogueFile:String, music:String = null):Void
 		{
-			var path:String = Paths.modsJson('${PlayState.song.songId}/$dialogueFile');
+			var path:String = Paths.json('songs/${PlayState.song.songId}/$dialogueFile');
 			if (!FileSystem.exists(path))
 			{
 				path = Paths.json('${PlayState.song.songId}/$dialogueFile');

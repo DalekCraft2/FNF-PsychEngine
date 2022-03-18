@@ -14,7 +14,7 @@ class OptionsState extends MusicBeatState
 		// One day, I'll figure out how to both call the super method and open a SubState in the create() method
 		// super.create();
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.color = 0xFFEA71FD;
 		bg.updateHitbox();
 		bg.screenCenter();

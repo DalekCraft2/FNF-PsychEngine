@@ -80,13 +80,13 @@ class DialogueCharacter extends FlxSprite
 	{
 		var characterPath:String = 'dialogue/$curCharacter';
 
-		var rawJson = Paths.loadJson(characterPath);
-		if (rawJson == null)
+		var characterData:DialogueCharacterData = Paths.getJson(characterPath);
+		if (characterData == null)
 		{
-			rawJson = Paths.loadJson('dialogue/$DEFAULT_CHARACTER');
+			characterData = Paths.getJson('dialogue/$DEFAULT_CHARACTER');
 		}
 
-		jsonFile = cast rawJson;
+		jsonFile = cast characterData;
 	}
 
 	public function reloadAnimations():Void
@@ -594,11 +594,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	public static function parseDialogue(path:String):DialogueData
 	{
-		var rawJson:Dynamic = Paths.loadJson(path);
-
-		var dialogueData:DialogueData = cast rawJson;
-
-		return dialogueData;
+		return Paths.getJson(path);
 	}
 
 	public static function updateBoxOffsets(box:FlxSprite):Void

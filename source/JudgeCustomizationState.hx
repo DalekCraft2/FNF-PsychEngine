@@ -51,7 +51,7 @@ class JudgeCustomizationState extends MusicBeatState
 		coolText.x = FlxG.width * 0.55;
 
 		judge = new FlxSprite();
-		judge.loadGraphic(Paths.image('sick', 'shared'));
+		judge.loadGraphic(Paths.getGraphic('sick'));
 		judge.screenCenter();
 		judge.antialiasing = true;
 		judge.x = coolText.x - 40;
