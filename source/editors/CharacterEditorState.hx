@@ -420,7 +420,8 @@ class CharacterEditorState extends MusicBeatState
 				0
 			],
 			"sing_duration": 6.1,
-			"scale": 1
+			"scale": 1,
+			"cam_movement_mult": 1
 		}';
 
 	private var charDropDown:FlxUIDropDownMenuCustom;
@@ -1444,7 +1445,8 @@ class CharacterEditorState extends MusicBeatState
 
 			"flip_x": char.originalFlipX,
 			"no_antialiasing": char.noAntialiasing,
-			"healthbar_colors": char.healthColorArray
+			"healthbar_colors": char.healthColorArray,
+			"cam_movement_mult": char.camMovementMult
 		};
 
 		var data:String = Json.stringify(json, "\t");

@@ -3,7 +3,9 @@
         "player1": "bf",
         "player2": "spooky",
         "gfVersion": "gf",
-        "stage": "spooky",
+        "stage": "halloween",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 150,
         "speed": 2.4,
         "needsVoices": true,
@@ -2408,6 +2410,7 @@
                 "changeBPM": false,
                 "mustHitSection": true
             }
-        ]
+        ],
+        "events": []
     }
 }

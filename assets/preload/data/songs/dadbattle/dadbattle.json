@@ -4,6 +4,8 @@
 		"player2": "dad",
 		"gfVersion": "gf",
 		"stage": "stage",
+        "arrowSkin": null,
+		"splashSkin": null,
 		"bpm": 180,
 		"speed": 1.5,
 		"needsVoices": true,
@@ -1765,7 +1767,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

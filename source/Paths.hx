@@ -342,7 +342,7 @@ class Paths
 			localTrackedAssets.push(path);
 			return currentTrackedAssets.get(path);
 		}
-		Debug.logWarn('Could not find asset at "$path"');
+		Debug.logError('Could not find graphic with name "$key" and library "$library" (path: $path)');
 		return null;
 	}
 
@@ -363,7 +363,9 @@ class Paths
 		}
 		localTrackedAssets.push(gottenPath);
 		if (currentTrackedSounds.get(gottenPath) == null)
-			Debug.logWarn('Could not find sound at "$file"');
+		{
+			Debug.logError('Could not find sound with path "$path", name "$key", and library "$library"');
+		}
 		return currentTrackedSounds.get(gottenPath);
 	}
 

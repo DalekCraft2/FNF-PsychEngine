@@ -80,7 +80,12 @@ class FunkinLua
 		// Lua shit
 		set('FUNCTION_STOP', FUNCTION_STOP);
 		set('FUNCTION_CONTINUE', FUNCTION_CONTINUE);
-		set('luaDebugMode', false);
+
+		// These two are for legacy support
+		set('Function_Stop', FUNCTION_STOP);
+		set('Function_Continue', FUNCTION_CONTINUE);
+
+		set('luaDebugMode', #if debug false #else false #end);
 		set('luaDeprecatedWarnings', true);
 		set('inChartEditor', false);
 
@@ -278,9 +283,10 @@ class FunkinLua
 			var killMe:Array<String> = variable.split('.');
 			if (killMe.length > 1)
 			{
-				return Reflect.setProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1], value);
+				Reflect.setProperty(getPropertyLoopThingWhatever(killMe), killMe[killMe.length - 1], value);
+				return;
 			}
-			return Reflect.setProperty(getInstance(), variable, value);
+			Reflect.setProperty(getInstance(), variable, value);
 		});
 		Lua_helper.add_callback(lua, "getPropertyFromGroup", function(obj:String, index:Int, variable:Dynamic):Dynamic
 		{
@@ -289,7 +295,7 @@ class FunkinLua
 				return getGroupStuff(Reflect.getProperty(getInstance(), obj).members[index], variable);
 			}
 
-			var leArray:Array<Dynamic> = Reflect.getProperty(getInstance(), obj)[index];
+			var leArray:Dynamic = Reflect.getProperty(getInstance(), obj)[index];
 			if (leArray != null)
 			{
 				if (Type.typeof(variable) == ValueType.TInt)
@@ -309,7 +315,7 @@ class FunkinLua
 				return;
 			}
 
-			var leArray:Array<Dynamic> = Reflect.getProperty(getInstance(), obj)[index];
+			var leArray:Dynamic = Reflect.getProperty(getInstance(), obj)[index];
 			if (leArray != null)
 			{
 				if (Type.typeof(variable) == ValueType.TInt)

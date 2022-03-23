@@ -77,6 +77,7 @@
 		<library name="week4" preload="true" />
 		<library name="week5" preload="true" />
 		<library name="week6" preload="true" />
+		<library name="week7" preload="true" />
 	</section>
 	<section unless="PRELOAD_ALL">
 		<library name="shared" preload="false" />
@@ -86,8 +87,9 @@
 		<library name="week4" preload="false" />
 		<library name="week5" preload="false" />
 		<library name="week6" preload="false" />
+		<library name="week7" preload="false" />
 	</section>
-	<library name="videos" preload="true" />
+	<!-- <library name="videos" preload="true" /> -->
 
 	<section if="TITLE_SCREEN_EASTER_EGG">
 		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web"/>
@@ -109,14 +111,25 @@
 	<assets path="assets/week5" library="week5" exclude="*.mp3" unless="web" />
 	<assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
 	<assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
-	<assets path="dlls/" rename='' if="FEATURE_VIDEOS windows" />
-	<assets path='mods/' embed='false' if="FEATURE_MODS" />
-	<assets path="plugins/" if="FEATURE_VIDEOS windows" />
+	<assets path="assets/week7" library="week7" exclude="*.ogg" if="web" />
+	<assets path="assets/week7" library="week7" exclude="*.mp3" unless="web" />
+	<!-- <assets path="assets/preload/videos" rename="assets/videos" if="FEATURE_VIDEOS" /> -->
+	<assets path="dlls" rename='' if="FEATURE_VIDEOS windows" />
+	<assets path="plugins" if="FEATURE_VIDEOS windows" />
 
 	<assets path='art/readme.txt' rename='README.txt' />
 	<assets path='LICENSE.txt' />
 	<assets path="CHANGELOG.md" rename='CHANGELOG.txt' />
-	<!-- <template path='mods' /> -->
+
+	<assets path='mods' embed="false" if="FEATURE_MODS" />
+	<!-- <template path='mods' if="FEATURE_MODS" /> -->
+
+	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
+		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
+		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
+		NOT USING A DIRECT THING TO THE ASSET!!!
+	-->
+	<!-- <assets path="assets/preload/fonts" rename="assets/fonts" embed='true' /> -->
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -131,10 +144,10 @@
 	<!--In case you want to use nape with flixel-->
 	<!-- <haxelib name="nape-haxe4" /> -->
 
-	<haxelib name="hscript" />
-	<haxelib name="actuate" />
+	<!-- <haxelib name="hscript" /> -->
+	<!-- <haxelib name="actuate" /> -->
 	<!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
-	<haxelib name="extension-webm" />
+	<!-- <haxelib name="extension-webm" /> -->
 
 	<haxelib name="linc_luajit" if="FEATURE_LUA" />
 	<haxelib name="faxe" if='switch' />

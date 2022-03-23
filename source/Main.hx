@@ -92,12 +92,6 @@ class Main extends Sprite
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		#end
 
-		FlxG.autoPause = false;
-
-		#if html5
-		FlxG.mouse.visible = false;
-		#end
-
 		// Finish up loading debug tools.
 		Debug.onGameStart();
 	}

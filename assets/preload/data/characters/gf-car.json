@@ -3,17 +3,6 @@
 		{
 			"loop": false,
 			"offsets": [
-				2,
-				0
-			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "GF Dancing Beat Hair blowing CAR",
-			"indices": []
-		},
-		{
-			"loop": false,
-			"offsets": [
 				0,
 				0
 			],
@@ -85,5 +74,6 @@
 		0
 	],
 	"sing_duration": 4,
-	"scale": 1
+	"scale": 1,
+	"cam_movement_mult": 1
 }

@@ -4,6 +4,8 @@
 		"player2": "mom-car",
 		"gfVersion": "gf-car",
 		"stage": "limo",
+        "arrowSkin": null,
+		"splashSkin": null,
 		"bpm": 110,
 		"speed": 1.6,
 		"needsVoices": true,
@@ -2335,7 +2337,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

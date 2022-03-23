@@ -1,8 +1,10 @@
 package;
 
 import animateatlas.AtlasFrameMaker;
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxSort;
 import openfl.utils.Assets;
 #if FEATURE_MODS
 import sys.FileSystem;
@@ -23,6 +25,7 @@ typedef CharacterData =
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
 	var healthbar_colors:Array<Int>;
+	var ?cam_movement_mult:Float;
 }
 
 typedef AnimationData =
@@ -59,6 +62,7 @@ class Character extends FlxSprite
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
+	public var camMovementMult:Float = 1;
 
 	public var hasMissAnimations:Bool = false;
 
@@ -81,8 +85,11 @@ class Character extends FlxSprite
 		antialiasing = Options.save.data.globalAntialiasing;
 		switch (curCharacter)
 		{
+			// TODO Add configuration in order to avoid hardcoding Pico things in Week 7
 			// case 'your character name in case you want to hardcode them instead':
-
+			case 'pico-speaker':
+				parseDataFile();
+				loadMappedAnims();
 			default:
 				parseDataFile();
 		}
@@ -106,6 +113,7 @@ class Character extends FlxSprite
 		var characterData:CharacterData = Paths.getJson(characterPath);
 		if (characterData == null)
 		{
+			Debug.logError('Could not find character data for character "$curCharacter"; using default');
 			characterData = Paths.getJson('characters/$DEFAULT_CHARACTER');
 		}
 
@@ -155,6 +163,8 @@ class Character extends FlxSprite
 
 		positionArray = characterData.position;
 		cameraPosition = characterData.camera_position;
+		if (characterData.cam_movement_mult != null)
+			camMovementMult = characterData.cam_movement_mult;
 
 		healthIcon = characterData.healthicon;
 		singDuration = characterData.sing_duration;
@@ -243,6 +253,23 @@ class Character extends FlxSprite
 				}
 			}
 
+			switch (curCharacter)
+			{
+				case 'pico-speaker':
+					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0])
+					{
+						var shootAnim = 1;
+
+						if (animationNotes[0][1] >= 2)
+							shootAnim = 3;
+
+						shootAnim += FlxG.random.int(0, 1);
+						playAnim("shoot" + shootAnim, true);
+
+						animationNotes.shift();
+					}
+			}
+
 			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
 			{
 				playAnim(animation.curAnim.name + '-loop');
@@ -304,6 +331,29 @@ class Character extends FlxSprite
 				danced = !danced;
 			}
 		}
+	}
+
+	public function loadMappedAnims()
+	{
+		var pico = Song.loadFromJson("pico-speaker", "", "stress");
+		var notes = pico.notes;
+
+		for (section in notes)
+		{
+			for (note in section.sectionNotes)
+			{
+				animationNotes.push(note);
+			}
+		}
+
+		TankmenBG.animationNotes = animationNotes;
+
+		animationNotes.sort(sortAnims);
+	}
+
+	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
+	{
+		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
 	}
 
 	public var danceEveryNumBeats:Int = 2;

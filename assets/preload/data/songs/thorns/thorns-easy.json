@@ -4,6 +4,8 @@
         "player2": "spirit",
         "gfVersion": "gf-pixel",
         "stage": "schoolEvil",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 190,
         "speed": 1.1,
         "needsVoices": true,
@@ -1914,7 +1916,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

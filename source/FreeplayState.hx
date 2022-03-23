@@ -1,5 +1,6 @@
 package;
 
+import Song.SongMeta;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -116,24 +117,12 @@ class FreeplayState extends MusicBeatState
 				continue;
 
 			var leWeek:Week = Week.weeksLoaded.get(Week.weeksList[i]);
-			var leSongs:Array<String> = [];
-			var leChars:Array<String> = [];
-
-			for (j in 0...leWeek.songs.length)
-			{
-				leSongs.push(leWeek.songs[j][0]);
-				leChars.push(leWeek.songs[j][1]);
-			}
 
 			Week.setDirectoryFromWeek(leWeek);
 			for (song in leWeek.songs)
 			{
-				var colors:Array<Int> = song[2];
-				if (colors == null || colors.length < 3)
-				{
-					colors = [146, 113, 253];
-				}
-				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
+				var songMeta:SongMeta = Song.getSongMeta(song);
+				addSong(songMeta.name, i, songMeta.icon, FlxColor.fromRGB(songMeta.color[0], songMeta.color[1], songMeta.color[2]));
 			}
 		}
 		Week.loadTheFirstEnabledMod();
@@ -160,7 +149,7 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].songName, true, false);
+			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].name, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
 			FlxMouseEventManager.add(songText, onMouseDown, onMouseUp, onMouseOver, onMouseOut);
@@ -180,7 +169,7 @@ class FreeplayState extends MusicBeatState
 			}*/
 
 			Paths.currentModDirectory = songs[i].folder;
-			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
+			var icon:HealthIcon = new HealthIcon(songs[i].icon);
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
@@ -302,7 +291,7 @@ class FreeplayState extends MusicBeatState
 		// LoadingState.loadAndSwitchState(new PlayState());
 
 		persistentUpdate = false;
-		var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
+		var songId:String = Paths.formatToSongPath(songs[curSelected].name);
 		var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 		var songPath:String = 'songs/$songId/$songId$difficulty';
 		if (#if FEATURE_MODS !FileSystem.exists(Paths.json(songPath)) && #end!Assets.exists(Paths.json(songPath)))
@@ -432,7 +421,7 @@ class FreeplayState extends MusicBeatState
 				destroyFreeplayVocals();
 				FlxG.sound.music.volume = 0;
 				Paths.currentModDirectory = songs[curSelected].folder;
-				var songId:String = Paths.formatToSongPath(songs[curSelected].songName);
+				var songId:String = Paths.formatToSongPath(songs[curSelected].name);
 				var difficulty:String = CoolUtil.getDifficultyFilePath(curDifficulty);
 				var songPath:String = 'songs/$songId/$songId$difficulty';
 				if (#if FEATURE_MODS !FileSystem.exists(Paths.json(songPath)) && #end!Assets.exists(Paths.json(songPath)))
@@ -465,7 +454,7 @@ class FreeplayState extends MusicBeatState
 		else if (controls.RESET)
 		{
 			persistentUpdate = false;
-			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
+			openSubState(new ResetScoreSubState(songs[curSelected].name, curDifficulty, songs[curSelected].icon));
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 	}
@@ -492,8 +481,8 @@ class FreeplayState extends MusicBeatState
 		lastDifficultyName = CoolUtil.difficulties[curDifficulty];
 
 		#if !switch
-		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		intendedRating = Highscore.getRating(songs[curSelected].songName, curDifficulty);
+		intendedScore = Highscore.getScore(songs[curSelected].name, curDifficulty);
+		intendedRating = Highscore.getRating(songs[curSelected].name, curDifficulty);
 		#end
 
 		PlayState.storyDifficulty = curDifficulty;
@@ -532,8 +521,8 @@ class FreeplayState extends MusicBeatState
 		// selector.y = (70 * curSelected) + 30;
 
 		#if !switch
-		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		intendedRating = Highscore.getRating(songs[curSelected].songName, curDifficulty);
+		intendedScore = Highscore.getScore(songs[curSelected].name, curDifficulty);
+		intendedRating = Highscore.getRating(songs[curSelected].name, curDifficulty);
 		#end
 
 		var bullShit:Int = 0;
@@ -564,13 +553,9 @@ class FreeplayState extends MusicBeatState
 		PlayState.storyWeek = songs[curSelected].week;
 
 		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
-		var diffStr:String = Week.getCurrentWeek().difficulties;
-		if (diffStr != null)
-			diffStr = diffStr.trim(); // Fuck you HTML5
-
-		if (diffStr != null && diffStr.length > 0)
+		var diffs:Array<String> = Week.getCurrentWeek().difficulties;
+		if (diffs != null && diffs.length > 0)
 		{
-			var diffs:Array<String> = diffStr.split(',');
 			var i:Int = diffs.length - 1;
 			while (i > 0)
 			{
@@ -619,17 +604,17 @@ class FreeplayState extends MusicBeatState
 
 class SongMetadata
 {
-	public var songName:String = "";
+	public var name:String = "";
 	public var week:Int = 0;
-	public var songCharacter:String = "";
+	public var icon:String = "";
 	public var color:Int = -7179779;
 	public var folder:String = "";
 
-	public function new(song:String, week:Int, songCharacter:String, color:Int)
+	public function new(name:String, week:Int, icon:String, color:Int)
 	{
-		this.songName = song;
+		this.name = name;
 		this.week = week;
-		this.songCharacter = songCharacter;
+		this.icon = icon;
 		this.color = color;
 		this.folder = Paths.currentModDirectory;
 		if (this.folder == null)

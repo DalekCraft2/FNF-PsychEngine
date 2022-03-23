@@ -122,7 +122,8 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
 				case 'Week Editor':
-					FlxG.switchState(new WeekEditorState());
+				// TODO This is temporarily disabled whilst I try to finally implement SongMeta
+				// FlxG.switchState(new WeekEditorState());
 				case 'Menu Character Editor':
 					FlxG.switchState(new MenuCharacterEditorState());
 				case 'Dialogue Portrait Editor':

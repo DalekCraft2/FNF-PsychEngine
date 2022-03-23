@@ -27,14 +27,14 @@ using StringTools;
 
 typedef TitleData =
 {
-	titlex:Float,
-	titley:Float,
-	startx:Float,
-	starty:Float,
-	gfx:Float,
-	gfy:Float,
-	backgroundSprite:String,
-	bpm:Int
+	var titlex:Float;
+	var titley:Float;
+	var startx:Float;
+	var starty:Float;
+	var gfx:Float;
+	var gfy:Float;
+	var backgroundSprite:String;
+	var bpm:Int;
 }
 
 // FIXME Null object reference if Enter is pressed too quickly when returning to title from main menu
@@ -153,6 +153,7 @@ class TitleState extends MusicBeatState
 		#end
 
 		FlxG.mouse.visible = false;
+
 		if (Options.save.data.flashing == null && !FlashingState.leftState)
 		{
 			FlxTransitionableState.skipNextTransIn = true;
@@ -218,7 +219,11 @@ class TitleState extends MusicBeatState
 		swagShader = new ColorSwap();
 		gfDance = new FlxSprite(titleJSON.gfx, titleJSON.gfy);
 
+		#if TITLE_SCREEN_EASTER_EGG
 		var easterEgg:String = FlxG.save.data.psychDevsEasterEgg;
+		#else
+		var easterEgg:String = '';
+		#end
 		switch (easterEgg.toUpperCase())
 		{
 			#if TITLE_SCREEN_EASTER_EGG

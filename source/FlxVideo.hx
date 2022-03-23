@@ -1,5 +1,6 @@
 package;
 
+import flixel.input.keyboard.FlxKey;
 import flixel.FlxBasic;
 import flixel.FlxG;
 #if web
@@ -14,9 +15,9 @@ import vlc.VlcBitmap;
 
 using StringTools;
 
+#if FEATURE_VIDEOS
 class FlxVideo extends FlxBasic
 {
-	#if FEATURE_VIDEOS
 	public var finishCallback:() -> Void = null;
 
 	#if desktop
@@ -91,11 +92,13 @@ class FlxVideo extends FlxBasic
 		return pDir + fileName;
 	}
 
+	// TODO This isn't an actual to-do, but I'm rather making it so I remember that I commented out these because I don't like the auto-pause
+
 	public static function onFocus():Void
 	{
 		if (vlcBitmap != null)
 		{
-			vlcBitmap.resume();
+			// vlcBitmap.resume();
 		}
 	}
 
@@ -103,12 +106,22 @@ class FlxVideo extends FlxBasic
 	{
 		if (vlcBitmap != null)
 		{
-			vlcBitmap.pause();
+			// vlcBitmap.pause();
 		}
 	}
 
+	// This function also checks for whether the video should be skipped, and I would rename it to "update" if that wasn't taken by FlxBasic
 	function fixVolume(e:Event):Void
 	{
+		// Skip video if enter is pressed
+		// if (FlxG.keys.justPressed.ENTER)
+		// {
+		// 	if (vlcBitmap.isPlaying)
+		// 	{
+		// 		onVLCComplete();
+		// 	}
+		// }
+
 		// shitty volume fix
 		vlcBitmap.volume = 0;
 		if (!FlxG.sound.muted && FlxG.sound.volume > 0.01)
@@ -144,5 +157,5 @@ class FlxVideo extends FlxBasic
 		}
 	}
 	#end
-	#end
 }
+#end

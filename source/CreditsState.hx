@@ -25,7 +25,7 @@ using StringTools;
 	var icon:String;
 	var description:String;
 	var link:String;
-	var color:String; // Will be changed to Int
+	var color:String; // Will be changed to FlxColor
 	var modDirectory:String;
 }*/
 class CreditsState extends MusicBeatState

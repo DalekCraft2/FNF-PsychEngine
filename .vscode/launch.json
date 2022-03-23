@@ -4,44 +4,44 @@
     {
       "name": "Windows (Debug)",
       "type": "hxcpp",
-      "preLaunchTask": "Build Windows (Debug)",
       "request": "launch",
+      "preLaunchTask": "Build Windows (Debug)",
       "program": "${workspaceFolder}/export/debug/windows/bin/Mock Engine.exe"
     },
     {
       "name": "Windows (Release)",
       "type": "hxcpp",
-      "preLaunchTask": "Build Windows (Release)",
       "request": "launch",
-      "program": "${workspaceFolder}/export/debug/windows/bin/Mock Engine.exe"
+      "preLaunchTask": "Build Windows (Release)",
+      "program": "${workspaceFolder}/export/release/windows/bin/Mock Engine.exe"
     },
     {
       "name": "HTML5 (Debug)",
+      "type": "node-terminal",
       "request": "launch",
       "preLaunchTask": "Build HTML5 (Debug)",
-      "type": "node-terminal",
       "command": "npx live-server \"${workspaceFolder}/export/debug/html5/bin/\""
     },
     {
       "name": "HTML5 (Release)",
+      "type": "node-terminal",
       "request": "launch",
       "preLaunchTask": "Build HTML5 (Release)",
-      "type": "node-terminal",
       "command": "npx live-server \"${workspaceFolder}/export/release/html5/bin/\""
     },
     {
       "name": "Linux (Debug)",
       "type": "hxcpp",
-      "preLaunchTask": "Build Linux (Debug)",
       "request": "launch",
+      "preLaunchTask": "Build Linux (Debug)",
       "program": "${workspaceFolder}/export/debug/linux/bin/Mock Engine"
     },
     {
       "name": "Linux (Release)",
       "type": "hxcpp",
-      "preLaunchTask": "Build Linux (Release)",
       "request": "launch",
-      "program": "${workspaceFolder}/export/debug/linux/bin/Mock Engine"
+      "preLaunchTask": "Build Linux (Release)",
+      "program": "${workspaceFolder}/export/release/linux/bin/Mock Engine"
     },
   ],
 }

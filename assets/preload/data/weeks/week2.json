@@ -1,22 +1,21 @@
 {
 	"songs": [
-		["spookeez", "spooky", [34, 51, 68]],
-		["south", "spooky", [34, 51, 68]],
-		["monster", "monster", [34, 51, 68]]
+		"spookeez",
+		"south",
+		"monster"
 	],
-
 	"weekCharacters": [
 		"spooky",
 		"bf",
 		"gf"
 	],
 	"weekBackground": "halloween",
-
-	"storyName": "Spooky Month",
 	"weekBefore": "week1",
+	"storyName": "Spooky Month",
 	"weekName": "Week 2",
 	"startUnlocked": true,
-
+	"hiddenUntilUnlocked": false,
 	"hideStoryMode": false,
-	"hideFreeplay": false
+	"hideFreeplay": false,
+	"difficulties": []
 }

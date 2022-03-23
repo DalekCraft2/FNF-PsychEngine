@@ -4,6 +4,8 @@
         "player2": "gf",
         "gfVersion": "gf",
         "stage": "stage",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 100,
         "speed": 1,
         "needsVoices": true,
@@ -556,6 +558,7 @@
                 "sectionNotes": [],
                 "typeOfSection": 0
             }
-        ]
+        ],
+        "events": []
     }
 }

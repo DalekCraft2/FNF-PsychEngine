@@ -1,5 +1,6 @@
 package editors;
 
+import Song.SongMeta;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -275,10 +276,10 @@ class WeekEditorState extends MusicBeatState
 	// Used on onCreate and when you load a week
 	private function reloadAllShit():Void
 	{
-		var weekString:String = weekData.songs[0][0];
+		var weekString:String = weekData.songs[0];
 		for (i in 1...weekData.songs.length)
 		{
-			weekString += ', ' + weekData.songs[i][0];
+			weekString += ', ' + weekData.songs[i];
 		}
 		songsInputText.text = weekString;
 		backgroundInputText.text = weekData.weekBackground;
@@ -294,9 +295,19 @@ class WeekEditorState extends MusicBeatState
 
 		weekBeforeInputText.text = weekData.weekBefore;
 
-		difficultiesInputText.text = '';
-		if (weekData.difficulties != null)
-			difficultiesInputText.text = weekData.difficulties;
+		if (weekData.difficulties != null && weekData.difficulties.length > 0)
+		{
+			var difficultiesString:String = weekData.difficulties[0];
+			for (i in 1...weekData.difficulties.length)
+			{
+				difficultiesString += ', ' + weekData.difficulties[i];
+			}
+			difficultiesInputText.text = difficultiesString;
+		}
+		else
+		{
+			difficultiesInputText.text = '';
+		}
 
 		lockedCheckbox.checked = !weekData.startUnlocked;
 		lock.visible = lockedCheckbox.checked;
@@ -319,7 +330,7 @@ class WeekEditorState extends MusicBeatState
 		var stringThing:Array<String> = [];
 		for (i in 0...weekData.songs.length)
 		{
-			stringThing.push(weekData.songs[i][0]);
+			stringThing.push(weekData.songs[i]);
 		}
 
 		txtTracklist.text = '';
@@ -437,16 +448,16 @@ class WeekEditorState extends MusicBeatState
 				{
 					if (i >= weekData.songs.length)
 					{ // Add new song
-						weekData.songs.push([splitText[i], 'dad', [146, 113, 253]]);
+						weekData.songs.push(splitText[i]);
 					}
 					else
 					{ // Edit song
-						weekData.songs[i][0] = splitText[i];
-						if (weekData.songs[i][1] == null || weekData.songs[i][1])
-						{
-							weekData.songs[i][1] = 'dad';
-							weekData.songs[i][2] = [146, 113, 253];
-						}
+						weekData.songs[i] = splitText[i];
+						// if (weekData.songs[i][1] == null || weekData.songs[i][1])
+						// {
+						// 	weekData.songs[i][1] = 'dad';
+						// 	weekData.songs[i][2] = [146, 113, 253];
+						// }
 					}
 				}
 				updateText();
@@ -457,7 +468,29 @@ class WeekEditorState extends MusicBeatState
 			}
 			else if (sender == difficultiesInputText)
 			{
-				weekData.difficulties = difficultiesInputText.text.trim();
+				var splitText:Array<String> = difficultiesInputText.text.trim().split(',');
+				for (i in 0...splitText.length)
+				{
+					splitText[i] = splitText[i].trim();
+				}
+
+				while (splitText.length < weekData.difficulties.length)
+				{
+					weekData.difficulties.pop();
+				}
+
+				for (i in 0...splitText.length)
+				{
+					if (i >= weekData.difficulties.length)
+					{ // Add new difficulty
+						weekData.difficulties.push(splitText[i]);
+					}
+					else
+					{ // Edit difficulty
+						weekData.difficulties[i] = splitText[i];
+					}
+				}
+				updateText();
 			}
 		}
 	}
@@ -669,12 +702,13 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 		for (i in 0...weekData.songs.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, weekData.songs[i][0], true, false);
+			var songMeta:SongMeta = Song.getSongMeta(weekData.songs[i]);
+			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songMeta.name, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			var icon:HealthIcon = new HealthIcon(weekData.songs[i][1]);
+			var icon:HealthIcon = new HealthIcon(songMeta.icon);
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
@@ -738,7 +772,8 @@ class WeekEditorFreeplayState extends MusicBeatState
 	{
 		if (id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText))
 		{
-			weekData.songs[curSelected][1] = iconInputText.text;
+			var songMeta:SongMeta = Song.getSongMeta(weekData.songs[curSelected]);
+			songMeta.icon = iconInputText.text;
 			iconArray[curSelected].changeIcon(iconInputText.text);
 		}
 		else if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
@@ -820,10 +855,16 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 	private function updateBG():Void
 	{
-		weekData.songs[curSelected][2][0] = Math.round(bgColorStepperR.value);
-		weekData.songs[curSelected][2][1] = Math.round(bgColorStepperG.value);
-		weekData.songs[curSelected][2][2] = Math.round(bgColorStepperB.value);
-		bg.color = FlxColor.fromRGB(weekData.songs[curSelected][2][0], weekData.songs[curSelected][2][1], weekData.songs[curSelected][2][2]);
+		var red:Int = Math.round(bgColorStepperR.value);
+		var green:Int = Math.round(bgColorStepperG.value);
+		var blue:Int = Math.round(bgColorStepperB.value);
+		var color:FlxColor = FlxColor.fromRGB(red, green, blue);
+		// TODO Note that this actually does nothing to the meta yet, so I need to make an editor for it
+		var songMeta:SongMeta = Song.getSongMeta(weekData.songs[curSelected]);
+		songMeta.color[0] = red;
+		songMeta.color[1] = green;
+		songMeta.color[2] = blue;
+		bg.color = color;
 	}
 
 	private function changeSelection(change:Int = 0):Void
@@ -860,10 +901,12 @@ class WeekEditorFreeplayState extends MusicBeatState
 			}
 		}
 		Debug.logTrace(weekData.songs[curSelected]);
-		iconInputText.text = weekData.songs[curSelected][1];
-		bgColorStepperR.value = Math.round(weekData.songs[curSelected][2][0]);
-		bgColorStepperG.value = Math.round(weekData.songs[curSelected][2][1]);
-		bgColorStepperB.value = Math.round(weekData.songs[curSelected][2][2]);
+		// TODO Try to minimize the usage of this method for performance
+		var songMeta:SongMeta = Song.getSongMeta(weekData.songs[curSelected]);
+		iconInputText.text = songMeta.icon;
+		bgColorStepperR.value = Math.round(songMeta.color[0]);
+		bgColorStepperG.value = Math.round(songMeta.color[1]);
+		bgColorStepperB.value = Math.round(songMeta.color[2]);
 		updateBG();
 	}
 

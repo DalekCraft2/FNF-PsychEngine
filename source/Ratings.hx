@@ -103,15 +103,15 @@ class Ratings
 	public static function generateComboLetterRank(accuracy:Float):String // generate a letter ranking
 	{
 		var ranking:String = "N/A";
-		if (Options.save.data.botPlay && !PlayState.loadRep)
-			ranking = "BotPlay";
+		// if (Options.save.data.botPlay && !PlayState.loadRep)
+		// 	ranking = "BotPlay";
 
 		ranking = '(${generateComboRank()}) ${generateLetterRank(accuracy)}';
 
 		if (accuracy == 0)
 			ranking = "N/A";
-		else if (Options.save.data.botPlay && !PlayState.loadRep)
-			ranking = "BotPlay";
+		// else if (Options.save.data.botPlay && !PlayState.loadRep)
+		// 	ranking = "BotPlay";
 
 		return ranking;
 	}
@@ -146,22 +146,16 @@ class Ratings
 	public static function calculateRanking(score:Int, scoreDef:Int, nps:Int, maxNPS:Int, accuracy:Float):String
 	{
 		return (Options.save.data.npsDisplay ? // NPS Toggle
-			"NPS: "
-			+ nps
-			+ " (Max "
-			+ maxNPS
-			+ ")"
-			+ (!PlayStateChangeables.botPlay || PlayState.loadRep ? " | " : "") : "") + // 	NPS
-			(!PlayStateChangeables.botPlay
-				|| PlayState.loadRep ? "Score:" + (Options.save.data.safeFrames != 10 ? score + " (" + scoreDef + ")" : "" + score) + // Score
+			'NPS: $nps (Max $maxNPS)' + (!false || PlayState.loadRep ? ' | ' : '') : '') + // 	NPS
+			(!false
+				|| PlayState.loadRep ? 'Score:' + (Options.save.data.safeFrames != 10 ? score + ' ($scoreDef)' : Std.string(score)) + // Score
 					(Options.save.data.accuracyDisplay ? // Accuracy Toggle
-						" | Combo Breaks:"
-						+ PlayState.instance.misses
+						' | Combo Breaks: ${PlayState.instance.misses}'
 						+ // 	Misses/Combo Breaks
-						" | Accuracy:"
-						+ (PlayStateChangeables.botPlay && !PlayState.loadRep ? "N/A" : CoolUtil.truncateFloat(accuracy, 2) + " %")
+						' | Accuracy:'
+						+ (false && !PlayState.loadRep ? 'N/A' : '${CoolUtil.truncateFloat(accuracy, 2)} %')
 						+ // 	Accuracy
-						" | "
-						+ generateComboLetterRank(accuracy) : "") : ""); // 	Combo Rank + Letter Rank
+						' | '
+						+ generateComboLetterRank(accuracy) : '') : ''); // 	Combo Rank + Letter Rank
 	}
 }

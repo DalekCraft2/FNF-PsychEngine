@@ -1,5 +1,6 @@
 package;
 
+import Song.SongMeta;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -299,12 +300,7 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
-			var songArray:Array<String> = [];
-			var leWeek:Array<Dynamic> = loadedWeeks[curWeek].songs;
-			for (i in 0...leWeek.length)
-			{
-				songArray.push(leWeek[i][0]);
-			}
+			var songArray:Array<String> = loadedWeeks[curWeek].songs;
 
 			// Nevermind that's stupid lmao
 			PlayState.storyPlaylist = songArray;
@@ -422,14 +418,11 @@ class StoryMenuState extends MusicBeatState
 		PlayState.storyWeek = curWeek;
 
 		CoolUtil.difficulties = CoolUtil.DEFAULT_DIFFICULTIES.copy();
-		var diffStr:String = Week.getCurrentWeek().difficulties;
-		if (diffStr != null)
-			diffStr = diffStr.trim(); // Fuck you HTML5
+		var diffs:Array<String> = Week.getCurrentWeek().difficulties;
 		difficultySelectors.visible = unlocked;
 
-		if (diffStr != null && diffStr.length > 0)
+		if (diffs != null && diffs.length > 0)
 		{
-			var diffs:Array<String> = diffStr.split(',');
 			var i:Int = diffs.length - 1;
 			while (i > 0)
 			{
@@ -486,7 +479,8 @@ class StoryMenuState extends MusicBeatState
 		var stringThing:Array<String> = [];
 		for (i in 0...leWeek.songs.length)
 		{
-			stringThing.push(leWeek.songs[i][0]);
+			var songMeta:SongMeta = Song.getSongMeta(leWeek.songs[i]);
+			stringThing.push(songMeta.name);
 		}
 
 		txtTracklist.text = '';

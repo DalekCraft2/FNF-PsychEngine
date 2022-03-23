@@ -99,6 +99,12 @@ class InitState extends FlxUIState
 		// FlxGraphic.defaultPersist = Options.save.data.persistentImages;
 
 		FlxG.fixedTimestep = false;
+		FlxG.autoPause = false;
+
+		#if html5
+		// FlxG.autoPause = true;
+		FlxG.mouse.visible = false;
+		#end
 
 		var canCache:Bool = false;
 		#if sys

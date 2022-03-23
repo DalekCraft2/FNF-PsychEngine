@@ -6,7 +6,6 @@ import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.util.FlxSave;
-import haxe.Exception;
 
 class Options
 {
@@ -209,7 +208,7 @@ class ValueOption<T> extends Option
 	private function get_defaultValue():T
 	{
 		if (!Reflect.hasField(OptionDefaults, property))
-			throw new Exception('OptionDefaults does not contain default value for option "$property"');
+			Debug.logError('OptionDefaults does not contain default value for option "$property"');
 		return Reflect.field(OptionDefaults, property);
 	}
 }
@@ -760,7 +759,7 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 	override private function get_defaultValue():Array<FlxKey>
 	{
 		if (!OptionDefaults.keyBinds.exists(property))
-			throw new Exception('OptionDefaults.keyBinds does not contain default value for keybind "$property"');
+			Debug.logError('OptionDefaults.keyBinds does not contain default value for keybind "$property"');
 		return OptionDefaults.keyBinds.get(property).copy(); // Copy so we don't affect the original value in OptionDefaults
 	}
 }

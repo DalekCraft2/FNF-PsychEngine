@@ -54,17 +54,6 @@
 				28,
 				29
 			]
-		},
-		{
-			"loop": false,
-			"offsets": [
-				0,
-				0
-			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "GF IDLE",
-			"indices": []
 		}
 	],
 	"no_antialiasing": true,
@@ -85,5 +74,6 @@
 		80
 	],
 	"sing_duration": 4,
-	"scale": 5.99999999999999
+	"scale": 6,
+	"cam_movement_mult": 1
 }

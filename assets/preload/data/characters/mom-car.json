@@ -154,5 +154,6 @@
 		0
 	],
 	"sing_duration": 4,
-	"scale": 1
+	"scale": 1,
+	"cam_movement_mult": 1
 }

@@ -159,7 +159,7 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces = 0;
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0, textSize);
-				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0, textSize);
+				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0, textSize, isBold);
 
 				if (isBold)
 				{
@@ -324,7 +324,7 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces = 0;
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0, textSize);
-				var letter:AlphaCharacter = new AlphaCharacter(xPos, 55 * yMulti, textSize);
+				var letter:AlphaCharacter = new AlphaCharacter(xPos, 55 * yMulti, textSize, isBold);
 				letter.row = curRow;
 				if (isBold)
 				{
@@ -433,11 +433,11 @@ class AlphaCharacter extends FlxSprite
 
 	private var textSize:Float = 1;
 
-	public function new(x:Float, y:Float, textSize:Float)
+	public function new(x:Float, y:Float, textSize:Float, ?bold:Bool = false)
 	{
 		super(x, y);
 
-		var tex:FlxAtlasFrames = Paths.getSparrowAtlas("alphabet");
+		var tex:FlxAtlasFrames = Paths.getSparrowAtlas(bold ? 'fonts/bold' : 'fonts/default');
 		frames = tex;
 
 		setGraphicSize(Std.int(width * textSize));
@@ -448,7 +448,7 @@ class AlphaCharacter extends FlxSprite
 
 	public function createBoldLetter(letter:String):Void
 	{
-		animation.addByPrefix(letter, letter.toUpperCase() + " bold", 24);
+		animation.addByPrefix(letter, letter.toUpperCase(), 24);
 		animation.play(letter);
 		updateHitbox();
 
@@ -458,7 +458,7 @@ class AlphaCharacter extends FlxSprite
 
 	public function createBoldNumber(letter:String):Void
 	{
-		animation.addByPrefix(letter, "bold" + letter, 24);
+		animation.addByPrefix(letter, letter, 24);
 		animation.play(letter);
 		updateHitbox();
 
@@ -468,7 +468,7 @@ class AlphaCharacter extends FlxSprite
 
 	public function createBoldSymbol(letter:String):Void
 	{
-		animation.addByPrefix(letter, "bold " + letter, 24);
+		animation.addByPrefix(letter, letter, 24);
 		animation.play(letter);
 		updateHitbox();
 
@@ -485,13 +485,7 @@ class AlphaCharacter extends FlxSprite
 
 	public function createLetter(letter:String):Void
 	{
-		var letterCase:String = "lowercase";
-		if (letter.toLowerCase() != letter)
-		{
-			letterCase = "uppercase";
-		}
-
-		animation.addByPrefix(letter, letter + " " + letterCase, 24);
+		animation.addByPrefix(letter, letter, 24);
 		animation.play(letter);
 		updateHitbox();
 

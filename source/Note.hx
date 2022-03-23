@@ -5,20 +5,20 @@ import flixel.FlxSprite;
 
 typedef EventNoteData =
 {
-	strumTime:Float,
-	event:String,
-	value1:String,
-	value2:String
+	var strumTime:Float;
+	var event:String;
+	var value1:String;
+	var value2:String;
 }
 
 // TODO Use the below typedef
 
 typedef NoteData =
 {
-	strumTime:Float,
-	noteData:Int,
-	?sustainLength:Float,
-	?noteType:String
+	var strumTime:Float;
+	var noteData:Int;
+	var ?sustainLength:Float;
+	var ?noteType:String;
 }
 
 class Note extends FlxSprite
@@ -182,8 +182,6 @@ class Note extends FlxSprite
 			}
 		}
 
-		// Debug.logTrace(prevNote);
-
 		if (isSustainNote && prevNote != null)
 		{
 			alpha = 0.6;
@@ -263,13 +261,6 @@ class Note extends FlxSprite
 
 	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = ''):Void
 	{
-		if (prefix == null)
-			prefix = '';
-		if (texture == null)
-			texture = '';
-		if (suffix == null)
-			suffix = '';
-
 		var skin:String = texture;
 		if (texture.length < 1)
 		{

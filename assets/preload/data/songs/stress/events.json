@@ -1,0 +1,27 @@
+{
+	"song": {
+		"player1": "bf-holding-gf",
+		"player2": "tankman",
+		"gfVersion": "pico-speaker",
+		"stage": "pico-tank",
+		"arrowSkin": null,
+		"splashSkin": null,
+		"bpm": 178,
+		"speed": 2.6,
+		"needsVoices": true,
+		"validScore": false,
+		"notes": [],
+		"events": [
+			[
+				62022.4719101124,
+				[
+					[
+						"Play Animation",
+						"singDOWN-alt",
+						"Dad"
+					]
+				]
+			]
+		]
+	}
+}

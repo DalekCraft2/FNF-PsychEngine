@@ -4,6 +4,8 @@
         "player2": "senpai-angry",
         "gfVersion": "gf-pixel",
         "stage": "school",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 120,
         "speed": 1.5,
         "needsVoices": true,
@@ -2613,7 +2615,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

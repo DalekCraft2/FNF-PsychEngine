@@ -4,6 +4,8 @@
 		"player2": "dad",
 		"gfVersion": "gf",
 		"stage": "stage",
+		"arrowSkin": null,
+		"splashSkin": null,
 		"bpm": 100,
 		"speed": 1,
 		"needsVoices": true,
@@ -845,6 +847,7 @@
 				"changeBPM": false,
 				"mustHitSection": true
 			}
-		]
+		],
+        "events": []
 	}
 }

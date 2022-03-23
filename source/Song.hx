@@ -21,20 +21,23 @@ typedef SongData =
 	var player2:String;
 	var gfVersion:String;
 	var stage:String;
+	var arrowSkin:String;
+	var splashSkin:String;
 	var bpm:Float;
 	var speed:Float;
 	var needsVoices:Bool;
-	var arrowSkin:String;
-	var splashSkin:String;
 	var ?validScore:Bool;
 	var notes:Array<SectionData>;
 	var events:Array<Dynamic>;
 }
 
+// TODO SongMetaEditorState?
 typedef SongMeta =
 {
 	var ?offset:Int;
 	var ?name:String;
+	var ?icon:String;
+	var ?color:Array<Int>; // TODO Make this an FlxColor (or an array of FlxColors, like Myth)
 }
 
 class Song
@@ -128,19 +131,56 @@ class Song
 		}
 
 		var songPath:String = 'songs/$folder/$songId$difficulty';
-		var songMetaPath:String = 'songs/$folder/_meta';
 
-		var rawJson:SongData = Paths.getJson(songPath);
-		var rawMetaJson:SongMeta = Paths.getJson(songMetaPath);
+		var rawJson:{song:SongData} = Paths.getJson(songPath);
+		var songMeta:SongMeta = getSongMeta(songId, folder);
 
-		var songData:SongData = parseJson(songId, rawJson, rawMetaJson);
+		var songData:SongData = parseJson(songId, rawJson, songMeta);
 		onLoadJson(songData);
 		if (songId != 'events')
 			Stage.loadDirectory(songData);
 		return songData;
 	}
 
-	public static function parseJson(songId:String, jsonData:Dynamic, jsonMetaData:Dynamic):SongData
+	public static function getSongMeta(songId:String, ?folder:String):SongMeta
+	{
+		if (folder == null)
+		{
+			folder = songId;
+		}
+		var songMetaPath:String = 'songs/$folder/_meta';
+		var songMeta:SongMeta = Paths.getJson(songMetaPath);
+
+		if (songMeta == null)
+		{
+			songMeta = {
+				offset: 0,
+				name: songId.split('-').join(' '),
+				icon: 'face',
+				color: [146, 113, 253]
+			}
+		}
+		if (songMeta.offset == null)
+		{
+			songMeta.offset = 0;
+		}
+		if (songMeta.name == null)
+		{
+			songMeta.name = songId.split('-').join(' ');
+		}
+		if (songMeta.icon == null)
+		{
+			songMeta.icon = 'face';
+		}
+		if (songMeta.color == null || songMeta.color.length != 3)
+		{
+			songMeta.color = [146, 113, 253];
+		}
+
+		return songMeta;
+	}
+
+	public static function parseJson(songId:String, jsonData:Dynamic, songMetaData:SongMeta):SongData
 	{
 		var songData:SongData = cast jsonData.song;
 
@@ -151,7 +191,6 @@ class Song
 			songData.validScore = true;
 
 		// Inject info from _meta.json.
-		var songMetaData:SongMeta = cast jsonMetaData;
 		if (songMetaData != null && songMetaData.name != null)
 		{
 			songData.songName = songMetaData.name;

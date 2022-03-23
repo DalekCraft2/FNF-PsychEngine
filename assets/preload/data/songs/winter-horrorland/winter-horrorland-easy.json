@@ -4,6 +4,8 @@
         "player2": "monster-christmas",
         "gfVersion": "gf-christmas",
         "stage": "mallEvil",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 159,
         "speed": 1,
         "needsVoices": true,
@@ -2053,7 +2055,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

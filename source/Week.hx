@@ -13,18 +13,17 @@ using StringTools;
 typedef WeekData =
 {
 	// JSON variables
-	var songs:Array<Array<Dynamic>>;
+	var songs:Array<String>;
 	var weekCharacters:Array<String>;
 	var weekBackground:String;
 	var weekBefore:String;
 	var storyName:String;
 	var weekName:String;
-	var freeplayColor:Array<Int>;
 	var startUnlocked:Bool;
 	var hiddenUntilUnlocked:Bool;
 	var hideStoryMode:Bool;
 	var hideFreeplay:Bool;
-	var difficulties:String;
+	var difficulties:Array<String>;
 }
 
 class Week
@@ -35,40 +34,34 @@ class Week
 	public var folder:String = '';
 
 	// JSON variables
-	public var songs:Array<Array<Dynamic>>;
+	public var songs:Array<String>;
 	public var weekCharacters:Array<String>;
 	public var weekBackground:String;
 	public var weekBefore:String;
 	public var storyName:String;
 	public var weekName:String;
-	public var freeplayColor:Array<Int>;
 	public var startUnlocked:Bool;
 	public var hiddenUntilUnlocked:Bool;
 	public var hideStoryMode:Bool;
 	public var hideFreeplay:Bool;
-	public var difficulties:String;
+	public var difficulties:Array<String>;
 
 	public var fileName:String;
 
 	public static function createWeekData():WeekData
 	{
 		var weekData:WeekData = {
-			songs: [
-				["bopeebo", "dad", [146, 113, 253]],
-				["fresh", "dad", [146, 113, 253]],
-				["dadbattle", "dad", [146, 113, 253]]
-			],
+			songs: ["bopeebo", "fresh", "dadbattle"],
 			weekCharacters: ['dad', 'bf', 'gf'],
 			weekBackground: 'stage',
 			weekBefore: 'tutorial',
 			storyName: 'Your New Week',
 			weekName: 'Custom Week',
-			freeplayColor: [146, 113, 253],
 			startUnlocked: true,
 			hiddenUntilUnlocked: false,
 			hideStoryMode: false,
 			hideFreeplay: false,
-			difficulties: ''
+			difficulties: []
 		};
 		return weekData;
 	}
@@ -82,7 +75,6 @@ class Week
 		weekBefore = weekData.weekBefore;
 		storyName = weekData.storyName;
 		weekName = weekData.weekName;
-		freeplayColor = weekData.freeplayColor;
 		startUnlocked = weekData.startUnlocked;
 		hiddenUntilUnlocked = weekData.hiddenUntilUnlocked;
 		hideStoryMode = weekData.hideStoryMode;

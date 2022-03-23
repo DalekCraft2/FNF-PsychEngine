@@ -4,6 +4,8 @@
         "player2": "pico",
         "gfVersion": "gf",
         "stage": "philly",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 165,
         "speed": 1.2,
         "needsVoices": true,
@@ -1460,7 +1462,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

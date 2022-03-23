@@ -4,6 +4,8 @@
         "player2": "senpai",
         "gfVersion": "gf-pixel",
         "stage": "school",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 144,
         "speed": 1.3,
         "needsVoices": true,
@@ -2286,7 +2288,8 @@
                 "mustHitSection": false,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

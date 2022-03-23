@@ -4,6 +4,8 @@
 		"player2": "parents-christmas",
 		"gfVersion": "gf-christmas",
 		"stage": "mall",
+        "arrowSkin": null,
+		"splashSkin": null,
 		"bpm": 150,
 		"speed": 1.4,
 		"needsVoices": true,
@@ -1933,7 +1935,8 @@
                     ]
                 ]
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

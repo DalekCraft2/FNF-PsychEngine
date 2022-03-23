@@ -55,7 +55,7 @@ function onEndSong()
 end
 
 
--- Substate interactions
+-- SubState interactions
 function onPause()
 	-- Called when you press Pause while not on a cutscene/etc
 	-- return FUNCTION_STOP if you want to stop the player from pausing the game

@@ -46,6 +46,7 @@ import sys.io.File;
 
 using StringTools;
 
+// TODO Make the chart editor not just fucking crash when it can't find a song
 class ChartingState extends MusicBeatState
 {
 	public static final NOTE_TYPES:Array<String> = // Used for backwards compatibility with 0.1 - 0.3.2 charts, though, you should add your hardcoded custom note types here too.
@@ -212,11 +213,11 @@ class ChartingState extends MusicBeatState
 				player2: 'dad',
 				gfVersion: 'gf',
 				stage: 'stage',
+				arrowSkin: '',
+				splashSkin: 'noteSplashes', // idk it would crash if i didn't
 				bpm: 150.0,
 				speed: 1,
 				needsVoices: true,
-				arrowSkin: '',
-				splashSkin: 'noteSplashes', // idk it would crash if i didn't
 				validScore: false,
 				notes: [],
 				events: []
@@ -2928,6 +2929,7 @@ class ChartingState extends MusicBeatState
 		updateGrid();
 	}
 
+	// TODO Learn how to save things with tags in a specific order
 	private function saveLevel():Void
 	{
 		_song.events.sort(sortByTime);
@@ -2962,11 +2964,11 @@ class ChartingState extends MusicBeatState
 			player2: _song.player2,
 			gfVersion: _song.gfVersion,
 			stage: _song.stage,
+			arrowSkin: _song.arrowSkin,
+			splashSkin: _song.splashSkin,
 			bpm: _song.bpm,
 			speed: _song.speed,
 			needsVoices: _song.needsVoices,
-			arrowSkin: _song.arrowSkin,
-			splashSkin: _song.splashSkin,
 			validScore: false,
 			notes: [],
 			events: _song.events

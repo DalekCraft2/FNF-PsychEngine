@@ -52,5 +52,6 @@
 		-60
 	],
 	"sing_duration": 4,
-	"scale": 6
+	"scale": 6,
+	"cam_movement_mult": 1
 }

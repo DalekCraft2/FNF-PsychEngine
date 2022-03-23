@@ -3,7 +3,9 @@
         "player1": "bf",
         "player2": "spooky",
         "gfVersion": "gf",
-        "stage": "spooky",
+        "stage": "halloween",
+        "arrowSkin": null,
+		"splashSkin": null,
         "bpm": 165,
         "speed": 1.1,
         "needsVoices": true,
@@ -1632,7 +1634,8 @@
                 "mustHitSection": true,
                 "sectionNotes": []
             }
-        ]
+        ],
+        "events": []
     },
     "generatedBy": "SNIFF ver.6"
 }

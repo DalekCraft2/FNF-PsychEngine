@@ -59,6 +59,7 @@ class MenuCharacter extends FlxSprite
 				var menuCharacterData:MenuCharacterData = Paths.getJson(characterPath);
 				if (menuCharacterData == null)
 				{
+					Debug.logError('Could not find menu character data for menu character "$character"; using default');
 					menuCharacterData = Paths.getJson('menucharacters/$DEFAULT_CHARACTER');
 				}
 

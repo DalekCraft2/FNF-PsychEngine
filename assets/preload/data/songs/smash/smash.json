@@ -4,6 +4,8 @@
 		"player2": "mom",
 		"gfVersion": "gf",
 		"stage": "stage",
+		"arrowSkin": null,
+		"splashSkin": null,
 		"bpm": 144,
 		"speed": 2,
 		"needsVoices": false,
@@ -2021,6 +2023,7 @@
 				"changeBPM": false,
 				"mustHitSection": true
 			}
-		]
+		],
+        "events": []
 	}
 }

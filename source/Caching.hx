@@ -1,33 +1,17 @@
 package;
 
 #if FEATURE_FILESYSTEM
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
-import flixel.ui.FlxBar;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.addons.transition.FlxTransitionableState;
-import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-import flixel.addons.transition.TransitionData;
 import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
 import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
+import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
-import haxe.Exception;
-import lime.app.Application;
 import openfl.display.BitmapData;
 import openfl.utils.Assets as OpenFlAssets;
 #if FEATURE_FILESYSTEM
 import sys.FileSystem;
-import sys.io.File;
 #end
 
 using StringTools;
