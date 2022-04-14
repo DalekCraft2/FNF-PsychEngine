@@ -11,58 +11,45 @@ import options.OptionsState;
 
 class JudgeCustomizationState extends MusicBeatState
 {
-	var stage:StageData;
-	var judge:FlxSprite;
-	var judgePlacementPos:FlxPoint;
-	var defaultPos:FlxPoint;
-	var draggingJudge:Bool = false;
+	private var stage:StageData;
+	private var judge:FlxSprite;
+	private var judgePlacementPos:FlxPoint;
+	private var defaultPos:FlxPoint;
+	private var draggingJudge:Bool = false;
 
-	override function destroy():Void
+	override public function create():Void
 	{
-		super.destroy();
-
-		defaultPos.put();
-		judgePlacementPos.put();
-	}
-
-	override function create():Void
-	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		FlxG.mouse.visible = true;
 
 		defaultPos = FlxPoint.get();
 		judgePlacementPos = FlxPoint.get(Options.save.data.judgeX, Options.save.data.judgeY);
-		stage = new Stage('stage', Options.save.data);
+		stage = new Stage('stage');
 		add(stage);
 
-		add(stage.layers.get("gf"));
-		add(stage.layers.get("dad"));
-		add(stage.layers.get("boyfriend"));
+		add(stage.layers.get('gf'));
+		add(stage.layers.get('dad'));
+		add(stage.layers.get('boyfriend'));
 		add(stage.foreground);
 
 		add(stage.overlay);
 
-		var coolText:FlxText = new FlxText(0, 0, 0, '100', 32);
-		coolText.screenCenter();
-		coolText.x = FlxG.width * 0.55;
+		var coolText:FlxText = new FlxText(FlxG.width * 0.55, 0, 0, '100', 32);
+		coolText.screenCenter(Y);
 
-		judge = new FlxSprite();
+		judge = new FlxSprite(coolText.x - 40, 0);
 		judge.loadGraphic(Paths.getGraphic('sick'));
-		judge.screenCenter();
+		judge.screenCenter(Y);
 		judge.antialiasing = true;
-		judge.x = coolText.x - 40;
 		judge.y -= 60;
 		judge.setGraphicSize(Std.int(judge.width * 0.7));
 		judge.updateHitbox();
 
 		if (Options.save.data.ratingInHUD)
 		{
-			coolText.scrollFactor.set(0, 0);
-			judge.scrollFactor.set(0, 0);
+			coolText.scrollFactor.set();
+			judge.scrollFactor.set();
 
 			judge.screenCenter();
 			coolText.screenCenter();
@@ -76,95 +63,25 @@ class JudgeCustomizationState extends MusicBeatState
 		judge.x += Options.save.data.judgeX;
 		judge.y += Options.save.data.judgeY;
 
-		var title:FlxText = new FlxText(0, 20, 0, "Judgement Movement", 32);
-		title.scrollFactor.set(0, 0);
-		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		var title:FlxText = new FlxText(0, 20, 0, 'Judgement Movement', 32);
+		title.scrollFactor.set();
+		title.setFormat(Paths.font('vcr.ttf'), title.size, CENTER, OUTLINE, FlxColor.BLACK);
 		title.screenCenter(X);
 		add(title);
 
 		var instructions:FlxText = new FlxText(0, 60, 0,
-			"Click and drag the judgement around to move it\nPress R to place the judgement in its default position\nPress C to show the combo\nPress Enter to exit and save\nPress Escape to exit without saving",
+			'Click and drag the judgement around to move it\nPress R to place the judgement in its default position\nPress C to show the combo\nPress Enter to exit and save\nPress Escape to exit without saving',
 			24);
-		instructions.scrollFactor.set(0, 0);
-		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		instructions.scrollFactor.set();
+		instructions.setFormat(Paths.font('vcr.ttf'), instructions.size, CENTER, OUTLINE, FlxColor.BLACK);
 		instructions.screenCenter(X);
 		add(instructions);
 	}
 
-	var prevComboNums:Array<String> = [];
-	var comboSprites:Array<FlxSprite> = [];
+	private var mouseX:Float;
+	private var mouseY:Float;
 
-	private function showCombo(combo:Int = 100):Void
-	{
-		var seperatedScore:Array<String> = Std.string(combo).split("");
-
-		// WHY DOES HAXE NOT HAVE A DECREMENTING FOR LOOP
-		// WHAT THE FUCK
-		while (comboSprites.length > 0)
-		{
-			comboSprites[0].kill();
-			comboSprites.remove(comboSprites[0]);
-		}
-		var placement:String = Std.string(combo);
-		var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
-		coolText.screenCenter();
-		coolText.x = FlxG.width * 0.55;
-		if (Options.save.data.ratingInHUD)
-		{
-			coolText.scrollFactor.set(0, 0);
-			coolText.screenCenter();
-		}
-
-		var daLoop:Float = 0;
-		var idx:Int = -1;
-		for (i in seperatedScore)
-		{
-			idx++;
-			if (i == '-')
-			{
-				i = 'Negative';
-			}
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.image('num$i'));
-			numScore.screenCenter(XY);
-			numScore.x = coolText.x + (43 * daLoop) - 90;
-			numScore.y += 25;
-
-			numScore.antialiasing = true;
-			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
-			numScore.updateHitbox();
-
-			if (Options.save.data.ratingInHUD)
-			{
-				numScore.scrollFactor.set(0, 0);
-				numScore.y += 50;
-				numScore.x -= 50;
-			}
-
-			numScore.x += judgePlacementPos.x;
-			numScore.y += judgePlacementPos.y;
-
-			add(numScore);
-			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
-				onComplete: (tween:FlxTween) ->
-				{
-					numScore.destroy();
-				},
-				startDelay: Conductor.calculateCrochet(100) * 0.002
-			});
-			numScore.acceleration.y = FlxG.random.int(200, 300);
-			numScore.velocity.y -= FlxG.random.int(140, 160);
-			numScore.velocity.x = FlxG.random.float(-5, 5);
-
-			daLoop++;
-		}
-
-		prevComboNums = seperatedScore;
-	}
-
-	var mouseX:Float;
-	var mouseY:Float;
-
-	override function update(elapsed):Void
+	override public function update(elapsed):Void
 	{
 		super.update(elapsed);
 
@@ -178,7 +95,7 @@ class JudgeCustomizationState extends MusicBeatState
 			{
 				Options.save.data.judgeX = judgePlacementPos.x;
 				Options.save.data.judgeY = judgePlacementPos.y;
-				EngineData.saveOptions();
+				EngineData.flushSave();
 			}
 			FlxG.switchState(new OptionsState());
 		}
@@ -217,6 +134,80 @@ class JudgeCustomizationState extends MusicBeatState
 			{
 				draggingJudge = false;
 			}
+		}
+	}
+
+	override public function destroy():Void
+	{
+		super.destroy();
+
+		defaultPos.put();
+		judgePlacementPos.put();
+	}
+
+	private var comboSprites:Array<FlxSprite> = [];
+
+	private function showCombo(combo:Int = 100):Void
+	{
+		var seperatedScore:Array<String> = Std.string(combo).split('');
+
+		// WHY DOES HAXE NOT HAVE A DECREMENTING FOR LOOP
+		// WHAT THE FUCK
+		while (comboSprites.length > 0)
+		{
+			comboSprites[0].kill();
+			comboSprites.remove(comboSprites[0]);
+		}
+		var placement:String = Std.string(combo);
+		var coolText:FlxText = new FlxText(FlxG.width * 0.55, 0, 0, placement, 32);
+		coolText.screenCenter(Y);
+		if (Options.save.data.ratingInHUD)
+		{
+			coolText.scrollFactor.set();
+			coolText.screenCenter();
+		}
+
+		var daLoop:Float = 0;
+		var idx:Int = -1;
+		for (i in seperatedScore)
+		{
+			idx++;
+			if (i == '-')
+			{
+				i = 'Negative';
+			}
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('num$i'));
+			numScore.screenCenter(XY);
+			numScore.x = coolText.x + (43 * daLoop) - 90;
+			numScore.y += 25;
+
+			numScore.antialiasing = true;
+			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			numScore.updateHitbox();
+
+			if (Options.save.data.ratingInHUD)
+			{
+				numScore.scrollFactor.set();
+				numScore.y += 50;
+				numScore.x -= 50;
+			}
+
+			numScore.x += judgePlacementPos.x;
+			numScore.y += judgePlacementPos.y;
+
+			add(numScore);
+			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
+				onComplete: (tween:FlxTween) ->
+				{
+					numScore.destroy();
+				},
+				startDelay: Conductor.calculateCrochet(100) * 0.002
+			});
+			numScore.acceleration.y = FlxG.random.int(200, 300);
+			numScore.velocity.y -= FlxG.random.int(140, 160);
+			numScore.velocity.x = FlxG.random.float(-5, 5);
+
+			daLoop++;
 		}
 	}
 }

@@ -1,22 +1,20 @@
 package;
 
-import flixel.graphics.FlxGraphic;
-import flixel.FlxCamera;
+#if FEATURE_ACHIEVEMENTS
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import haxe.Json;
-import openfl.utils.Assets;
-#if FEATURE_MODS
 import haxe.io.Path;
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 using StringTools;
+
+#if sys
+import sys.FileSystem;
+#end
 
 typedef AchievementData =
 {
@@ -31,64 +29,61 @@ typedef AchievementData =
 class Achievement extends FlxSpriteGroup
 {
 	// Gets filled when loading achievements
-	public static var achievementList:Array<String> = [];
-	public static var achievementsMap:Map<String, Bool> = [];
 	public static var achievementsLoaded:Map<String, AchievementData> = [];
+	public static var achievementList:Array<String> = [];
+	public static var achievementMap:Map<String, Bool> = [];
 
 	public static var henchmenDeath:Int = 0;
 
-	public var onFinish:() -> Void = null;
+	public var onFinish:() -> Void;
 
-	var alphaTween:FlxTween;
+	private var alphaTween:FlxTween;
 
-	public static function unlockAchievement(name:String):Void
+	public static function unlockAchievement(id:String):Void
 	{
-		Debug.logTrace('Completed achievement "$name"');
-		achievementsMap.set(name, true);
-		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
-		// TODO Stop relying on FlxG.save for so much stuff.
-		FlxG.save.data.achievementsMap = achievementsMap;
-		FlxG.save.flush();
+		Debug.logTrace('Completed achievement "$id"');
+		achievementMap.set(id, true);
+		FlxG.sound.play(Paths.getSound('confirmMenu'), 0.7);
+		EngineData.save.data.achievementMap = achievementMap;
+		EngineData.flushSave();
 	}
 
-	public static function isAchievementUnlocked(name:String):Bool
+	public static function isAchievementUnlocked(id:String):Bool
 	{
-		if (achievementsMap.exists(name) && achievementsMap.get(name))
+		if (achievementMap.exists(id) && achievementMap.get(id))
 		{
 			return true;
 		}
 		return false;
 	}
 
-	public static function getAchievementIndex(name:String):Int
-	{
-		return achievementList.indexOf(name);
-	}
-
 	public static function loadAchievements():Void
 	{
-		#if FEATURE_MODS
 		reloadAchievementData();
-		#end
 
-		if (FlxG.save.data != null)
+		if (EngineData.save.data != null)
 		{
-			if (FlxG.save.data.achievementsMap != null)
+			if (EngineData.save.data.achievementMap != null)
 			{
-				achievementsMap = FlxG.save.data.achievementsMap;
+				achievementMap = EngineData.save.data.achievementMap;
 			}
-			if (FlxG.save.data.achievementsUnlocked != null)
+			if (EngineData.save.data.achievementsUnlocked != null)
 			{
-				Debug.logTrace("Trying to load stuff");
-				var savedStuff:Array<String> = FlxG.save.data.achievementsUnlocked;
-				for (achievementId in savedStuff)
+				Debug.logTrace('Trying to load achievements');
+				var achievementsUnlocked:Array<String> = EngineData.save.data.achievementsUnlocked;
+				for (achievementId in achievementsUnlocked)
 				{
-					achievementsMap.set(achievementId, true);
+					if (!achievementMap.exists(achievementId))
+					{
+						achievementMap.set(achievementId, true);
+					}
 				}
+				// Get rid of this probably-legacy data
+				EngineData.save.data.achievementsUnlocked = null;
 			}
-			if (henchmenDeath == 0 && FlxG.save.data.henchmenDeath != null)
+			if (henchmenDeath == 0 && EngineData.save.data.henchmenDeath != null)
 			{
-				henchmenDeath = FlxG.save.data.henchmenDeath;
+				henchmenDeath = EngineData.save.data.henchmenDeath;
 			}
 		}
 
@@ -111,158 +106,82 @@ class Achievement extends FlxSpriteGroup
 	{
 		achievementList = [];
 		achievementsLoaded.clear();
-		#if FEATURE_MODS
-		var disabledMods:Array<String> = [];
-		var modsListPath:String = 'modsList.txt';
-		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
-		if (FileSystem.exists(modsListPath))
-		{
-			var modList:Array<String> = CoolUtil.coolTextFile(modsListPath);
-			for (mod in modList)
-			{
-				var splitName:Array<String> = mod.trim().split('|');
-				if (splitName[1] == '0') // Disable mod
-				{
-					disabledMods.push(splitName[0]);
-				}
-				else // Sort mod loading order based on modsList.txt file
-				{
-					var path:String = Path.join([Paths.mods(), splitName[0]]);
-					// Debug.logTrace('Trying to push: ${splitName[0]}');
-					if (FileSystem.isDirectory(path)
-						&& !Paths.IGNORE_MOD_FOLDERS.contains(splitName[0])
-						&& !disabledMods.contains(splitName[0])
-						&& !directories.contains('$path/'))
-					{
-						directories.push('$path/');
-						// Debug.logTrace('Pushed Directory: ${splitName[0]}');
-					}
-				}
-			}
-		}
 
-		var modsDirectories:Array<String> = Paths.getModDirectories();
-		for (modDirectory in modsDirectories)
-		{
-			var pathThing:String = '${Path.join([Paths.mods(), modDirectory])}/';
-			if (!disabledMods.contains(modDirectory) && !directories.contains(modDirectory))
-			{
-				directories.push(pathThing);
-				// Debug.logTrace('Pushed Directory: $modDirectory');
-			}
-		}
-		#else
-		var directories:Array<String> = [Paths.getPreloadPath()];
-		#end
+		var directories:Array<String> = Paths.getDirectoryLoadOrder();
 
-		var achievementList:Array<String> = CoolUtil.coolTextFile(Paths.txt('achievements/achievementList'));
-		for (achievementId in achievementList)
-		{
-			for (directory in directories)
-			{
-				var fileToCheck:String = '${directory}data/achievements/${achievementId}.json';
-				if (!achievementsLoaded.exists(achievementId))
-				{
-					var achievementData:AchievementData = getAchievementData(fileToCheck);
-					if (achievementData != null)
-					{
-						achievementsLoaded.set(achievementId, achievementData);
-						Achievement.achievementList.push(achievementId);
-					}
-				}
-			}
-		}
-
-		#if FEATURE_MODS
 		for (directory in directories)
 		{
-			var achievementDirectory:String = '${directory}data/achievements/';
-			if (FileSystem.exists(achievementDirectory))
+			var achievementDirectory:String = Path.join([directory, 'data/achievements']);
+			var achievementListPath:String = Path.join([achievementDirectory, 'achievementList.txt']);
+			if (Paths.exists(achievementListPath))
 			{
-				var listOfAchievements:Array<String> = CoolUtil.coolTextFile('${achievementDirectory}achievementsList.txt');
-				for (achievementId in listOfAchievements)
+				// Add achievements from achievementList.txt first
+				var achievementListFromDir:Array<String> = CoolUtil.coolTextFile(achievementListPath);
+				for (achievementId in achievementListFromDir)
 				{
-					var path:String = '$achievementDirectory$achievementId.json';
-					if (FileSystem.exists(path))
+					var path:String = Path.join([achievementDirectory, Path.withExtension(achievementId, 'json')]);
+					if (Paths.exists(path))
 					{
-						addAchievement(achievementId);
+						addAchievement(achievementId, path);
 					}
 				}
+			}
 
+			#if sys
+			if (FileSystem.exists(achievementDirectory))
+			{
+				// Add any achievements what were not included in the list but were in the directory
 				for (file in FileSystem.readDirectory(achievementDirectory))
 				{
 					var path:String = Path.join([achievementDirectory, file]);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json'))
+					if (!FileSystem.isDirectory(path) && Path.extension(path) == 'json')
 					{
-						var achievementId:String = file.substr(0, file.length - '.json'.length);
-						addAchievement(achievementId);
+						var achievementId:String = Path.withoutExtension(file);
+						addAchievement(achievementId, path);
 					}
 				}
 			}
+			#end
 		}
-		#end
 	}
 
-	private static function addAchievement(achievementId:String):Void
+	private static function addAchievement(id:String, path:String):Void
 	{
-		if (!achievementsLoaded.exists(achievementId))
+		if (!achievementsLoaded.exists(id))
 		{
-			var achievementData:AchievementData = getAchievementData(achievementId);
-			if (achievementData != null)
+			var data:AchievementData = Paths.getJsonDirect(path);
+			if (data != null)
 			{
-				achievementsLoaded.set(achievementId, achievementData);
-				achievementList.push(achievementId);
+				achievementsLoaded.set(id, data);
+				achievementList.push(id);
 			}
 		}
 	}
 
-	private static function getAchievementData(achievementPath:String):AchievementData
-	{
-		var rawJson:String = null;
-		#if FEATURE_MODS
-		if (FileSystem.exists(achievementPath))
-		{
-			rawJson = File.getContent(achievementPath);
-		}
-		#else
-		if (Assets.exists(achievementPath))
-		{
-			rawJson = Assets.getText(achievementPath);
-		}
-		#end
-
-		if (rawJson != null && rawJson.length > 0)
-		{
-			return cast Json.parse(rawJson);
-		}
-		return null;
-	}
-
-	public function new(name:String, ?camera:FlxCamera = null)
+	public function new(id:String)
 	{
 		super(x, y);
 
-		Options.saveOptions();
+		EngineData.flushSave();
 
-		var id:Int = getAchievementIndex(name);
+		var achievementData:AchievementData = achievementsLoaded.get(id);
+
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
-		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10, achievementBG.y + 10).loadGraphic(Paths.getGraphic('achievements/$name'));
+		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10,
+			achievementBG.y + 10).loadGraphic(Paths.getGraphic('achievements/${achievementData.icon}'));
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
-		var achievementId:String = achievementList[id];
-		var achievement:AchievementData = achievementsLoaded.get(achievementId);
-
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievement.name, 16);
-		achievementName.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
+		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievementData.name, 16);
+		achievementName.setFormat(Paths.font('vcr.ttf'), achievementName.size, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievement.description, 16);
-		achievementText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievementData.description, 16);
+		achievementText.setFormat(Paths.font('vcr.ttf'), achievementText.size, LEFT);
 		achievementText.scrollFactor.set();
 
 		add(achievementBG);
@@ -288,7 +207,7 @@ class Achievement extends FlxSpriteGroup
 		});
 	}
 
-	override function destroy():Void
+	override public function destroy():Void
 	{
 		super.destroy();
 
@@ -303,30 +222,43 @@ class AttachedAchievement extends FlxSprite
 {
 	public var sprTracker:FlxSprite;
 
-	private var tag:String;
+	// TODO Try to think of a name other than "id", because "ID" is a field used in FlxBasic
+	private var id:String;
 
-	public function new(x:Float = 0, y:Float = 0, name:String)
+	public function new(x:Float = 0, y:Float = 0, id:String)
 	{
 		super(x, y);
 
-		changeAchievement(name);
+		changeAchievement(id);
 		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
-	public function changeAchievement(tag:String):Void
+	override public function update(elapsed:Float):Void
 	{
-		this.tag = tag;
+		super.update(elapsed);
+
+		if (sprTracker != null)
+			setPosition(sprTracker.x - 130, sprTracker.y + 25);
+	}
+
+	public function changeAchievement(id:String):Void
+	{
+		this.id = id;
 		reloadAchievementImage();
 	}
 
 	public function reloadAchievementImage():Void
 	{
-		if (Achievement.isAchievementUnlocked(tag))
+		if (Achievement.isAchievementUnlocked(id))
 		{
-			var graphic:FlxGraphic = Paths.getGraphic('achievements/$tag');
-			if (graphic == null)
-				graphic = Paths.getGraphic('achievements/missing');
-			loadGraphic(graphic);
+			var achievementData:AchievementData = Achievement.achievementsLoaded.get(id);
+			if (achievementData != null)
+			{
+				var graphic:FlxGraphic = Paths.getGraphic('achievements/${achievementData.icon}');
+				if (graphic == null)
+					graphic = Paths.getGraphic('achievements/missing');
+				loadGraphic(graphic);
+			}
 		}
 		else
 		{
@@ -335,12 +267,5 @@ class AttachedAchievement extends FlxSprite
 		scale.set(0.7, 0.7);
 		updateHitbox();
 	}
-
-	override function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		if (sprTracker != null)
-			setPosition(sprTracker.x - 130, sprTracker.y + 25);
-	}
 }
+#end

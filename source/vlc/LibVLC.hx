@@ -8,108 +8,108 @@ import cpp.UInt8;
  * @author Tommy S
  */
 @:buildXml('<include name="../../../../source/vlc/LibVLCBuild.xml" />')
-@:include("LibVLC.h")
+@:include('LibVLC.h')
 @:unreflective
 @:keep
-@:native("LibVLC*")
+@:native('LibVLC*')
 extern class LibVLC
 {
-	@:native("LibVLC::create")
+	@:native('LibVLC::create')
 	public static function create():LibVLC;
 
-	@:native("setPath")
+	@:native('setPath')
 	public function setPath(path:String):Void;
 
-	@:native("openMedia")
+	@:native('openMedia')
 	public function openMedia(path:String):Void;
 
-	@:native("play")
+	@:native('play')
 	@:overload(function():Void
 	{
 	})
 	public function play(path:String):Void;
 
-	@:native("playInWindow")
+	@:native('playInWindow')
 	@:overload(function():Void
 	{
 	})
 	public function playInWindow(path:String):Void;
 
-	@:native("stop")
+	@:native('stop')
 	public function stop():Void;
 
-	@:native("pause")
+	@:native('pause')
 	public function pause():Void;
 
-	@:native("resume")
+	@:native('resume')
 	public function resume():Void;
 
-	@:native("togglePause")
+	@:native('togglePause')
 	public function togglePause():Void;
 
-	@:native("fullscreen")
+	@:native('fullscreen')
 	public function setWindowFullscreen(fullscreen:Bool):Void;
 
-	@:native("showMainWindow")
+	@:native('showMainWindow')
 	public function showMainWindow(show:Bool):Void;
 
-	@:native("getLength")
+	@:native('getLength')
 	public function getLength():Float;
 
-	@:native("getDuration")
+	@:native('getDuration')
 	public function getDuration():Float;
 
-	@:native("getWidth")
+	@:native('getWidth')
 	public function getWidth():Int;
 
-	@:native("getHeight")
+	@:native('getHeight')
 	public function getHeight():Int;
 
-	// @:native("getMeta")
+	// @:native('getMeta')
 	// public function getMeta(meta:Dynamic):String;
-	@:native("isPlaying")
+	@:native('isPlaying')
 	public function isPlaying():Bool;
 
-	@:native("isSeekable")
+	@:native('isSeekable')
 	public function isSeekable():Bool;
 
-	@:native("setVolume")
+	@:native('setVolume')
 	public function setVolume(volume:Float):Void;
 
-	@:native("getVolume")
+	@:native('getVolume')
 	public function getVolume():Float;
 
-	@:native("getTime")
+	@:native('getTime')
 	public function getTime():Int;
 
-	@:native("setTime")
+	@:native('setTime')
 	public function setTime(time:Int):Void;
 
-	@:native("getPosition")
+	@:native('getPosition')
 	public function getPosition():Float;
 
-	@:native("setPosition")
+	@:native('setPosition')
 	public function setPosition(pos:Float):Void;
 
-	@:native("useHWacceleration")
+	@:native('useHWacceleration')
 	public function useHWacceleration(hwAcc:Bool):Void;
 
-	@:native("getLastError")
+	@:native('getLastError')
 	public function getLastError():String;
 
-	@:native("getRepeat")
+	@:native('getRepeat')
 	public function getRepeat():Int;
 
-	@:native("setRepeat")
+	@:native('setRepeat')
 	public function setRepeat(repeat:Int = -1):Void;
 
-	@:native("getPixelData")
+	@:native('getPixelData')
 	public function getPixelData():Pointer<UInt8>;
 
-	@:native("getFPS")
+	@:native('getFPS')
 	public function getFPS():Float;
 
-	@:native("flags")
+	@:native('flags')
 	public var flags:Array<Int>;
 
 	public inline function dispose():Void

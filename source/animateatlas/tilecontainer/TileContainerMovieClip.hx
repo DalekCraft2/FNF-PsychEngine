@@ -7,11 +7,7 @@ import openfl.display.TileContainer;
 @:access(animateatlas.tilecontainer.TileContainerSymbol)
 class TileContainerMovieClip extends TileContainer
 {
-	private var symbol:TileContainerSymbol;
-	private var _framerate:Null<Float> = null;
-	private var frameElapsed:Float = 0;
-
-	public var framerate(get, set):Float;
+	public var frameRate(get, set):Float;
 	public var currentLabel(get, set):String;
 	public var currentFrame(get, set):Int;
 	public var type(get, set):String;
@@ -20,6 +16,10 @@ class TileContainerMovieClip extends TileContainer
 	public var numLayers(get, never):Int;
 	public var numFrames(get, never):Int;
 	public var layers(get, never):Array<TileContainer>; // ! Dangerous AF.
+
+	private var symbol:TileContainerSymbol;
+	private var _frameRate:Null<Float>;
+	private var frameElapsed:Float = 0;
 
 	public function new(symbol:TileContainerSymbol)
 	{
@@ -31,7 +31,7 @@ class TileContainerMovieClip extends TileContainer
 
 	public function update(dt:Int):Void
 	{
-		var frameDuration:Float = 1000 / framerate;
+		var frameDuration:Float = 1000 / frameRate;
 		frameElapsed += dt;
 
 		while (frameElapsed > frameDuration)
@@ -61,9 +61,9 @@ class TileContainerMovieClip extends TileContainer
 		var uncalculatedArray:Array<Int> = [];
 		var uncalculatedFrames:Int = 0;
 
-		for (i in 0...getFrameLabels().length)
+		for (frameLabel in getFrameLabels())
 		{
-			uncalculatedArray.push(getFrame(getFrameLabels()[i]));
+			uncalculatedArray.push(getFrame(frameLabel));
 		}
 
 		uncalculatedFrames = uncalculatedArray[0] + uncalculatedArray.length;
@@ -137,15 +137,15 @@ class TileContainerMovieClip extends TileContainer
 		return symbol._layers;
 	}
 
-	private function get_framerate():Float
+	private function get_frameRate():Float
 	{
-		return _framerate == null ? symbol._library.frameRate : _framerate;
+		return _frameRate == null ? symbol._library.frameRate : _frameRate;
 	}
 
-	private function set_framerate(value:Float):Float
+	private function set_frameRate(value:Float):Float
 	{
-		_framerate = value;
-		return framerate;
+		_frameRate = value;
+		return frameRate;
 	}
 
 	// # end region

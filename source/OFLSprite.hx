@@ -12,20 +12,20 @@ class OFLSprite extends FlxSprite
 {
 	public var flSprite:Sprite;
 
-	public function new(x, y, width, height, Sprite:Sprite)
+	public function new(x, y, width, height, sprite:Sprite)
 	{
 		super(x, y);
 
 		makeGraphic(width, height, FlxColor.TRANSPARENT);
 
-		flSprite = Sprite;
+		flSprite = sprite;
 
 		pixels.draw(flSprite);
 	}
 
 	private var _frameCount:Int = 0;
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 

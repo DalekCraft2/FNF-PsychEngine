@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
+import flixel.math.FlxMath;
 import flixel.util.FlxSave;
 
 class Options
@@ -13,11 +14,12 @@ class Options
 
 	public static final UNBINDABLE_KEYS:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
 
-	public static var save:FlxSave = new FlxSave(); // Used only for options (at least, for now)
+	public static var save(default, null):FlxSave = new FlxSave(); // Used only for options (at least, for now)
 
-	public static function bindOptions(?name:String = "mockEngineOptions", ?path:String):Void
+	public static function bindSave(?name:String = 'mockEngineOptions', ?path:String):Void
 	{
 		save.bind(name, path);
+		Debug.logTrace('Options loaded!');
 	}
 
 	public static function fillMissingOptionFields():Void
@@ -30,10 +32,10 @@ class Options
 		}
 	}
 
-	public static function saveOptions():Void
+	public static function flushSave():Void
 	{
 		save.flush();
-		Debug.logTrace("Settings saved!");
+		Debug.logTrace('Options saved!');
 	}
 
 	public static function copyKey(arrayToCopy:Array<FlxKey>):Array<FlxKey>
@@ -73,7 +75,7 @@ class OptionDefaults
 	];
 	public static final controllerMode:Bool = false;
 	public static final resetKey:Bool = true;
-	public static final loadModcharts:Bool = true;
+	public static final loadLuaScripts:Bool = true;
 	public static final ghostTapping:Bool = true;
 	public static final scrollType:String = 'multiplicative';
 	public static final scrollSpeed:Float = 1;
@@ -142,7 +144,7 @@ class OptionDefaults
 	public static final fastTransitions:Bool = false;
 
 	// Performance settings
-	public static final framerate:Int = 120;
+	public static final frameRate:Int = #if cpp 120 #else 60 #end;
 	public static final recycleComboJudges:Bool = false;
 	public static final lowQuality:Bool = false;
 	public static final noChars:Bool = false;
@@ -180,10 +182,10 @@ class StateOption extends Option
  */
 class ValueOption<T> extends Option
 {
-	private var property:String = "dummy";
+	public var property:String = 'dummy';
 
-	private var value(get, set):T;
-	private var defaultValue(get, never):T;
+	public var value(get, set):T;
+	public var defaultValue(get, never):T;
 
 	public function new(property:String, ?name:String, ?description:String)
 	{
@@ -230,20 +232,20 @@ class ArrowOption<T> extends ValueOption<T>
 		label = Std.string(value);
 
 		leftArrow = new FlxSprite(0, 0);
-		leftArrow.frames = Paths.getSparrowAtlas("arrows");
-		leftArrow.setGraphicSize(Std.int(leftArrow.width * .7));
+		leftArrow.frames = Paths.getSparrowAtlas('arrows');
+		leftArrow.setGraphicSize(Std.int(leftArrow.width * 0.7));
 		leftArrow.updateHitbox();
-		leftArrow.animation.addByPrefix("pressed", "arrow push left", 24, false);
-		leftArrow.animation.addByPrefix("static", "arrow left", 24, false);
-		leftArrow.animation.play("static");
+		leftArrow.animation.addByPrefix('pressed', 'arrow push left', 24, false);
+		leftArrow.animation.addByPrefix('static', 'arrow left', 24, false);
+		leftArrow.animation.play('static');
 
 		rightArrow = new FlxSprite(0, 0);
-		rightArrow.frames = Paths.getSparrowAtlas("arrows");
-		rightArrow.setGraphicSize(Std.int(rightArrow.width * .7));
+		rightArrow.frames = Paths.getSparrowAtlas('arrows');
+		rightArrow.setGraphicSize(Std.int(rightArrow.width * 0.7));
 		rightArrow.updateHitbox();
-		rightArrow.animation.addByPrefix("pressed", "arrow push right", 24, false);
-		rightArrow.animation.addByPrefix("static", "arrow right", 24, false);
-		rightArrow.animation.play("static");
+		rightArrow.animation.addByPrefix('pressed', 'arrow push right', 24, false);
+		rightArrow.animation.addByPrefix('static', 'arrow right', 24, false);
+		rightArrow.animation.play('static');
 
 		add(rightArrow);
 		add(leftArrow);
@@ -260,26 +262,26 @@ class ArrowOption<T> extends ValueOption<T>
 
 		if (PlayerSettings.player1.controls.UI_LEFT && isSelected)
 		{
-			leftArrow.animation.play("pressed");
+			leftArrow.animation.play('pressed');
 			leftArrow.offset.x = 0;
 			leftArrow.offset.y = -3;
 		}
 		else
 		{
-			leftArrow.animation.play("static");
+			leftArrow.animation.play('static');
 			leftArrow.offset.x = 0;
 			leftArrow.offset.y = 0;
 		}
 
 		if (PlayerSettings.player1.controls.UI_RIGHT && isSelected)
 		{
-			rightArrow.animation.play("pressed");
+			rightArrow.animation.play('pressed');
 			rightArrow.offset.x = 0;
 			rightArrow.offset.y = -3;
 		}
 		else
 		{
-			rightArrow.animation.play("static");
+			rightArrow.animation.play('static');
 			rightArrow.offset.x = 0;
 			rightArrow.offset.y = 0;
 		}
@@ -325,10 +327,10 @@ class OptionCheckbox extends FlxSprite
 
 		this.state = state;
 		frames = Paths.getSparrowAtlas('checkbox');
-		animation.addByPrefix("unchecked", "unchecked", 24, false);
-		animation.addByPrefix("unchecking", "unchecking", 24, false);
-		animation.addByPrefix("checking", "checking", 24, false);
-		animation.addByPrefix("checked", "checked", 24, false);
+		animation.addByPrefix('unchecked', 'unchecked', 24, false);
+		animation.addByPrefix('unchecking', 'unchecking', 24, false);
+		animation.addByPrefix('checking', 'checking', 24, false);
+		animation.addByPrefix('checked', 'checked', 24, false);
 
 		antialiasing = Options.save.data.globalAntialiasing;
 		setGraphicSize(Std.int(0.9 * width));
@@ -351,7 +353,7 @@ class OptionCheckbox extends FlxSprite
 		}
 		else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
 		{
-			animation.play("unchecking", true);
+			animation.play('unchecking', true);
 			offset.set(25, 28);
 		}
 	}
@@ -390,7 +392,7 @@ class BooleanOption extends ValueOption<Bool>
 	private var callback:(Bool) -> Void;
 	private var checkbox:OptionCheckbox;
 
-	public function new(property:String, name:String, ?description:String, ?callback:(Bool) -> Void)
+	public function new(property:String, name:String, ?description:String, ?callback:(value:Bool) -> Void)
 	{
 		super(property, name, description);
 
@@ -431,7 +433,7 @@ class IntegerOption extends ArrowOption<Int>
 	private var callback:(Int, Int) -> Void;
 
 	public function new(property:String, name:String, ?description:String, ?step:Int = 1, ?min:Int = -1, ?max:Int = -1, ?suffix:String = '',
-			?prefix:String = '', ?callback:(Int, Int) -> Void)
+			?prefix:String = '', ?callback:(value:Int, change:Int) -> Void)
 	{
 		super(property, name, description);
 
@@ -481,7 +483,7 @@ class FloatOption extends ArrowOption<Float>
 	private var callback:(Float, Float) -> Void;
 
 	public function new(property:String, name:String, ?description:String, ?step:Float = 1, ?min:Float = -1, ?max:Float = -1, ?suffix:String = '',
-			?prefix:String = '', ?truncateFloat = false, ?callback:(Float, Float) -> Void)
+			?prefix:String = '', ?truncateFloat = false, ?callback:(value:Float, change:Float) -> Void)
 	{
 		super(property, name, description);
 
@@ -493,7 +495,7 @@ class FloatOption extends ArrowOption<Float>
 		this.min = min;
 		this.truncateFloat = truncateFloat;
 		if (truncateFloat)
-			value = CoolUtil.truncateFloat(value, 2);
+			value = FlxMath.roundDecimal(value, 2);
 		label = '$prefix$value$suffix';
 	}
 
@@ -516,7 +518,7 @@ class FloatOption extends ArrowOption<Float>
 			value = min;
 
 		if (truncateFloat)
-			value = CoolUtil.truncateFloat(value, 2);
+			value = FlxMath.roundDecimal(value, 2);
 		label = '$prefix$value$suffix';
 		if (callback != null)
 			callback(value, change);
@@ -535,7 +537,7 @@ class StringOption extends ArrowOption<String>
 	// if there is and you're reading this and know a better way, PR please!
 
 	public function new(property:String, name:String, ?description:String, ?min:Int = -1, ?max:Int = -1, ?names:Array<String>,
-			?callback:(Int, String, Int) -> Void)
+			?callback:(index:Int, value:String, change:Int) -> Void)
 	{
 		super(property, name, description);
 
@@ -630,8 +632,9 @@ class StringOption extends ArrowOption<String>
 		label = value;
 		return true;
 	}
-}*/
-/*class NoteskinOption extends ArrowOption<String>
+	}
+
+	class NoteskinOption extends ArrowOption<String>
 	{
 	private var names:Array<String> = [];
 	private final defaultDesc:String;
@@ -642,7 +645,7 @@ class StringOption extends ArrowOption<String>
 
 		this.defaultDesc = description;
 
-		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.txtImages('skins/noteskinOrder'));
+		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.file('images/skins/noteskinOrder.txt', TEXT));
 		for (skin in noteskinOrder)
 			if (Options.noteSkins.contains(skin) && skin != 'fallback')
 				names.push(skin);
@@ -689,8 +692,9 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 	public var forceUpdate:Bool = false;
 
 	private var controls:Controls;
+	private var callback:(Array<FlxKey>) -> Void;
 
-	public function new(property:String, controls:Controls)
+	public function new(property:String, controls:Controls, ?callback:(keys:Array<FlxKey>) -> Void)
 	{
 		super(property);
 
@@ -712,6 +716,8 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 			controls.setKeyboardScheme(CUSTOM, true);
 			allowMultiKeyInput = false;
 		}
+		if (callback != null)
+			callback(value);
 		return true;
 	}
 
@@ -731,7 +737,7 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 	{
 		controls.setKeyboardScheme(NONE, true);
 		allowMultiKeyInput = true;
-		name = "<Press any key to rebind>";
+		name = '<Press any key to rebind>';
 		return true;
 	}
 

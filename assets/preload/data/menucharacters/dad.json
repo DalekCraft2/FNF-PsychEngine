@@ -6,6 +6,6 @@
 		0
 	],
 	"scale": 1,
-	"idle_anim": "M Dad Idle",
-	"confirm_anim": "M Dad Idle"
+	"idleAnim": "M Dad Idle",
+	"confirmAnim": "M Dad Idle"
 }

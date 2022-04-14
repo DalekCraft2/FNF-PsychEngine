@@ -1,4 +1,5 @@
 {
+	"$schema": "https://raw.githubusercontent.com/HaxeCheckstyle/haxe-formatter/master/resources/hxformat-schema.json",
 	"lineEnds": {
 		"leftCurly": "both",
 		"rightCurly": "both",

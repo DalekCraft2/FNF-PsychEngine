@@ -1,8 +1,5 @@
 package;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -11,16 +8,17 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import openfl.utils.Assets;
-#if FEATURE_MODS
-import sys.FileSystem;
-import sys.io.File;
-#end
+import haxe.io.Path;
 
 using StringTools;
 
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
+
 // TODO Use JSON for credits because who doesn't love JSON
-/*typedef CreditData = {
+/*typedef CreditData =
+	{
 	var name:String;
 	var icon:String;
 	var description:String;
@@ -30,33 +28,31 @@ using StringTools;
 }*/
 class CreditsState extends MusicBeatState
 {
-	var curSelected:Int = -1;
+	private var curSelected:Int = -1;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var iconArray:Array<AttachedSprite> = [];
 	private var creditsStuff:Array<Array<String>> = [];
 
-	var bg:FlxSprite;
-	var descText:FlxText;
-	var intendedColor:Int;
-	var colorTween:FlxTween;
-	var descBox:AttachedSprite;
+	private var bg:FlxSprite;
+	private var descText:FlxText;
+	private var intendedColor:Int;
+	private var colorTween:FlxTween;
+	private var descBox:AttachedSprite;
 
-	var offsetThing:Float = -75;
+	private static final OFFSET:Float = -75;
 
 	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
+
+		persistentUpdate = true;
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence('In the Menus', null);
 		#end
 
-		persistentUpdate = true;
 		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		add(bg);
 		bg.screenCenter();
@@ -65,15 +61,15 @@ class CreditsState extends MusicBeatState
 		add(grpOptions);
 
 		#if FEATURE_MODS
-		var path:String = 'modsList.txt';
-		if (FileSystem.exists(path))
+		var path:String = 'modList.txt';
+		if (Paths.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
-			for (i in 0...leMods.length)
+			for (mod in leMods)
 			{
-				if (leMods.length > 1 && leMods[0].length > 0)
+				if (leMods.length > 1 && mod.length > 0)
 				{
-					var modSplit:Array<String> = leMods[i].split('|');
+					var modSplit:Array<String> = mod.split('|');
 					if (!Paths.IGNORE_MOD_FOLDERS.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
 					{
 						if (modSplit[1] == '1')
@@ -94,12 +90,12 @@ class CreditsState extends MusicBeatState
 		#end
 
 		var creditsFile:String = Paths.txt('credits');
-		if (Assets.exists(creditsFile))
+		if (Paths.exists(creditsFile))
 		{
 			var firstarray:Array<String> = CoolUtil.coolTextFile(creditsFile);
 			for (creditLine in firstarray)
 			{
-				var arr:Array<String> = creditLine.replace('\\n', '\n').split("::");
+				var arr:Array<String> = creditLine.replace('\\n', '\n').split('::');
 				if (arr.length > 5)
 					arr.push('');
 				creditsStuff.push(arr);
@@ -147,22 +143,24 @@ class CreditsState extends MusicBeatState
 		descBox.alphaMult = 0.6;
 		descBox.alpha = 0.6;
 		add(descBox);
-		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER /*, OUTLINE, FlxColor.BLACK*/);
+		descText = new FlxText(50, FlxG.height + OFFSET - 25, 1180, 32);
+		descText.setFormat(Paths.font('vcr.ttf'), descText.size, CENTER);
 		descText.scrollFactor.set();
-		// descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
 		add(descText);
 		if (creditsStuff[curSelected] != null && creditsStuff[curSelected].length > 1)
 			bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
-		changeSelection();
+		if (creditsStuff.length > 1)
+		{
+			changeSelection();
+		}
 	}
 
-	var quitting:Bool = false;
-	var holdTime:Float = 0;
+	private var quitting:Bool = false;
+	private var holdTime:Float = 0;
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -182,26 +180,29 @@ class CreditsState extends MusicBeatState
 				var upP:Bool = controls.UI_UP_P;
 				var downP:Bool = controls.UI_DOWN_P;
 
-				if (upP)
+				if (creditsStuff.length > 1)
 				{
-					changeSelection(-1 * shiftMult);
-					holdTime = 0;
-				}
-				if (downP)
-				{
-					changeSelection(1 * shiftMult);
-					holdTime = 0;
-				}
-
-				if (controls.UI_DOWN || controls.UI_UP)
-				{
-					var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
-					holdTime += elapsed;
-					var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
-
-					if (holdTime > 0.5 && checkNewHold - checkLastHold > 0)
+					if (upP)
 					{
-						changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+						changeSelection(-1 * shiftMult);
+						holdTime = 0;
+					}
+					if (downP)
+					{
+						changeSelection(1 * shiftMult);
+						holdTime = 0;
+					}
+
+					if (controls.UI_DOWN || controls.UI_UP)
+					{
+						var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
+						holdTime += elapsed;
+						var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
+
+						if (holdTime > 0.5 && checkNewHold - checkLastHold > 0)
+						{
+							changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
+						}
 					}
 				}
 			}
@@ -217,7 +218,7 @@ class CreditsState extends MusicBeatState
 					colorTween.cancel();
 				}
 				persistentUpdate = false;
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.getSound('cancelMenu'));
 				FlxG.switchState(new MainMenuState());
 				quitting = true;
 			}
@@ -227,7 +228,7 @@ class CreditsState extends MusicBeatState
 		{
 			if (!item.isBold)
 			{
-				var lerpVal:Float = CoolUtil.boundTo(elapsed * 12, 0, 1);
+				var lerpVal:Float = FlxMath.bound(elapsed * 12, 0, 1);
 				if (item.targetY == 0)
 				{
 					var lastX:Float = item.x;
@@ -244,11 +245,11 @@ class CreditsState extends MusicBeatState
 		}
 	}
 
-	var moveTween:FlxTween = null;
+	private var moveTween:FlxTween;
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 		do
 		{
 			curSelected += change;
@@ -293,7 +294,7 @@ class CreditsState extends MusicBeatState
 		}
 
 		descText.text = creditsStuff[curSelected][2];
-		descText.y = FlxG.height - descText.height + offsetThing - 60;
+		descText.y = FlxG.height - descText.height + OFFSET - 60;
 
 		if (moveTween != null)
 			moveTween.cancel();
@@ -306,23 +307,23 @@ class CreditsState extends MusicBeatState
 	#if FEATURE_MODS
 	private var modsAdded:Array<String> = [];
 
-	function pushModCreditsToList(folder:String):Void
+	private function pushModCreditsToList(folder:String):Void
 	{
 		if (modsAdded.contains(folder))
 			return;
 
-		var creditsFile:String = null;
+		var creditsFile:String;
 		if (folder != null && folder.trim().length > 0)
-			creditsFile = Paths.mods('$folder/data/credits.txt');
+			creditsFile = Paths.mods(Path.join([folder, 'data/credits.txt']));
 		else
 			creditsFile = Paths.mods('data/credits.txt');
 
-		if (FileSystem.exists(creditsFile))
+		if (Paths.exists(creditsFile))
 		{
-			var firstarray:Array<String> = File.getContent(creditsFile).split('\n');
+			var firstarray:Array<String> = CoolUtil.listFromString(Paths.getTextDirect(creditsFile));
 			for (i in firstarray)
 			{
-				var arr:Array<String> = i.replace('\\n', '\n').split("::");
+				var arr:Array<String> = i.replace('\\n', '\n').split('::');
 				if (arr.length >= 5)
 					arr.push(folder);
 				creditsStuff.push(arr);
@@ -333,12 +334,12 @@ class CreditsState extends MusicBeatState
 	}
 	#end
 
-	function getCurrentBGColor():Int
+	private function getCurrentBGColor():Int
 	{
 		var bgColor:String = creditsStuff[curSelected][4];
 		if (!bgColor.startsWith('0x'))
 		{
-			bgColor = '0xFF' + bgColor;
+			bgColor = '0xFF$bgColor';
 		}
 		return Std.parseInt(bgColor);
 	}

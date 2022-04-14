@@ -1,6 +1,9 @@
-package openfl.display;
+package;
 
 import openfl.display.Bitmap;
+import openfl.system.System;
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 #if flash
 import openfl.Lib;
 import openfl.events.Event;
@@ -9,9 +12,6 @@ import openfl.events.Event;
 import openfl.display._internal.stats.Context3DStats;
 import openfl.display._internal.stats.DrawCallContext;
 #end
-import openfl.system.System;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
 
 /**
 	The FPS class provides an easy-to-use monitor to display
@@ -24,7 +24,7 @@ import openfl.text.TextFormat;
 class FPSMem extends TextField
 {
 	/**
-		The current frame rate, expressed using frames-per-second
+	 * 	The current frame rate, expressed using frames-per-second
 	**/
 	public var currentFPS(default, null):Int;
 
@@ -48,8 +48,7 @@ class FPSMem extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		// defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 14, color);
-		defaultTextFormat = new TextFormat("_sans", 14, color);
+		defaultTextFormat = new TextFormat('_sans', 14, color);
 		text = 'FPS: $currentFPS\n';
 		width += 200;
 
@@ -71,8 +70,6 @@ class FPSMem extends TextField
 	@:noCompletion
 	#if !flash override #end private function __enterFrame(deltaTime:Float):Void
 	{
-		// super.__enterFrame(deltaTime);
-
 		currentTime += deltaTime;
 		times.push(currentTime);
 		while (times[0] < currentTime - 1000)
@@ -102,7 +99,7 @@ class FPSMem extends TextField
 				text += 'RAM Peak: $highestMem MB\n';
 
 			textColor = 0xFFFFFF;
-			if (currentMem > 3000 || currentFPS <= Options.save.data.framerate / 2)
+			if (currentMem > 3000 || currentFPS <= Options.save.data.frameRate / 2)
 			{
 				textColor = 0xFF0000;
 			}

@@ -1,6 +1,5 @@
 package;
 
-import Replay.Ana;
 import flash.display.Graphics;
 import flash.display.Shape;
 import flash.display.Sprite;
@@ -18,14 +17,9 @@ import openfl.text.TextFormat;
  */
 class HitGraph extends Sprite
 {
-	static inline final AXIS_COLOR:FlxColor = FlxColor.WHITE;
-	static inline final AXIS_ALPHA:Float = 0.5;
-	static inline final HISTORY_MAX:Int = 30;
-
-	public var minLabel:TextField;
-	public var curLabel:TextField;
-	public var maxLabel:TextField;
-	public var avgLabel:TextField;
+	private static inline final AXIS_COLOR:FlxColor = FlxColor.WHITE;
+	private static inline final AXIS_ALPHA:Float = 0.5;
+	private static inline final HISTORY_MAX:Int = 30;
 
 	public var minValue:Float = -(Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95);
 	public var maxValue:Float = Math.floor((PlayState.rep.replay.sf / 60) * 1000) + 95;
@@ -40,23 +34,21 @@ class HitGraph extends Sprite
 
 	public var ts:Float;
 
-	var _axis:Shape;
-	var _width:Int;
-	var _height:Int;
-	var _unit:String;
-	var _labelWidth:Int;
-	var _label:String;
+	private var _axis:Shape;
+	private var _width:Int;
+	private var _height:Int;
+	private var _labelWidth:Int;
 
-	public function new(X:Int, Y:Int, Width:Int, Height:Int)
+	public function new(x:Int, y:Int, width:Int, height:Int)
 	{
 		super();
 
-		x = X;
-		y = Y;
-		_width = Width;
-		_height = Height;
+		this.x = x;
+		this.y = y;
+		_width = width;
+		_height = height;
 
-		var bm:BitmapData = new BitmapData(Width, Height);
+		var bm:BitmapData = new BitmapData(width, height);
 		bm.draw(this);
 		bitmap = new Bitmap(bm);
 
@@ -68,8 +60,8 @@ class HitGraph extends Sprite
 		var early:TextField = createTextField(10, 10, FlxColor.WHITE, 12);
 		var late:TextField = createTextField(10, _height - 20, FlxColor.WHITE, 12);
 
-		early.text = "Early (" + -166 * ts + "ms)";
-		late.text = "Late (" + 166 * ts + "ms)";
+		early.text = 'Early (${-166 * ts}ms)';
+		late.text = 'Late (${166 * ts}ms)';
 
 		addChild(early);
 		addChild(late);
@@ -82,7 +74,7 @@ class HitGraph extends Sprite
 	/**
 	 * Redraws the axes of the graph.
 	 */
-	function drawAxes():Void
+	private function drawAxes():Void
 	{
 		var gfx:Graphics = _axis.graphics;
 		gfx.clear();
@@ -100,15 +92,15 @@ class HitGraph extends Sprite
 		gfx.lineTo(_width, _height / 2);
 	}
 
-	public static function createTextField(X:Float = 0, Y:Float = 0, Color:FlxColor = FlxColor.WHITE, Size:Int = 12):TextField
+	public static function createTextField(x:Float = 0, y:Float = 0, color:FlxColor = FlxColor.WHITE, size:Int = 12):TextField
 	{
-		return initTextField(new TextField(), X, Y, Color, Size);
+		return initTextField(new TextField(), x, y, color, size);
 	}
 
-	public static function initTextField<T:TextField>(tf:T, X:Float = 0, Y:Float = 0, Color:FlxColor = FlxColor.WHITE, Size:Int = 12):T
+	public static function initTextField<T:TextField>(tf:T, x:Float = 0, y:Float = 0, color:FlxColor = FlxColor.WHITE, size:Int = 12):T
 	{
-		tf.x = X;
-		tf.y = Y;
+		tf.x = x;
+		tf.y = y;
 		tf.multiline = false;
 		tf.wordWrap = false;
 		tf.embedFonts = true;
@@ -117,13 +109,13 @@ class HitGraph extends Sprite
 		tf.antiAliasType = AntiAliasType.NORMAL;
 		tf.gridFitType = GridFitType.PIXEL;
 		#end
-		tf.defaultTextFormat = new TextFormat("assets/fonts/vcr.ttf", Size, Color.to24Bit());
-		tf.alpha = Color.alphaFloat;
+		tf.defaultTextFormat = new TextFormat(Paths.font('vcr.ttf'), size, color.to24Bit());
+		tf.alpha = color.alphaFloat;
 		tf.autoSize = TextFieldAutoSize.LEFT;
 		return tf;
 	}
 
-	function drawJudgementLine(ms:Float):Void
+	private function drawJudgementLine(ms:Float):Void
 	{
 		var gfx:Graphics = graphics;
 
@@ -151,7 +143,7 @@ class HitGraph extends Sprite
 	/**
 	 * Redraws the graph based on the values stored in the history.
 	 */
-	function drawGraph():Void
+	private function drawGraph():Void
 	{
 		var gfx:Graphics = graphics;
 		gfx.clear();
@@ -194,10 +186,8 @@ class HitGraph extends Sprite
 
 		if (showInput)
 		{
-			for (i in 0...PlayState.rep.replay.ana.anaArray.length)
+			for (ana in PlayState.rep.replay.ana.anaArray)
 			{
-				var ana:Ana = PlayState.rep.replay.ana.anaArray[i];
-
 				var value:Float = (ana.key * 25 - minValue) / range;
 
 				if (ana.hit)
@@ -221,15 +211,15 @@ class HitGraph extends Sprite
 
 			switch (judge)
 			{
-				case "sick":
+				case 'sick':
 					gfx.beginFill(FlxColor.CYAN);
-				case "good":
+				case 'good':
 					gfx.beginFill(FlxColor.GREEN);
-				case "bad":
+				case 'bad':
 					gfx.beginFill(FlxColor.RED);
-				case "shit":
+				case 'shit':
 					gfx.beginFill(0x8B0000);
-				case "miss":
+				case 'miss':
 					gfx.beginFill(0x580000);
 				default:
 					gfx.beginFill(FlxColor.WHITE);

@@ -7,11 +7,9 @@ import animateatlas.displayobject.SpriteAnimationLibrary;
 import animateatlas.displayobject.SpriteMovieClip;
 import animateatlas.tilecontainer.TileAnimationLibrary;
 import animateatlas.tilecontainer.TileContainerMovieClip;
-import haxe.Json;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.BitmapData;
-import openfl.display.FPSMem;
 import openfl.display.Sprite;
 import openfl.display.Tilemap;
 import openfl.events.Event;
@@ -35,9 +33,9 @@ class Main extends Sprite
 		graphics.beginFill(0x333333);
 		graphics.drawRect(0, 0, Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
 
-		var animationData:AnimationData = Json.parse(Assets.getText("assets/TEST/Animation.json"));
-		var atlasData:AtlasData = Json.parse(Assets.getText("assets/TEST/spritemap.json"));
-		var bitmapData:BitmapData = Assets.getBitmapData("assets/TEST/spritemap.png");
+		var animationData:AnimationData = Paths.getJsonDirect('assets/TEST/Animation.json');
+		var atlasData:AtlasData = Paths.getJsonDirect('assets/TEST/spritemap.json');
+		var bitmapData:BitmapData = Assets.getBitmapData('assets/TEST/spritemap.png');
 
 		aa = new TileAnimationLibrary(animationData, atlasData, bitmapData);
 		ss = new SpriteAnimationLibrary(animationData, atlasData, bitmapData);
@@ -59,11 +57,11 @@ class Main extends Sprite
 		addEventListener(MouseEvent.CLICK, addTileGirl);
 	}
 
-	var prev:Int = 0;
-	var dt:Int = 0;
-	var curr:Int = 0;
+	private var prev:Int = 0;
+	private var dt:Int = 0;
+	private var curr:Int = 0;
 
-	public function update(_):Void
+	public function update(e:Event):Void
 	{
 		// making a dt
 		curr = Lib.getTimer();
@@ -80,7 +78,7 @@ class Main extends Sprite
 		}
 	}
 
-	public function addSpriteGirl(_):Void
+	public function addSpriteGirl(e:MouseEvent):Void
 	{
 		for (i in 0...1)
 		{
@@ -97,7 +95,7 @@ class Main extends Sprite
 		}
 	}
 
-	public function addTileGirl(_):Void
+	public function addTileGirl(e:MouseEvent):Void
 	{
 		for (i in 0...1)
 		{

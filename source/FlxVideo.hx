@@ -1,8 +1,10 @@
 package;
 
-import flixel.input.keyboard.FlxKey;
 import flixel.FlxBasic;
 import flixel.FlxG;
+
+using StringTools;
+
 #if web
 import openfl.events.NetStatusEvent;
 import openfl.media.Video;
@@ -13,12 +15,11 @@ import openfl.events.Event;
 import vlc.VlcBitmap;
 #end
 
-using StringTools;
-
+// TODO Find a way to speed up the loading times for desktop video (Maybe use the WebmHandler from Kade Engine)
 #if FEATURE_VIDEOS
 class FlxVideo extends FlxBasic
 {
-	public var finishCallback:() -> Void = null;
+	public var finishCallback:() -> Void;
 
 	#if desktop
 	public static var vlcBitmap:VlcBitmap;
@@ -46,7 +47,7 @@ class FlxVideo extends FlxBasic
 		};
 		netConnect.addEventListener(NetStatusEvent.NET_STATUS, (event:NetStatusEvent) ->
 		{
-			if (event.info.code == "NetStream.Play.Complete")
+			if (event.info.code == 'NetStream.Play.Complete')
 			{
 				netStream.dispose();
 				if (FlxG.game.contains(player))
@@ -61,8 +62,8 @@ class FlxVideo extends FlxBasic
 		// by Polybius, check out PolyEngine! https://github.com/polybiusproxy/PolyEngine
 
 		vlcBitmap = new VlcBitmap();
-		vlcBitmap.set_height(FlxG.stage.stageHeight);
-		vlcBitmap.set_width(FlxG.stage.stageHeight * (16 / 9));
+		vlcBitmap.height = FlxG.stage.stageHeight;
+		vlcBitmap.width = FlxG.stage.stageHeight * (16 / 9);
 
 		vlcBitmap.onComplete = onVLCComplete;
 		vlcBitmap.onError = onVLCError;
@@ -79,26 +80,27 @@ class FlxVideo extends FlxBasic
 	}
 
 	#if desktop
-	function checkFile(fileName:String):String
+	private function checkFile(fileName:String):String
 	{
-		var pDir:String = "";
-		var appDir:String = "file:///" + Sys.getCwd() + "/";
+		var pDir:String = '';
+		var appDir:String = 'file:///${Sys.getCwd()}/';
 
-		if (!fileName.contains(":")) // Not a path
+		if (!fileName.contains(':')) // Not a path
 			pDir = appDir;
-		else if (!fileName.contains("file://") || !fileName.contains("http")) // C:, D: etc? ..missing "file:///" ?
-			pDir = "file:///";
+		else if (!fileName.contains('file://') || !fileName.contains('http')) // C:, D: etc? ..missing "file:///" ?
+			pDir = 'file:///';
 
 		return pDir + fileName;
 	}
-
-	// TODO This isn't an actual to-do, but I'm rather making it so I remember that I commented out these because I don't like the auto-pause
 
 	public static function onFocus():Void
 	{
 		if (vlcBitmap != null)
 		{
-			// vlcBitmap.resume();
+			if (FlxG.autoPause || !vlcBitmap.isPlaying)
+			{
+				vlcBitmap.resume();
+			}
 		}
 	}
 
@@ -106,13 +108,17 @@ class FlxVideo extends FlxBasic
 	{
 		if (vlcBitmap != null)
 		{
-			// vlcBitmap.pause();
+			if (FlxG.autoPause)
+			{
+				vlcBitmap.pause();
+			}
 		}
 	}
 
 	// This function also checks for whether the video should be skipped, and I would rename it to "update" if that wasn't taken by FlxBasic
-	function fixVolume(e:Event):Void
+	private function fixVolume(e:Event):Void
 	{
+		// TODO Find a way to skip videos without causing the game to just freeze afterward
 		// Skip video if enter is pressed
 		// if (FlxG.keys.justPressed.ENTER)
 		// {
@@ -148,9 +154,9 @@ class FlxVideo extends FlxBasic
 		}
 	}
 
-	function onVLCError():Void
+	private function onVLCError():Void
 	{
-		Debug.logError("An error has occured while trying to load the video.\nPlease, check if the file you're loading exists.");
+		Debug.logError('An error has occured while trying to load the video.\nPlease, check if the file you\'re loading exists.');
 		if (finishCallback != null)
 		{
 			finishCallback();

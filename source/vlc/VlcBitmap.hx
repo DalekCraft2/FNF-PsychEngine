@@ -56,24 +56,24 @@ class VlcBitmap extends Bitmap
 	// ===================================================================================
 	// Declarations
 	//-----------------------------------------------------------------------------------
-	var bufferMem:Array<UInt8>;
-	var libvlc:LibVLC;
+	private var bufferMem:Array<UInt8>;
+	private var libvlc:LibVLC;
 
 	// ===================================================================================
 	// Variables
 	//-----------------------------------------------------------------------------------
-	var frameSize:Int;
-	var _width:Null<Float>;
-	var _height:Null<Float>;
-	var texture:RectangleTexture;
-	var texture2:RectangleTexture;
-	var bmdBuf:BitmapData;
-	var bmdBuf2:BitmapData;
-	var oldTime:Int;
-	var flipBuffer:Bool;
-	var frameRect:Rectangle;
-	var screenWidth:Float;
-	var screenHeight:Float;
+	private var frameSize:Int;
+	private var _width:Null<Float>;
+	private var _height:Null<Float>;
+	private var texture:RectangleTexture;
+	private var texture2:RectangleTexture;
+	private var bmdBuf:BitmapData;
+	private var bmdBuf2:BitmapData;
+	private var oldTime:Int;
+	private var flipBuffer:Bool;
+	private var frameRect:Rectangle;
+	private var screenWidth:Float;
+	private var screenHeight:Float;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
@@ -84,19 +84,19 @@ class VlcBitmap extends Bitmap
 		init();
 	}
 
-	function mThread():Void
+	private function mThread():Void
 	{
 		init();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function init():Void
+	private function init():Void
 	{
 		addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 	}
 
-	function onAddedToStage(e:Event):Void
+	private function onAddedToStage(e:Event):Void
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 
@@ -137,7 +137,7 @@ class VlcBitmap extends Bitmap
 		isPlaying = false;
 		libvlc.stop();
 		// if (disposeOnStop)
-		// dispose();
+		// 	dispose();
 
 		if (onStop != null)
 			onStop();
@@ -184,7 +184,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function checkFlags():Void
+	private function checkFlags():Void
 	{
 		if (!isDisposed)
 		{
@@ -251,15 +251,15 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function onResize(e:Event):Void
+	private function onResize(e:Event):Void
 	{
-		set_height(FlxG.stage.stageHeight);
-		set_width(FlxG.stage.stageHeight * (16 / 9));
+		height = FlxG.stage.stageHeight;
+		width = FlxG.stage.stageHeight * (16 / 9);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function videoInitComplete():Void
+	private function videoInitComplete():Void
 	{
 		videoWidth = libvlc.getWidth();
 		videoHeight = libvlc.getHeight();
@@ -276,8 +276,8 @@ class VlcBitmap extends Bitmap
 			texture2.dispose();
 
 		// BitmapData
-		bitmapData = new BitmapData(Std.int(videoWidth), Std.int(videoHeight), true, 0);
-		frameRect = new Rectangle(0, 0, Std.int(videoWidth), Std.int(videoHeight));
+		bitmapData = new BitmapData(videoWidth, videoHeight, true, 0);
+		frameRect = new Rectangle(0, 0, videoWidth, videoHeight);
 
 		// (Stage3D)
 		// texture = Lib.current.stage.stage3Ds[0].context3D.createRectangleTexture(videoWidth, videoHeight, Context3DTextureFormat.BGRA, true);
@@ -308,7 +308,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function vLoop(e):Void
+	private function vLoop(e):Void
 	{
 		checkFlags();
 		render();
@@ -316,7 +316,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function render():Void
+	private function render():Void
 	{
 		var cTime:Int = Lib.getTimer();
 
@@ -338,15 +338,15 @@ class VlcBitmap extends Bitmap
 							bitmapData.setPixels(frameRect, Bytes.ofData(bufferMem));
 
 						// (Stage3D)
-						// texture.uploadFromByteArray( Bytes.ofData(cast(bufferMem)), 0 );
-						// this.width++; //This is a horrible hack to force the texture to update... Surely there is a better way...
+						// texture.uploadFromByteArray(Bytes.ofData(cast(bufferMem)), 0);
+						// this.width++; // This is a horrible hack to force the texture to update... Surely there is a better way...
 						// this.width--;
 					}
 				}
 				catch (e:Error)
 				{
-					Debug.logError("Error: " + e);
-					throw new Error("render broke xd");
+					Debug.logError('Error: $e');
+					throw new Error('Render broke');
 				}
 			}
 		}
@@ -354,7 +354,7 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function setVolume(vol:Float):Void
+	private function setVolume(vol:Float):Void
 	{
 		if (libvlc != null && initComplete)
 			libvlc.setVolume(vol * 100);
@@ -370,21 +370,21 @@ class VlcBitmap extends Bitmap
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function statusOnOpening():Void
+	private function statusOnOpening():Void
 	{
 		if (onOpening != null)
 			onOpening();
 	}
 
-	function statusOnBuffering():Void
+	private function statusOnBuffering():Void
 	{
-		Debug.logTrace("buffering");
+		Debug.logTrace('buffering');
 
 		if (onBuffer != null)
 			onBuffer();
 	}
 
-	function statusOnPlaying():Void
+	private function statusOnPlaying():Void
 	{
 		if (!initComplete)
 		{
@@ -394,7 +394,7 @@ class VlcBitmap extends Bitmap
 		}
 	}
 
-	function statusOnPaused():Void
+	private function statusOnPaused():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
@@ -403,7 +403,7 @@ class VlcBitmap extends Bitmap
 			onPause();
 	}
 
-	function statusOnStopped():Void
+	private function statusOnStopped():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
@@ -412,49 +412,49 @@ class VlcBitmap extends Bitmap
 			onStop();
 	}
 
-	function statusOnEndReached():Void
+	private function statusOnEndReached():Void
 	{
 		if (isPlaying)
 			isPlaying = false;
 
-		// Debug.logTrace("End reached!");
+		// Debug.logTrace('End reached!');
 		if (onComplete != null)
 			onComplete();
 	}
 
-	function statusOnTimeChanged(newTime:Int):Void
+	private function statusOnTimeChanged(newTime:Int):Void
 	{
 		time = newTime;
 		if (onProgress != null)
 			onProgress();
 	}
 
-	function statusOnPositionChanged(newPos:Int):Void
+	private function statusOnPositionChanged(newPos:Int):Void
 	{
 	}
 
-	function statusOnSeekableChanged(newPos:Int):Void
+	private function statusOnSeekableChanged(newPos:Int):Void
 	{
 		if (onSeek != null)
 			onSeek();
 	}
 
-	function statusOnForward():Void
+	private function statusOnForward():Void
 	{
 	}
 
-	function statusOnBackward():Void
+	private function statusOnBackward():Void
 	{
 	}
 
-	function onDisplay():Void
+	private function onDisplay():Void
 	{
 		// render();
 	}
 
-	function statusOnError():Void
+	private function statusOnError():Void
 	{
-		Debug.logError("VLC ERROR - File not found?");
+		Debug.logError('VLC ERROR - File not found?');
 
 		if (onError != null)
 			onError();
@@ -467,7 +467,7 @@ class VlcBitmap extends Bitmap
 		return _width;
 	}
 
-	override public function set_width(value:Float):Float
+	override private function set_width(value:Float):Float
 	{
 		_width = value;
 		return super.set_width(value);
@@ -478,18 +478,18 @@ class VlcBitmap extends Bitmap
 		return _height;
 	}
 
-	override public function set_height(value:Float):Float
+	override private function set_height(value:Float):Float
 	{
 		_height = value;
 		return super.set_height(value);
 	}
 
-	function get_volume():Float
+	private function get_volume():Float
 	{
 		return volume;
 	}
 
-	function set_volume(value:Float):Float
+	private function set_volume(value:Float):Float
 	{
 		setVolume(value);
 		return volume = value;

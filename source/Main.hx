@@ -6,20 +6,19 @@ import flixel.FlxState;
 import flixel.graphics.FlxGraphic;
 import openfl.Assets;
 import openfl.Lib;
-import openfl.display.FPSMem;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
 
 class Main extends Sprite
 {
-	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var initialState:Class<FlxState> = InitState; // The FlxState the game starts with.
-	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	var framerate:Int = 120; // How many frames per second the game should run at.
-	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
-	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
+	private var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
+	private var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
+	private var initialState:Class<FlxState> = InitState; // The FlxState the game starts with.
+	private var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
+	private var frameRate:Int = #if cpp 120 #else 60 #end; // How many frames per second the game should run at.
+	private var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
+	private var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
 	public static var instance:Main;
 
@@ -47,7 +46,7 @@ class Main extends Sprite
 		}
 	}
 
-	private function init(?E:Event):Void
+	private function init(?e:Event):Void
 	{
 		if (hasEventListener(Event.ADDED_TO_STAGE))
 		{
@@ -71,10 +70,6 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
-		#if !cpp
-		framerate = 60;
-		#end
-
 		// Run this first so we can see logs.
 		Debug.onInitProgram();
 
@@ -83,12 +78,12 @@ class Main extends Sprite
 
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
-		// // the reason for this is we're going to be handling our own cache smartly
-		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
+		// the reason for this is we're going to be handling our own cache smartly
+		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, frameRate, frameRate, skipSplash, startFullscreen));
 
 		#if !mobile
 		addChild(new FPSMem(10, 3, 0xFFFFFF));
-		Lib.current.stage.align = "tl";
+		Lib.current.stage.align = 'tl';
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
 		#end
 
@@ -117,7 +112,7 @@ class Main extends Sprite
 
 	public static function dumpCache():Void
 	{
-		///* SPECIAL THANKS TO HAYA
+		// SPECIAL THANKS TO HAYA
 		@:privateAccess
 		for (key in FlxG.bitmap._cache.keys())
 		{
@@ -129,7 +124,7 @@ class Main extends Sprite
 				obj.destroy();
 			}
 		}
-		Assets.cache.clear("songs");
+		Assets.cache.clear('shared');
 	}
 
 	public static function setFPSCap(cap:Float):Void

@@ -2,10 +2,11 @@ package;
 
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
+import lime.app.Application;
 #end
 import flixel.FlxG;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.transition.TransitionData;
 import flixel.addons.ui.FlxUIState;
 import flixel.graphics.FlxGraphic;
@@ -13,7 +14,6 @@ import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
-import lime.app.Application;
 
 class InitState extends FlxUIState
 {
@@ -34,56 +34,42 @@ class InitState extends FlxUIState
 
 	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
-		Options.bindOptions(); //
+		EngineData.bindSave('funkin', 'ninjamuffin99');
+
+		Options.bindSave();
 		Options.fillMissingOptionFields(); // Load default options in case any are null
-		Options.saveOptions(); // Save initialized options
+		Options.flushSave(); // Save initialized options
 
 		Conductor.initializeSafeZoneOffset(); // Now that the options are loaded, this can be initialized
 
 		PlayerSettings.init();
 
-		FlxG.save.bind('funkin', 'ninjamuffin99');
 		Highscore.load();
 
-		FlxG.game.focusLostFramerate = 60;
+		// FlxG.game.focusLostFramerate = 60;
 		FlxG.sound.muteKeys = muteKeys;
 		FlxG.sound.volumeDownKeys = volumeDownKeys;
 		FlxG.sound.volumeUpKeys = volumeUpKeys;
 		FlxG.keys.preventDefaultKeys = [TAB];
 
-		FlxG.sound.volumeHandler = (volume:Float) ->
+		if (EngineData.save.data.fullscreen != null)
 		{
-			FlxG.save.data.volume = volume;
-		}
-		if (FlxG.save.data.volume != null)
-		{
-			FlxG.sound.volume = FlxG.save.data.volume;
-		}
-		if (FlxG.save.data.mute != null)
-		{
-			FlxG.sound.muted = FlxG.save.data.mute;
-		}
-		if (FlxG.save.data.fullscreen != null)
-		{
-			FlxG.fullscreen = FlxG.save.data.fullscreen;
+			FlxG.fullscreen = EngineData.save.data.fullscreen;
 		}
 
-		if (FlxG.save.data.weekCompleted != null)
+		if (EngineData.save.data.weekCompleted != null)
 		{
-			StoryMenuState.weekCompleted = FlxG.save.data.weekCompleted;
+			StoryMenuState.weekCompleted = EngineData.save.data.weekCompleted;
 		}
 
-		if (Options.save.data.framerate < 30 || Options.save.data.framerate > 360)
+		if (Options.save.data.frameRate < 30 || Options.save.data.frameRate > 360)
 		{
-			Options.save.data.framerate = 120;
+			Options.save.data.frameRate = 120;
 		}
 
-		Main.setFPSCap(Options.save.data.framerate);
+		Main.setFPSCap(Options.save.data.frameRate);
 
 		#if FEATURE_DISCORD
 		if (!DiscordClient.isInitialized)
@@ -102,15 +88,13 @@ class InitState extends FlxUIState
 		FlxG.autoPause = false;
 
 		#if html5
-		// FlxG.autoPause = true;
+		FlxG.autoPause = true;
 		FlxG.mouse.visible = false;
 		#end
 
 		var canCache:Bool = false;
 		#if sys
-		#if cpp // IDK IF YOU CAN DO "#IF SYS AND CPP" OR THIS'LL WORK I THINK
 		canCache = true;
-		#end
 		#end
 		if (canCache)
 		{
@@ -123,7 +107,7 @@ class InitState extends FlxUIState
 		/*#if sys
 			if (Options.save.data.shouldCache && canCache)
 			{
-				nextState = new Caching(nextState);
+				nextState = new CachingState(nextState);
 			}
 			else
 			#end */

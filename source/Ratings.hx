@@ -1,36 +1,32 @@
 package;
 
+import options.Options.OptionDefaults;
+import flixel.math.FlxMath;
+
 class Ratings
 {
 	public static function generateComboRank():String // generate a combo ranking
 	{
-		var ranking:String = "N/A";
-		// if (Options.save.data.botPlay && !PlayState.loadRep)
-		// 	ranking = "BotPlay";
+		var ranking:String = 'N/A';
 
 		if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods == 0) // Marvelous (SICK) Full Combo
-			ranking = "MFC";
+			ranking = 'MFC';
 		else
 			if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
-			ranking = "GF";
+			ranking = 'GF';
 		else if (PlayState.instance.misses == 0) // Regular FC
-			ranking = "FC";
+			ranking = 'FC';
 		else if (PlayState.instance.misses < 10) // Single Digit Combo Breaks
-			ranking = "SDCB";
+			ranking = 'SDCB';
 		else
-			ranking = "Clear";
-
-		// if (PlayState.instance.totalPlayed == 0)
-		// 	ranking = "N/A";
-		// else if (Options.save.data.botPlay && !PlayState.loadRep)
-		// 	ranking = "BotPlay";
+			ranking = 'Clear';
 
 		return ranking;
 	}
 
 	public static function generateLetterRank(accuracy:Float):String
 	{
-		var ranking:String = "";
+		var ranking:String = '';
 
 		// WIFE TIME :)))) (based on Wife3)
 
@@ -61,37 +57,37 @@ class Ratings
 				switch (i)
 				{
 					case 0:
-						ranking = "AAAAA";
+						ranking = 'AAAAA';
 					case 1:
-						ranking = "AAAA:";
+						ranking = 'AAAA:';
 					case 2:
-						ranking = "AAAA.";
+						ranking = 'AAAA.';
 					case 3:
-						ranking = "AAAA";
+						ranking = 'AAAA';
 					case 4:
-						ranking = "AAA:";
+						ranking = 'AAA:';
 					case 5:
-						ranking = "AAA.";
+						ranking = 'AAA.';
 					case 6:
-						ranking = "AAA";
+						ranking = 'AAA';
 					case 7:
-						ranking = "AA:";
+						ranking = 'AA:';
 					case 8:
-						ranking = "AA.";
+						ranking = 'AA.';
 					case 9:
-						ranking = "AA";
+						ranking = 'AA';
 					case 10:
-						ranking = "A:";
+						ranking = 'A:';
 					case 11:
-						ranking = "A.";
+						ranking = 'A.';
 					case 12:
-						ranking = "A";
+						ranking = 'A';
 					case 13:
-						ranking = "B";
+						ranking = 'B';
 					case 14:
-						ranking = "C";
+						ranking = 'C';
 					case 15:
-						ranking = "D";
+						ranking = 'D';
 				}
 				break;
 			}
@@ -102,16 +98,12 @@ class Ratings
 
 	public static function generateComboLetterRank(accuracy:Float):String // generate a letter ranking
 	{
-		var ranking:String = "N/A";
-		// if (Options.save.data.botPlay && !PlayState.loadRep)
-		// 	ranking = "BotPlay";
+		var ranking:String = 'N/A';
 
 		ranking = '(${generateComboRank()}) ${generateLetterRank(accuracy)}';
 
 		if (accuracy == 0)
-			ranking = "N/A";
-		// else if (Options.save.data.botPlay && !PlayState.loadRep)
-		// 	ranking = "BotPlay";
+			ranking = 'N/A';
 
 		return ranking;
 	}
@@ -130,32 +122,31 @@ class Ratings
 				switch (index)
 				{
 					case 0: // shit
-						return "shit";
+						return 'shit';
 					case 1: // bad
-						return "bad";
+						return 'bad';
 					case 2: // good
-						return "good";
+						return 'good';
 					case 3: // sick
-						return "sick";
+						return 'sick';
 				}
 			}
 		}
-		return "good";
+		return 'good';
 	}
 
-	public static function calculateRanking(score:Int, scoreDef:Int, nps:Int, maxNPS:Int, accuracy:Float):String
+	public static function calculateRanking(score:Int, scoreDefault:Int, nps:Int, maxNPS:Int, accuracy:Float):String
 	{
-		return (Options.save.data.npsDisplay ? // NPS Toggle
-			'NPS: $nps (Max $maxNPS)' + (!false || PlayState.loadRep ? ' | ' : '') : '') + // 	NPS
-			(!false
-				|| PlayState.loadRep ? 'Score:' + (Options.save.data.safeFrames != 10 ? score + ' ($scoreDef)' : Std.string(score)) + // Score
-					(Options.save.data.accuracyDisplay ? // Accuracy Toggle
-						' | Combo Breaks: ${PlayState.instance.misses}'
-						+ // 	Misses/Combo Breaks
-						' | Accuracy:'
-						+ (false && !PlayState.loadRep ? 'N/A' : '${CoolUtil.truncateFloat(accuracy, 2)} %')
-						+ // 	Accuracy
-						' | '
-						+ generateComboLetterRank(accuracy) : '') : ''); // 	Combo Rank + Letter Rank
+		// var showAll:Bool = !PlayStateChangeables.botPlay || PlayState.loadRep;
+		var showAll:Bool = true; // I just like seeing everything.
+
+		var npsString:String = Options.save.data.npsDisplay ? 'NPS: $nps (Max $maxNPS)${showAll ? ' | ' : ''}' : ''; // NPS
+		var scoreString:String = 'Score: ${Options.save.data.safeFrames != OptionDefaults.safeFrames ? '$score ($scoreDefault)' : Std.string(score)}'; // Score
+		var comboBreaksString:String = 'Combo Breaks: ${PlayState.instance.misses}'; // Misses/Combo Breaks
+		var accuracyString:String = 'Accuracy: ${showAll ? '${FlxMath.roundDecimal(accuracy, 2)}%' : 'N/A'}'; // Accuracy
+		var comboLetterRankString:String = generateComboLetterRank(accuracy); // Combo Rank + Letter Rank
+		var fullAccuracyString:String = Options.save.data.accuracyDisplay ? ' | $comboBreaksString | $accuracyString | $comboLetterRankString' : '';
+
+		return '$npsString${(showAll ? '$scoreString$fullAccuracyString' : '')}';
 	}
 }

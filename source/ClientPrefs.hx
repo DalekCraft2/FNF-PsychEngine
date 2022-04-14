@@ -13,7 +13,7 @@ class ClientPrefs
 	public static var globalAntialiasing:Bool = true;
 	public static var noteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
-	public static var framerate:Int = 120;
+	public static var frameRate:Int = 120;
 	public static var cursing:Bool = true;
 	public static var violence:Bool = true;
 	public static var camZooms:Bool = true;
@@ -78,7 +78,7 @@ class ClientPrefs
 		'debug_1' => [SEVEN, NONE],
 		'debug_2' => [EIGHT, NONE]
 	];
-	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
+	public static var defaultKeys:Map<String, Array<FlxKey>>;
 
 	public static function loadDefaultKeys():Void
 	{
@@ -88,175 +88,180 @@ class ClientPrefs
 
 	public static function saveSettings():Void
 	{
-		FlxG.save.data.downScroll = downScroll;
-		FlxG.save.data.middleScroll = middleScroll;
-		FlxG.save.data.showFPS = showFPS;
-		FlxG.save.data.flashing = flashing;
-		FlxG.save.data.globalAntialiasing = globalAntialiasing;
-		FlxG.save.data.noteSplashes = noteSplashes;
-		FlxG.save.data.lowQuality = lowQuality;
-		FlxG.save.data.framerate = framerate;
-		// FlxG.save.data.cursing = cursing;
-		// FlxG.save.data.violence = violence;
-		FlxG.save.data.camZooms = camZooms;
-		FlxG.save.data.noteOffset = noteOffset;
-		FlxG.save.data.hideHud = hideHud;
-		FlxG.save.data.arrowHSV = arrowHSV;
-		FlxG.save.data.imagesPersist = imagesPersist;
-		FlxG.save.data.ghostTapping = ghostTapping;
-		FlxG.save.data.timeBarType = timeBarType;
-		FlxG.save.data.scoreZoom = scoreZoom;
-		FlxG.save.data.resetKey = resetKey;
-		FlxG.save.data.healthBarAlpha = healthBarAlpha;
-		FlxG.save.data.comboOffset = comboOffset;
-		FlxG.save.data.achievementsMap = Achievement.achievementsMap;
-		FlxG.save.data.henchmenDeath = Achievement.henchmenDeath;
+		Options.save.data.downScroll = downScroll;
+		Options.save.data.middleScroll = middleScroll;
+		Options.save.data.showFPS = showFPS;
+		Options.save.data.flashing = flashing;
+		Options.save.data.globalAntialiasing = globalAntialiasing;
+		Options.save.data.noteSplashes = noteSplashes;
+		Options.save.data.lowQuality = lowQuality;
+		Options.save.data.frameRate = frameRate;
+		// Options.save.data.cursing = cursing;
+		// Options.save.data.violence = violence;
+		Options.save.data.camZooms = camZooms;
+		Options.save.data.noteOffset = noteOffset;
+		Options.save.data.hideHud = hideHud;
+		Options.save.data.arrowHSV = arrowHSV;
+		Options.save.data.imagesPersist = imagesPersist;
+		Options.save.data.ghostTapping = ghostTapping;
+		Options.save.data.timeBarType = timeBarType;
+		Options.save.data.scoreZoom = scoreZoom;
+		Options.save.data.resetKey = resetKey;
+		Options.save.data.healthBarAlpha = healthBarAlpha;
+		Options.save.data.comboOffset = comboOffset;
 
-		FlxG.save.data.ratingOffset = ratingOffset;
-		FlxG.save.data.sickWindow = sickWindow;
-		FlxG.save.data.goodWindow = goodWindow;
-		FlxG.save.data.badWindow = badWindow;
-		FlxG.save.data.safeFrames = safeFrames;
-		FlxG.save.data.gameplaySettings = gameplaySettings;
-		FlxG.save.data.controllerMode = controllerMode;
-		FlxG.save.data.hitsoundVolume = hitsoundVolume;
-		FlxG.save.data.pauseMusic = pauseMusic;
+		Options.save.data.ratingOffset = ratingOffset;
+		Options.save.data.sickWindow = sickWindow;
+		Options.save.data.goodWindow = goodWindow;
+		Options.save.data.badWindow = badWindow;
+		Options.save.data.safeFrames = safeFrames;
+		Options.save.data.gameplaySettings = gameplaySettings;
+		Options.save.data.controllerMode = controllerMode;
+		Options.save.data.hitsoundVolume = hitsoundVolume;
+		Options.save.data.pauseMusic = pauseMusic;
 
-		FlxG.save.flush();
+		Options.save.flush();
 
 		var save:FlxSave = new FlxSave();
 		save.bind('controls_v2', 'ninjamuffin99'); // Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
 		save.data.customControls = keyBinds;
 		save.flush();
-		Debug.logTrace("Settings saved!");
+		Debug.logTrace('Settings saved!');
+
+		#if FEATURE_ACHIEVEMENTS
+		EngineData.save.data.achievementsMap = Achievement.achievementMap;
+		EngineData.save.data.henchmenDeath = Achievement.henchmenDeath;
+		#end
 	}
 
 	public static function loadPrefs():Void
 	{
-		if (FlxG.save.data.downScroll != null)
+		if (Options.save.data.downScroll != null)
 		{
-			downScroll = FlxG.save.data.downScroll;
+			downScroll = Options.save.data.downScroll;
 		}
-		if (FlxG.save.data.middleScroll != null)
+		if (Options.save.data.middleScroll != null)
 		{
-			middleScroll = FlxG.save.data.middleScroll;
+			middleScroll = Options.save.data.middleScroll;
 		}
-		if (FlxG.save.data.showFPS != null)
+		if (Options.save.data.showFPS != null)
 		{
-			showFPS = FlxG.save.data.showFPS;
+			showFPS = Options.save.data.showFPS;
 		}
-		if (FlxG.save.data.flashing != null)
+		if (Options.save.data.flashing != null)
 		{
-			flashing = FlxG.save.data.flashing;
+			flashing = Options.save.data.flashing;
 		}
-		if (FlxG.save.data.globalAntialiasing != null)
+		if (Options.save.data.globalAntialiasing != null)
 		{
-			globalAntialiasing = FlxG.save.data.globalAntialiasing;
+			globalAntialiasing = Options.save.data.globalAntialiasing;
 		}
-		if (FlxG.save.data.noteSplashes != null)
+		if (Options.save.data.noteSplashes != null)
 		{
-			noteSplashes = FlxG.save.data.noteSplashes;
+			noteSplashes = Options.save.data.noteSplashes;
 		}
-		if (FlxG.save.data.lowQuality != null)
+		if (Options.save.data.lowQuality != null)
 		{
-			lowQuality = FlxG.save.data.lowQuality;
+			lowQuality = Options.save.data.lowQuality;
 		}
-		if (FlxG.save.data.framerate != null)
+		if (Options.save.data.frameRate != null)
 		{
-			framerate = FlxG.save.data.framerate;
-			if (framerate > FlxG.drawFramerate)
+			frameRate = Options.save.data.frameRate;
+			if (frameRate > FlxG.drawFramerate)
 			{
-				FlxG.updateFramerate = framerate;
-				FlxG.drawFramerate = framerate;
+				FlxG.updateFramerate = frameRate;
+				FlxG.drawFramerate = frameRate;
 			}
 			else
 			{
-				FlxG.drawFramerate = framerate;
-				FlxG.updateFramerate = framerate;
+				FlxG.drawFramerate = frameRate;
+				FlxG.updateFramerate = frameRate;
 			}
 		}
-		/*if(FlxG.save.data.cursing != null) {
-				cursing = FlxG.save.data.cursing;
+		/*if (Options.save.data.cursing != null)
+			{
+				cursing = Options.save.data.cursing;
 			}
-			if(FlxG.save.data.violence != null) {
-				violence = FlxG.save.data.violence;
+			if (Options.save.data.violence != null)
+			{
+				violence = Options.save.data.violence;
 		}*/
-		if (FlxG.save.data.camZooms != null)
+		if (Options.save.data.camZooms != null)
 		{
-			camZooms = FlxG.save.data.camZooms;
+			camZooms = Options.save.data.camZooms;
 		}
-		if (FlxG.save.data.hideHud != null)
+		if (Options.save.data.hideHud != null)
 		{
-			hideHud = FlxG.save.data.hideHud;
+			hideHud = Options.save.data.hideHud;
 		}
-		if (FlxG.save.data.noteOffset != null)
+		if (Options.save.data.noteOffset != null)
 		{
-			noteOffset = FlxG.save.data.noteOffset;
+			noteOffset = Options.save.data.noteOffset;
 		}
-		if (FlxG.save.data.arrowHSV != null)
+		if (Options.save.data.arrowHSV != null)
 		{
-			arrowHSV = FlxG.save.data.arrowHSV;
+			arrowHSV = Options.save.data.arrowHSV;
 		}
-		if (FlxG.save.data.ghostTapping != null)
+		if (Options.save.data.ghostTapping != null)
 		{
-			ghostTapping = FlxG.save.data.ghostTapping;
+			ghostTapping = Options.save.data.ghostTapping;
 		}
-		if (FlxG.save.data.timeBarType != null)
+		if (Options.save.data.timeBarType != null)
 		{
-			timeBarType = FlxG.save.data.timeBarType;
+			timeBarType = Options.save.data.timeBarType;
 		}
-		if (FlxG.save.data.scoreZoom != null)
+		if (Options.save.data.scoreZoom != null)
 		{
-			scoreZoom = FlxG.save.data.scoreZoom;
+			scoreZoom = Options.save.data.scoreZoom;
 		}
-		if (FlxG.save.data.resetKey != null)
+		if (Options.save.data.resetKey != null)
 		{
-			resetKey = FlxG.save.data.resetKey;
+			resetKey = Options.save.data.resetKey;
 		}
-		if (FlxG.save.data.healthBarAlpha != null)
+		if (Options.save.data.healthBarAlpha != null)
 		{
-			healthBarAlpha = FlxG.save.data.healthBarAlpha;
+			healthBarAlpha = Options.save.data.healthBarAlpha;
 		}
-		if (FlxG.save.data.comboOffset != null)
+		if (Options.save.data.comboOffset != null)
 		{
-			comboOffset = FlxG.save.data.comboOffset;
+			comboOffset = Options.save.data.comboOffset;
 		}
 
-		if (FlxG.save.data.ratingOffset != null)
+		if (Options.save.data.ratingOffset != null)
 		{
-			ratingOffset = FlxG.save.data.ratingOffset;
+			ratingOffset = Options.save.data.ratingOffset;
 		}
-		if (FlxG.save.data.sickWindow != null)
+		if (Options.save.data.sickWindow != null)
 		{
-			sickWindow = FlxG.save.data.sickWindow;
+			sickWindow = Options.save.data.sickWindow;
 		}
-		if (FlxG.save.data.goodWindow != null)
+		if (Options.save.data.goodWindow != null)
 		{
-			goodWindow = FlxG.save.data.goodWindow;
+			goodWindow = Options.save.data.goodWindow;
 		}
-		if (FlxG.save.data.badWindow != null)
+		if (Options.save.data.badWindow != null)
 		{
-			badWindow = FlxG.save.data.badWindow;
+			badWindow = Options.save.data.badWindow;
 		}
-		if (FlxG.save.data.safeFrames != null)
+		if (Options.save.data.safeFrames != null)
 		{
-			safeFrames = FlxG.save.data.safeFrames;
+			safeFrames = Options.save.data.safeFrames;
 		}
-		if (FlxG.save.data.controllerMode != null)
+		if (Options.save.data.controllerMode != null)
 		{
-			controllerMode = FlxG.save.data.controllerMode;
+			controllerMode = Options.save.data.controllerMode;
 		}
-		if (FlxG.save.data.hitsoundVolume != null)
+		if (Options.save.data.hitsoundVolume != null)
 		{
-			hitsoundVolume = FlxG.save.data.hitsoundVolume;
+			hitsoundVolume = Options.save.data.hitsoundVolume;
 		}
-		if (FlxG.save.data.pauseMusic != null)
+		if (Options.save.data.pauseMusic != null)
 		{
-			pauseMusic = FlxG.save.data.pauseMusic;
+			pauseMusic = Options.save.data.pauseMusic;
 		}
-		if (FlxG.save.data.gameplaySettings != null)
+		if (Options.save.data.gameplaySettings != null)
 		{
-			var savedMap:Map<String, Dynamic> = FlxG.save.data.gameplaySettings;
+			var savedMap:Map<String, Dynamic> = Options.save.data.gameplaySettings;
 			for (name => value in savedMap)
 			{
 				gameplaySettings.set(name, value);
@@ -264,13 +269,13 @@ class ClientPrefs
 		}
 
 		// flixel automatically saves your volume!
-		if (FlxG.save.data.volume != null)
+		if (EngineData.save.data.volume != null)
 		{
-			FlxG.sound.volume = FlxG.save.data.volume;
+			FlxG.sound.volume = EngineData.save.data.volume;
 		}
-		if (FlxG.save.data.mute != null)
+		if (EngineData.save.data.mute != null)
 		{
-			FlxG.sound.muted = FlxG.save.data.mute;
+			FlxG.sound.muted = EngineData.save.data.mute;
 		}
 
 		var save:FlxSave = new FlxSave();

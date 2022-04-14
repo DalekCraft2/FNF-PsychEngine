@@ -1,6 +1,6 @@
 {
-	"confirm_anim": "M Dad Idle",
-	"idle_anim": "M Tankman Idle",
+	"confirmAnim": "M Dad Idle",
+	"idleAnim": "M Tankman Idle",
 	"position": [
 		40,
 		-50

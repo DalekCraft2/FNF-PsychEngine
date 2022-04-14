@@ -56,24 +56,24 @@
 			"indices": []
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/Mom_Assets",
+	"noAntialiasing": false,
+	"image": "Mom_Assets",
 	"position": [
 		0,
 		0
 	],
-	"healthicon": "mom",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "mom",
+	"flipX": false,
+	"healthBarColors": [
 		216,
 		85,
 		142
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

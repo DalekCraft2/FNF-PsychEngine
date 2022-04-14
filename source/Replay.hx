@@ -1,7 +1,7 @@
 package;
 
 import haxe.Json;
-#if FEATURE_FILESYSTEM
+#if sys
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -36,38 +36,40 @@ class Analysis
 
 typedef ReplayJSON =
 {
-	public var replayGameVer:String;
-	public var timestamp:Date;
-	public var songName:String;
-	public var songDiff:Int;
-	public var songNotes:Array<Array<Dynamic>>;
-	public var songJudgements:Array<String>;
-	public var noteSpeed:Float;
-	public var chartPath:String;
-	public var isDownscroll:Bool;
-	public var sf:Int;
-	public var sm:Bool;
-	public var ana:Analysis;
+	var replayGameVer:String;
+	var timestamp:Date;
+	var songId:String;
+	var songName:String;
+	var songDiff:Int;
+	var songNotes:Array<Array<Dynamic>>;
+	var songJudgements:Array<String>;
+	var noteSpeed:Float;
+	var chartPath:String;
+	var isDownscroll:Bool;
+	var sf:Int;
+	var sm:Bool;
+	var ana:Analysis;
 }
 
 class Replay
 {
-	public static final REPLAY_VERSION:String = "1.2"; // replay file version
+	public static final REPLAY_VERSION:String = '1.2'; // replay file version
 
-	public var path:String = "";
+	public var path:String = '';
 	public var replay:ReplayJSON;
 
 	public function new(path:String)
 	{
 		this.path = path;
 		replay = {
-			songName: "No Song Found",
+			songId: 'nosong',
+			songName: 'No Song Found',
 			songDiff: 1,
 			noteSpeed: 1.5,
 			isDownscroll: false,
 			songNotes: [],
 			replayGameVer: REPLAY_VERSION,
-			chartPath: "",
+			chartPath: '',
 			sm: false,
 			timestamp: Date.now(),
 			sf: Options.save.data.safeFrames,
@@ -90,37 +92,37 @@ class Replay
 	public function saveReplay(notearray:Array<Array<Dynamic>>, judge:Array<String>, ana:Analysis):Void
 	{
 		#if FEATURE_STEPMANIA
-		var chartPath:String = PlayState.isSM ? PlayState.pathToSm + "/converted.json" : "";
+		var chartPath:String = PlayState.isSM ? '${PlayState.pathToSm}/converted.json' : '';
 		#else
-		var chartPath:String = "";
+		var chartPath:String = '';
 		#end
 
-		var json /*:ReplayJSON*/ = {
-			"songId": PlayState.song.songId,
-			"songName": PlayState.song.songName,
-			"songDiff": PlayState.storyDifficulty,
-			"chartPath": chartPath,
-			"sm": PlayState.isSM,
-			"timestamp": Date.now(),
-			"replayGameVer": REPLAY_VERSION,
-			"sf": Options.save.data.safeFrames,
-			"noteSpeed": PlayState.instance.songSpeed,
-			"isDownscroll": Options.save.data.downScroll,
-			"songNotes": notearray,
-			"songJudgements": judge,
-			"ana": ana
+		var json:ReplayJSON = {
+			songId: PlayState.song.songId,
+			songName: PlayState.song.songName,
+			songDiff: PlayState.storyDifficulty,
+			chartPath: chartPath,
+			sm: PlayState.isSM,
+			timestamp: Date.now(),
+			replayGameVer: REPLAY_VERSION,
+			sf: Options.save.data.safeFrames,
+			noteSpeed: PlayState.instance.songSpeed,
+			isDownscroll: Options.save.data.downScroll,
+			songNotes: notearray,
+			songJudgements: judge,
+			ana: ana
 		};
 
-		var data:String = Json.stringify(json, null, "");
+		var data:String = Json.stringify(json, '\t');
 
 		var time:Float = Date.now().getTime();
 
-		#if FEATURE_FILESYSTEM
-		if (!FileSystem.exists(Sys.getCwd() + "/assets/replays"))
-			FileSystem.createDirectory(Sys.getCwd() + "/assets/replays");
-		File.saveContent("assets/replays/replay-" + PlayState.song.songId + "-time" + time + ".kadeReplay", data);
+		path = 'replay-${PlayState.song.songId}-time$time.kadeReplay'; // for score screen shit
 
-		path = "replay-" + PlayState.song.songId + "-time" + time + ".kadeReplay"; // for score screen shit
+		#if sys
+		if (!FileSystem.exists('assets/replays'))
+			FileSystem.createDirectory('assets/replays');
+		File.saveContent('assets/replays/$path', data);
 
 		loadFromJson();
 
@@ -130,11 +132,11 @@ class Replay
 
 	public function loadFromJson():Void
 	{
-		#if FEATURE_FILESYSTEM
-		Debug.logTrace('Loading ${Sys.getCwd()}assets/replays/$path replay...');
+		#if sys
+		Debug.logTrace('Loading assets/replays/$path replay...');
 		try
 		{
-			var repl:ReplayJSON = cast Json.parse(File.getContent('${Sys.getCwd()}assets/replays/$path'));
+			var repl:ReplayJSON = Paths.getJsonDirect('assets/replays/$path');
 			replay = repl;
 		}
 		catch (e)

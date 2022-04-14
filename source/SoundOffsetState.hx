@@ -20,18 +20,16 @@ class SoundOffsetState extends MusicBeatState
 	public var offsetTxt:FlxText;
 	public var metronome:Character;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("Calibrating audio", null);
+		DiscordClient.changePresence('Calibrating audio');
 		#end
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic("menuBG"));
+
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuBG'));
 		// menuBG.color = 0xFFA271DE;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
@@ -39,48 +37,36 @@ class SoundOffsetState extends MusicBeatState
 		menuBG.antialiasing = true;
 		add(menuBG);
 
-		var title:FlxText = new FlxText(0, 20, 0, "Audio Calibration", 32);
-		title.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		var title:FlxText = new FlxText(0, 20, 0, 'Audio Calibration', 32);
+		title.setFormat(Paths.font('vcr.ttf'), title.size, CENTER, OUTLINE, FlxColor.BLACK);
 		title.screenCenter(X);
 		add(title);
 
-		status = new FlxText(0, 50, 0, "Audio is paused", 24);
-		status.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		status = new FlxText(0, 50, 0, 'Audio is paused', 24);
+		status.setFormat(Paths.font('vcr.ttf'), status.size, CENTER, OUTLINE, FlxColor.BLACK);
 		status.screenCenter(X);
 		add(status);
 
-		offsetTxt = new FlxText(0, 80, 0, "Current offset: 0ms", 24);
-		offsetTxt.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		offsetTxt = new FlxText(0, 80, 0, 'Current offset: 0ms', 24);
+		offsetTxt.setFormat(Paths.font('vcr.ttf'), offsetTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
 		offsetTxt.screenCenter(X);
 		add(offsetTxt);
 
 		var instructions:FlxText = new FlxText(0, 125, 0,
-			"Press the spacebar to pause/play the beat\nPress enter in time with the beat to get an approximate offset\nPress R to reset\nPress left and right to adjust the offset manually. Hold shift for precision.\nPress ESC to go back and save the current offset",
+			'Press the spacebar to pause/play the beat\nPress enter in time with the beat to get an approximate offset\nPress R to reset\nPress left and right to adjust the offset manually. Hold shift for precision.\nPress ESC to go back and save the current offset',
 			24);
-		instructions.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		instructions.setFormat(Paths.font('vcr.ttf'), instructions.size, CENTER, OUTLINE, FlxColor.BLACK);
 		instructions.screenCenter(X);
 		add(instructions);
 
 		metronome = new Character(FlxG.width / 2, 300, 'gf');
-		metronome.setGraphicSize(Std.int(metronome.width * .6));
+		metronome.setGraphicSize(Std.int(metronome.width * 0.6));
 		metronome.screenCenter(XY);
 		metronome.y += 100;
 		add(metronome);
 	}
 
-	override function beatHit():Void
-	{
-		super.beatHit();
-
-		beatCounter = 0;
-		if (playingAudio)
-		{
-			FlxG.sound.play(Paths.sound('beat'), 1);
-			metronome.dance();
-		}
-	}
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -91,7 +77,7 @@ class SoundOffsetState extends MusicBeatState
 				FlxG.sound.music.volume -= 0.5 * FlxG.elapsed;
 			}
 			beatCounter += elapsed * 1000;
-			status.text = "Audio is playing";
+			status.text = 'Audio is playing';
 			Conductor.changeBPM(50);
 			Conductor.songPosition += FlxG.elapsed * 1000;
 		}
@@ -101,7 +87,7 @@ class SoundOffsetState extends MusicBeatState
 			{
 				FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 			}
-			status.text = "Audio is paused";
+			status.text = 'Audio is paused';
 			Conductor.changeBPM(0);
 			Conductor.songPosition = 0;
 			beatCounter = 0;
@@ -113,7 +99,7 @@ class SoundOffsetState extends MusicBeatState
 		if (FlxG.keys.justPressed.SPACE)
 		{
 			playingAudio = !playingAudio;
-			if (playingAudio == false)
+			if (!playingAudio)
 			{
 				Options.save.data.noteOffset = currOffset;
 			}
@@ -140,7 +126,7 @@ class SoundOffsetState extends MusicBeatState
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			Options.save.data.noteOffset = currOffset;
-			EngineData.saveOptions();
+			EngineData.flushSave();
 			FlxG.switchState(new OptionsState());
 		}
 
@@ -165,6 +151,18 @@ class SoundOffsetState extends MusicBeatState
 			{
 				currOffset++;
 			}
+		}
+	}
+
+	override public function beatHit(beat:Int):Void
+	{
+		super.beatHit(beat);
+
+		beatCounter = 0;
+		if (playingAudio)
+		{
+			FlxG.sound.play(Paths.getSound('beat'), 1);
+			metronome.dance();
 		}
 	}
 }

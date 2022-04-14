@@ -21,7 +21,7 @@ import openfl.errors.ArgumentError;
  */
 class TileAnimationLibrary
 {
-	public static inline final BITMAP_SYMBOL_NAME:String = "___atlas_sprite___";
+	public static inline final BITMAP_SYMBOL_NAME:String = '___atlas_sprite___';
 
 	private static final STD_MATRIX3D_DATA:Matrix3DData = {
 		m00: 1,
@@ -63,17 +63,17 @@ class TileAnimationLibrary
 		return hasSymbol(name);
 	}
 
-	public function createAnimation(symbol:String = null):TileContainerMovieClip
+	public function createAnimation(?symbol:String):TileContainerMovieClip
 	{
 		symbol = (symbol != null) ? symbol : _defaultSymbolName;
 		if (!hasSymbol(symbol))
 		{
-			throw new ArgumentError("Symbol not found: " + symbol);
+			throw new ArgumentError('Symbol not found: $symbol');
 		}
 		return new TileContainerMovieClip(getSymbol(symbol));
 	}
 
-	public function getAnimationNames(prefix:String = ""):Array<String>
+	public function getAnimationNames(prefix:String = ''):Array<String>
 	{
 		var out:Array<String> = [];
 
@@ -155,11 +155,11 @@ class TileAnimationLibrary
 	// # region helpers
 	private function parseAnimationData(data:AnimationData):Void
 	{
-		var metaData:Null<{?framerate:Null<Int>}> = data.metadata;
+		var metaData:Null<{?framerate:Int}> = data.metadata;
 
 		if (metaData != null && metaData.framerate != null && metaData.framerate > 0)
 		{
-			frameRate = (metaData.framerate);
+			frameRate = metaData.framerate;
 		}
 		else
 		{
@@ -221,7 +221,7 @@ class TileAnimationLibrary
 						element = elements[e] = {
 							SYMBOL_Instance: {
 								SYMBOL_name: BITMAP_SYMBOL_NAME,
-								Instance_Name: "InstName",
+								Instance_Name: 'InstName',
 								bitmap: element.ATLAS_SPRITE_instance,
 								symbolType: SymbolType.GRAPHIC,
 								firstFrame: 0,

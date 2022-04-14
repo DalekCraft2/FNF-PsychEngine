@@ -43,7 +43,6 @@ class Conductor
 		];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 
-		// var diff:Float = Math.abs(note.strumTime - Conductor.songPosition) / (PlayState.songMultiplier >= 1 ? PlayState.songMultiplier : 1);
 		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
 			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
@@ -78,7 +77,7 @@ class Conductor
 			totalSteps += deltaSteps;
 			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
 		}
-		Debug.logTrace("Created BPM map: " + bpmChangeMap);
+		// Debug.logTrace('Created BPM map: $bpmChangeMap');
 	}
 
 	public static function changeBPM(newBpm:Float):Void

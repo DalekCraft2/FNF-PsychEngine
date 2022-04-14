@@ -1,11 +1,6 @@
 package;
 
 import flixel.FlxG;
-import openfl.utils.Assets;
-#if FEATURE_FILESYSTEM
-import sys.FileSystem;
-import sys.io.File;
-#end
 
 using StringTools;
 
@@ -26,7 +21,7 @@ class CoolUtil
 			fileSuffix = DEFAULT_DIFFICULTY;
 		if (fileSuffix != DEFAULT_DIFFICULTY)
 		{
-			fileSuffix = '-' + fileSuffix;
+			fileSuffix = '-$fileSuffix';
 		}
 		else
 		{
@@ -35,34 +30,20 @@ class CoolUtil
 		return Paths.formatToSongPath(fileSuffix);
 	}
 
-	public static function truncateFloat(number:Float, precision:Int):Float
+	public static function difficultyString(?diff:Int):String
 	{
-		var num = number;
-		num = num * Math.pow(10, precision);
-		num = Math.round(num) / Math.pow(10, precision);
-		return num;
-	}
-
-	public static function difficultyString():String
-	{
-		return difficulties[PlayState.storyDifficulty].toUpperCase();
-	}
-
-	public static inline function boundTo(value:Float, min:Float, max:Float):Float
-	{
-		return Math.max(min, Math.min(max, value));
+		if (diff == null)
+		{
+			diff = PlayState.storyDifficulty;
+		}
+		return difficulties[diff].toUpperCase();
 	}
 
 	public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:Array<String> = [];
-		#if FEATURE_FILESYSTEM
-		if (FileSystem.exists(path))
-			daList = File.getContent(path).trim().split('\n');
-		#else
-		if (Assets.exists(path))
-			daList = Assets.getText(path).trim().split('\n');
-		#end
+		if (Paths.exists(path))
+			daList = Paths.getTextDirect(path).trim().split('\n');
 
 		for (i in 0...daList.length)
 		{
@@ -106,7 +87,7 @@ class CoolUtil
 				}
 			}
 		}
-		var maxCount = 0;
+		var maxCount:Int = 0;
 		var maxKey:Int = 0; // after the loop this will store the max color
 		countByColor[flixel.util.FlxColor.BLACK] = 0;
 		for (key in countByColor.keys())
@@ -122,7 +103,7 @@ class CoolUtil
 
 	public static function numberArray(max:Int, ?min = 0):Array<Int>
 	{
-		var dumbArray:Array<Int> = [];
+		var dumbArray:Array<Int> = new Array();
 		for (i in min...max)
 		{
 			dumbArray.push(i);
@@ -130,24 +111,7 @@ class CoolUtil
 		return dumbArray;
 	}
 
-	// uhhhh does this even work at all? i'm starting to doubt
-	public static function precacheSound(sound:String, ?library:String = null):Void
-	{
-		precacheSoundFile(Paths.sound(sound, library));
-	}
-
-	public static function precacheMusic(sound:String, ?library:String = null):Void
-	{
-		precacheSoundFile(Paths.music(sound, library));
-	}
-
-	private static function precacheSoundFile(file:String):Void
-	{
-		if (Assets.exists(file, SOUND) || Assets.exists(file, MUSIC))
-			Assets.getSound(file, true);
-	}
-
-	public static function browserLoad(site:String)
+	public static function browserLoad(site:String):Void
 	{
 		#if linux
 		Sys.command('/usr/bin/xdg-open', [site]);

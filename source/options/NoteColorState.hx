@@ -1,5 +1,6 @@
 package options;
 
+import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -23,11 +24,8 @@ class NoteColorState extends MusicBeatState
 	private var posX:Float = 230;
 	private var changingNote:Bool = false;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		if (OptionsSubState.isInPause)
@@ -36,13 +34,11 @@ class NoteColorState extends MusicBeatState
 			bg.alpha = 0.6;
 			bg.scrollFactor.set();
 			add(bg);
-
-			// cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		}
 		else
 		{
 			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
-			bg.color = 0xFFea71fd;
+			bg.color = 0xFFEA71FD;
 			bg.screenCenter();
 			bg.antialiasing = Options.save.data.globalAntialiasing;
 			add(bg);
@@ -72,8 +68,7 @@ class NoteColorState extends MusicBeatState
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
 			note.frames = Paths.getSparrowAtlas('NOTE_assets');
-			var animations:Array<String> = ['purple', 'blue', 'green', 'red'];
-			note.animation.addByPrefix('idle', animations[i] + ' alone');
+			note.animation.addByPrefix('idle', '${NoteColor.createByIndex(i)} alone');
 			note.animation.play('idle');
 			note.antialiasing = Options.save.data.globalAntialiasing;
 			grpNotes.add(note);
@@ -86,14 +81,14 @@ class NoteColorState extends MusicBeatState
 			shaderArray.push(newShader);
 		}
 
-		hsbText = new Alphabet(0, 0, "Hue    Saturation  Brightness", false, false, 0, 0.65);
+		hsbText = new Alphabet(0, 0, 'Hue    Saturation  Brightness', false, false, 0, 0.65);
 		hsbText.x = posX + 240;
 		add(hsbText);
 
 		changeSelection();
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -104,17 +99,17 @@ class NoteColorState extends MusicBeatState
 				if (controls.UI_LEFT_P)
 				{
 					updateValue(-1);
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.getSound('scrollMenu'));
 				}
 				else if (controls.UI_RIGHT_P)
 				{
 					updateValue(1);
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.getSound('scrollMenu'));
 				}
 				else if (controls.RESET)
 				{
 					resetValue(curSelected, typeSelected);
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.getSound('scrollMenu'));
 				}
 				if (controls.UI_LEFT_R || controls.UI_RIGHT_R)
 				{
@@ -143,7 +138,7 @@ class NoteColorState extends MusicBeatState
 				}
 				if (controls.UI_LEFT_R || controls.UI_RIGHT_R)
 				{
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.getSound('scrollMenu'));
 					holdTime = 0;
 				}
 			}
@@ -153,22 +148,22 @@ class NoteColorState extends MusicBeatState
 			if (controls.UI_UP_P)
 			{
 				changeSelection(-1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 			}
 			if (controls.UI_DOWN_P)
 			{
 				changeSelection(1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 			}
 			if (controls.UI_LEFT_P)
 			{
 				changeType(-1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 			}
 			if (controls.UI_RIGHT_P)
 			{
 				changeType(1);
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 			}
 			if (controls.RESET)
 			{
@@ -176,11 +171,11 @@ class NoteColorState extends MusicBeatState
 				{
 					resetValue(curSelected, i);
 				}
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 			}
 			if (controls.ACCEPT && nextAccept <= 0)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 				changingNote = true;
 				holdTime = 0;
 				for (i in 0...grpNumbers.length)
@@ -209,7 +204,7 @@ class NoteColorState extends MusicBeatState
 		{
 			if (!changingNote)
 			{
-				Options.saveOptions();
+				Options.flushSave();
 				FlxG.switchState(new OptionsState());
 			}
 			else
@@ -217,7 +212,7 @@ class NoteColorState extends MusicBeatState
 				changeSelection();
 			}
 			changingNote = false;
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.getSound('cancelMenu'));
 		}
 
 		if (nextAccept > 0)
@@ -230,7 +225,7 @@ class NoteColorState extends MusicBeatState
 	{
 		curSelected += change;
 		if (curSelected < 0)
-			curSelected = cast(Options.save.data.arrowHSV.length, Int) - 1;
+			curSelected = Std.int(Options.save.data.arrowHSV.length) - 1;
 		if (curSelected >= Options.save.data.arrowHSV.length)
 			curSelected = 0;
 
@@ -259,7 +254,7 @@ class NoteColorState extends MusicBeatState
 				blackBG.y = item.y - 20;
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.getSound('scrollMenu'));
 	}
 
 	private function changeType(change:Int = 0):Void

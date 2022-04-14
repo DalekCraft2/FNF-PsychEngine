@@ -6,20 +6,20 @@ import flash.display.BitmapData;
 import flixel.system.FlxBasePreloader;
 import openfl.display.Sprite;
 
-@:bitmap("art/preloaderArt.png") class LogoImage extends BitmapData
+@:bitmap('art/preloaderArt.png') class LogoImage extends BitmapData
 {
 }
 
 class Preloader extends FlxBasePreloader
 {
-	public function new(MinDisplayTime:Float = 3, ?AllowedURLs:Array<String>)
+	public function new(minDisplayTime:Float = 3, ?allowedUrls:Array<String>)
 	{
-		super(MinDisplayTime, AllowedURLs);
+		super(minDisplayTime, allowedUrls);
 	}
 
-	var logo:Sprite;
+	private var logo:Sprite;
 
-	override function create():Void
+	override public function create():Void
 	{
 		super.create();
 
@@ -36,16 +36,16 @@ class Preloader extends FlxBasePreloader
 		addChild(logo); // Adds the graphic to the NMEPreloader's buffer.
 	}
 
-	override function update(Percent:Float):Void
+	override public function update(percent:Float):Void
 	{
-		super.update(Percent);
+		super.update(percent);
 
-		if (Percent < 69)
+		if (percent < 69)
 		{
-			logo.scaleX += Percent / 1920;
-			logo.scaleY += Percent / 1920;
-			logo.x -= Percent * 0.6;
-			logo.y -= Percent / 2;
+			logo.scaleX += percent / 1920;
+			logo.scaleY += percent / 1920;
+			logo.x -= percent * 0.6;
+			logo.y -= percent / 2;
 		}
 		else
 		{

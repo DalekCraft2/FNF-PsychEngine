@@ -8,18 +8,15 @@ import flixel.text.FlxText;
 
 class LatencyState extends FlxState
 {
-	var offsetText:FlxText;
-	var noteGrp:FlxTypedGroup<Note>;
-	var strumLine:FlxSprite;
+	private var offsetText:FlxText;
+	private var noteGrp:FlxTypedGroup<Note>;
+	private var strumLine:FlxSprite;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
-		FlxG.sound.playMusic(Paths.sound('soundTest'));
+		FlxG.sound.playMusic(Paths.getSound('soundTest'));
 
 		noteGrp = new FlxTypedGroup();
 		add(noteGrp);
@@ -40,11 +37,11 @@ class LatencyState extends FlxState
 		Conductor.changeBPM(120);
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		offsetText.text = "Offset: " + Conductor.offset + "ms";
+		offsetText.text = 'Offset: ${Conductor.offset}ms';
 
 		Conductor.songPosition = FlxG.sound.music.time - Conductor.offset;
 

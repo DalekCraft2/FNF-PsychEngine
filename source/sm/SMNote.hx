@@ -1,4 +1,4 @@
-package smTools;
+package sm;
 
 #if FEATURE_STEPMANIA
 class SMNote

@@ -11,11 +11,9 @@ class GameOverSubState extends MusicBeatSubState
 {
 	public var boyfriend:Boyfriend;
 
-	var camFollow:FlxPoint;
-	var camFollowPos:FlxObject;
-	var updateCamera:Bool = false;
-
-	var stageSuffix:String = "";
+	private var camFollow:FlxPoint;
+	private var camFollowPos:FlxObject;
+	private var updateCamera:Bool = false;
 
 	public static var characterName:String = 'bf';
 	public static var deathSoundName:String = 'fnf_loss_sfx';
@@ -32,20 +30,14 @@ class GameOverSubState extends MusicBeatSubState
 		endSoundName = 'gameOverEnd';
 	}
 
-	override function create():Void
-	{
-		super.create();
-
-		instance = this;
-		PlayState.instance.callOnLuas('onGameOverStart', []);
-	}
-
 	public function new(x:Float, y:Float, camX:Float, camY:Float)
 	{
 		super();
 
 		// TODO Can this stuff be moved to create()?
+		#if FEATURE_LUA
 		PlayState.instance.setOnLuas('inGameOver', true);
+		#end
 
 		Conductor.songPosition = 0;
 
@@ -56,10 +48,8 @@ class GameOverSubState extends MusicBeatSubState
 
 		camFollow = new FlxPoint(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
 
-		FlxG.sound.play(Paths.sound(deathSoundName));
+		FlxG.sound.play(Paths.getSound(deathSoundName));
 		Conductor.changeBPM(100);
-		// FlxG.camera.followLerp = 1;
-		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
@@ -70,16 +60,28 @@ class GameOverSubState extends MusicBeatSubState
 		add(camFollowPos);
 	}
 
-	var isFollowingAlready:Bool = false;
+	override public function create():Void
+	{
+		super.create();
 
-	override function update(elapsed:Float):Void
+		instance = this;
+		#if FEATURE_LUA
+		PlayState.instance.callOnLuas('onGameOverStart', []);
+		#end
+	}
+
+	private var isFollowingAlready:Bool = false;
+
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
+		#if FEATURE_LUA
 		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
+		#end
 		if (updateCamera)
 		{
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
+			var lerpVal:Float = FlxMath.bound(elapsed * 0.6, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 		}
 
@@ -101,8 +103,9 @@ class GameOverSubState extends MusicBeatSubState
 
 			PlayState.loadRep = false;
 			PlayState.stageTesting = false;
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			#if FEATURE_LUA
 			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+			#end
 		}
 
 		if (boyfriend.animation.curAnim.name == 'firstDeath')
@@ -114,7 +117,7 @@ class GameOverSubState extends MusicBeatSubState
 				isFollowingAlready = true;
 			}
 
-			if (boyfriend.animation.curAnim.finished)
+			if (boyfriend.animation.curAnim.finished && !boyfriend.startedDeath)
 			{
 				coolStartDeath();
 				boyfriend.startedDeath = true;
@@ -125,31 +128,36 @@ class GameOverSubState extends MusicBeatSubState
 		{
 			Conductor.songPosition = FlxG.sound.music.time;
 		}
+		#if FEATURE_LUA
 		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
+		#end
 	}
 
-	override function beatHit():Void
+	override public function beatHit(beat:Int):Void
 	{
-		super.beatHit();
+		super.beatHit(beat);
 
-		// Debug.logTrace('Beat');
+		if (boyfriend.startedDeath && !isEnding)
+		{
+			boyfriend.playAnim('deathLoop', true);
+		}
 	}
 
-	var isEnding:Bool = false;
+	private var isEnding:Bool = false;
 
-	function coolStartDeath(?volume:Float = 1):Void
+	private function coolStartDeath(volume:Float = 1):Void
 	{
-		FlxG.sound.playMusic(Paths.music(loopSoundName), volume);
+		FlxG.sound.playMusic(Paths.getMusic(loopSoundName), volume);
 	}
 
-	function endBullshit():Void
+	private function endBullshit():Void
 	{
 		if (!isEnding)
 		{
 			isEnding = true;
 			boyfriend.playAnim('deathConfirm', true);
 			FlxG.sound.music.stop();
-			FlxG.sound.play(Paths.music(endSoundName));
+			FlxG.sound.play(Paths.getMusic(endSoundName));
 			new FlxTimer().start(0.7, (tmr:FlxTimer) ->
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, () ->
@@ -158,7 +166,9 @@ class GameOverSubState extends MusicBeatSubState
 					PlayState.stageTesting = false;
 				});
 			});
+			#if FEATURE_LUA
 			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);
+			#end
 		}
 	}
 }

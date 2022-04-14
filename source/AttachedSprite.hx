@@ -16,7 +16,7 @@ class AttachedSprite extends FlxSprite
 	public var copyAlpha:Bool = true;
 	public var copyVisible:Bool = false;
 
-	public function new(?file:String = null, ?anim:String = null, ?library:String = null, ?loop:Bool = false)
+	public function new(?file:String, ?anim:String, ?library:String, loop:Bool = false)
 	{
 		super();
 
@@ -34,7 +34,7 @@ class AttachedSprite extends FlxSprite
 		scrollFactor.set();
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 

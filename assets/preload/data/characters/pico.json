@@ -100,24 +100,24 @@
 			"name": "pico Up note miss"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/Pico_FNF_assetss",
+	"noAntialiasing": false,
+	"image": "Pico_FNF_assetss",
 	"position": [
 		0,
 		300
 	],
-	"healthicon": "pico",
-	"flip_x": true,
-	"healthbar_colors": [
+	"healthIcon": "pico",
+	"flipX": true,
+	"healthBarColors": [
 		183,
 		216,
 		85
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

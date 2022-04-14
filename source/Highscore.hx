@@ -1,7 +1,5 @@
 package;
 
-import flixel.FlxG;
-
 using StringTools;
 
 class Highscore
@@ -94,36 +92,36 @@ class Highscore
 	/**
 	 * YOU SHOULD FORMAT SONG WITH formatSong() BEFORE TOSSING IN SONG VARIABLE
 	 */
-	static function setScore(song:String, score:Int):Void
+	private static function setScore(song:String, score:Int):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		songScores.set(song, score);
-		FlxG.save.data.songScores = songScores;
-		FlxG.save.flush();
+		EngineData.save.data.songScores = songScores;
+		EngineData.flushSave();
 	}
 
-	static function setCombo(song:String, combo:String):Void
+	private static function setCombo(song:String, combo:String):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		songCombos.set(song, combo);
-		FlxG.save.data.songCombos = songCombos;
-		FlxG.save.flush();
+		EngineData.save.data.songCombos = songCombos;
+		EngineData.flushSave();
 	}
 
-	static function setWeekScore(week:String, score:Int):Void
+	private static function setWeekScore(week:String, score:Int):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		weekScores.set(week, score);
-		FlxG.save.data.weekScores = weekScores;
-		FlxG.save.flush();
+		EngineData.save.data.weekScores = weekScores;
+		EngineData.flushSave();
 	}
 
-	static function setRating(song:String, rating:Float):Void
+	private static function setRating(song:String, rating:Float):Void
 	{
 		// Reminder that I don't need to format this song, it should come formatted!
 		songRating.set(song, rating);
-		FlxG.save.data.songRating = songRating;
-		FlxG.save.flush();
+		EngineData.save.data.songRating = songRating;
+		EngineData.flushSave();
 	}
 
 	public static function formatSong(song:String, diff:Int):String
@@ -131,7 +129,7 @@ class Highscore
 		return Paths.formatToSongPath(song) + CoolUtil.getDifficultyFilePath(diff);
 	}
 
-	static function getComboInt(combo:String):Int
+	private static function getComboInt(combo:String):Int
 	{
 		switch (combo)
 		{
@@ -185,17 +183,17 @@ class Highscore
 
 	public static function load():Void
 	{
-		if (FlxG.save.data.weekScores != null)
+		if (EngineData.save.data.weekScores != null)
 		{
-			weekScores = FlxG.save.data.weekScores;
+			weekScores = EngineData.save.data.weekScores;
 		}
-		if (FlxG.save.data.songScores != null)
+		if (EngineData.save.data.songScores != null)
 		{
-			songScores = FlxG.save.data.songScores;
+			songScores = EngineData.save.data.songScores;
 		}
-		if (FlxG.save.data.songRating != null)
+		if (EngineData.save.data.songRating != null)
 		{
-			songRating = FlxG.save.data.songRating;
+			songRating = EngineData.save.data.songRating;
 		}
 	}
 }

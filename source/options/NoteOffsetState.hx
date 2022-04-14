@@ -47,9 +47,6 @@ class NoteOffsetState extends MusicBeatState
 
 	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		// Cameras
@@ -99,7 +96,7 @@ class NoteOffsetState extends MusicBeatState
 		gf.x += gf.positionArray[0];
 		gf.y += gf.positionArray[1];
 		gf.scrollFactor.set(0.95, 0.95);
-		boyfriend = new Character(770, 100, 'bf', true);
+		boyfriend = new Character(770, 100, true);
 		boyfriend.x += boyfriend.positionArray[0];
 		boyfriend.y += boyfriend.positionArray[1];
 		add(gf);
@@ -107,9 +104,8 @@ class NoteOffsetState extends MusicBeatState
 
 		// Combo stuff
 
-		coolText = new FlxText(0, 0, 0, '', 32);
-		coolText.screenCenter();
-		coolText.x = FlxG.width * 0.35;
+		coolText = new FlxText(FlxG.width * 0.35, 0, 0, 32);
+		coolText.screenCenter(Y);
 
 		rating = new FlxSprite().loadGraphic(Paths.getGraphic('sick'));
 		rating.cameras = [camHUD];
@@ -157,8 +153,8 @@ class NoteOffsetState extends MusicBeatState
 		beatText.visible = false;
 		add(beatText);
 
-		timeTxt = new FlxText(0, 600, FlxG.width, "", 32);
-		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		timeTxt = new FlxText(0, 600, FlxG.width, 32);
+		timeTxt.setFormat(Paths.font('vcr.ttf'), timeTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.borderSize = 2;
 		timeTxt.visible = false;
@@ -195,20 +191,20 @@ class NoteOffsetState extends MusicBeatState
 		blackBox.cameras = [camHUD];
 		add(blackBox);
 
-		changeModeText = new FlxText(0, 4, FlxG.width, "", 32);
-		changeModeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
+		changeModeText = new FlxText(0, 4, FlxG.width, 32);
+		changeModeText.setFormat(Paths.font('vcr.ttf'), changeModeText.size, CENTER);
 		changeModeText.scrollFactor.set();
 		changeModeText.cameras = [camHUD];
 		add(changeModeText);
 		updateMode();
 
 		Conductor.changeBPM(128.0);
-		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
+		FlxG.sound.playMusic(Paths.getMusic('offsetSong'), 1, true);
 	}
 
 	private var holdTime:Float = 0;
 	private var onComboMenu:Bool = true;
-	private var holdingObjectType:Null<Bool> = null;
+	private var holdingObjectType:Null<Bool>;
 
 	private var startMousePos:FlxPoint = new FlxPoint();
 	private var startComboOffset:FlxPoint = new FlxPoint();
@@ -372,7 +368,6 @@ class NoteOffsetState extends MusicBeatState
 
 			persistentUpdate = false;
 			FlxG.switchState(new OptionsState());
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
 			FlxG.mouse.visible = false;
 		}
 
@@ -380,24 +375,18 @@ class NoteOffsetState extends MusicBeatState
 	}
 
 	private var zoomTween:FlxTween;
-	private var lastBeatHit:Int = -1;
 
-	override public function beatHit():Void
+	override public function beatHit(beat:Int):Void
 	{
-		super.beatHit();
+		super.beatHit(beat);
 
-		if (lastBeatHit == curBeat)
-		{
-			return;
-		}
-
-		if (curBeat % 2 == 0)
+		if (beat % 2 == 0)
 		{
 			boyfriend.dance();
 			gf.dance();
 		}
 
-		if (curBeat % 4 == 2)
+		if (beat % 4 == 2)
 		{
 			FlxG.camera.zoom = 1.15;
 
@@ -424,8 +413,6 @@ class NoteOffsetState extends MusicBeatState
 				}
 			});
 		}
-
-		lastBeatHit = curBeat;
 	}
 
 	private function repositionCombo():Void
@@ -444,8 +431,8 @@ class NoteOffsetState extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			var text:FlxText = new FlxText(10, 48 + (i * 30), 0, '', 24);
-			text.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+			var text:FlxText = new FlxText(10, 48 + (i * 30), 0, 24);
+			text.setFormat(Paths.font('vcr.ttf'), text.size, LEFT, OUTLINE, FlxColor.BLACK);
 			text.scrollFactor.set();
 			text.borderSize = 2;
 			dumbTexts.add(text);
@@ -467,11 +454,11 @@ class NoteOffsetState extends MusicBeatState
 				case 0:
 					dumbTexts.members[i].text = 'Rating Offset:';
 				case 1:
-					dumbTexts.members[i].text = '[' + Options.save.data.comboOffset[0] + ', ' + Options.save.data.comboOffset[1] + ']';
+					dumbTexts.members[i].text = '[${Options.save.data.comboOffset[0]}, ${Options.save.data.comboOffset[1]}]';
 				case 2:
 					dumbTexts.members[i].text = 'Numbers Offset:';
 				case 3:
-					dumbTexts.members[i].text = '[' + Options.save.data.comboOffset[2] + ', ' + Options.save.data.comboOffset[3] + ']';
+					dumbTexts.members[i].text = '[${Options.save.data.comboOffset[2]}, ${Options.save.data.comboOffset[3]}]';
 			}
 		}
 	}
@@ -479,7 +466,7 @@ class NoteOffsetState extends MusicBeatState
 	private function updateNoteDelay():Void
 	{
 		Options.save.data.noteOffset = Math.round(barPercent);
-		timeTxt.text = 'Current offset: ' + Math.floor(barPercent) + ' ms';
+		timeTxt.text = 'Current offset: ${Math.floor(barPercent)} ms';
 	}
 
 	private function updateMode():Void

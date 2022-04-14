@@ -1,22 +1,24 @@
-package smTools;
+package sm;
 
-#if FEATURE_STEPMANIA
 import Section.SectionData;
 import Song.SongData;
+import Song.SongWrapper;
 import haxe.Exception;
 import haxe.Json;
 import lime.app.Application;
-#if FEATURE_FILESYSTEM
-import sys.io.File;
-#end
 
 using StringTools;
 
+#if sys
+import sys.io.File;
+#end
+
+#if FEATURE_STEPMANIA
 class SMFile
 {
 	public static function loadFile(path):SMFile
 	{
-		return new SMFile(File.getContent(path).split('\n'));
+		return new SMFile(Paths.getTextDirect(path).split('\n'));
 	}
 
 	private var _fileData:Array<String>;
@@ -37,9 +39,9 @@ class SMFile
 			_fileData = data;
 
 			// Gather header data
-			var headerData:String = "";
+			var headerData:String = '';
 			var inc:Int = 0;
-			while (!data[inc + 1].contains("//"))
+			while (!data[inc + 1].contains('//'))
 			{
 				headerData += data[inc];
 				inc++;
@@ -48,35 +50,32 @@ class SMFile
 
 			header = new SMHeader(headerData.split(';'));
 
-			if (_fileData.toString().split("#NOTES").length > 2)
+			if (_fileData.toString().split('#NOTES').length > 2)
 			{
-				Application.current.window.alert("The chart must only have 1 difficulty, this one has "
-					+ (_fileData.toString().split("#NOTES").length - 1),
-					"SM File loading ("
-					+ header.TITLE
-					+ ")");
+				Application.current.window.alert('The chart must only have 1 difficulty, this one has ${(_fileData.toString().split('#NOTES').length - 1)}',
+					'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
 			}
 
-			if (!header.MUSIC.toLowerCase().contains("ogg"))
+			if (!header.MUSIC.toLowerCase().contains('ogg'))
 			{
-				Application.current.window.alert("The music MUST be an OGG File, make sure the sm file has the right music property.",
-					"SM File loading (" + header.TITLE + ")");
+				Application.current.window.alert('The music MUST be an OGG File, make sure the sm file has the right music property.',
+					'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
 			}
 
 			// check if this is a valid file, it should be a dance double file.
 			inc += 3; // skip three lines down
-			if (!data[inc].contains("dance-double:") && !data[inc].contains("dance-single"))
+			if (!data[inc].contains('dance-double:') && !data[inc].contains('dance-single'))
 			{
-				Application.current.window.alert("The file you are loading is neither a Dance Double chart or a Dance Single chart",
-					"SM File loading (" + header.TITLE + ")");
+				Application.current.window.alert('The file you are loading is neither a Dance Double chart or a Dance Single chart',
+					'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
 			}
-			if (data[inc].contains("dance-double:"))
+			if (data[inc].contains('dance-double:'))
 				isDouble = true;
 			if (isDouble)
 				Debug.logTrace('this is dance double');
@@ -85,21 +84,21 @@ class SMFile
 
 			measures = [];
 
-			var measure:String = "";
+			var measure:String = '';
 
 			Debug.logTrace(data[inc - 1]);
 
 			for (ii in inc...data.length)
 			{
 				var i:String = data[ii];
-				if (i.contains(",") || i.contains(";"))
+				if (i.contains(',') || i.contains(';'))
 				{
 					measures.push(new SMMeasure(measure.split('\n')));
 					// Debug.logTrace(measures.length);
-					measure = "";
+					measure = '';
 					continue;
 				}
-				measure += i + "\n";
+				measure += '$i\n';
 			}
 			Debug.logTrace('${measures.length} Measures');
 		}
@@ -123,12 +122,11 @@ class SMFile
 
 		var measureIndex:Int = 0;
 		var currentBeat:Float = 0;
-		var output:String = "";
 
 		// init a fnf song
 
 		var song:SongData = {
-			songId: header.TITLE, // TODO What should be here?
+			songId: Paths.formatToSongPath(header.TITLE),
 			songName: header.TITLE,
 			player1: 'bf',
 			player2: 'gf',
@@ -148,18 +146,18 @@ class SMFile
 
 		if (!isValid)
 		{
-			var json:{song:SongData} = {
-				"song": song
+			var json:SongWrapper = {
+				song: song
 			};
 
-			var data:String = Json.stringify(json, null, " ");
+			var data:String = Json.stringify(json, '\t');
 			File.saveContent(saveTo, data);
 			return data;
 		}
 
 		// aight time to convert da measures
 
-		Debug.logTrace("Converting measures");
+		Debug.logTrace('Converting measures');
 
 		for (measure in measures)
 		{
@@ -196,7 +194,6 @@ class SMFile
 
 				for (note in measure._measure[i].split(''))
 				{
-					// output += note;
 					notes.push(note);
 				}
 
@@ -226,14 +223,12 @@ class SMFile
 
 				var rowTime:Float = timeInSec * 1000;
 
-				// output += " - Row " + noteRow + " - Time: " + rowTime + " (" + timeInSec + ") - Beat: " + currentBeat + " - Current BPM: " + header.getBPM(currentBeat) + "\n";
-
 				var index:Int = 0;
 
 				for (i in notes)
 				{
 					// if its a mine lets skip (maybe add mines in the future??)
-					if (i == "M")
+					if (i == 'M')
 					{
 						index++;
 						continue;
@@ -269,20 +264,19 @@ class SMFile
 
 			song.notes.push(section);
 
-			// output += ",\n";
-
 			measureIndex++;
 		}
 
 		for (i in 0...song.notes.length) // loops through sections
 		{
-			var section:SectionData = song.notes[i];
+			// TODO Figure out how to do this in Psych, or adapt Psych to be more like Kade (yet again)
+			// var section:SectionData = song.notes[i];
 
-			var currentBeat:Int = 4 * i;
+			// var currentBeat:Int = 4 * i;
 
-			var currentSeg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
+			// var currentSeg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
 
-			var start:Float = (currentBeat - currentSeg.startBeat) / (currentSeg.bpm / 60);
+			// var start:Float = (currentBeat - currentSeg.startBeat) / (currentSeg.bpm / 60);
 
 			// section.startTime = (currentSeg.startTime + start) * 1000;
 
@@ -290,8 +284,6 @@ class SMFile
 			// 	song.notes[i - 1].endTime = section.startTime;
 			// section.endTime = Math.POSITIVE_INFINITY;
 		}
-
-		// File.saveContent("fuac" + header.TITLE,output);
 
 		if (header.changeEvents.length != 0)
 		{
@@ -331,11 +323,11 @@ class SMFile
 
 		// song.chartVersion = Song.latestChart;
 
-		var json:{song:SongData} = {
-			"song": song
+		var json:SongWrapper = {
+			song: song
 		};
 
-		var data:String = Json.stringify(json, null, " ");
+		var data:String = Json.stringify(json, '\t');
 		File.saveContent(saveTo, data);
 		return data;
 	}

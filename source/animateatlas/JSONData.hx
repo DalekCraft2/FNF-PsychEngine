@@ -1,27 +1,29 @@
 package animateatlas;
 
+// Yes, the naming convention for the fields is awful, but I feel like it's probably necessary for getting data from the files.
+
 /**
  * All data needed for the json importer + some extra for after parsing.
  * Stolen mostly from https://github.com/TomByrne/Starling-Extension-Adobe-Animate-Hx/blob/master/hx/src/starling/extensions/animate/AnimationAtlasData.hx
  */
 typedef AnimationData =
 {
-	?animation:SymbolData,
-	?symbolDictionary:
+	?ANIMATION:SymbolData,
+	?SYMBOL_DICTIONARY:
 		{
-			symbols:Array<SymbolData>
+			Symbols:Array<SymbolData>
 		},
 	?metadata:
 		{
-			?framerate:Null<Int>
+			?framerate:Int
 		}
 }
 
 typedef AtlasData =
 {
-	?atlas:
+	?ATLAS:
 		{
-			sprites:Array<SpriteDummy>
+			SPRITES:Array<SpriteDummy>
 		},
 	?meta:
 		{
@@ -36,7 +38,7 @@ typedef AtlasData =
 
 typedef SpriteDummy =
 {
-	sprite:SpriteData
+	SPRITE:SpriteData
 }
 
 typedef SpriteData =
@@ -52,21 +54,21 @@ typedef SpriteData =
 typedef SymbolData =
 {
 	?name:String,
-	symbolName:String,
-	?timeline:SymbolTimelineData
+	SYMBOL_name:String,
+	?TIMELINE:SymbolTimelineData
 }
 
 typedef SymbolTimelineData =
 {
 	?sortedForRender:Bool,
-	layers:Array<LayerData>
+	LAYERS:Array<LayerData>
 }
 
 typedef LayerData =
 {
-	layerName:String,
-	frames:Array<LayerFrameData>,
-	frameMap:Map<Int, LayerFrameData>
+	Layer_name:String,
+	Frames:Array<LayerFrameData>,
+	FrameMap:Map<Int, LayerFrameData>
 }
 
 typedef LayerFrameData =
@@ -79,19 +81,19 @@ typedef LayerFrameData =
 
 typedef ElementData =
 {
-	?atlasSpriteInstance:Dynamic,
-	?symbolInstance:SymbolInstanceData
+	?ATLAS_SPRITE_instance:BitmapPosData,
+	?SYMBOL_Instance:SymbolInstanceData
 }
 
 typedef SymbolInstanceData =
 {
-	symbolName:String,
-	instanceName:String,
+	SYMBOL_name:String,
+	Instance_Name:String,
 	bitmap:BitmapPosData,
 	symbolType:String,
 	transformationPoint:PointData,
-	matrix3D:Matrix3DData,
-	?decomposedMatrix:Decomposed3DData,
+	Matrix3D:Matrix3DData,
+	?DecomposedMatrix:Decomposed3DData,
 	?color:ColorData,
 
 	?loop:String,
@@ -103,20 +105,20 @@ typedef ColorData =
 {
 	mode:String,
 
-	?redMultiplier:Float,
+	?RedMultiplier:Float,
 	?greenMultiplier:Float,
 	?blueMultiplier:Float,
 	?alphaMultiplier:Float,
 	?redOffset:Float,
 	?greenOffset:Float,
 	?blueOffset:Float,
-	?alphaOffset:Float
+	?AlphaOffset:Float
 }
 
 typedef BitmapPosData =
 {
 	name:String,
-	position:PointData,
+	Position:PointData,
 }
 
 typedef PointData =
@@ -148,14 +150,14 @@ typedef Matrix3DData =
 // tryna add more support gimme a sec
 typedef FilterData =
 {
-	?blurFilter:
+	?BlurFilter:
 		{
 			blurX:Float,
 			blurY:Float,
 			quality:Int
 		},
 
-	?glowFilter:
+	?GlowFilter:
 		{
 			blurX:Float,
 			blurY:Float,
@@ -170,15 +172,15 @@ typedef FilterData =
 
 typedef Decomposed3DData =
 {
-	position:
+	Position:
 	{
 		x:Float, y:Float, z:Float
 	},
-	rotation:
+	Rotation:
 	{
 		x:Float, y:Float, z:Float
 	},
-	scaling:
+	Scaling:
 	{
 		x:Float, y:Float, z:Float
 	},

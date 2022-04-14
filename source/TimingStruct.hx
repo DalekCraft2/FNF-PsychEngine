@@ -2,7 +2,7 @@ package;
 
 class TimingStruct
 {
-	public static var AllTimings:Array<TimingStruct> = [];
+	public static var allTimings:Array<TimingStruct> = [];
 
 	public var bpm:Float = 0; // idk what does  this do
 
@@ -15,13 +15,13 @@ class TimingStruct
 
 	public static function clearTimings():Void
 	{
-		AllTimings = [];
+		allTimings = [];
 	}
 
 	public static function addTiming(startBeat, bpm, endBeat:Float, offset:Float):Void
 	{
 		var pog:TimingStruct = new TimingStruct(startBeat, bpm, endBeat, offset);
-		AllTimings.push(pog);
+		allTimings.push(pog);
 	}
 
 	public static function getBeatFromTime(time:Float):Float
@@ -57,7 +57,7 @@ class TimingStruct
 
 	public static function getTimingAtTimestamp(msTime:Float):TimingStruct
 	{
-		for (i in AllTimings)
+		for (i in allTimings)
 		{
 			if (msTime >= i.startTime * 1000 && msTime < (i.startTime + i.length) * 1000)
 				return i;
@@ -67,7 +67,7 @@ class TimingStruct
 
 	public static function getTimingAtBeat(beat):TimingStruct
 	{
-		for (i in AllTimings)
+		for (i in allTimings)
 		{
 			if (i.startBeat <= beat && i.endBeat >= beat)
 				return i;

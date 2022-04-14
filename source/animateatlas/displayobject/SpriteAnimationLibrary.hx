@@ -20,7 +20,7 @@ import openfl.errors.ArgumentError;
  */
 class SpriteAnimationLibrary
 {
-	public static inline final BITMAP_SYMBOL_NAME:String = "___atlas_sprite___";
+	public static inline final BITMAP_SYMBOL_NAME:String = '___atlas_sprite___';
 
 	private static final STD_MATRIX3D_DATA:Matrix3DData = {
 		m00: 1,
@@ -63,18 +63,18 @@ class SpriteAnimationLibrary
 		return hasSymbol(name);
 	}
 
-	public function createAnimation(noAntialiasing:Bool, symbol:String = null):SpriteMovieClip
+	public function createAnimation(noAntialiasing:Bool, ?symbol:String):SpriteMovieClip
 	{
 		this.smoothing = !noAntialiasing;
 		symbol = (symbol != null) ? symbol : _defaultSymbolName;
 		if (!hasSymbol(symbol))
 		{
-			throw new ArgumentError("Symbol not found: " + symbol);
+			throw new ArgumentError('Symbol not found: $symbol');
 		}
 		return new SpriteMovieClip(getSymbol(symbol));
 	}
 
-	public function getAnimationNames(prefix:String = ""):Array<String>
+	public function getAnimationNames(prefix:String = ''):Array<String>
 	{
 		var out:Array<String> = [];
 
@@ -120,7 +120,6 @@ class SpriteAnimationLibrary
 	// TODO migrate this to lime pool
 
 	@:access(animateatlas)
-	@:allow(AtlasFrameMaker)
 	private function getSymbol(name:String):SpriteSymbol
 	{
 		var pool:Array<SpriteSymbol> = getSymbolPool(name);
@@ -159,7 +158,7 @@ class SpriteAnimationLibrary
 	// # region helpers
 	private function parseAnimationData(data:AnimationData):Void
 	{
-		var metaData:Null<{?framerate:Null<Int>}> = data.metadata;
+		var metaData:Null<{?framerate:Int}> = data.metadata;
 
 		if (metaData != null && metaData.framerate != null && metaData.framerate > 0)
 		{
@@ -173,30 +172,30 @@ class SpriteAnimationLibrary
 		_symbolData = [];
 
 		// the actual symbol dictionary
-		var symbols:Array<SymbolData> = data.symbolDictionary.symbols;
+		var symbols:Array<SymbolData> = data.SYMBOL_DICTIONARY.Symbols;
 		for (symbolData in symbols)
 		{
-			_symbolData[symbolData.symbolName] = preprocessSymbolData(symbolData);
+			_symbolData[symbolData.SYMBOL_name] = preprocessSymbolData(symbolData);
 		}
 
 		// the main animation
-		var defaultSymbolData:SymbolData = preprocessSymbolData(data.animation);
-		_defaultSymbolName = defaultSymbolData.symbolName;
+		var defaultSymbolData:SymbolData = preprocessSymbolData(data.ANIMATION);
+		_defaultSymbolName = defaultSymbolData.SYMBOL_name;
 		_symbolData.set(_defaultSymbolName, defaultSymbolData);
 
 		// a purely internal symbol for bitmaps - simplifies their handling
 		_symbolData.set(BITMAP_SYMBOL_NAME, {
-			symbolName: BITMAP_SYMBOL_NAME,
-			timeline: {
-				layers: []
+			SYMBOL_name: BITMAP_SYMBOL_NAME,
+			TIMELINE: {
+				LAYERS: []
 			}
 		});
 	}
 
 	private function preprocessSymbolData(symbolData:SymbolData):SymbolData
 	{
-		var timeLineData:SymbolTimelineData = symbolData.timeline;
-		var layerDates:Array<LayerData> = timeLineData.layers;
+		var timeLineData:SymbolTimelineData = symbolData.TIMELINE;
+		var layerDates:Array<LayerData> = timeLineData.LAYERS;
 
 		// In Animate CC, layers are sorted front to back.
 		// In Starling, it's the other way round - so we simply reverse the layer data.
@@ -212,7 +211,7 @@ class SpriteAnimationLibrary
 
 		for (layerData in layerDates)
 		{
-			var frames:Array<LayerFrameData> = layerData.frames;
+			var frames:Array<LayerFrameData> = layerData.Frames;
 
 			for (frame in frames)
 			{
@@ -220,13 +219,13 @@ class SpriteAnimationLibrary
 				for (e in 0...elements.length)
 				{
 					var element:ElementData = elements[e];
-					if (element.atlasSpriteInstance != null)
+					if (element.ATLAS_SPRITE_instance != null)
 					{
 						element = elements[e] = {
-							symbolInstance: {
-								symbolName: BITMAP_SYMBOL_NAME,
-								instanceName: "InstName",
-								bitmap: element.atlasSpriteInstance,
+							SYMBOL_Instance: {
+								SYMBOL_name: BITMAP_SYMBOL_NAME,
+								Instance_Name: 'InstName',
+								bitmap: element.ATLAS_SPRITE_instance,
 								symbolType: SymbolType.GRAPHIC,
 								firstFrame: 0,
 								loop: LoopMode.LOOP,
@@ -234,7 +233,7 @@ class SpriteAnimationLibrary
 									x: 0,
 									y: 0
 								},
-								matrix3D: STD_MATRIX3D_DATA
+								Matrix3D: STD_MATRIX3D_DATA
 							}
 						};
 					}
@@ -248,11 +247,11 @@ class SpriteAnimationLibrary
 	private function parseAtlasData(atlas:AtlasData):Void
 	{
 		_atlas = [];
-		if (atlas.atlas != null && atlas.atlas.sprites != null)
+		if (atlas.ATLAS != null && atlas.ATLAS.SPRITES != null)
 		{
-			for (s in atlas.atlas.sprites)
+			for (s in atlas.ATLAS.SPRITES)
 			{
-				_atlas.set(s.sprite.name, s.sprite);
+				_atlas.set(s.SPRITE.name, s.SPRITE);
 			}
 		}
 	}

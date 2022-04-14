@@ -10,34 +10,24 @@ class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
-	var warnText:FlxText;
+	private var warnText:FlxText;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 
-		warnText = new FlxText(0, 0, FlxG.width, "Sup bro, looks like you're running an   \n
-			outdated version of Psych Engine ("
-			+ EngineData.ENGINE_VERSION
-			+ "),\n
-			please update to "
-			+ TitleState.updateVersion
-			+ "!\n
-			Press ESCAPE to proceed anyway.\n
-			\n
-			Thank you for using the Engine!", 32);
-		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+		warnText = new FlxText(0, 0, FlxG.width,
+			'Sup bro, looks like you\'re running an\noutdated version of Psych Engine (${EngineData.ENGINE_VERSION}),\nplease update to ${TitleState.updateVersion}!\nPress ESCAPE to proceed anyway.\n\nThank you for using the Engine!\n',
+			32);
+		warnText.setFormat(Paths.font('vcr.ttf'), warnText.size, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -46,7 +36,7 @@ class OutdatedState extends MusicBeatState
 			if (controls.ACCEPT)
 			{
 				leftState = true;
-				CoolUtil.browserLoad("https://github.com/ShadowMario/FNF-PsychEngine/releases");
+				CoolUtil.browserLoad('https://github.com/ShadowMario/FNF-PsychEngine/releases');
 			}
 			else if (controls.BACK)
 			{
@@ -55,7 +45,7 @@ class OutdatedState extends MusicBeatState
 
 			if (leftState)
 			{
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.getSound('cancelMenu'));
 				FlxTween.tween(warnText, {alpha: 0}, 1, {
 					onComplete: (twn:FlxTween) ->
 					{

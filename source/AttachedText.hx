@@ -10,7 +10,7 @@ class AttachedText extends Alphabet
 	public var copyVisible:Bool = true;
 	public var copyAlpha:Bool = false;
 
-	public function new(text:String = "", ?offsetX:Float = 0, ?offsetY:Float = 0, ?bold = false, ?scale:Float = 1)
+	public function new(text:String = '', offsetX:Float = 0, offsetY:Float = 0, bold = false, scale:Float = 1)
 	{
 		super(0, 0, text, bold, false, 0.05, scale);
 
@@ -19,7 +19,7 @@ class AttachedText extends Alphabet
 		this.offsetY = offsetY;
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 

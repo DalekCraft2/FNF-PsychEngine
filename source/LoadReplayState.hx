@@ -1,81 +1,76 @@
 package;
 
-import haxe.Exception;
-import lime.app.Application;
-#if FEATURE_STEPMANIA
-import smTools.SMFile;
-#end
-import Controls.KeyboardScheme;
-import Controls.Control;
-import flash.text.TextField;
+import FreeplayState.SongMeta;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.keyboard.FlxKey;
-import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-#if FEATURE_FILESYSTEM
+import haxe.Exception;
+import lime.app.Application;
+import options.OptionsState;
+
+using StringTools;
+
+#if FEATURE_STEPMANIA
+import sm.SMFile;
+#end
+#if sys
 import sys.FileSystem;
-import sys.io.File;
 #end
 
+// TODO Maybe just use a slightly edited copy of FreeplayState for this, or even integrate it into FreeplayState
 class LoadReplayState extends MusicBeatState
 {
-	var selector:FlxText;
-	var curSelected:Int = 0;
+	private var curSelected:Int = 0;
 
-	var songs:Array<FreeplayState.FreeplaySongMetadata> = [];
+	private var songs:Array<SongMeta> = [];
 
-	var controlsStrings:Array<String> = [];
-	var actualNames:Array<String> = [];
+	private var controlsStrings:Array<String> = [];
+	private var actualNames:Array<String> = [];
 
 	private var grpControls:FlxTypedGroup<Alphabet>;
-	var versionShit:FlxText;
-	var poggerDetails:FlxText;
+	private var versionShit:FlxText;
+	private var poggerDetails:FlxText;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.loadImage('menuDesat'));
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		// TODO: Refactor this to use OpenFlAssets.
-		#if FEATURE_FILESYSTEM
-		controlsStrings = sys.FileSystem.readDirectory(Sys.getCwd() + "/assets/replays/");
+		#if sys
+		controlsStrings = FileSystem.readDirectory('assets/replays/');
 		#end
-		trace(controlsStrings);
+		Debug.logTrace(controlsStrings);
 
 		controlsStrings.sort(sortByDate);
 
-		addWeek(['Bopeebo', 'Fresh', 'Dadbattle'], 1, ['dad']);
-		addWeek(['Spookeez', 'South', 'Monster'], 2, ['spooky']);
-		addWeek(['Pico', 'Philly', 'Blammed'], 3, ['pico']);
+		addWeek(['bopeebo', 'fresh', 'dadbattle'], 1);
+		addWeek(['spookeez', 'south', 'monster'], 2);
+		addWeek(['pico', 'philly', 'blammed'], 3);
 
-		addWeek(['Satin-Panties', 'High', 'Milf'], 4, ['mom']);
-		addWeek(['Cocoa', 'Eggnog', 'Winter-Horrorland'], 5, ['parents-christmas', 'parents-christmas', 'monster-christmas']);
+		addWeek(['satin-panties', 'high', 'milf'], 4);
+		addWeek(['cocoa', 'eggnog', 'winter-horrorland'], 5);
 
-		addWeek(['Senpai', 'Roses', 'Thorns'], 6, ['senpai', 'senpai', 'spirit']);
+		addWeek(['senpai', 'roses', 'thorns'], 6);
 
 		for (i in 0...controlsStrings.length)
 		{
 			var string:String = controlsStrings[i];
 			actualNames[i] = string;
-			var rep:Replay = Replay.LoadReplay(string);
-			controlsStrings[i] = string.split("time")[0] + " " + CoolUtil.difficultyFromInt(rep.replay.songDiff).toUpperCase();
+			var rep:Replay = Replay.loadReplay(string);
+			controlsStrings[i] = '${string.split('time')[0]} ${CoolUtil.difficultyString(rep.replay.songDiff).toUpperCase()}';
 		}
 
 		if (controlsStrings.length == 0)
-			controlsStrings.push("No Replays...");
+			controlsStrings.push('No Replays...');
 
 		menuBG.color = 0xFFEA71FD;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
-		menuBG.antialiasing = FlxG.save.data.antialiasing;
+		menuBG.antialiasing = Options.save.data.globalAntialiasing;
 		add(menuBG);
 
 		grpControls = new FlxTypedGroup();
@@ -87,110 +82,55 @@ class LoadReplayState extends MusicBeatState
 			controlLabel.isMenuItem = true;
 			controlLabel.targetY = i;
 			grpControls.add(controlLabel);
+			// TODO Figure out why this comment exists and solve any issues with putting the X value into the Alphabet constructor
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 		}
 
 		versionShit = new FlxText(5, FlxG.height - 34, 0,
-			"Replay Loader (ESCAPE TO GO BACK)\nNOTICE!!!! Replays are in a beta stage, and they are probably not 100% correct. expect misses and other stuff that isn't there!\n",
-			12);
+			'Replay Loader (ESCAPE TO GO BACK)\nNOTICE!!!! Replays are in a beta stage, and they are probably not 100% correct. expect misses and other stuff that isn\'t there!\n',
+			16);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
-		poggerDetails = new FlxText(5, 34, 0, "Replay Details - \nnone", 12);
+		poggerDetails = new FlxText(5, 34, 0, 'Replay Details - \nnone', 16);
 		poggerDetails.scrollFactor.set();
-		poggerDetails.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		poggerDetails.setFormat(Paths.font('vcr.ttf'), poggerDetails.size, LEFT, OUTLINE, FlxColor.BLACK);
 		add(poggerDetails);
 
 		changeSelection(0);
 	}
 
-	function sortByDate(a:String, b:String):Int
-	{
-		var aTime:Float = Std.parseFloat(a.split("time")[1]) / 1000;
-		var bTime:Float = Std.parseFloat(b.split("time")[1]) / 1000;
-
-		return Std.int(bTime - aTime); // Newest first
-	}
-
-	public function getWeekNumbFromSong(songName:String):Int
-	{
-		var week:Int = 0;
-		for (i in 0...songs.length)
-		{
-			var pog:FreeplayState.FreeplaySongMetadata = songs[i];
-			if (pog.songName == songName)
-				week = pog.week;
-		}
-		return week;
-	}
-
-	public function addSong(songName:String, weekNum:Int, songCharacter:String):Void
-	{
-		songs.push(new FreeplayState.FreeplaySongMetadata(songName, weekNum, songCharacter));
-	}
-
-	public function addWeek(songs:Array<String>, weekNum:Int, ?songCharacters:Array<String>):Void
-	{
-		if (songCharacters == null)
-			songCharacters = ['bf'];
-
-		var num:Int = 0;
-		for (song in songs)
-		{
-			addSong(song, weekNum, songCharacters[num]);
-
-			if (songCharacters.length != 1)
-				num++;
-		}
-	}
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
 		if (controls.BACK)
-			FlxG.switchState(new OptionsMenu());
-		if (controls.UP_P)
+			FlxG.switchState(new OptionsState());
+		if (controls.UI_UP_P)
 			changeSelection(-1);
-		if (controls.DOWN_P)
+		if (controls.UI_DOWN_P)
 			changeSelection(1);
 
-		if (controls.ACCEPT && grpControls.members[curSelected].text != "No Replays...")
+		if (controls.ACCEPT && grpControls.members[curSelected].text != 'No Replays...')
 		{
-			trace('loading ' + actualNames[curSelected]);
-			PlayState.rep = Replay.LoadReplay(actualNames[curSelected]);
+			Debug.logTrace('Loading ${actualNames[curSelected]}');
+			PlayState.rep = Replay.loadReplay(actualNames[curSelected]);
 
 			PlayState.loadRep = true;
 
-			if (PlayState.rep.replay.replayGameVer == Replay.version)
+			if (PlayState.rep.replay.replayGameVer == Replay.REPLAY_VERSION)
 			{
 				// adjusting the song name to be compatible
-				var songFormat:String = StringTools.replace(PlayState.rep.replay.songName, " ", "-");
-				switch (songFormat)
-				{
-					case 'Dad-Battle':
-						songFormat = 'dadbattle';
-					case 'Philly-Nice':
-						songFormat = 'philly';
-					case 'M.I.L.F':
-						songFormat = 'milf';
-					// Replay v1.0 support
-					case 'dad-battle':
-						songFormat = 'dadbattle';
-					case 'philly-nice':
-						songFormat = 'philly';
-					case 'm.i.l.f':
-						songFormat = 'milf';
-				}
+				var songFormat:String = Paths.formatToSongPath(PlayState.rep.replay.songName);
 
-				var songPath:String = "";
+				var songPath:String = '';
 
 				#if FEATURE_STEPMANIA
 				if (PlayState.rep.replay.sm)
-					if (!FileSystem.exists(StringTools.replace(PlayState.rep.replay.chartPath, "converted.json", "")))
+					if (!Paths.exists(PlayState.rep.replay.chartPath.replace('converted.json', '')))
 					{
-						Application.current.window.alert("The SM file in this replay does not exist!", "SM Replays");
+						Application.current.window.alert('The SM file in this replay does not exist!', 'SM Replays');
 						return;
 					}
 				#end
@@ -198,25 +138,21 @@ class LoadReplayState extends MusicBeatState
 				PlayState.isSM = PlayState.rep.replay.sm;
 				#if FEATURE_STEPMANIA
 				if (PlayState.isSM)
-					PlayState.pathToSm = StringTools.replace(PlayState.rep.replay.chartPath, "converted.json", "");
+					PlayState.pathToSm = PlayState.rep.replay.chartPath.replace('converted.json', '');
 				#end
 
 				#if FEATURE_STEPMANIA
 				if (PlayState.isSM)
 				{
-					songPath = File.getContent(PlayState.rep.replay.chartPath);
+					songPath = Paths.getTextDirect(PlayState.rep.replay.chartPath);
 					try
 					{
-						PlayState.sm = SMFile.loadFile(PlayState.pathToSm + "/" + StringTools.replace(PlayState.rep.replay.songName, " ", "_") + ".sm");
+						PlayState.sm = SMFile.loadFile('${PlayState.pathToSm}/${PlayState.rep.replay.songName.replace(' ', '_')}.sm');
 					}
 					catch (e:Exception)
 					{
-						Application.current.window.alert("Make sure that the SM file is called "
-							+ PlayState.pathToSm
-							+ "/"
-							+ StringTools.replace(PlayState.rep.replay.songName, " ", "_")
-							+ ".sm!\nAs I couldn't read it.",
-							"SM Replays");
+						Application.current.window.alert('Make sure that the SM file is called ${PlayState.pathToSm}/${PlayState.rep.replay.songName.replace(' ', '_')}.sm!\nAs I couldn\'t read it.',
+							'SM Replays');
 						return;
 					}
 				}
@@ -226,22 +162,26 @@ class LoadReplayState extends MusicBeatState
 				{
 					if (PlayState.isSM)
 					{
-						PlayState.SONG = Song.loadFromJsonRAW(songPath);
+						PlayState.song = Song.loadFromJsonDirect(songPath);
 					}
 					else
 					{
-						var diff:String = ["-easy", "", "-hard"][PlayState.rep.replay.songDiff];
-						PlayState.SONG = Song.loadFromJson(PlayState.rep.replay.songName, diff);
+						var diff:String = CoolUtil.difficultyString(PlayState.rep.replay.songDiff);
+						if (PlayState.rep.replay.songId == null)
+						{
+							PlayState.rep.replay.songId = Paths.formatToSongPath(PlayState.rep.replay.songName);
+						}
+						PlayState.song = Song.loadFromJson(PlayState.rep.replay.songId, diff);
 					}
 				}
 				catch (e:Exception)
 				{
-					Application.current.window.alert("Failed to load the song! Does the JSON exist?", "Replays");
+					Application.current.window.alert('Failed to load the song! Does the JSON exist?', 'Replays');
 					return;
 				}
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = PlayState.rep.replay.songDiff;
-				PlayState.storyWeek = getWeekNumbFromSong(PlayState.rep.replay.songName);
+				PlayState.storyWeek = getWeekNumbFromSong(PlayState.rep.replay.songId);
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
 			else
@@ -252,11 +192,41 @@ class LoadReplayState extends MusicBeatState
 		}
 	}
 
-	var isSettingControl:Bool = false;
-
-	function changeSelection(change:Int = 0):Void
+	private function sortByDate(a:String, b:String):Int
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		var aTime:Float = Std.parseFloat(a.split('time')[1]) / 1000;
+		var bTime:Float = Std.parseFloat(b.split('time')[1]) / 1000;
+
+		return Std.int(bTime - aTime); // Newest first
+	}
+
+	public function getWeekNumbFromSong(songName:String):Int
+	{
+		var week:Int = 0;
+		for (song in songs)
+		{
+			if (song.name == songName)
+				week = song.week;
+		}
+		return week;
+	}
+
+	public function addSong(songName:String, weekNum:Int):Void
+	{
+		songs.push(new SongMeta(songName, weekNum));
+	}
+
+	public function addWeek(songs:Array<String>, weekNum:Int):Void
+	{
+		for (song in songs)
+		{
+			addSong(song, weekNum);
+		}
+	}
+
+	private function changeSelection(change:Int = 0):Void
+	{
+		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 
 		curSelected += change;
 
@@ -265,19 +235,9 @@ class LoadReplayState extends MusicBeatState
 		if (curSelected >= grpControls.length)
 			curSelected = 0;
 
-		var rep:Replay = Replay.LoadReplay(actualNames[curSelected]);
+		var rep:Replay = Replay.loadReplay(actualNames[curSelected]);
 
-		poggerDetails.text = "Replay Details - \nDate Created: "
-			+ rep.replay.timestamp
-			+ "\nSong: "
-			+ rep.replay.songName
-			+ "\nReplay Version: "
-			+ rep.replay.replayGameVer
-			+ ' ('
-			+ (rep.replay.replayGameVer != Replay.version ? "OUTDATED not useable!" : "Latest")
-			+ ')\n';
-
-		// selector.y = (70 * curSelected) + 30;
+		poggerDetails.text = 'Replay Details - \nDate Created: ${rep.replay.timestamp}\nSong: ${rep.replay.songName}\nReplay Version: ${rep.replay.replayGameVer} (${(rep.replay.replayGameVer != Replay.REPLAY_VERSION ? 'OUTDATED not useable!' : 'Latest')})\n';
 
 		var bullShit:Int = 0;
 
@@ -287,12 +247,10 @@ class LoadReplayState extends MusicBeatState
 			bullShit++;
 
 			item.alpha = 0.6;
-			// item.setGraphicSize(Std.int(item.width * 0.8));
 
 			if (item.targetY == 0)
 			{
 				item.alpha = 1;
-				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
 	}

@@ -81,24 +81,24 @@
 			"name": "GF Dancing at Gunpoint"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/gfTankmen",
+	"noAntialiasing": false,
+	"image": "gfTankmen",
 	"position": [
 		0,
 		0
 	],
-	"healthicon": "gf",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "gf",
+	"flipX": false,
+	"healthBarColors": [
 		165,
 		0,
 		77
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

@@ -1,4 +1,5 @@
 {
+    "$schema": "https://raw.githubusercontent.com/HaxeCheckstyle/haxe-checkstyle/dev/resources/checkstyle-schema.json",
     "defaultSeverity": "INFO",
     "checks": [
         {
@@ -13,7 +14,9 @@
         },
         {
             "type": "ArrowFunction",
-            "props": {}
+            "props": {
+                "allowCurlyBody": true
+            }
         },
         {
             "type": "AvoidIdentifier",
@@ -52,7 +55,10 @@
         },
         {
             "type": "DocCommentStyle",
-            "props": {}
+            "props": {
+                "lineStyle": "onestar",
+                "startStyle": "ignore"
+            }
         },
         {
             "type": "Dynamic"
@@ -78,7 +84,8 @@
         {
             "type": "EnforceVarTypeHint",
             "props": {
-                "ignoreEnumAbstractValues": false
+                "ignoreEnumAbstractValues": false,
+                "typeHintPolicy": "enforce_all"
             }
         },
         {
@@ -138,10 +145,6 @@
             "props": {}
         },
         {
-            "type": "MagicNumber",
-            "props": {}
-        },
-        {
             "type": "MemberName",
             "props": {}
         },
@@ -170,12 +173,6 @@
             "props": {}
         },
         {
-            "type": "NeedBraces",
-            "props": {
-                "allowSingleLineStatement": true
-            }
-        },
-        {
             "type": "NestedControlFlow",
             "props": {}
         },
@@ -187,7 +184,20 @@
         },
         {
             "type": "OperatorWhitespace",
-            "props": {}
+            "props": {
+                "arithmeticOpPolicy": "around",
+                "arrowFunctionPolicy": "around",
+                "arrowPolicy": "around",
+                "assignOpPolicy": "around",
+                "bitwiseOpPolicy": "around",
+                "boolOpPolicy": "around",
+                "compareOpPolicy": "around",
+                "intervalOpPolicy": "none",
+                "newFunctionTypePolicy": "around",
+                "oldFunctionTypePolicy": "none",
+                "ternaryOpPolicy": "around",
+                "unaryOpPolicy": "none"
+            }
         },
         {
             "type": "ParameterName",

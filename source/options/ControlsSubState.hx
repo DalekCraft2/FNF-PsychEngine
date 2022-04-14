@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
+import options.Options.OptionDefaults;
 
 class ControlsSubState extends MusicBeatSubState
 {
@@ -14,7 +15,7 @@ class ControlsSubState extends MusicBeatSubState
 
 	private var bindLength:Int = 0;
 
-	var optionShit:Array<Array<String>> = [
+	private var optionShit:Array<Array<String>> = [
 		['NOTES'], ['Left', 'note_left'], ['Down', 'note_down'], ['Up', 'note_up'], ['Right', 'note_right'], [''], ['UI'], ['Left', 'ui_left'],
 		['Down', 'ui_down'], ['Up', 'ui_up'], ['Right', 'ui_right'], [''], ['Reset', 'reset'], ['Accept', 'accept'], ['Back', 'back'], ['Pause', 'pause'],
 		[''], ['VOLUME'], ['Mute', 'volume_mute'], ['Up', 'volume_up'], ['Down', 'volume_down'], [''], ['DEBUG'], ['Key 1', 'debug_1'], ['Key 2', 'debug_2']];
@@ -22,15 +23,15 @@ class ControlsSubState extends MusicBeatSubState
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var grpInputs:Array<AttachedText> = [];
 	private var grpInputsAlt:Array<AttachedText> = [];
-	var rebindingKey:Bool = false;
-	var nextAccept:Int = 5;
+	private var rebindingKey:Bool = false;
+	private var nextAccept:Int = 5;
 
-	override function create():Void
+	override public function create():Void
 	{
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
-		bg.color = 0xFFea71fd;
+		bg.color = 0xFFEA71FD;
 		bg.screenCenter();
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
@@ -77,10 +78,10 @@ class ControlsSubState extends MusicBeatSubState
 		changeSelection();
 	}
 
-	var leaving:Bool = false;
-	var bindingTime:Float = 0;
+	private var leaving:Bool = false;
+	private var bindingTime:Float = 0;
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -103,17 +104,17 @@ class ControlsSubState extends MusicBeatSubState
 			{
 				ClientPrefs.reloadControls();
 				close();
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.getSound('cancelMenu'));
 			}
 
 			if (controls.ACCEPT && nextAccept <= 0)
 			{
 				if (optionShit[curSelected][0] == RESET_BUTTON_TEXT)
 				{
-					Options.save.data.keyBinds = ClientPrefs.defaultKeys.copy();
+					Options.save.data.keyBinds = OptionDefaults.keyBinds.copy();
 					reloadKeys();
 					changeSelection();
-					FlxG.sound.play(Paths.sound('confirmMenu'));
+					FlxG.sound.play(Paths.getSound('confirmMenu'));
 				}
 				else if (!unselectableCheck(curSelected))
 				{
@@ -127,7 +128,7 @@ class ControlsSubState extends MusicBeatSubState
 					{
 						grpInputs[getInputTextNum()].alpha = 0;
 					}
-					FlxG.sound.play(Paths.sound('scrollMenu'));
+					FlxG.sound.play(Paths.getSound('scrollMenu'));
 				}
 			}
 		}
@@ -147,7 +148,7 @@ class ControlsSubState extends MusicBeatSubState
 				Options.save.data.keyBinds.set(optionShit[curSelected][1], keysArray);
 
 				reloadKeys();
-				FlxG.sound.play(Paths.sound('confirmMenu'));
+				FlxG.sound.play(Paths.getSound('confirmMenu'));
 				rebindingKey = false;
 			}
 
@@ -162,7 +163,7 @@ class ControlsSubState extends MusicBeatSubState
 				{
 					grpInputs[curSelected].alpha = 1;
 				}
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 				rebindingKey = false;
 				bindingTime = 0;
 			}
@@ -174,7 +175,7 @@ class ControlsSubState extends MusicBeatSubState
 		}
 	}
 
-	function getInputTextNum():Int
+	private function getInputTextNum():Int
 	{
 		var num:Int = 0;
 		for (i in 0...curSelected)
@@ -187,7 +188,7 @@ class ControlsSubState extends MusicBeatSubState
 		return num;
 	}
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
 		do
 		{
@@ -201,13 +202,13 @@ class ControlsSubState extends MusicBeatSubState
 
 		var bullShit:Int = 0;
 
-		for (i in 0...grpInputs.length)
+		for (input in grpInputs)
 		{
-			grpInputs[i].alpha = 0.6;
+			input.alpha = 0.6;
 		}
-		for (i in 0...grpInputsAlt.length)
+		for (inputAlt in grpInputsAlt)
 		{
-			grpInputsAlt[i].alpha = 0.6;
+			inputAlt.alpha = 0.6;
 		}
 
 		for (item in grpOptions.members)
@@ -223,22 +224,22 @@ class ControlsSubState extends MusicBeatSubState
 					item.alpha = 1;
 					if (curAlt)
 					{
-						for (i in 0...grpInputsAlt.length)
+						for (inputAlt in grpInputsAlt)
 						{
-							if (grpInputsAlt[i].sprTracker == item)
+							if (inputAlt.sprTracker == item)
 							{
-								grpInputsAlt[i].alpha = 1;
+								inputAlt.alpha = 1;
 								break;
 							}
 						}
 					}
 					else
 					{
-						for (i in 0...grpInputs.length)
+						for (input in grpInputs)
 						{
-							if (grpInputs[i].sprTracker == item)
+							if (input.sprTracker == item)
 							{
-								grpInputs[i].alpha = 1;
+								input.alpha = 1;
 								break;
 							}
 						}
@@ -246,37 +247,37 @@ class ControlsSubState extends MusicBeatSubState
 				}
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.getSound('scrollMenu'));
 	}
 
-	function changeAlt():Void
+	private function changeAlt():Void
 	{
 		curAlt = !curAlt;
-		for (i in 0...grpInputs.length)
+		for (input in grpInputs)
 		{
-			if (grpInputs[i].sprTracker == grpOptions.members[curSelected])
+			if (input.sprTracker == grpOptions.members[curSelected])
 			{
-				grpInputs[i].alpha = 0.6;
+				input.alpha = 0.6;
 				if (!curAlt)
 				{
-					grpInputs[i].alpha = 1;
+					input.alpha = 1;
 				}
 				break;
 			}
 		}
-		for (i in 0...grpInputsAlt.length)
+		for (inputAlt in grpInputsAlt)
 		{
-			if (grpInputsAlt[i].sprTracker == grpOptions.members[curSelected])
+			if (inputAlt.sprTracker == grpOptions.members[curSelected])
 			{
-				grpInputsAlt[i].alpha = 0.6;
+				inputAlt.alpha = 0.6;
 				if (curAlt)
 				{
-					grpInputsAlt[i].alpha = 1;
+					inputAlt.alpha = 1;
 				}
 				break;
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.getSound('scrollMenu'));
 	}
 
 	private function unselectableCheck(num:Int, ?checkDefaultKey:Bool = false):Bool
@@ -304,7 +305,7 @@ class ControlsSubState extends MusicBeatSubState
 		add(text2);
 	}
 
-	function reloadKeys():Void
+	private function reloadKeys():Void
 	{
 		while (grpInputs.length > 0)
 		{
@@ -332,13 +333,13 @@ class ControlsSubState extends MusicBeatSubState
 		}
 
 		var bullShit:Int = 0;
-		for (i in 0...grpInputs.length)
+		for (input in grpInputs)
 		{
-			grpInputs[i].alpha = 0.6;
+			input.alpha = 0.6;
 		}
-		for (i in 0...grpInputsAlt.length)
+		for (inputAlt in grpInputsAlt)
 		{
-			grpInputsAlt[i].alpha = 0.6;
+			inputAlt.alpha = 0.6;
 		}
 
 		for (item in grpOptions.members)
@@ -354,21 +355,21 @@ class ControlsSubState extends MusicBeatSubState
 					item.alpha = 1;
 					if (curAlt)
 					{
-						for (i in 0...grpInputsAlt.length)
+						for (inputAlt in grpInputsAlt)
 						{
-							if (grpInputsAlt[i].sprTracker == item)
+							if (inputAlt.sprTracker == item)
 							{
-								grpInputsAlt[i].alpha = 1;
+								inputAlt.alpha = 1;
 							}
 						}
 					}
 					else
 					{
-						for (i in 0...grpInputs.length)
+						for (input in grpInputs)
 						{
-							if (grpInputs[i].sprTracker == item)
+							if (input.sprTracker == item)
 							{
-								grpInputs[i].alpha = 1;
+								input.alpha = 1;
 							}
 						}
 					}

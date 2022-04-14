@@ -14,97 +14,101 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
-import haxe.Json;
+import haxe.Exception;
 import haxe.io.Bytes;
+import haxe.zip.Entry;
+import haxe.zip.Reader;
 import haxe.zip.Uncompress;
 import openfl.display.BitmapData;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
-#if FEATURE_FILESYSTEM
+import sys.io.FileInput;
+import sys.io.FileOutput;
+#if sys
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 #end
 
 class ModsMenuState extends MusicBeatState
 {
-	var mods:Array<ModMetadata> = [];
+	private var mods:Array<ModMetadata> = [];
 
-	static var changedAThing:Bool = false;
+	private var bg:FlxSprite;
+	private var intendedColor:Int;
+	private var colorTween:FlxTween;
 
-	var bg:FlxSprite;
-	var intendedColor:Int;
-	var colorTween:FlxTween;
-
-	var noModsTxt:FlxText;
-	var selector:AttachedSprite;
-	var descriptionTxt:FlxText;
-	var needaReset:Bool = false;
+	private var noModsTxt:FlxText;
+	private var selector:AttachedSprite;
+	private var descriptionTxt:FlxText;
+	private var needaReset:Bool = false;
 
 	private static var curSelected:Int = 0;
 	public static final DEFAULT_COLOR:FlxColor = 0xFF665AFF;
 
-	var buttonDown:FlxButton;
-	var buttonTop:FlxButton;
-	var buttonDisableAll:FlxButton;
-	var buttonEnableAll:FlxButton;
-	var buttonUp:FlxButton;
-	var buttonToggle:FlxButton;
-	var buttonsArray:Array<FlxButton> = [];
+	private var buttonDown:FlxButton;
+	private var buttonTop:FlxButton;
+	private var buttonDisableAll:FlxButton;
+	private var buttonEnableAll:FlxButton;
+	private var buttonUp:FlxButton;
+	private var buttonToggle:FlxButton;
+	private var buttonsArray:Array<FlxButton> = [];
 
-	var installButton:FlxButton;
-	var uninstallButton:FlxButton;
+	private var installButton:FlxButton;
+	private var uninstallButton:FlxButton;
 
-	var modsList:Array<Array<Dynamic>> = [];
+	private var modList:Array<Array<Dynamic>> = [];
 
-	var visibleWhenNoMods:Array<FlxBasic> = [];
-	var visibleWhenHasMods:Array<FlxBasic> = [];
+	private var visibleWhenNoMods:Array<FlxBasic> = [];
+	private var visibleWhenHasMods:Array<FlxBasic> = [];
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		persistentUpdate = true;
-		persistentDraw = true;
-
-		Week.setDirectoryFromWeek();
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence('In the Menus', null);
 		#end
+
+		Week.setDirectoryFromWeek();
+
+		if (!FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
+			Conductor.changeBPM(TitleState.titleData.bpm);
+		}
 
 		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
 
-		noModsTxt = new FlxText(0, 0, FlxG.width, "NO MODS INSTALLED\nPRESS BACK TO EXIT AND INSTALL A MOD", 48);
+		noModsTxt = new FlxText(0, 0, FlxG.width, 'NO MODS INSTALLED\nPRESS BACK TO EXIT AND INSTALL A MOD', 32);
 		if (FlxG.random.bool(0.1))
 			noModsTxt.text += '\nBITCH.'; // meanie
-		noModsTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		noModsTxt.setFormat(Paths.font('vcr.ttf'), noModsTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
 		noModsTxt.scrollFactor.set();
 		noModsTxt.borderSize = 2;
-		add(noModsTxt);
 		noModsTxt.screenCenter();
+		add(noModsTxt);
 		visibleWhenNoMods.push(noModsTxt);
 
-		#if FEATURE_FILESYSTEM
-		var path:String = 'modsList.txt';
-		if (FileSystem.exists(path))
+		var path:String = 'modList.txt';
+		if (Paths.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
-			for (i in 0...leMods.length)
+			for (mod in leMods)
 			{
-				if (leMods.length > 1 && leMods[0].length > 0)
+				if (leMods.length > 1 && mod.length > 0)
 				{
-					var modSplit:Array<String> = leMods[i].split('|');
+					var modSplit:Array<String> = mod.split('|');
 					if (!Paths.IGNORE_MOD_FOLDERS.contains(modSplit[0].toLowerCase()))
 					{
-						addToModsList([modSplit[0], (modSplit[1] == '1')]);
+						addToModList([modSplit[0], (modSplit[1] == '1')]);
 						// Debug.logTrace(modSplit[1]);
 					}
 				}
@@ -112,18 +116,17 @@ class ModsMenuState extends MusicBeatState
 		}
 
 		// FIND MOD FOLDERS
-		if (FileSystem.exists("modsList.txt"))
+		if (Paths.exists('modList.txt'))
 		{
 			for (folder in Paths.getModDirectories())
 			{
 				if (!Paths.IGNORE_MOD_FOLDERS.contains(folder))
 				{
-					addToModsList([folder, true]); // i like it false by default. -bb //Well, i like it True! -Shadow
+					addToModList([folder, true]); // i like it false by default. -bb //Well, i like it True! -Shadow
 				}
 			}
 		}
 		saveTxt();
-		#end
 
 		selector = new AttachedSprite();
 		selector.xAdd = -205;
@@ -136,15 +139,15 @@ class ModsMenuState extends MusicBeatState
 		// attached buttons
 		var startX:Int = 1120;
 
-		buttonToggle = new FlxButton(startX, 0, "ON", () ->
+		buttonToggle = new FlxButton(startX, 0, 'ON', () ->
 		{
 			if (mods[curSelected].restart)
 			{
 				needaReset = true;
 			}
-			modsList[curSelected][1] = !modsList[curSelected][1];
+			modList[curSelected][1] = !modList[curSelected][1];
 			updateButtonToggle();
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonToggle.setGraphicSize(50, 50);
 		buttonToggle.updateHitbox();
@@ -152,39 +155,39 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonToggle);
 		visibleWhenHasMods.push(buttonToggle);
 
-		buttonToggle.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, CENTER);
+		buttonToggle.label.setFormat(Paths.font('vcr.ttf'), 24, CENTER);
 		setAllLabelsOffset(buttonToggle, -15, 10);
 		startX -= 70;
 
-		buttonUp = new FlxButton(startX, 0, "/\\", () ->
+		buttonUp = new FlxButton(startX, 0, '/\\', () ->
 		{
 			moveMod(-1);
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonUp.setGraphicSize(50, 50);
 		buttonUp.updateHitbox();
 		add(buttonUp);
 		buttonsArray.push(buttonUp);
 		visibleWhenHasMods.push(buttonUp);
-		buttonUp.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonUp.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.BLACK, CENTER);
 		setAllLabelsOffset(buttonUp, -15, 10);
 		startX -= 70;
 
-		buttonDown = new FlxButton(startX, 0, "\\/", () ->
+		buttonDown = new FlxButton(startX, 0, '\\/', () ->
 		{
 			moveMod(1);
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonDown.setGraphicSize(50, 50);
 		buttonDown.updateHitbox();
 		add(buttonDown);
 		buttonsArray.push(buttonDown);
 		visibleWhenHasMods.push(buttonDown);
-		buttonDown.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonDown.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.BLACK, CENTER);
 		setAllLabelsOffset(buttonDown, -15, 10);
 
 		startX -= 100;
-		buttonTop = new FlxButton(startX, 0, "TOP", () ->
+		buttonTop = new FlxButton(startX, 0, 'TOP', () ->
 		{
 			var doRestart:Bool = (mods[0].restart || mods[curSelected].restart);
 			for (i in 0...curSelected) // so it shifts to the top instead of replacing the top one
@@ -196,11 +199,11 @@ class ModsMenuState extends MusicBeatState
 			{
 				needaReset = true;
 			}
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonTop.setGraphicSize(80, 50);
 		buttonTop.updateHitbox();
-		buttonTop.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonTop.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.BLACK, CENTER);
 		setAllLabelsOffset(buttonTop, 0, 10);
 		add(buttonTop);
 		buttonsArray.push(buttonTop);
@@ -208,9 +211,9 @@ class ModsMenuState extends MusicBeatState
 
 		// TODO Make the "Disable/Enable all" buttons part of the menu itself and not part of each mod entry
 		startX -= 190;
-		buttonDisableAll = new FlxButton(startX, 0, "DISABLE ALL", () ->
+		buttonDisableAll = new FlxButton(startX, 0, 'DISABLE ALL', () ->
 		{
-			for (i in modsList)
+			for (i in modList)
 			{
 				i[1] = false;
 			}
@@ -223,11 +226,11 @@ class ModsMenuState extends MusicBeatState
 				}
 			}
 			updateButtonToggle();
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonDisableAll.setGraphicSize(170, 50);
 		buttonDisableAll.updateHitbox();
-		buttonDisableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonDisableAll.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.BLACK, CENTER);
 		buttonDisableAll.label.fieldWidth = 170;
 		setAllLabelsOffset(buttonDisableAll, 0, 10);
 		add(buttonDisableAll);
@@ -235,9 +238,9 @@ class ModsMenuState extends MusicBeatState
 		visibleWhenHasMods.push(buttonDisableAll);
 
 		startX -= 190;
-		buttonEnableAll = new FlxButton(startX, 0, "ENABLE ALL", () ->
+		buttonEnableAll = new FlxButton(startX, 0, 'ENABLE ALL', () ->
 		{
-			for (i in modsList)
+			for (i in modList)
 			{
 				i[1] = true;
 			}
@@ -250,11 +253,11 @@ class ModsMenuState extends MusicBeatState
 				}
 			}
 			updateButtonToggle();
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.6);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.6);
 		});
 		buttonEnableAll.setGraphicSize(170, 50);
 		buttonEnableAll.updateHitbox();
-		buttonEnableAll.label.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.BLACK, CENTER);
+		buttonEnableAll.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.BLACK, CENTER);
 		buttonEnableAll.label.fieldWidth = 170;
 		setAllLabelsOffset(buttonEnableAll, 0, 10);
 		add(buttonEnableAll);
@@ -264,7 +267,7 @@ class ModsMenuState extends MusicBeatState
 		// more buttons
 		var startX:Int = 1100;
 
-		installButton = new FlxButton(startX, 620, "Install Mod", () ->
+		installButton = new FlxButton(startX, 620, 'Install Mod', () ->
 		{
 			installMod();
 		});
@@ -272,12 +275,12 @@ class ModsMenuState extends MusicBeatState
 		installButton.updateHitbox();
 		installButton.color = FlxColor.GREEN;
 		installButton.label.fieldWidth = 135;
-		installButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		installButton.label.setFormat(Paths.font('vcr.ttf'), 16, CENTER);
 		setAllLabelsOffset(installButton, 2, 24);
 		add(installButton);
 		startX -= 180;
 
-		uninstallButton = new FlxButton(startX, 620, "Uninstall Selected Mod", () ->
+		uninstallButton = new FlxButton(startX, 620, 'Uninstall Selected Mod', () ->
 		{
 			uninstallMod();
 		});
@@ -285,25 +288,25 @@ class ModsMenuState extends MusicBeatState
 		uninstallButton.updateHitbox();
 		uninstallButton.color = FlxColor.RED;
 		uninstallButton.label.fieldWidth = 135;
-		uninstallButton.label.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
+		uninstallButton.label.setFormat(Paths.font('vcr.ttf'), 16, CENTER);
 		setAllLabelsOffset(uninstallButton, 2, 15);
 		add(uninstallButton);
 		visibleWhenHasMods.push(uninstallButton);
 
-		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, "", 32);
-		descriptionTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, LEFT);
+		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, 32);
+		descriptionTxt.setFormat(Paths.font('vcr.ttf'), descriptionTxt.size, LEFT);
 		descriptionTxt.scrollFactor.set();
 		add(descriptionTxt);
 		visibleWhenHasMods.push(descriptionTxt);
 
 		var i:Int = 0;
-		while (i < modsList.length)
+		while (i < modList.length)
 		{
-			var values:Array<Dynamic> = modsList[i];
-			#if FEATURE_FILESYSTEM
+			var values:Array<Dynamic> = modList[i];
+			#if sys
 			if (!FileSystem.exists(Paths.mods(values[0])))
 			{
-				modsList.remove(modsList[i]);
+				modList.remove(modList[i]);
 				continue;
 			}
 			#end
@@ -318,22 +321,20 @@ class ModsMenuState extends MusicBeatState
 			newMod.alphabet.x = 310;
 			add(newMod.alphabet);
 			// Don't ever cache the icons, it's a waste of loaded memory
-			var loadedIcon:BitmapData = null;
-			#if FEATURE_FILESYSTEM
-			var iconToUse:String = Paths.mods('${values[0]}/pack.png');
-			if (FileSystem.exists(iconToUse))
+			var loadedIcon:Null<BitmapData> = null;
+			var iconToUse:String = Paths.mods(Path.join([values[0], 'pack.png']));
+			if (Paths.exists(iconToUse, IMAGE))
 			{
 				loadedIcon = BitmapData.fromFile(iconToUse);
 			}
-			#end
 
 			newMod.icon = new AttachedSprite();
 			if (loadedIcon != null)
 			{
 				newMod.icon.loadGraphic(loadedIcon, true, 150, 150); // animated icon support
 				var totalFrames:Int = Math.floor(loadedIcon.width / 150) * Math.floor(loadedIcon.height / 150);
-				newMod.icon.animation.add("icon", [for (i in 0...totalFrames) i], 10);
-				newMod.icon.animation.play("icon");
+				newMod.icon.animation.add('icon', [for (i in 0...totalFrames) i], 10);
+				newMod.icon.animation.play('icon');
 			}
 			else
 			{
@@ -357,103 +358,15 @@ class ModsMenuState extends MusicBeatState
 		intendedColor = bg.color;
 		changeSelection();
 		updatePosition();
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+		FlxG.sound.play(Paths.getSound('scrollMenu'));
 
 		FlxG.mouse.visible = true;
 	}
 
-	/*function getIntArray(max:Int):Array<Int>
-		{
-			var arr:Array<Int> = [];
-			for (i in 0...max)
-			{
-				arr.push(i);
-			}
-			return arr;
-	}*/
-	function addToModsList(values:Array<Dynamic>):Void
-	{
-		for (i in 0...modsList.length)
-		{
-			if (modsList[i][0] == values[0])
-			{
-				// Debug.logTrace(modsList[i][0], values[0]);
-				return;
-			}
-		}
-		modsList.push(values);
-	}
+	private var noModsSine:Float = 0;
+	private var canExit:Bool = true;
 
-	function updateButtonToggle():Void
-	{
-		if (modsList[curSelected][1])
-		{
-			buttonToggle.label.text = 'ON';
-			buttonToggle.color = FlxColor.GREEN;
-		}
-		else
-		{
-			buttonToggle.label.text = 'OFF';
-			buttonToggle.color = FlxColor.RED;
-		}
-	}
-
-	function moveMod(change:Int, skipResetCheck:Bool = false):Void
-	{
-		if (mods.length > 1)
-		{
-			var doRestart:Bool = (mods[0].restart);
-
-			var newPos:Int = curSelected + change;
-			if (newPos < 0)
-			{
-				modsList.push(modsList.shift());
-				mods.push(mods.shift());
-			}
-			else if (newPos >= mods.length)
-			{
-				modsList.insert(0, modsList.pop());
-				mods.insert(0, mods.pop());
-			}
-			else
-			{
-				var lastArray:Array<Dynamic> = modsList[curSelected];
-				modsList[curSelected] = modsList[newPos];
-				modsList[newPos] = lastArray;
-
-				var lastMod:ModMetadata = mods[curSelected];
-				mods[curSelected] = mods[newPos];
-				mods[newPos] = lastMod;
-			}
-			changeSelection(change);
-
-			if (!doRestart)
-				doRestart = mods[curSelected].restart;
-			if (!skipResetCheck && doRestart)
-				needaReset = true;
-		}
-	}
-
-	#if FEATURE_FILESYSTEM
-	function saveTxt():Void
-	{
-		var fileStr:String = '';
-		for (values in modsList)
-		{
-			if (fileStr.length > 0)
-				fileStr += '\n';
-			fileStr += values[0] + '|' + (values[1] ? '1' : '0');
-		}
-
-		var path:String = 'modsList.txt';
-		File.saveContent(path, fileStr);
-	}
-	#end
-
-	var noModsSine:Float = 0;
-	var canExit:Bool = true;
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -469,10 +382,10 @@ class ModsMenuState extends MusicBeatState
 			{
 				colorTween.cancel();
 			}
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.getSound('cancelMenu'));
 			FlxG.mouse.visible = false;
 			persistentUpdate = false;
-			#if FEATURE_FILESYSTEM
+			#if sys
 			saveTxt();
 			#end
 			if (needaReset)
@@ -491,17 +404,96 @@ class ModsMenuState extends MusicBeatState
 		if (controls.UI_UP_P)
 		{
 			changeSelection(-1);
-			FlxG.sound.play(Paths.sound('scrollMenu'));
+			FlxG.sound.play(Paths.getSound('scrollMenu'));
 		}
 		if (controls.UI_DOWN_P)
 		{
 			changeSelection(1);
-			FlxG.sound.play(Paths.sound('scrollMenu'));
+			FlxG.sound.play(Paths.getSound('scrollMenu'));
 		}
 		updatePosition(elapsed);
 	}
 
-	function setAllLabelsOffset(button:FlxButton, x:Float, y:Float):Void
+	private function addToModList(values:Array<Dynamic>):Void
+	{
+		for (mod in modList)
+		{
+			if (mod[0] == values[0])
+			{
+				// Debug.logTrace(modList[i][0], values[0]);
+				return;
+			}
+		}
+		modList.push(values);
+	}
+
+	private function updateButtonToggle():Void
+	{
+		if (modList[curSelected][1])
+		{
+			buttonToggle.label.text = 'ON';
+			buttonToggle.color = FlxColor.GREEN;
+		}
+		else
+		{
+			buttonToggle.label.text = 'OFF';
+			buttonToggle.color = FlxColor.RED;
+		}
+	}
+
+	private function moveMod(change:Int, skipResetCheck:Bool = false):Void
+	{
+		if (mods.length > 1)
+		{
+			var doRestart:Bool = (mods[0].restart);
+
+			var newPos:Int = curSelected + change;
+			if (newPos < 0)
+			{
+				modList.push(modList.shift());
+				mods.push(mods.shift());
+			}
+			else if (newPos >= mods.length)
+			{
+				modList.insert(0, modList.pop());
+				mods.insert(0, mods.pop());
+			}
+			else
+			{
+				var lastArray:Array<Dynamic> = modList[curSelected];
+				modList[curSelected] = modList[newPos];
+				modList[newPos] = lastArray;
+
+				var lastMod:ModMetadata = mods[curSelected];
+				mods[curSelected] = mods[newPos];
+				mods[newPos] = lastMod;
+			}
+			changeSelection(change);
+
+			if (!doRestart)
+				doRestart = mods[curSelected].restart;
+			if (!skipResetCheck && doRestart)
+				needaReset = true;
+		}
+	}
+
+	#if sys
+	private function saveTxt():Void
+	{
+		var fileStr:String = '';
+		for (values in modList)
+		{
+			if (fileStr.length > 0)
+				fileStr += '\n';
+			fileStr += '${values[0]}|${values[1] ? '1' : '0'}';
+		}
+
+		var path:String = 'modList.txt';
+		File.saveContent(path, fileStr);
+	}
+	#end
+
+	private function setAllLabelsOffset(button:FlxButton, x:Float, y:Float):Void
 	{
 		for (point in button.labelOffsets)
 		{
@@ -509,7 +501,7 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
 		if (mods.length < 1)
 		{
@@ -566,16 +558,11 @@ class ModsMenuState extends MusicBeatState
 				descriptionTxt.text = mod.description;
 				if (mod.restart)
 				{ // finna make it to where if nothing changed then it won't reset
-					descriptionTxt.text += " (This Mod will restart the game!)";
+					descriptionTxt.text += ' (This Mod will restart the game!)';
 				}
 
 				// correct layering
-				var stuffArray:Array<FlxSprite> = [
-					/*uninstallButton, installButton,*/ selector,
-					descriptionTxt,
-					mod.alphabet,
-					mod.icon
-				];
+				var stuffArray:Array<FlxSprite> = [uninstallButton, installButton, selector, descriptionTxt, mod.alphabet, mod.icon];
 				for (obj in stuffArray)
 				{
 					remove(obj);
@@ -592,7 +579,7 @@ class ModsMenuState extends MusicBeatState
 		updateButtonToggle();
 	}
 
-	function updatePosition(elapsed:Float = -1):Void
+	private function updatePosition(elapsed:Float = -1):Void
 	{
 		var i:Int = 0;
 		for (mod in mods)
@@ -606,7 +593,7 @@ class ModsMenuState extends MusicBeatState
 			}
 			else
 			{
-				mod.alphabet.y = FlxMath.lerp(mod.alphabet.y, intendedPos, CoolUtil.boundTo(elapsed * 12, 0, 1));
+				mod.alphabet.y = FlxMath.lerp(mod.alphabet.y, intendedPos, FlxMath.bound(elapsed * 12, 0, 1));
 			}
 
 			if (i == curSelected)
@@ -621,9 +608,9 @@ class ModsMenuState extends MusicBeatState
 		}
 	}
 
-	var cornerSize:Int = 11;
+	private static final cornerSize:Int = 11;
 
-	function makeSelectorGraphic():Void
+	private function makeSelectorGraphic():Void
 	{
 		selector.makeGraphic(1100, 450, FlxColor.BLACK);
 		selector.pixels.fillRect(new Rectangle(0, 190, selector.width, 5), FlxColor.BLACK);
@@ -641,28 +628,28 @@ class ModsMenuState extends MusicBeatState
 		drawCircleCornerOnSelector(true, true);
 	}
 
-	function drawCircleCornerOnSelector(flipX:Bool, flipY:Bool):Void
+	private function drawCircleCornerOnSelector(flipX:Bool, flipY:Bool):Void
 	{
 		var antiX:Float = (selector.width - cornerSize);
 		var antiY:Float = flipY ? (selector.height - 1) : 0;
 		if (flipY)
 			antiY -= 2;
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 1), Std.int(Math.abs(antiY - 8)), 10, 3), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 1), Math.abs(antiY - 8), 10, 3), FlxColor.BLACK);
 		if (flipY)
 			antiY += 1;
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 2), Std.int(Math.abs(antiY - 6)), 9, 2), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 2), Math.abs(antiY - 6), 9, 2), FlxColor.BLACK);
 		if (flipY)
 			antiY += 1;
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 3), Std.int(Math.abs(antiY - 5)), 8, 1), FlxColor.BLACK);
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 4), Std.int(Math.abs(antiY - 4)), 7, 1), FlxColor.BLACK);
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 5), Std.int(Math.abs(antiY - 3)), 6, 1), FlxColor.BLACK);
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Std.int(Math.abs(antiY - 2)), 5, 1), FlxColor.BLACK);
-		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Std.int(Math.abs(antiY - 1)), 3, 1), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 3), Math.abs(antiY - 5), 8, 1), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 4), Math.abs(antiY - 4), 7, 1), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 5), Math.abs(antiY - 3), 6, 1), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 6), Math.abs(antiY - 2), 5, 1), FlxColor.BLACK);
+		selector.pixels.fillRect(new Rectangle((flipX ? antiX : 8), Math.abs(antiY - 1), 3, 1), FlxColor.BLACK);
 	}
 
-	var _file:FileReference = null;
+	private var _file:FileReference;
 
-	function installMod():Void
+	private function installMod():Void
 	{
 		var zipFilter:FileFilter = new FileFilter('ZIP', 'zip');
 		_file = new FileReference();
@@ -673,60 +660,58 @@ class ModsMenuState extends MusicBeatState
 		canExit = false;
 	}
 
-	function onLoadComplete(_):Void
+	private function onLoadComplete(e:Event):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 
-		var fullPath:String = null;
+		var fullPath:Null<String> = null;
 		@:privateAccess
 		if (_file.__path != null)
 			fullPath = _file.__path;
 
 		if (fullPath != null)
 		{
-			var rawZip:String = File.getContent(fullPath);
-			if (rawZip != null)
+			if (Paths.exists(fullPath))
 			{
 				FlxG.resetState();
-				var uncompressingFile:Bytes = Uncompress.run(File.getBytes(rawZip));
-				// if (uncompressingFile)
-				{
-					Debug.logTrace('test');
-					_file = null;
-					return;
-				}
+
+				unzip(fullPath, Paths.mods());
+
+				_file = null;
+				return;
 			}
 		}
 		_file = null;
 		canExit = true;
-		Debug.logError("File couldn't be loaded! Wtf?");
+		Debug.logError('File couldn\'t be loaded! Wtf?');
 	}
 
-	function onLoadCancel(_):Void
+	private function onLoadCancel(e:Event):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
 		canExit = true;
-		Debug.logTrace("Cancelled file loading.");
+		Debug.logTrace('Cancelled file loading.');
 	}
 
-	function onLoadError(_):Void
+	private function onLoadError(e:IOErrorEvent):Void
 	{
 		_file.removeEventListener(Event.SELECT, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 		_file = null;
 		canExit = true;
-		Debug.logError("Problem loading file");
+		Debug.logError('Problem loading file');
 	}
 
-	function uninstallMod():Void
+	#if sys
+	private function uninstallMod():Void
 	{
-		var path:String = haxe.io.Path.join([Paths.mods(), modsList[curSelected][0]]);
+		var path:String = Paths.mods(modList[curSelected][0]);
 
 		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 		{
@@ -741,7 +726,7 @@ class ModsMenuState extends MusicBeatState
 				remove(alphabet);
 				icon.destroy();
 				alphabet.destroy();
-				modsList.remove(modsList[curSelected]);
+				modList.remove(modList[curSelected]);
 				mods.remove(mods[curSelected]);
 				if (curSelected >= mods.length)
 					--curSelected;
@@ -761,7 +746,7 @@ class ModsMenuState extends MusicBeatState
 	{
 		if (FileSystem.exists(path) && FileSystem.isDirectory(path))
 		{
-			var entries = FileSystem.readDirectory(path);
+			var entries:Array<String> = FileSystem.readDirectory(path);
 			for (entry in entries)
 			{
 				if (FileSystem.isDirectory('$path/$entry'))
@@ -776,6 +761,104 @@ class ModsMenuState extends MusicBeatState
 			}
 		}
 	}
+
+	/**
+	 * https://gist.github.com/ruby0x1/8dc3a206c325fbc9a97e
+	 */
+	public static function unzip(path:String, dest:String, ignoreRootFolder:Bool = false):Void
+	{
+		var fileInput:FileInput = File.read(path);
+		var entries:List<Entry> = Reader.readZip(fileInput);
+
+		fileInput.close();
+
+		for (entry in entries)
+		{
+			var fileName:String = entry.fileName;
+			if (fileName.charAt(0) != '/' && fileName.charAt(0) != '\\' && fileName.split('..').length <= 1)
+			{
+				var directories:Array<String> = ~/[\/\\]/g.split(fileName);
+				if ((ignoreRootFolder && directories.length > 1) || !ignoreRootFolder)
+				{
+					if (ignoreRootFolder)
+					{
+						directories.shift();
+					}
+
+					// var entryPath:String = '';
+					// var file:String = directories.pop();
+					// for (directory in directories)
+					// {
+					// 	entryPath += directory;
+					// 	FileSystem.createDirectory(Path.join([dest, entryPath]));
+					// 	entryPath = Path.addTrailingSlash(entryPath);
+					// }
+
+					// if (file == '')
+					// {
+					// 	if (entryPath != '')
+					// 		Debug.logTrace('Created $entryPath');
+					// 	continue; // was just a directory
+					// }
+					// entryPath = Path.join([entryPath, file]);
+					// Debug.logTrace('Unzipped $entryPath');
+
+					var file:String = directories.pop();
+					var entryDirectory:String = Path.join(directories);
+					// createDirectory does not throw an exception if a parent directory does not exist, so we are able to not use a loop to create the directories
+					FileSystem.createDirectory(Path.join([dest, entryDirectory]));
+
+					if (file == '')
+					{
+						if (entryDirectory != '')
+							Debug.logTrace('Created $entryDirectory');
+						continue; // was just a directory
+					}
+					var entryPath:String = Path.join([entryDirectory, file]);
+					Debug.logTrace('Unzipped $entryPath');
+
+					try
+					{
+						// Reader.unzip() will cause an exception on anything other than Neko if the entry is compressed
+						// Because of that, I have to just copy the Neko segment of code from Reader.unzip() into my own custom method
+						// I should probably make an issue for that on the Haxe GitHub...
+						// var data:Bytes = Reader.unzip(entry);
+						var data:Bytes = unzipWorkaround(entry);
+						var fileOutput:FileOutput = File.write(Path.join([dest, entryPath]));
+						fileOutput.write(data);
+						fileOutput.close();
+					}
+					catch (e:Exception)
+					{
+						Debug.logError(e);
+					}
+				}
+			}
+		}
+		Debug.logTrace('Successfully unzipped $path to $dest');
+	}
+
+	// Trying to work around the platform limitations for zip support by just copying a segment from Reader.unzip()
+	private static function unzipWorkaround(f:Entry):Bytes
+	{
+		if (!f.compressed)
+		{
+			return f.data;
+		}
+		var c:Uncompress = new Uncompress(-15);
+		var s:Bytes = Bytes.alloc(f.fileSize);
+		var r:{done:Bool, read:Int, write:Int} = c.execute(f.data, 0, s, 0);
+		c.close();
+		if (!r.done || r.read != f.data.length || r.write != f.fileSize)
+		{
+			throw new Exception('Invalid compressed data for ${f.fileName}');
+		}
+		f.compressed = false;
+		f.dataSize = f.fileSize;
+		f.data = s;
+		return f.data;
+	}
+	#end
 }
 
 class ModMetadata
@@ -792,23 +875,21 @@ class ModMetadata
 	{
 		this.folder = folder;
 		this.name = folder;
-		this.description = "No description provided.";
+		this.description = 'No description provided.';
 		this.color = ModsMenuState.DEFAULT_COLOR;
 		this.restart = false;
 
-		#if FEATURE_FILESYSTEM
 		// Try loading json
-		var path:String = Paths.mods('$folder/pack.json');
-		if (FileSystem.exists(path))
+		var path:String = Paths.mods(Path.join([folder, 'pack.json']));
+		if (Paths.exists(path))
 		{
-			var rawJson:String = File.getContent(path);
-			if (rawJson != null && rawJson.length > 0)
+			var modData:Dynamic = Paths.getJsonDirect(path);
+			if (modData != null)
 			{
-				var stuff:Dynamic = Json.parse(rawJson);
-				var colors:Array<Int> = stuff.colors;
-				var description:String = stuff.description;
-				var name:String = stuff.name;
-				var restart:Bool = stuff.restart;
+				var colors:Array<Int> = modData.colors;
+				var description:String = modData.description;
+				var name:String = modData.name;
+				var restart:Bool = modData.restart;
 
 				if (name != null && name.length > 0)
 				{
@@ -824,22 +905,8 @@ class ModMetadata
 				}
 
 				this.restart = restart;
-				/*
-					if(stuff.name != null && stuff.name.length > 0)
-					{
-						this.name = stuff.name;
-					}
-					if(stuff.description != null && stuff.description.length > 0)
-					{
-						this.description = stuff.description;
-					}
-					if(stuff.color != null && stuff.color.length > 2)
-					{
-						this.color = FlxColor.fromRGB(stuff.color[0], stuff.color[1], stuff.color[2]);
-				}*/
 			}
 		}
-		#end
 	}
 }
 #end

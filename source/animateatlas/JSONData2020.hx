@@ -10,7 +10,7 @@ typedef AnimationData =
 		},
 	?metadata:
 		{
-			?framerate:Null<Int>
+			?framerate:Int
 		}
 }
 
@@ -76,7 +76,7 @@ typedef LayerFrameData =
 
 typedef ElementData =
 {
-	?ATLAS_SPRITE_instance:Dynamic,
+	?ATLAS_SPRITE_instance:BitmapPosData,
 	?SYMBOL_Instance:SymbolInstanceData
 }
 
@@ -84,7 +84,7 @@ typedef SymbolInstanceData =
 {
 	SYMBOL_name:String,
 	Instance_Name:String,
-	// bitmap:BitmapPosData,  //NOOO
+	// bitmap:BitmapPosData, // NOOO
 	symbolType:String,
 	transformationPoint:PointData,
 	Matrix3D:Matrix3DData,

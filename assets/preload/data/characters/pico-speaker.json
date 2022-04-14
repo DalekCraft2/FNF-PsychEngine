@@ -105,24 +105,24 @@
 			"name": "Pico shoot 4"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/picoSpeaker",
+	"noAntialiasing": false,
+	"image": "picoSpeaker",
 	"position": [
 		50,
 		-200
 	],
-	"healthicon": "pico",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "pico",
+	"flipX": false,
+	"healthBarColors": [
 		183,
 		216,
 		85
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

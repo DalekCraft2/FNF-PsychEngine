@@ -1,201 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://lime.software/project/1.0.2"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://lime.software/project/1.0.2 http://lime.software/xsd/project-1.0.2.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://lime.software/project/1.0.2 http://lime.software/xsd/project-1.0.2.xsd">
 
-	<!-- _________________________ Application Settings _________________________ -->
+    <!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="Main" version="0.2.7" company="DalekCraft" />
+    <app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="Main" version="0.2.7" company="DalekCraft" />
 
-	<!--Switch Export with Unique ApplicationID and Icon-->
-	<set name="APP_ID" value="0x0100f6c013bbc000" />
+    <!--Switch Export with Unique ApplicationID and Icon-->
+    <set name="APP_ID" value="0x0100f6c013bbc000" />
 
-	<!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
-	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" />
-	<!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
+    <!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
+    <haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" />
+    <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
 
-	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
+    <!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
-	<!-- <app preloader="Preloader" resizable="true" /> -->
-	<app preloader="flixel.system.FlxPreloader" />
+    <!-- <app preloader="Preloader" resizable="true" /> -->
+    <app preloader="flixel.system.FlxPreloader" />
 
-	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
-	<set name="SWF_VERSION" value="11.8" />
+    <!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
+    <set name="SWF_VERSION" value="11.8" />
 
-	<!-- ____________________________ Window Settings ___________________________ -->
+    <!-- ____________________________ Window Settings ___________________________ -->
 
-	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="120" background="#000000" hardware="true" vsync="false" />
+    <!--These window settings apply to all targets-->
+    <window width="1280" height="720" fps="120" background="#000000" hardware="true" vsync="false" />
 
-	<!--HTML5-specific-->
-	<window if="html5" resizable="false" />
+    <!--HTML5-specific-->
+    <window if="html5" resizable="false" />
 
-	<!--Desktop-specific-->
-	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" />
+    <!--Desktop-specific-->
+    <window if="desktop" orientation="landscape" fullscreen="false" resizable="true" />
 
-	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" />
+    <!--Mobile-specific-->
+    <window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" />
 
-	<!--Switch-specific-->
-	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
+    <!--Switch-specific-->
+    <window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
 
-	<!-- _____________________________ Path Settings ____________________________ -->
+    <!-- _____________________________ Path Settings ____________________________ -->
 
-	<set name="BUILD_DIR" value="export/debug" if="debug" />
-	<set name="BUILD_DIR" value="export/release" unless="debug" />
-	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
+    <set name="BUILD_DIR" value="export/debug" if="debug" />
+    <set name="BUILD_DIR" value="export/release" unless="debug" />
+    <set name="BUILD_DIR" value="export/32bit" if="32bits" />
 
-	<source path="source" />
+    <source path="source" />
 
-	<!-- PSYCH ENGINE CUSTOMIZATION -->
-	<!-- Defines whether the Discord client should be enabled. Only works on desktop. -->
-	<define name="FEATURE_DISCORD" if="desktop" />
-	<!-- Defines whether the file system can be read/written directly. Does not work in browser. -->
-	<define name="FEATURE_FILESYSTEM" if="desktop" />
-	<define name="FEATURE_MODS" if="desktop" />
-	<define name="FEATURE_LUA" if="desktop" />
-	<define name="FEATURE_ACHIEVEMENTS" />
-	<!-- Defines whether StepMania files can be loaded. -->
-  	<define name="FEATURE_STEPMANIA" if="desktop" />
-	<!-- Defines whether videos should be enabled. Currently only enabled on Windows. -->
-	<define name="FEATURE_VIDEOS" if="web || windows" unless="32bits" />
-	<!-- Defines whether watermarks should display on the title screen. -->
-	<define name="PSYCH_WATERMARKS" />
-	<!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
-	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild"/>
+    <!-- PSYCH ENGINE CUSTOMIZATION -->
 
-	<!-- DON'T ENABLE THIS -->
-	<define name="CHECK_FOR_UPDATES" if="desktop officialBuild" />
+    <!-- Defines whether Achievements should be enabled. -->
+    <define name="FEATURE_ACHIEVEMENTS" />
 
-	<define name="PRELOAD_ALL" unless="web" />
+    <!-- Defines whether the Discord client should be enabled. (Library's README says that it only works on the CPP target.) -->
+    <define name="FEATURE_DISCORD" if="cpp" />
 
-	<section if="PRELOAD_ALL">
-		<library name="shared" preload="true" />
-		<library name="songs" preload="true" />
-		<library name="week2" preload="true" />
-		<library name="week3" preload="true" />
-		<library name="week4" preload="true" />
-		<library name="week5" preload="true" />
-		<library name="week6" preload="true" />
-		<library name="week7" preload="true" />
-	</section>
-	<section unless="PRELOAD_ALL">
-		<library name="shared" preload="false" />
-		<library name="songs" preload="false" />
-		<library name="week2" preload="false" />
-		<library name="week3" preload="false" />
-		<library name="week4" preload="false" />
-		<library name="week5" preload="false" />
-		<library name="week6" preload="false" />
-		<library name="week7" preload="false" />
-	</section>
-	<!-- <library name="videos" preload="true" /> -->
+    <!-- Defines whether Lua scripts should be enabled. (Library's README says that it only works on the CPP target.) -->
+    <define name="FEATURE_LUA" if="cpp" />
 
-	<section if="TITLE_SCREEN_EASTER_EGG">
-		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web"/>
-		<assets path="assets/secrets" rename="assets" exclude="*.mp3"  unless="web"/>
-	</section>
-	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
-	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
-	<assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />
-	<assets path="assets/shared" library="shared" exclude="*.mp3" unless="web" />
-	<assets path="assets/songs" library="songs" exclude="*.ogg" if="web" />
-	<assets path="assets/songs" library="songs" exclude="*.mp3" unless="web" />
-	<assets path="assets/week2" library="week2" exclude="*.ogg" if="web" />
-	<assets path="assets/week2" library="week2" exclude="*.mp3" unless="web" />
-	<assets path="assets/week3" library="week3" exclude="*.ogg" if="web" />
-	<assets path="assets/week3" library="week3" exclude="*.mp3" unless="web" />
-	<assets path="assets/week4" library="week4" exclude="*.ogg" if="web" />
-	<assets path="assets/week4" library="week4" exclude="*.mp3" unless="web" />
-	<assets path="assets/week5" library="week5" exclude="*.ogg" if="web" />
-	<assets path="assets/week5" library="week5" exclude="*.mp3" unless="web" />
-	<assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
-	<assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
-	<assets path="assets/week7" library="week7" exclude="*.ogg" if="web" />
-	<assets path="assets/week7" library="week7" exclude="*.mp3" unless="web" />
-	<!-- <assets path="assets/preload/videos" rename="assets/videos" if="FEATURE_VIDEOS" /> -->
-	<assets path="dlls" rename='' if="FEATURE_VIDEOS windows" />
-	<assets path="plugins" if="FEATURE_VIDEOS windows" />
+    <!-- Defines whether Mods should be enabled. -->
+    <define name="FEATURE_MODS" if="desktop" />
 
-	<assets path='art/readme.txt' rename='README.txt' />
-	<assets path='LICENSE.txt' />
-	<assets path="CHANGELOG.md" rename='CHANGELOG.txt' />
+    <!-- Defines whether StepMania files can be loaded. -->
+    <define name="FEATURE_STEPMANIA" if="desktop" />
 
-	<assets path='mods' embed="false" if="FEATURE_MODS" />
-	<!-- <template path='mods' if="FEATURE_MODS" /> -->
+    <!-- Defines whether videos should be enabled. -->
+    <define name="FEATURE_VIDEOS" if="web || windows" unless="32bits" />
 
-	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
+    <!-- Defines whether watermarks should display on the title screen. -->
+    <define name="PSYCH_WATERMARKS" />
+
+    <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
+    <define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild" />
+
+    <!-- <define name="GITAROO_EASTER_EGG" /> -->
+
+    <!-- DON'T ENABLE THIS -->
+    <define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/>
+
+    <define name="PRELOAD_ALL" unless="web" />
+
+    <section if="PRELOAD_ALL">
+        <library name="shared" preload="true" />
+        <library name="week2" preload="true" />
+        <library name="week3" preload="true" />
+        <library name="week4" preload="true" />
+        <library name="week5" preload="true" />
+        <library name="week6" preload="true" />
+        <library name="week7" preload="true" />
+    </section>
+    <section unless="PRELOAD_ALL">
+        <library name="shared" preload="false" />
+        <library name="week2" preload="false" />
+        <library name="week3" preload="false" />
+        <library name="week4" preload="false" />
+        <library name="week5" preload="false" />
+        <library name="week6" preload="false" />
+        <library name="week7" preload="false" />
+    </section>
+
+    <!-- TODO Attempt to move everything into a single library like Myth does -->
+    <section if="TITLE_SCREEN_EASTER_EGG">
+        <assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web" />
+        <assets path="assets/secrets" rename="assets" exclude="*.mp3" unless="web" />
+    </section>
+    <assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
+    <assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
+    <assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />
+    <assets path="assets/shared" library="shared" exclude="*.mp3" unless="web" />
+    <assets path="assets/week2" library="week2" exclude="*.ogg" if="web" />
+    <assets path="assets/week2" library="week2" exclude="*.mp3" unless="web" />
+    <assets path="assets/week3" library="week3" exclude="*.ogg" if="web" />
+    <assets path="assets/week3" library="week3" exclude="*.mp3" unless="web" />
+    <assets path="assets/week4" library="week4" exclude="*.ogg" if="web" />
+    <assets path="assets/week4" library="week4" exclude="*.mp3" unless="web" />
+    <assets path="assets/week5" library="week5" exclude="*.ogg" if="web" />
+    <assets path="assets/week5" library="week5" exclude="*.mp3" unless="web" />
+    <assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
+    <assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
+    <assets path="assets/week7" library="week7" exclude="*.ogg" if="web" />
+    <assets path="assets/week7" library="week7" exclude="*.mp3" unless="web" />
+    <assets path="dlls" rename='' if="FEATURE_VIDEOS cpp" />
+    <assets path="plugins" if="FEATURE_VIDEOS cpp" />
+
+    <assets path='art/readme.txt' rename='README.txt' />
+    <assets path='LICENSE.txt' />
+    <assets path="CHANGELOG.md" rename='CHANGELOG.txt' />
+
+    <assets path='mods' embed="false" if="FEATURE_MODS" />
+
+    <!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
 		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
 		NOT USING A DIRECT THING TO THE ASSET!!!
 	-->
-	<!-- <assets path="assets/preload/fonts" rename="assets/fonts" embed='true' /> -->
 
-	<!-- _______________________________ Libraries ______________________________ -->
+    <!-- _______________________________ Libraries ______________________________ -->
 
-	<haxelib name="flixel" />
+    <haxelib name="flixel" />
 
-	<!--In case you want to use the addons package-->
-	<haxelib name="flixel-addons" />
+    <!--In case you want to use the addons package-->
+    <haxelib name="flixel-addons" />
 
-	<!--In case you want to use the ui package-->
-	<haxelib name="flixel-ui" />
+    <!--In case you want to use the ui package-->
+    <haxelib name="flixel-ui" />
 
-	<!--In case you want to use nape with flixel-->
-	<!-- <haxelib name="nape-haxe4" /> -->
+    <!--In case you want to use nape with flixel-->
+    <!-- <haxelib name="nape-haxe4" /> -->
 
-	<!-- <haxelib name="hscript" /> -->
-	<!-- <haxelib name="actuate" /> -->
-	<!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
-	<!-- <haxelib name="extension-webm" /> -->
+    <!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
+    <!-- <haxelib name="extension-webm" /> -->
 
-	<haxelib name="linc_luajit" if="FEATURE_LUA" />
-	<haxelib name="faxe" if='switch' />
-	<!-- <haxelib name="polymod" /> -->
-	<haxelib name="discord_rpc" if="FEATURE_DISCORD" />
-	<haxelib name="hxcpp-debug-server" if="desktop debug" />
+    <haxelib name="linc_luajit" if="FEATURE_LUA" />
+    <!-- <haxelib name="faxe" if='switch' /> -->
+    <!-- <haxelib name="newgrounds" /> -->
+    <!-- <haxelib name="polymod" if="FEATURE_MODS" /> -->
+    <haxelib name="discord_rpc" if="FEATURE_DISCORD" />
+    <haxelib name="hxcpp-debug-server" if="cpp debug" />
 
-	<!-- <haxelib name="markdown" /> -->
-	<!-- <haxelib name="HtmlParser" /> -->
+    <!-- ______________________________ Haxedefines _____________________________ -->
 
-	<!-- ______________________________ Haxedefines _____________________________ -->
+    <!--Enable the Flixel core recording system-->
+    <!-- <haxedef name="FLX_RECORD" /> -->
 
-	<!--Enable the Flixel core recording system-->
-	<!-- <haxedef name="FLX_RECORD" /> -->
+    <!--Disable the right and middle mouse buttons-->
+    <!-- <haxedef name="FLX_NO_MOUSE_ADVANCED" /> -->
 
-	<!--Disable the right and middle mouse buttons-->
-	<!-- <haxedef name="FLX_NO_MOUSE_ADVANCED" /> -->
+    <!--Disable the native cursor API on Flash-->
+    <!-- <haxedef name="FLX_NO_NATIVE_CURSOR" /> -->
 
-	<!--Disable the native cursor API on Flash-->
-	<!-- <haxedef name="FLX_NO_NATIVE_CURSOR" /> -->
+    <!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
+    <!-- <haxedef name="FLX_NO_MOUSE" if="mobile" /> -->
+    <!-- <haxedef name="FLX_NO_KEYBOARD" if="mobile" /> -->
+    <!-- <haxedef name="FLX_NO_TOUCH" if="desktop" /> -->
+    <!-- <haxedef name="FLX_NO_GAMEPAD" /> -->
 
-	<!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
-	<!-- <haxedef name="FLX_NO_MOUSE" if="mobile" /> -->
-	<!-- <haxedef name="FLX_NO_KEYBOARD" if="mobile" /> -->
-	<!-- <haxedef name="FLX_NO_TOUCH" if="desktop" /> -->
-	<!-- <haxedef name="FLX_NO_GAMEPAD" /> -->
+    <!--Disable the Flixel core sound tray-->
+    <!-- <haxedef name="FLX_NO_SOUND_TRAY" /> -->
 
-	<!--Disable the Flixel core sound tray-->
-	<!-- <haxedef name="FLX_NO_SOUND_TRAY" /> -->
+    <!--Disable the Flixel sound management code-->
+    <!-- <haxedef name="FLX_NO_SOUND_SYSTEM" /> -->
 
-	<!--Disable the Flixel sound management code-->
-	<!-- <haxedef name="FLX_NO_SOUND_SYSTEM" /> -->
+    <!--Disable the Flixel core focus lost screen-->
+    <haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
-	<!--Disable the Flixel core focus lost screen-->
-	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+    <!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
+    <haxedef name="FLX_NO_DEBUG" unless="debug" />
 
-	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
-	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+    <!--Enable this for Nape release builds for a serious peformance improvement-->
+    <!-- <haxedef name="NAPE_RELEASE_BUILD" unless="debug" /> -->
 
-	<!--Enable this for Nape release builds for a serious peformance improvement-->
-	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+    <!-- _________________________________ Custom _______________________________ -->
 
-	<!-- _________________________________ Custom _______________________________ -->
+    <!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
-	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
-
-	<icon path="art/icon16.png" size='16' />
-	<icon path="art/icon32.png" size='32' />
-	<icon path="art/icon64.png" size='64' />
-	<icon path="art/iconOG.png" />
+    <icon path="art/icon16.png" size='16' />
+    <icon path="art/icon32.png" size='32' />
+    <icon path="art/icon64.png" size='64' />
+    <icon path="art/iconOG.png" />
 </project>

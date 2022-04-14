@@ -1,10 +1,29 @@
 {
-	"idle_anim": "M Spooky Kids Idle",
+	"idleAnim": "M Spooky Kids Idle",
 	"image": "Menu_Spooky_Kids",
 	"position": [
 		0,
 		-80
 	],
 	"scale": 1,
-	"confirm_anim": "M Dad Idle"
+	"confirmAnim": "M Dad Idle",
+	"dances": true,
+	"danceLeftIndices": [
+		0,
+		0,
+		2,
+		2,
+		6,
+		6
+	],
+	"danceRightIndices": [
+		8,
+		8,
+		10,
+		10,
+		12,
+		12,
+		14,
+		14
+	]
 }

@@ -8,13 +8,14 @@ import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
 import lime.app.Application;
-#if FEATURE_FILESYSTEM
+
+using StringTools;
+
+#if sys
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.FileOutput;
 #end
-
-using StringTools;
 
 /**
  * Hey you, developer!
@@ -26,12 +27,12 @@ using StringTools;
  */
 class Debug
 {
-	static final LOG_STYLE_ERROR:LogStyle = new LogStyle('[ERROR] ', 'FF8888', 12, true, false, false, 'flixel/sounds/beep', true);
-	static final LOG_STYLE_WARN:LogStyle = new LogStyle('[WARN ] ', 'D9F85C', 12, true, false, false, 'flixel/sounds/beep', true);
-	static final LOG_STYLE_INFO:LogStyle = new LogStyle('[INFO ] ', '5CF878', 12, false);
-	static final LOG_STYLE_TRACE:LogStyle = new LogStyle('[TRACE] ', '5CF878', 12, false);
+	private static final LOG_STYLE_ERROR:LogStyle = new LogStyle('[ERROR] ', 'FF8888', 12, true, false, false, 'flixel/sounds/beep', true);
+	private static final LOG_STYLE_WARN:LogStyle = new LogStyle('[WARN ] ', 'D9F85C', 12, true, false, false, 'flixel/sounds/beep', true);
+	private static final LOG_STYLE_INFO:LogStyle = new LogStyle('[INFO ] ', '5CF878', 12, false);
+	private static final LOG_STYLE_TRACE:LogStyle = new LogStyle('[TRACE] ', '5CF878', 12, false);
 
-	static var logFileWriter:DebugLogWriter = null;
+	private static var logFileWriter:DebugLogWriter;
 
 	/**
 	 * Log an error message to the game's console.
@@ -116,7 +117,7 @@ class Debug
 		#if debug
 		if (object == null)
 		{
-			Debug.logError("Tried to watch a variable on a null object!");
+			Debug.logError('Tried to watch a variable on a null object!');
 			return;
 		}
 		FlxG.watch.add(object, field, name == null ? field : name);
@@ -134,7 +135,7 @@ class Debug
 	public static inline function quickWatch(name:String, value:Dynamic):Void
 	{
 		#if debug
-		FlxG.watch.addQuick(name == null ? "QuickWatch" : name, value);
+		FlxG.watch.addQuick(name == null ? 'QuickWatch' : name, value);
 		#end
 		// Else, do nothing outside of debug mode.
 	}
@@ -167,7 +168,7 @@ class Debug
 	{
 		if (obj == null)
 		{
-			Debug.logError("Tried to track a null object!");
+			Debug.logError('Tried to track a null object!');
 			return;
 		}
 		FlxG.debugger.track(obj);
@@ -181,6 +182,9 @@ class Debug
 	{
 		// Initialize logging tools.
 		trace('Initializing Debug tools...');
+
+		// Getting the original trace() function before overriding it.
+		var traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void = Log.trace;
 
 		// Override Haxe's vanilla trace() calls to use the Flixel console.
 		Log.trace = (data:Dynamic, ?info:PosInfos) ->
@@ -203,14 +207,15 @@ class Debug
 
 		// Start the log file writer.
 		// We have to set it to TRACE for now.
-		logFileWriter = new DebugLogWriter("TRACE");
+		// We also set the log file writer's trace() calls to be directed to the original trace() function.
+		logFileWriter = new DebugLogWriter('TRACE', traceFunction);
 
-		logInfo("Debug logging initialized. Hello, developer.");
+		logInfo('Debug logging initialized. Hello, developer.');
 
 		#if debug
-		logInfo("This is a DEBUG build.");
+		logInfo('This is a DEBUG build.');
 		#else
-		logInfo("This is a RELEASE build.");
+		logInfo('This is a RELEASE build.');
 		#end
 		logInfo('HaxeFlixel version: ${Std.string(FlxG.VERSION)}');
 		logInfo('Friday Night Funkin\' version: ${Application.current.meta.get('version')}');
@@ -229,13 +234,13 @@ class Debug
 		defineConsoleCommands();
 
 		// Now we can remember the log level.
-		if (FlxG.save.data.debugLogLevel == null)
-			FlxG.save.data.debugLogLevel = "TRACE";
+		if (EngineData.save.data.debugLogLevel == null)
+			EngineData.save.data.debugLogLevel = 'TRACE';
 
-		logFileWriter.setLogLevel(FlxG.save.data.debugLogLevel);
+		logFileWriter.setLogLevel(EngineData.save.data.debugLogLevel);
 	}
 
-	static function writeToFlxGLog(data:Array<Dynamic>, logStyle:LogStyle):Void
+	private static function writeToFlxGLog(data:Array<Dynamic>, logStyle:LogStyle):Void
 	{
 		if (FlxG != null && FlxG.game != null && FlxG.log != null)
 		{
@@ -243,7 +248,7 @@ class Debug
 		}
 	}
 
-	static function writeToLogFile(data:Array<Dynamic>, logLevel:String = "TRACE"):Void
+	private static function writeToLogFile(data:Array<Dynamic>, logLevel:String = 'TRACE'):Void
 	{
 		if (logFileWriter != null && logFileWriter.isActive())
 		{
@@ -254,48 +259,39 @@ class Debug
 	/**
 	 * Defines what properties will be displayed in tracker windows for all these classes.
 	 */
-	static function defineTrackerProfiles():Void
+	private static function defineTrackerProfiles():Void
 	{
 		// Example: This will display all the properties that FlxSprite does, along with curCharacter and barColor.
-		FlxG.debugger.addTrackerProfile(new TrackerProfile(Character, ["curCharacter", "isPlayer", "barColor"], [FlxSprite]));
-		FlxG.debugger.addTrackerProfile(new TrackerProfile(HealthIcon, ["char", "isPlayer", "isOldIcon"], [FlxSprite]));
-		FlxG.debugger.addTrackerProfile(new TrackerProfile(Note, ["x", "y", "strumTime", "mustPress", "rawNoteData", "sustainLength"], []));
-		FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, [
-			"chartVersion",
-			"song",
-			"speed",
-			"player1",
-			"player2",
-			"gfVersion",
-			"noteStyle",
-			"stage"
-		], []));
+		FlxG.debugger.addTrackerProfile(new TrackerProfile(Character, ['id', 'isPlayer', 'barColor'], [FlxSprite]));
+		FlxG.debugger.addTrackerProfile(new TrackerProfile(HealthIcon, ['char', 'isPlayer', 'isOldIcon'], [FlxSprite]));
+		FlxG.debugger.addTrackerProfile(new TrackerProfile(Note, ['x', 'y', 'strumTime', 'mustPress', 'noteData', 'sustainLength'], []));
+		FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, ['songId', 'speed', 'player1', 'player2', 'gfVersion', 'arrowSkin', 'stage'], []));
 	}
 
 	/**
 	 * Defines some commands you can run in the console for easy use of important debugging functions.
 	 * Feel free to add your own!
 	 */
-	static inline function defineConsoleCommands():Void
+	private static inline function defineConsoleCommands():Void
 	{
 		// Example: This will display Boyfriend's sprite properties in a debug window.
-		addConsoleCommand("trackBoyfriend", () ->
+		addConsoleCommand('trackBoyfriend', () ->
 		{
-			Debug.logInfo("CONSOLE: Begin tracking Boyfriend...");
+			Debug.logInfo('CONSOLE: Begin tracking Boyfriend...');
 			trackObject(PlayState.instance.boyfriend);
 		});
-		addConsoleCommand("trackGirlfriend", () ->
+		addConsoleCommand('trackGirlfriend', () ->
 		{
-			Debug.logInfo("CONSOLE: Begin tracking Girlfriend...");
+			Debug.logInfo('CONSOLE: Begin tracking Girlfriend...');
 			trackObject(PlayState.instance.gf);
 		});
-		addConsoleCommand("trackDad", () ->
+		addConsoleCommand('trackDad', () ->
 		{
-			Debug.logInfo("CONSOLE: Begin tracking Dad...");
+			Debug.logInfo('CONSOLE: Begin tracking Dad...');
 			trackObject(PlayState.instance.opponent);
 		});
 
-		addConsoleCommand("setLogLevel", (logLevel:String) ->
+		addConsoleCommand('setLogLevel', (logLevel:String) ->
 		{
 			if (!DebugLogWriter.LOG_LEVELS.contains(logLevel))
 			{
@@ -310,23 +306,23 @@ class Debug
 		});
 
 		// Console commands let you do WHATEVER you want.
-		addConsoleCommand("playSong", (songName:String, ?difficulty:Int = 1) ->
+		addConsoleCommand('playSong', (songName:String, ?difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
 			// TODO Reimplement these commands
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
-		addConsoleCommand("chartSong", (songName:String, ?difficulty:Int = 1) ->
+		addConsoleCommand('chartSong', (songName:String, ?difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Chart Editor...');
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, true, true);
 		});
 	}
 
-	static function formatOutput(input:Dynamic, pos:haxe.PosInfos):Array<Dynamic>
+	private static function formatOutput(input:Dynamic, pos:PosInfos):Array<Dynamic>
 	{
 		// This code is junk but I kept getting Null Function References.
-		var inArray:Array<Dynamic> = null;
+		var inArray:Array<Dynamic>;
 		if (input == null)
 		{
 			inArray = ['<NULL>'];
@@ -352,34 +348,37 @@ class Debug
 
 class DebugLogWriter
 {
-	static final LOG_FOLDER = "logs";
-	public static final LOG_LEVELS = ['ERROR', 'WARN', 'INFO', 'TRACE'];
+	private static final LOG_FOLDER:String = 'logs';
+	public static final LOG_LEVELS:Array<String> = ['ERROR', 'WARN', 'INFO', 'TRACE'];
+
+	public var traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void;
 
 	/**
 	 * Set this to the current timestamp that the game started.
 	 */
-	var startTime:Float = 0;
+	private var startTime:Float = 0;
 
-	var logLevel:Int;
+	private var logLevel:Int;
 
-	var active:Bool = false;
-	#if FEATURE_FILESYSTEM
-	var file:FileOutput;
+	private var active:Bool = false;
+	#if sys
+	private var file:FileOutput;
 	#end
 
-	public function new(logLevelParam:String)
+	public function new(logLevelParam:String, traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void)
 	{
 		logLevel = LOG_LEVELS.indexOf(logLevelParam);
+		this.traceFunction = traceFunction;
 
-		#if FEATURE_FILESYSTEM
-		printDebug("Initializing log file...");
+		#if sys
+		printDebug('Initializing log file...');
 
 		var logFilePath:String = '$LOG_FOLDER/${Sys.time()}.log';
 
 		// Make sure that the path exists
-		if (logFilePath.contains("/"))
+		if (logFilePath.contains('/'))
 		{
-			var lastIndex:Int = logFilePath.lastIndexOf("/");
+			var lastIndex:Int = logFilePath.lastIndexOf('/');
 			var logFolderPath:String = logFilePath.substr(0, lastIndex);
 			printDebug('Creating log folder $logFolderPath');
 			FileSystem.createDirectory(logFolderPath);
@@ -389,8 +388,8 @@ class DebugLogWriter
 		file = File.write(logFilePath, false);
 		active = true;
 		#else
-		printDebug("Won't create log file; no file system access.");
-		active = false;
+		printDebug('Won\'t create log file; no file system access.');
+		active = true;
 		#end
 
 		// Get the absolute time in seconds. This lets us show relative time in log, which is more readable.
@@ -417,7 +416,7 @@ class DebugLogWriter
 		#end
 	}
 
-	function shouldLog(input:String):Bool
+	private function shouldLog(input:String):Bool
 	{
 		var levelIndex:Int = LOG_LEVELS.indexOf(input);
 		// Could not find this log level.
@@ -434,7 +433,7 @@ class DebugLogWriter
 			return;
 
 		logLevel = levelIndex;
-		FlxG.save.data.debugLogLevel = logLevel;
+		EngineData.save.data.debugLogLevel = logLevel;
 	}
 
 	/**
@@ -445,7 +444,7 @@ class DebugLogWriter
 		var ts:String = FlxStringUtil.formatTime(getTime(), true);
 		var msg:String = '$ts [${logLevel.rpad(' ', 5)}] ${input.join('')}';
 
-		#if FEATURE_FILESYSTEM
+		#if sys
 		if (active && file != null)
 		{
 			if (shouldLog(logLevel))
@@ -464,13 +463,9 @@ class DebugLogWriter
 		}
 	}
 
-	function printDebug(msg:String):Void
+	private function printDebug(msg:String):Void
 	{
-		#if sys
-		Sys.println(msg);
-		#else
-		// Pass null to exclude the position.
-		Log.trace(msg, null);
-		#end
+		// Pass no argument for the PosInfos to exclude the position.
+		traceFunction(msg);
 	}
 }

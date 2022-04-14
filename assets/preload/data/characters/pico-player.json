@@ -62,7 +62,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singRIGHT",
+			"anim": "singLEFT",
 			"indices": [],
 			"name": "Pico Note Right0"
 		},
@@ -73,7 +73,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singLEFT",
+			"anim": "singRIGHT",
 			"indices": [],
 			"name": "Pico NOTE LEFT0"
 		},
@@ -84,7 +84,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singRIGHTmiss",
+			"anim": "singLEFTmiss",
 			"indices": [],
 			"name": "Pico Note Right Miss"
 		},
@@ -95,29 +95,29 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singLEFTmiss",
+			"anim": "singRIGHTmiss",
 			"indices": [],
 			"name": "Pico NOTE LEFT miss"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/Pico_FNF_assetss",
+	"noAntialiasing": false,
+	"image": "Pico_FNF_assetss",
 	"position": [
 		0,
 		300
 	],
-	"healthicon": "pico",
-	"flip_x": true,
-	"healthbar_colors": [
+	"healthIcon": "pico",
+	"flipX": true,
+	"healthBarColors": [
 		183,
 		216,
 		85
 	],
-	"camera_position": [
+	"cameraPosition": [
 		220,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

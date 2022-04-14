@@ -12,7 +12,7 @@
 			"name": "RETRY CONFIRM"
 		},
 		{
-			"loop": true,
+			"loop": false,
 			"offsets": [
 				-30,
 				-12
@@ -34,24 +34,24 @@
 			"name": "BF Dies pixel"
 		}
 	],
-	"no_antialiasing": true,
-	"image": "characters/bfPixelsDEAD",
+	"noAntialiasing": true,
+	"image": "bfPixelsDEAD",
 	"position": [
 		0,
 		350
 	],
-	"healthicon": "bf-pixel",
-	"flip_x": true,
-	"healthbar_colors": [
+	"healthIcon": "bf-pixel",
+	"flipX": true,
+	"healthBarColors": [
 		123,
 		214,
 		246
 	],
-	"camera_position": [
+	"cameraPosition": [
 		50,
 		-60
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 6,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

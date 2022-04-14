@@ -17,35 +17,29 @@ using StringTools;
 
 class AtlasFrameMaker extends FlxFramesCollection
 {
-	// public static var widthoffset:Int = 0;
-	// public static var heightoffset:Int = 0;
-	// public static var excludeArray:Array<String>;
-
 	/**
-
-		* Creates Frames from TextureAtlas (very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
-		*
-		* @param key The file path.
-		* @param _excludeArray Use this to only create selected animations. Keep null to create all of them.
-		*
+	 * Creates Frames from TextureAtlas (very early and broken ok) Originally made for FNF HD by Smokey and Rozebud
+	 *
+	 * @param key The file path.
+	 * @param _excludeArray Use this to only create selected animations. Keep null to create all of them.
+	 *
 	 */
-	public static function construct(key:String, ?_excludeArray:Array<String> = null, ?noAntialiasing:Bool = false):FlxFramesCollection
+	public static function construct(key:String, ?_excludeArray:Array<String>, ?noAntialiasing:Bool = false):FlxFramesCollection
 	{
-		// widthoffset = _widthoffset;
-		// heightoffset = _heightoffset;
-
 		var frameCollection:FlxFramesCollection;
 		var frameArray:Array<Array<FlxFrame>> = [];
 
-		if (Paths.fileExists('images/$key/spritemap1.json', TEXT))
+		if (Paths.exists(Paths.file('images/$key/spritemap1.json')))
 		{
-			PlayState.instance.addTextToDebug("Only Spritemaps made with Adobe Animate 2018 are supported");
-			Debug.logTrace("Only Spritemaps made with Adobe Animate 2018 are supported");
+			#if FEATURE_LUA
+			PlayState.instance.addTextToDebug('Only Spritemaps made with Adobe Animate 2018 are supported');
+			#end
+			Debug.logTrace('Only Spritemaps made with Adobe Animate 2018 are supported');
 			return null;
 		}
 
-		var animationData:AnimationData = Json.parse(Paths.getTextFromFile('images/$key/Animation.json'));
-		var atlasData:AtlasData = Json.parse(Paths.getTextFromFile('images/$key/spritemap.json').replace("\uFEFF", ""));
+		var animationData:AnimationData = Paths.getJsonDirect(Paths.getText('images/$key/Animation.json'));
+		var atlasData:AtlasData = Json.parse(Paths.getText('images/$key/spritemap.json').replace('\uFEFF', ''));
 
 		var graphic:FlxGraphic = Paths.getGraphic('$key/spritemap');
 		var ss:SpriteAnimationLibrary = new SpriteAnimationLibrary(animationData, atlasData, graphic.bitmap);

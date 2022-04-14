@@ -56,24 +56,24 @@
 			]
 		}
 	],
-	"no_antialiasing": true,
-	"image": "characters/gfPixel",
+	"noAntialiasing": true,
+	"image": "gfPixel",
 	"position": [
 		0,
 		0
 	],
-	"healthicon": "gf",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "gf",
+	"flipX": false,
+	"healthBarColors": [
 		165,
 		0,
 		77
 	],
-	"camera_position": [
+	"cameraPosition": [
 		-20,
 		80
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 6,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

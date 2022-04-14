@@ -56,24 +56,24 @@
 			"indices": []
 		}
 	],
-	"no_antialiasing": true,
-	"image": "characters/spirit",
+	"noAntialiasing": true,
+	"image": "spirit",
 	"position": [
 		-150,
 		100
 	],
-	"healthicon": "spirit-pixel",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "spirit-pixel",
+	"flipX": false,
+	"healthBarColors": [
 		255,
 		60,
 		110
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 6,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

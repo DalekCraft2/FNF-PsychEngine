@@ -1,5 +1,6 @@
 package;
 
+#if FEATURE_ACHIEVEMENTS
 import Achievement.AchievementData;
 import Achievement.AttachedAchievement;
 #if FEATURE_DISCORD
@@ -15,8 +16,7 @@ using StringTools;
 
 class AchievementsMenuState extends MusicBeatState
 {
-	#if FEATURE_ACHIEVEMENTS
-	var options:Array<String> = [];
+	private var options:Array<String> = [];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 
 	private static var curSelected:Int = 0;
@@ -25,22 +25,18 @@ class AchievementsMenuState extends MusicBeatState
 	private var achievementIndex:Array<Int> = [];
 	private var descText:FlxText;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		persistentUpdate = true;
-		persistentDraw = true;
 
 		#if FEATURE_DISCORD
-		DiscordClient.changePresence("Achievements Menu", null);
+		DiscordClient.changePresence('Achievements Menu', null);
 		#end
 
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuBGBlue'));
-		// menuBG.color = 0xFF9271FD;
+		// menuBG.color = 0xFF9271FD; // TODO Find the colors used to tint the menuDesat image to get menuBG and menuBGBlue
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
@@ -55,7 +51,7 @@ class AchievementsMenuState extends MusicBeatState
 		{
 			var achievementId:String = Achievement.achievementList[i];
 			var achievementData:AchievementData = Achievement.achievementsLoaded.get(achievementId);
-			if (!achievementData.hidden || Achievement.achievementsMap.exists(achievementData.icon))
+			if (!achievementData.hidden || Achievement.achievementMap.exists(achievementId))
 			{
 				options.push(achievementData.name);
 				achievementIndex.push(i);
@@ -80,36 +76,43 @@ class AchievementsMenuState extends MusicBeatState
 			add(icon);
 		}
 
-		descText = new FlxText(150, 600, 980, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+		descText = new FlxText(150, 600, 980, 32);
+		descText.setFormat(Paths.font('vcr.ttf'), descText.size, CENTER, OUTLINE, FlxColor.BLACK);
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		add(descText);
-		changeSelection();
+
+		if (achievementArray.length > 1)
+		{
+			changeSelection();
+		}
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		if (controls.UI_UP_P)
+		if (achievementArray.length > 1)
 		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
+			if (controls.UI_UP_P)
+			{
+				changeSelection(-1);
+			}
+			if (controls.UI_DOWN_P)
+			{
+				changeSelection(1);
+			}
 		}
 
 		if (controls.BACK)
 		{
 			persistentUpdate = false;
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.getSound('cancelMenu'));
 			FlxG.switchState(new MainMenuState());
 		}
 	}
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
 		curSelected += change;
 		if (curSelected < 0)
@@ -117,6 +120,7 @@ class AchievementsMenuState extends MusicBeatState
 		if (curSelected >= options.length)
 			curSelected = 0;
 
+		// TODO Try to change the variables what are named like this so I know what the fuck I'm looking at
 		var bullShit:Int = 0;
 
 		for (item in grpOptions.members)
@@ -143,7 +147,7 @@ class AchievementsMenuState extends MusicBeatState
 		var achievementId:String = Achievement.achievementList[achievementIndex[curSelected]];
 		var achievementData:AchievementData = Achievement.achievementsLoaded.get(achievementId);
 		descText.text = achievementData.description;
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 	}
-	#end
 }
+#end

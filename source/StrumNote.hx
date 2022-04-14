@@ -1,5 +1,6 @@
 package;
 
+import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
@@ -17,27 +18,16 @@ class StrumNote extends FlxSprite
 
 	private var player:Int;
 
-	public var texture(default, set):String = null;
+	public var texture(default, set):String;
 
-	private function set_texture(value:String):String
-	{
-		if (texture != value)
-		{
-			texture = value;
-			reloadNote();
-		}
-		return value;
-	}
-
-	public function new(x:Float, y:Float, leData:Int, player:Int)
+	public function new(x:Float, y:Float, noteData:Int, player:Int)
 	{
 		super(x, y);
 
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
-		noteData = leData;
 		this.player = player;
-		this.noteData = leData;
+		this.noteData = Std.int(Math.abs(noteData));
 
 		var skin:String = 'NOTE_assets';
 		if (PlayState.song.arrowSkin != null && PlayState.song.arrowSkin.length > 1)
@@ -47,9 +37,31 @@ class StrumNote extends FlxSprite
 		scrollFactor.set();
 	}
 
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		if (resetAnim > 0)
+		{
+			resetAnim -= elapsed;
+			if (resetAnim <= 0)
+			{
+				playAnim('static');
+				resetAnim = 0;
+			}
+		}
+		// TODO This causes an NPE if, after playing a song with a custom noteskin, the chart editor is loaded with a mod directory other than the one containing that song
+		// if(animation.curAnim != null){ //my bad i was upset
+		if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+		{
+			centerOrigin();
+		}
+		// }
+	}
+
 	public function reloadNote():Void
 	{
-		var lastAnim:String = null;
+		var lastAnim:Null<String> = null;
 		if (animation.curAnim != null)
 			lastAnim = animation.curAnim.name;
 
@@ -63,42 +75,29 @@ class StrumNote extends FlxSprite
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 
-			animation.add('purple', [4]);
-			animation.add('blue', [5]);
-			animation.add('green', [6]);
-			animation.add('red', [7]);
-			switch (Math.abs(noteData))
+			for (color in NoteColor.createAll())
 			{
-				case 0:
-					animation.add('static', [0]);
-					animation.add('pressed', [4, 8], 12, false);
-					animation.add('confirm', [12, 16], 24, false);
-				case 1:
-					animation.add('static', [1]);
-					animation.add('pressed', [5, 9], 12, false);
-					animation.add('confirm', [13, 17], 24, false);
-				case 2:
-					animation.add('static', [2]);
-					animation.add('pressed', [6, 10], 12, false);
-					animation.add('confirm', [14, 18], 12, false);
-				case 3:
-					animation.add('static', [3]);
-					animation.add('pressed', [7, 11], 12, false);
-					animation.add('confirm', [15, 19], 24, false);
+				animation.add(color.getName(), [4 + color.getIndex()]);
 			}
+
+			var color:NoteColor = NoteColor.createByIndex(noteData);
+
+			animation.add('static', [color.getIndex()]);
+			animation.add('pressed', [color.getIndex() + 4, color.getIndex() + 8], 12, false);
+			animation.add('confirm', [color.getIndex() + 12, color.getIndex() + 16], 24, false);
 		}
 		else
 		{
 			frames = Paths.getSparrowAtlas(texture);
-			animation.addByPrefix('purple', 'arrowLEFT');
-			animation.addByPrefix('blue', 'arrowDOWN');
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('red', 'arrowRIGHT');
+			for (color in NoteColor.createAll())
+			{
+				animation.addByPrefix(color.getName(), 'arrow${NoteKey.createByIndex(color.getIndex())}');
+			}
 
 			antialiasing = Options.save.data.globalAntialiasing;
 			setGraphicSize(Std.int(width * 0.7));
 
-			switch (Math.abs(noteData))
+			switch (noteData)
 			{
 				case 0:
 					animation.addByPrefix('static', 'arrowLEFT');
@@ -135,27 +134,6 @@ class StrumNote extends FlxSprite
 		ID = noteData;
 	}
 
-	override function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		if (resetAnim > 0)
-		{
-			resetAnim -= elapsed;
-			if (resetAnim <= 0)
-			{
-				playAnim('static');
-				resetAnim = 0;
-			}
-		}
-		// if(animation.curAnim != null){ //my bad i was upset
-		if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
-		{
-			centerOrigin();
-		}
-		// }
-	}
-
 	public function playAnim(anim:String, ?force:Bool = false):Void
 	{
 		animation.play(anim, force);
@@ -178,5 +156,15 @@ class StrumNote extends FlxSprite
 				centerOrigin();
 			}
 		}
+	}
+
+	private function set_texture(value:String):String
+	{
+		if (texture != value)
+		{
+			texture = value;
+			reloadNote();
+		}
+		return value;
 	}
 }

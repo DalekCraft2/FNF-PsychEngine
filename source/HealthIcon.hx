@@ -7,13 +7,19 @@ using StringTools;
 
 class HealthIcon extends FlxSprite
 {
+	/**
+	 * The icon ID used in case the requested icon is missing.
+	 */
+	public static inline final DEFAULT_ICON:String = 'bf';
+
 	public var sprTracker:FlxSprite;
+	public var hasWinningIcon:Bool = false;
 
 	private var isOldIcon:Bool = false;
 	private var isPlayer:Bool = false;
 	private var char:String = '';
 
-	public function new(char:String = 'bf', isPlayer:Bool = false)
+	public function new(char:String = DEFAULT_ICON, isPlayer:Bool = false)
 	{
 		super();
 
@@ -23,7 +29,7 @@ class HealthIcon extends FlxSprite
 		scrollFactor.set();
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -31,12 +37,12 @@ class HealthIcon extends FlxSprite
 			setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y - 30);
 	}
 
-	public function swapOldIcon():Void
+	override public function updateHitbox():Void
 	{
-		if (isOldIcon = !isOldIcon)
-			changeIcon('bf-old');
-		else
-			changeIcon('bf');
+		super.updateHitbox();
+
+		offset.x = iconOffsets[0];
+		offset.y = iconOffsets[1];
 	}
 
 	private var iconOffsets:Array<Float> = [0, 0];
@@ -46,19 +52,23 @@ class HealthIcon extends FlxSprite
 		if (this.char != char)
 		{
 			var name:String = 'icons/$char';
-			if (!Paths.fileExists('images/$name.png', IMAGE))
+			if (!Paths.exists(Paths.image(name), IMAGE))
 				name = 'icons/icon-$char'; // Older versions of psych engine's support
-			if (!Paths.fileExists('images/$name.png', IMAGE))
+			if (!Paths.exists(Paths.image(name), IMAGE))
 				name = 'icons/icon-face'; // Prevents crash from missing icon
 			var file:FlxGraphic = Paths.getGraphic(name);
 
-			loadGraphic(file); // Load stupidly first for getting the file size
-			loadGraphic(file, true, Math.floor(width / 2), Math.floor(height)); // Then load it fr
+			loadGraphic(file, true, 150, 150);
 			iconOffsets[0] = (width - 150) / 2;
 			iconOffsets[1] = (width - 150) / 2;
 			updateHitbox();
 
-			animation.add(char, [0, 1], 0, false, isPlayer);
+			hasWinningIcon = (animation.frames == 3);
+
+			if (hasWinningIcon)
+				animation.add(char, [0, 1, 2], 0, false, isPlayer);
+			else
+				animation.add(char, [0, 1], 0, false, isPlayer);
 			animation.play(char);
 			this.char = char;
 
@@ -68,14 +78,6 @@ class HealthIcon extends FlxSprite
 				antialiasing = false;
 			}
 		}
-	}
-
-	override function updateHitbox():Void
-	{
-		super.updateHitbox();
-
-		offset.x = iconOffsets[0];
-		offset.y = iconOffsets[1];
 	}
 
 	public function getCharacter():String

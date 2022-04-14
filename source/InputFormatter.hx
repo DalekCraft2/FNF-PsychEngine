@@ -9,85 +9,85 @@ class InputFormatter
 		switch (key)
 		{
 			case BACKSPACE:
-				return "BckSpc";
+				return 'BckSpc';
 			case CONTROL:
-				return "Ctrl";
+				return 'Ctrl';
 			case ALT:
-				return "Alt";
+				return 'Alt';
 			case CAPSLOCK:
-				return "Caps";
+				return 'Caps';
 			case PAGEUP:
-				return "PgUp";
+				return 'PgUp';
 			case PAGEDOWN:
-				return "PgDown";
+				return 'PgDown';
 			case ZERO:
-				return "0";
+				return '0';
 			case ONE:
-				return "1";
+				return '1';
 			case TWO:
-				return "2";
+				return '2';
 			case THREE:
-				return "3";
+				return '3';
 			case FOUR:
-				return "4";
+				return '4';
 			case FIVE:
-				return "5";
+				return '5';
 			case SIX:
-				return "6";
+				return '6';
 			case SEVEN:
-				return "7";
+				return '7';
 			case EIGHT:
-				return "8";
+				return '8';
 			case NINE:
-				return "9";
+				return '9';
 			case NUMPADZERO:
-				return "#0";
+				return '#0';
 			case NUMPADONE:
-				return "#1";
+				return '#1';
 			case NUMPADTWO:
-				return "#2";
+				return '#2';
 			case NUMPADTHREE:
-				return "#3";
+				return '#3';
 			case NUMPADFOUR:
-				return "#4";
+				return '#4';
 			case NUMPADFIVE:
-				return "#5";
+				return '#5';
 			case NUMPADSIX:
-				return "#6";
+				return '#6';
 			case NUMPADSEVEN:
-				return "#7";
+				return '#7';
 			case NUMPADEIGHT:
-				return "#8";
+				return '#8';
 			case NUMPADNINE:
-				return "#9";
+				return '#9';
 			case NUMPADMULTIPLY:
-				return "#*";
+				return '#*';
 			case NUMPADPLUS:
-				return "#+";
+				return '#+';
 			case NUMPADMINUS:
-				return "#-";
+				return '#-';
 			case NUMPADPERIOD:
-				return "#.";
+				return '#.';
 			case SEMICOLON:
-				return ";";
+				return ';';
 			case COMMA:
-				return ",";
+				return ',';
 			case PERIOD:
-				return ".";
-			// case SLASH:
-			//	return "/";
+				return '.';
+			case SLASH:
+				return '/';
 			case GRAVEACCENT:
-				return "`";
+				return '`';
 			case LBRACKET:
-				return "[";
-			// case BACKSLASH:
-			//	return "\\";
+				return '[';
+			case BACKSLASH:
+				return '\\';
 			case RBRACKET:
-				return "]";
+				return ']';
 			case QUOTE:
-				return "'";
+				return '\'';
 			case PRINTSCREEN:
-				return "PrtScrn";
+				return 'PrtScrn';
 			case NONE:
 				return '---';
 			default:

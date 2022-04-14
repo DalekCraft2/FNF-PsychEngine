@@ -1,14 +1,13 @@
 package;
 
+import Section.SectionData;
+import Song.SongData;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSort;
-import openfl.utils.Assets;
-#if FEATURE_MODS
-import sys.FileSystem;
-#end
+import haxe.io.Path;
 
 using StringTools;
 
@@ -16,16 +15,16 @@ typedef CharacterData =
 {
 	var animations:Array<AnimationData>;
 	var image:String;
-	var scale:Float;
-	var sing_duration:Float;
-	var healthicon:String;
-
-	var position:Array<Float>;
-	var camera_position:Array<Float>;
-	var flip_x:Bool;
-	var no_antialiasing:Bool;
-	var healthbar_colors:Array<Int>;
-	var ?cam_movement_mult:Float;
+	var ?scale:Float;
+	var ?singDuration:Float;
+	var healthIcon:String;
+	var ?position:Array<Float>;
+	var ?cameraPosition:Array<Float>;
+	var ?flipX:Bool;
+	var ?noAntialiasing:Bool;
+	var ?healthBarColors:Array<Int>;
+	var ?cameraMotionFactor:Float;
+	var ?initialAnimation:String;
 }
 
 typedef AnimationData =
@@ -38,31 +37,52 @@ typedef AnimationData =
 	var offsets:Array<Int>;
 }
 
+// TODO Automatically correct offsets when character is flipped (One way may be to insert the offsets directly into the XMLs)
 class Character extends FlxSprite
 {
+	/**
+	 * The character ID used in case the requested character is missing.
+	 */
+	public static inline final DEFAULT_CHARACTER:String = 'bf';
+
+	/**
+	 * The internal name of the character, as used in the file system.
+	 */
+	public var id:String;
+
 	public var animOffsets:Map<String, Array<Float>>;
 	public var debugMode:Bool = false;
 
-	public var isPlayer:Bool = false;
-	public var curCharacter:String = DEFAULT_CHARACTER;
-
+	public var isPlayer(default, set):Bool = false;
 	public var colorTween:FlxTween;
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
-	// TODO Figure out what the below variable is
-	public var animationNotes:Array<Dynamic> = [];
+
+	/**
+	 * This is used for Pico's animations in Stress; the TankmenBG class functions similarly
+	 */
+	public var animationNotes:Array<Array<Dynamic>> = [];
+
 	public var stunned:Bool = false;
-	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose
+
+	/**
+	 * Multiplier of how long a character holds the sing pose
+	 */
+	public var singDuration:Float = 4;
+
 	public var idleSuffix:String = '';
-	public var danceIdle:Bool = false; // Character use "danceLeft" and "danceRight" instead of "idle"
+
+	/**
+	 * Character uses "danceLeft" and "danceRight" instead of "idle"
+	 */
+	public var danceIdle:Bool = false;
 
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimationData> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
-	public var camMovementMult:Float = 1;
 
 	public var hasMissAnimations:Bool = false;
 
@@ -71,19 +91,77 @@ class Character extends FlxSprite
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
-	public var healthColorArray:Array<Int> = [255, 0, 0];
+	public var healthBarColors:Array<Int> = [255, 0, 0];
+	public var cameraMotionFactor:Float = 1;
+	public var initialAnimation:String = 'idle';
 
-	public static final DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
+	public static function createTemplateCharacterData():CharacterData
+	{
+		var characterData:CharacterData = {
+			animations: [
+				{
+					loop: false,
+					offsets: [0, 0],
+					fps: 24,
+					anim: 'idle',
+					indices: [],
+					name: 'Dad idle dance'
+				},
+				{
+					offsets: [0, 0],
+					indices: [],
+					fps: 24,
+					anim: 'singLEFT',
+					loop: false,
+					name: 'Dad Sing Note LEFT'
+				},
+				{
+					offsets: [0, 0],
+					indices: [],
+					fps: 24,
+					anim: 'singDOWN',
+					loop: false,
+					name: 'Dad Sing Note DOWN'
+				},
+				{
+					offsets: [0, 0],
+					indices: [],
+					fps: 24,
+					anim: 'singUP',
+					loop: false,
+					name: 'Dad Sing Note UP'
+				},
+				{
+					offsets: [0, 0],
+					indices: [],
+					fps: 24,
+					anim: 'singRIGHT',
+					loop: false,
+					name: 'Dad Sing Note RIGHT'
+				}
+			],
+			image: 'DADDY_DEAREST',
+			scale: 1,
+			singDuration: 6.1,
+			healthIcon: 'face',
+			position: [0, 0],
+			cameraPosition: [0, 0],
+			flipX: false,
+			noAntialiasing: false,
+			healthBarColors: [161, 161, 161],
+			cameraMotionFactor: 1
+		};
+		return characterData;
+	}
 
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, ?character:String = DEFAULT_CHARACTER, ?isPlayer:Bool = false)
 	{
 		super(x, y);
 
 		animOffsets = [];
-		curCharacter = character;
-		this.isPlayer = isPlayer;
+		id = character;
 		antialiasing = Options.save.data.globalAntialiasing;
-		switch (curCharacter)
+		switch (id)
 		{
 			// TODO Add configuration in order to avoid hardcoding Pico things in Week 7
 			// case 'your character name in case you want to hardcode them instead':
@@ -94,127 +172,21 @@ class Character extends FlxSprite
 				parseDataFile();
 		}
 		originalFlipX = flipX;
+		this.isPlayer = isPlayer;
 
-		if (animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
-			hasMissAnimations = true;
-		recalculateDanceIdle();
-		dance();
-
-		if (isPlayer)
+		for (noteKey in NoteKey.createAll())
 		{
-			flipX = !flipX;
-		}
-	}
-
-	function parseDataFile():Void
-	{
-		var characterPath:String = 'characters/$curCharacter';
-
-		var characterData:CharacterData = Paths.getJson(characterPath);
-		if (characterData == null)
-		{
-			Debug.logError('Could not find character data for character "$curCharacter"; using default');
-			characterData = Paths.getJson('characters/$DEFAULT_CHARACTER');
-		}
-
-		var spriteType:String = "sparrow";
-		// sparrow
-		// packer
-		// texture
-		var txtToFind:String = Paths.getPath('images/${characterData.image}.txt', TEXT);
-		#if FEATURE_MODS
-		if (FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
-		#else
-		if (Assets.exists(txtToFind))
-		#end
-		{
-			spriteType = "packer";
-		}
-
-		var animToFind:String = Paths.getPath('images/${characterData.image}/Animation.json', TEXT);
-		#if FEATURE_MODS
-		if (FileSystem.exists(animToFind) || Assets.exists(animToFind))
-		#else
-		if (Assets.exists(animToFind))
-		#end
-		{
-			spriteType = "texture";
-		}
-
-		switch (spriteType)
-		{
-			case "packer":
-				frames = Paths.getPackerAtlas(characterData.image);
-
-			case "sparrow":
-				frames = Paths.getSparrowAtlas(characterData.image);
-
-			case "texture":
-				frames = AtlasFrameMaker.construct(characterData.image);
-		}
-		imageFile = characterData.image;
-
-		if (characterData.scale != 1)
-		{
-			jsonScale = characterData.scale;
-			setGraphicSize(Std.int(width * jsonScale));
-			updateHitbox();
-		}
-
-		positionArray = characterData.position;
-		cameraPosition = characterData.camera_position;
-		if (characterData.cam_movement_mult != null)
-			camMovementMult = characterData.cam_movement_mult;
-
-		healthIcon = characterData.healthicon;
-		singDuration = characterData.sing_duration;
-		flipX = characterData.flip_x;
-		if (characterData.no_antialiasing)
-		{
-			antialiasing = false;
-			noAntialiasing = true;
-		}
-
-		if (characterData.healthbar_colors != null && characterData.healthbar_colors.length > 2)
-			healthColorArray = characterData.healthbar_colors;
-
-		antialiasing = !noAntialiasing;
-		if (!Options.save.data.globalAntialiasing)
-			antialiasing = false;
-
-		animationsArray = characterData.animations;
-		if (animationsArray != null && animationsArray.length > 0)
-		{
-			for (anim in animationsArray)
+			if (animOffsets.exists('sing${noteKey}miss'))
 			{
-				var animAnim:String = anim.anim;
-				var animName:String = anim.name;
-				var animFps:Int = anim.fps;
-				var animLoop:Bool = anim.loop;
-				var animIndices:Array<Int> = anim.indices;
-				if (animIndices != null && animIndices.length > 0)
-				{
-					animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
-				}
-				else
-				{
-					animation.addByPrefix(animAnim, animName, animFps, animLoop);
-				}
-
-				if (anim.offsets != null && anim.offsets.length > 1)
-				{
-					addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-				}
+				hasMissAnimations = true;
+				break;
 			}
 		}
-		else
-		{
-			quickAnimAdd('idle', 'BF idle dance');
-		}
-		Debug.logTrace('Loaded data file for character "$curCharacter"');
+		recalculateDanceIdle();
+		dance();
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -253,28 +225,167 @@ class Character extends FlxSprite
 				}
 			}
 
-			switch (curCharacter)
+			switch (id)
 			{
 				case 'pico-speaker':
 					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0])
 					{
-						var shootAnim = 1;
+						var shootAnim:Int = 1;
 
 						if (animationNotes[0][1] >= 2)
 							shootAnim = 3;
 
 						shootAnim += FlxG.random.int(0, 1);
-						playAnim("shoot" + shootAnim, true);
+						playAnim('shoot$shootAnim', true);
 
 						animationNotes.shift();
 					}
 			}
 
-			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+			if (animation.curAnim.finished && animation.exists('${animation.curAnim.name}-loop'))
 			{
-				playAnim(animation.curAnim.name + '-loop');
+				playAnim('${animation.curAnim.name}-loop');
 			}
 		}
+	}
+
+	private function parseDataFile():Void
+	{
+		var characterData:CharacterData = Paths.getJson(Path.join(['characters', id]));
+		if (characterData == null)
+		{
+			Debug.logError('Could not find character data for character "$id"; using default');
+			characterData = Paths.getJson(Path.join(['characters', DEFAULT_CHARACTER]));
+		}
+
+		if (characterData.image != null)
+		{
+			imageFile = characterData.image;
+		}
+
+		// sparrow
+		var spriteType:String = 'sparrow';
+
+		// packer
+		var txtToFind:String = Paths.file('images/characters/$imageFile.txt', TEXT);
+		if (Paths.exists(txtToFind))
+		{
+			spriteType = 'packer';
+		}
+
+		// texture
+		var animToFind:String = Paths.file('images/characters/$imageFile/Animation.json', TEXT);
+		if (Paths.exists(animToFind))
+		{
+			spriteType = 'texture';
+		}
+
+		switch (spriteType)
+		{
+			case 'packer':
+				frames = Paths.getPackerAtlas('characters/$imageFile');
+
+			case 'sparrow':
+				frames = Paths.getSparrowAtlas('characters/$imageFile');
+
+			case 'texture':
+				frames = AtlasFrameMaker.construct('characters/$imageFile');
+		}
+
+		if (characterData.animations != null)
+		{
+			animationsArray = characterData.animations;
+		}
+
+		for (anim in animationsArray)
+		{
+			var animAnim:String = anim.anim;
+			var animName:String = anim.name;
+			var animFps:Int = anim.fps;
+			var animLoop:Bool = anim.loop;
+			var animIndices:Array<Int> = anim.indices;
+			if (animIndices != null && animIndices.length > 0)
+			{
+				animation.addByIndices(animAnim, animName, animIndices, '', animFps, animLoop);
+			}
+			else
+			{
+				animation.addByPrefix(animAnim, animName, animFps, animLoop);
+			}
+
+			if (anim.offsets != null && anim.offsets.length > 1)
+			{
+				addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+			}
+		}
+
+		if (animationsArray.length <= 0)
+		{
+			quickAnimAdd('idle', 'BF idle dance');
+		}
+
+		if (characterData.scale != null)
+		{
+			jsonScale = characterData.scale;
+			setGraphicSize(Std.int(width * jsonScale));
+			updateHitbox();
+		}
+
+		if (characterData.position != null)
+		{
+			positionArray = characterData.position;
+		}
+
+		if (characterData.cameraPosition != null)
+		{
+			cameraPosition = characterData.cameraPosition;
+		}
+
+		if (characterData.healthIcon != null)
+		{
+			healthIcon = characterData.healthIcon;
+		}
+
+		if (characterData.singDuration != null)
+		{
+			singDuration = characterData.singDuration;
+		}
+
+		if (characterData.flipX != null)
+		{
+			flipX = characterData.flipX;
+		}
+
+		if (characterData.noAntialiasing != null)
+		{
+			noAntialiasing = characterData.noAntialiasing;
+		}
+
+		if (!Options.save.data.globalAntialiasing)
+		{
+			antialiasing = false;
+		}
+		else
+		{
+			antialiasing = !noAntialiasing;
+		}
+
+		if (characterData.healthBarColors != null && characterData.healthBarColors.length > 2)
+		{
+			healthBarColors = characterData.healthBarColors;
+		}
+
+		if (characterData.cameraMotionFactor != null)
+		{
+			cameraMotionFactor = characterData.cameraMotionFactor;
+		}
+
+		if (characterData.initialAnimation != null)
+		{
+			initialAnimation = characterData.initialAnimation;
+		}
+
+		Debug.logTrace('Loaded data file for character "$id"');
 	}
 
 	public var danced:Bool = false;
@@ -291,52 +402,55 @@ class Character extends FlxSprite
 				danced = !danced;
 
 				if (danced)
-					playAnim('danceRight' + idleSuffix);
+					playAnim('danceRight$idleSuffix');
 				else
-					playAnim('danceLeft' + idleSuffix);
+					playAnim('danceLeft$idleSuffix');
 			}
-			else if (animation.getByName('idle' + idleSuffix) != null)
+			else if (animation.exists('idle$idleSuffix'))
 			{
-				playAnim('idle' + idleSuffix);
+				playAnim('idle$idleSuffix');
 			}
 		}
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
+	public function playAnim(animName:String, force:Bool = false, reversed:Bool = false, frame:Int = 0):Void
 	{
 		specialAnim = false;
-		animation.play(AnimName, Force, Reversed, Frame);
+		animation.play(animName, force, reversed, frame);
 
-		var daOffset:Array<Float> = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName))
+		if (animOffsets.exists(animName))
 		{
-			offset.set(daOffset[0], daOffset[1]);
+			var animOffset:Array<Float> = animOffsets.get(animName);
+			offset.set(animOffset[0], animOffset[1]);
 		}
 		else
-			offset.set(0, 0);
-
-		if (curCharacter.startsWith('gf'))
 		{
-			if (AnimName == 'singLEFT')
+			offset.set(0, 0);
+		}
+
+		if (id.startsWith('gf'))
+		{
+			if (animName == 'singLEFT')
 			{
 				danced = true;
 			}
-			else if (AnimName == 'singRIGHT')
+			else if (animName == 'singRIGHT')
 			{
 				danced = false;
 			}
 
-			if (AnimName == 'singUP' || AnimName == 'singDOWN')
+			if (animName == 'singUP' || animName == 'singDOWN')
 			{
 				danced = !danced;
 			}
 		}
 	}
 
-	public function loadMappedAnims()
+	public function loadMappedAnims():Void
 	{
-		var pico = Song.loadFromJson("pico-speaker", "", "stress");
-		var notes = pico.notes;
+		var pico:SongData = Song.loadFromJson('pico-speaker', '', 'stress');
+
+		var notes:Array<SectionData> = pico.notes;
 
 		for (section in notes)
 		{
@@ -351,7 +465,7 @@ class Character extends FlxSprite
 		animationNotes.sort(sortAnims);
 	}
 
-	function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
+	private function sortAnims(val1:Array<Dynamic>, val2:Array<Dynamic>):Int
 	{
 		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
 	}
@@ -363,7 +477,7 @@ class Character extends FlxSprite
 	public function recalculateDanceIdle():Void
 	{
 		var lastDanceIdle:Bool = danceIdle;
-		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
+		danceIdle = (animation.exists('danceLeft$idleSuffix') && animation.exists('danceRight$idleSuffix'));
 
 		if (settingCharacterUp)
 		{
@@ -382,6 +496,27 @@ class Character extends FlxSprite
 		settingCharacterUp = false;
 	}
 
+	public function leftToRight():Void
+	{
+		swapAnimations('singRIGHT', 'singLEFT');
+		swapAnimations('singRIGHTmiss', 'singLEFTmiss');
+		swapAnimations('singRIGHT-loop', 'singLEFT-loop');
+	}
+
+	public function swapAnimations(anim1:String, anim2:String):Void
+	{
+		if (animation.exists(anim1) && animation.exists(anim2))
+		{
+			var oldFrames:Array<Int> = animation.getByName(anim1).frames;
+			animation.getByName(anim1).frames = animation.getByName(anim2).frames;
+			animation.getByName(anim2).frames = oldFrames;
+
+			var oldOffsets:Array<Float> = animOffsets.get(anim1);
+			animOffsets.set(anim1, animOffsets.get(anim2));
+			animOffsets.set(anim2, oldOffsets);
+		}
+	}
+
 	public function addOffset(name:String, x:Float = 0, y:Float = 0):Void
 	{
 		animOffsets[name] = [x, y];
@@ -390,5 +525,22 @@ class Character extends FlxSprite
 	public function quickAnimAdd(name:String, anim:String):Void
 	{
 		animation.addByPrefix(name, anim, 24, false);
+	}
+
+	private function set_isPlayer(value:Bool):Bool
+	{
+		if (isPlayer != value)
+		{
+			isPlayer = value;
+			flipX = !flipX;
+
+			leftToRight();
+			// for (animOffset in animOffsets)
+			// {
+			// 	animOffset[0] = -animOffset[0];
+			// }
+			updateHitbox();
+		}
+		return isPlayer;
 	}
 }

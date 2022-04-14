@@ -13,29 +13,24 @@ class FlashingState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
-	var warnText:FlxText;
+	private var warnText:FlxText;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 
-		warnText = new FlxText(0, 0, FlxG.width, "Hey, watch out!\n
-			This Mod contains some flashing lights!\n
-			Press ENTER to disable them now or go to Options Menu.\n
-			Press ESCAPE to ignore this message.\n
-			You've been warned!", 32);
-		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+		warnText = new FlxText(0, 0, FlxG.width,
+			'Hey, watch out!\nThis Mod contains some flashing lights!\nPress ENTER to disable them now or go to Options Menu.\nPress ESCAPE to ignore this message.\nYou\'ve been warned!',
+			32);
+		warnText.setFormat(Paths.font('vcr.ttf'), warnText.size, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -50,8 +45,8 @@ class FlashingState extends MusicBeatState
 				if (!back)
 				{
 					Options.save.data.flashing = false;
-					Options.saveOptions();
-					FlxG.sound.play(Paths.sound('confirmMenu'));
+					Options.flushSave();
+					FlxG.sound.play(Paths.getSound('confirmMenu'));
 					FlxFlicker.flicker(warnText, 1, 0.1, false, true, (flk:FlxFlicker) ->
 					{
 						new FlxTimer().start(0.5, (tmr:FlxTimer) ->
@@ -62,7 +57,7 @@ class FlashingState extends MusicBeatState
 				}
 				else
 				{
-					FlxG.sound.play(Paths.sound('cancelMenu'));
+					FlxG.sound.play(Paths.getSound('cancelMenu'));
 					FlxTween.tween(warnText, {alpha: 0}, 1, {
 						onComplete: (twn:FlxTween) ->
 						{

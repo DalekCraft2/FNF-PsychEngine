@@ -87,24 +87,24 @@
 			"name": "spooky UP NOTE"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/spooky_kids_assets",
+	"noAntialiasing": false,
+	"image": "spooky_kids_assets",
 	"position": [
 		0,
 		200
 	],
-	"healthicon": "spooky",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "spooky",
+	"flipX": false,
+	"healthBarColors": [
 		213,
 		126,
 		0
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

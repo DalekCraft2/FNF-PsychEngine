@@ -4,14 +4,17 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
+import haxe.io.Path;
 
 using StringTools;
+
+// TODO Attempt to remove the need for two DialogueBox classes by adding any features from the vanilla one to this one
 
 typedef DialogueCharacterData =
 {
 	var image:String;
 	var dialogue_pos:String;
-	var no_antialiasing:Bool;
+	var noAntialiasing:Bool;
 
 	var animations:Array<DialogueAnimationData>;
 	var position:Array<Float>;
@@ -36,57 +39,54 @@ typedef DialogueData =
 
 typedef DialogueLine =
 {
-	var portrait:Null<String>;
-	var expression:Null<String>;
-	var text:Null<String>;
-	var boxState:Null<String>;
-	var speed:Null<Float>;
-	var sound:Null<String>;
+	var ?portrait:String;
+	var ?expression:String;
+	var ?text:String;
+	var ?boxState:String;
+	var ?speed:Float;
+	var ?sound:String;
 }
 
 class DialogueCharacter extends FlxSprite
 {
 	private static final IDLE_SUFFIX:String = '-IDLE';
-	public static final DEFAULT_CHARACTER:String = 'bf';
+	public static inline final DEFAULT_CHARACTER:String = 'bf';
 	public static final DEFAULT_SCALE:Float = 0.7;
 
-	public var jsonFile:DialogueCharacterData = null;
+	public var jsonFile:DialogueCharacterData;
 	public var dialogueAnimations:Map<String, DialogueAnimationData> = [];
 
 	public var startingPos:Float = 0; // For center characters, it works as the starting Y, for everything else it works as starting X
 	public var isGhost:Bool = false; // For the editor
-	public var curCharacter:String = 'bf';
-	public var skiptimer:Int = 0;
-	public var skipping:Int = 0;
+	public var id:String;
 
-	public function new(x:Float = 0, y:Float = 0, character:String = null)
+	public function new(x:Float = 0, y:Float = 0, id:String = DEFAULT_CHARACTER)
 	{
 		super(x, y);
 
-		if (character == null)
-			character = DEFAULT_CHARACTER;
-		this.curCharacter = character;
+		if (id == null)
+			id = DEFAULT_CHARACTER;
+		this.id = id;
 
-		reloadCharacterJson(character);
+		reloadCharacterJson(id);
 		frames = Paths.getSparrowAtlas('dialogue/${jsonFile.image}');
 		reloadAnimations();
 
 		antialiasing = Options.save.data.globalAntialiasing;
-		if (jsonFile.no_antialiasing == true)
+		if (jsonFile.noAntialiasing)
 			antialiasing = false;
 	}
 
 	public function reloadCharacterJson(character:String):Void
 	{
-		var characterPath:String = 'dialogue/$curCharacter';
-
-		var characterData:DialogueCharacterData = Paths.getJson(characterPath);
+		var characterData:DialogueCharacterData = Paths.getJson(Path.join(['dialogue', character]));
 		if (characterData == null)
 		{
-			characterData = Paths.getJson('dialogue/$DEFAULT_CHARACTER');
+			Debug.logError('Could not find dialogue character data for character "$character"; using default');
+			characterData = Paths.getJson(Path.join(['dialogue', DEFAULT_CHARACTER]));
 		}
 
-		jsonFile = cast characterData;
+		jsonFile = characterData;
 	}
 
 	public function reloadAnimations():Void
@@ -103,7 +103,7 @@ class DialogueCharacter extends FlxSprite
 		}
 	}
 
-	public function playAnim(animName:String = null, playIdle:Bool = false):Void
+	public function playAnim(?animName:String, playIdle:Bool = false):Void
 	{
 		var leAnim:String = animName;
 		if (animName == null || !dialogueAnimations.exists(animName))
@@ -145,10 +145,7 @@ class DialogueCharacter extends FlxSprite
 		else
 		{
 			offset.set(0, 0);
-			Debug.logWarn('Offsets not found! Dialogue character is badly formatted, anim: '
-				+ leAnim
-				+ ', '
-				+ (playIdle ? 'idle anim' : 'loop anim'));
+			Debug.logWarn('Offsets not found! Dialogue character is badly formatted, anim: $leAnim, ${playIdle ? 'idle anim' : 'loop anim'}');
 		}
 	}
 
@@ -163,35 +160,32 @@ class DialogueCharacter extends FlxSprite
 // TODO: Clean code? Maybe? idk
 class DialogueBoxPsych extends FlxSpriteGroup
 {
-	var dialogue:Alphabet;
-	var dialogueList:DialogueData = null;
+	private var dialogue:Alphabet;
+	private var dialogueList:DialogueData;
 
 	public var finishThing:() -> Void;
-	public var nextDialogueThing:() -> Void = null;
-	public var skipDialogueThing:() -> Void = null;
+	public var nextDialogueThing:() -> Void;
+	public var skipDialogueThing:() -> Void;
 
-	var bgFade:FlxSprite = null;
-	var box:FlxSprite;
-	var textToType:String = '';
+	private var bgFade:FlxSprite;
+	private var box:FlxSprite;
+	private var textToType:String = '';
 
-	var arrayCharacters:Array<DialogueCharacter> = [];
+	private var arrayCharacters:Array<DialogueCharacter> = [];
 
-	var currentText:Int = 0;
-	var offsetPos:Float = -600;
+	private var currentText:Int = 0;
 
-	var textBoxTypes:Array<String> = ['normal', 'angry'];
+	private static final OFFSET:Float = -600;
 
-	var curCharacter:String = "";
+	private var textBoxTypes:Array<String> = ['normal', 'angry'];
 
-	// var charPositionList:Array<String> = ['left', 'center', 'right'];
-
-	public function new(dialogueList:DialogueData, ?song:String = null)
+	public function new(dialogueList:DialogueData, ?song:String)
 	{
 		super();
 
 		if (song != null && song != '')
 		{
-			FlxG.sound.playMusic(Paths.music(song), 0);
+			FlxG.sound.playMusic(Paths.getMusic(song), 0);
 			FlxG.sound.music.fadeIn(2, 0, 1);
 		}
 
@@ -225,69 +219,14 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		startNextDialog();
 	}
 
-	var dialogueStarted:Bool = false;
-	var dialogueEnded:Bool = false;
-
-	public static final LEFT_CHAR_X:Float = -60;
-	public static final RIGHT_CHAR_X:Float = -100;
-	public static final DEFAULT_CHAR_Y:Float = 60;
-
-	function spawnCharacters():Void
-	{
-		var charsMap:Map<String, Bool> = [];
-		for (dialogueLine in dialogueList.dialogue)
-		{
-			if (dialogueLine != null)
-			{
-				var charToAdd:String = dialogueLine.portrait;
-				if (!charsMap.exists(charToAdd) || !charsMap.get(charToAdd))
-				{
-					charsMap.set(charToAdd, true);
-				}
-			}
-		}
-
-		for (individualChar in charsMap.keys())
-		{
-			var x:Float = LEFT_CHAR_X;
-			var y:Float = DEFAULT_CHAR_Y;
-			var char:DialogueCharacter = new DialogueCharacter(x + offsetPos, y, individualChar);
-			char.setGraphicSize(Std.int(char.width * DialogueCharacter.DEFAULT_SCALE * char.jsonFile.scale));
-			char.updateHitbox();
-			char.scrollFactor.set();
-			char.alpha = 0.00001;
-			add(char);
-
-			var saveY:Bool = false;
-			switch (char.jsonFile.dialogue_pos)
-			{
-				case 'center':
-					char.x = FlxG.width / 2;
-					char.x -= char.width / 2;
-					y = char.y;
-					char.y = FlxG.height + 50;
-					saveY = true;
-				case 'right':
-					x = FlxG.width - char.width + RIGHT_CHAR_X;
-					char.x = x - offsetPos;
-			}
-			x += char.jsonFile.position[0];
-			y += char.jsonFile.position[1];
-			char.x += char.jsonFile.position[0];
-			char.y += char.jsonFile.position[1];
-			char.startingPos = (saveY ? y : x);
-			arrayCharacters.push(char);
-		}
-	}
-
 	public static final DEFAULT_TEXT_X:Float = 90;
 	public static final DEFAULT_TEXT_Y:Float = 430;
 
-	var scrollSpeed:Float = 4500;
-	var daText:Alphabet = null;
-	var ignoreThisFrame:Bool = true; // First frame is reserved for loading dialogue images
+	private var scrollSpeed:Float = 4500;
+	private var daText:Alphabet;
+	private var ignoreThisFrame:Bool = true; // First frame is reserved for loading dialogue images
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -325,15 +264,15 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				else if (currentText >= dialogueList.dialogue.length)
 				{
 					dialogueEnded = true;
-					for (textBoxType in 0...textBoxTypes.length)
+					for (textBoxType in textBoxTypes)
 					{
 						var checkArray:Array<String> = ['', 'center-'];
 						var animName:String = box.animation.curAnim.name;
 						for (prefix in checkArray)
 						{
-							if (animName == prefix + textBoxType || animName == prefix + textBoxType + 'Open')
+							if (animName == prefix + textBoxType || animName == '$prefix${textBoxType}Open')
 							{
-								box.animation.play(prefix + textBoxType + 'Open', true);
+								box.animation.play('$prefix${textBoxType}Open', true);
 							}
 						}
 					}
@@ -351,7 +290,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				{
 					startNextDialog();
 				}
-				FlxG.sound.play(Paths.sound('dialogueClose'));
+				FlxG.sound.play(Paths.getSound('dialogueClose'));
 			}
 			else if (daText.finishedText)
 			{
@@ -378,9 +317,9 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					var animName:String = box.animation.curAnim.name;
 					for (prefix in checkArray)
 					{
-						if (animName == prefix + textBoxType || animName == prefix + textBoxType + 'Open')
+						if (animName == prefix + textBoxType || animName == '$prefix${textBoxType}Open')
 						{
-							box.animation.play(prefix + textBoxType, true);
+							box.animation.play('$prefix$textBoxType', true);
 						}
 					}
 				}
@@ -400,16 +339,16 @@ class DialogueBoxPsych extends FlxSpriteGroup
 							{
 								case 'left':
 									char.x -= scrollSpeed * elapsed;
-									if (char.x < char.startingPos + offsetPos)
-										char.x = char.startingPos + offsetPos;
+									if (char.x < char.startingPos + OFFSET)
+										char.x = char.startingPos + OFFSET;
 								case 'center':
 									char.y += scrollSpeed * elapsed;
 									if (char.y > char.startingPos + FlxG.height)
 										char.y = char.startingPos + FlxG.height;
 								case 'right':
 									char.x += scrollSpeed * elapsed;
-									if (char.x > char.startingPos - offsetPos)
-										char.x = char.startingPos - offsetPos;
+									if (char.x > char.startingPos - OFFSET)
+										char.x = char.startingPos - OFFSET;
 							}
 							char.alpha -= 3 * elapsed;
 							if (char.alpha < 0.00001)
@@ -498,12 +437,67 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 	}
 
-	var lastCharacter:Int = -1;
-	var lastBoxType:String = '';
+	private var dialogueStarted:Bool = false;
+	private var dialogueEnded:Bool = false;
 
-	function startNextDialog():Void
+	public static final LEFT_CHAR_X:Float = -60;
+	public static final RIGHT_CHAR_X:Float = -100;
+	public static final DEFAULT_CHAR_Y:Float = 60;
+
+	private function spawnCharacters():Void
 	{
-		var curDialogue:DialogueLine = null;
+		var charsMap:Map<String, Bool> = [];
+		for (dialogueLine in dialogueList.dialogue)
+		{
+			if (dialogueLine != null)
+			{
+				var charToAdd:String = dialogueLine.portrait;
+				if (!charsMap.exists(charToAdd) || !charsMap.get(charToAdd))
+				{
+					charsMap.set(charToAdd, true);
+				}
+			}
+		}
+
+		for (individualChar in charsMap.keys())
+		{
+			var x:Float = LEFT_CHAR_X;
+			var y:Float = DEFAULT_CHAR_Y;
+			var char:DialogueCharacter = new DialogueCharacter(x + OFFSET, y, individualChar);
+			char.setGraphicSize(Std.int(char.width * DialogueCharacter.DEFAULT_SCALE * char.jsonFile.scale));
+			char.updateHitbox();
+			char.scrollFactor.set();
+			char.alpha = 0.00001;
+			add(char);
+
+			var saveY:Bool = false;
+			switch (char.jsonFile.dialogue_pos)
+			{
+				case 'center':
+					char.x = FlxG.width / 2;
+					char.x -= char.width / 2;
+					y = char.y;
+					char.y = FlxG.height + 50;
+					saveY = true;
+				case 'right':
+					x = FlxG.width - char.width + RIGHT_CHAR_X;
+					char.x = x - OFFSET;
+			}
+			x += char.jsonFile.position[0];
+			y += char.jsonFile.position[1];
+			char.x += char.jsonFile.position[0];
+			char.y += char.jsonFile.position[1];
+			char.startingPos = (saveY ? y : x);
+			arrayCharacters.push(char);
+		}
+	}
+
+	private var lastCharacter:Int = -1;
+	private var lastBoxType:String = '';
+
+	private function startNextDialog():Void
+	{
+		var curDialogue:DialogueLine;
 		do
 		{
 			curDialogue = dialogueList.dialogue[currentText];
@@ -532,7 +526,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		for (i in 0...arrayCharacters.length)
 		{
 			var char:DialogueCharacter = arrayCharacters[i];
-			if (char.curCharacter == curDialogue.portrait)
+			if (char.id == curDialogue.portrait)
 			{
 				character = i;
 				break;
@@ -545,7 +539,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 		if (character != lastCharacter)
 		{
-			box.animation.play(centerPrefix + boxType + 'Open', true);
+			box.animation.play('$centerPrefix${boxType}Open', true);
 			updateBoxOffsets(box);
 			box.flipX = (lePosition == 'left');
 		}
@@ -590,11 +584,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		{
 			nextDialogueThing();
 		}
-	}
-
-	public static function parseDialogue(path:String):DialogueData
-	{
-		return Paths.getJson(path);
 	}
 
 	public static function updateBoxOffsets(box:FlxSprite):Void

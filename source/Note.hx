@@ -1,5 +1,6 @@
 package;
 
+import NoteKey.NoteColor;
 import editors.ChartingState;
 import flixel.FlxSprite;
 
@@ -11,7 +12,7 @@ typedef EventNoteData =
 	var value2:String;
 }
 
-// TODO Use the below typedef
+// TODO Use the below typedef (and maybe find a better name to differentiate it from the noteData field in Note)
 
 typedef NoteData =
 {
@@ -37,7 +38,7 @@ class Note extends FlxSprite
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
-	public var noteType(default, set):String = null;
+	public var noteType(default, set):String;
 
 	public var eventName:String = '';
 	public var eventLength:Int = 0;
@@ -51,14 +52,10 @@ class Note extends FlxSprite
 	private var earlyHitMult:Float = 0.5;
 
 	public static final STRUM_WIDTH:Float = 160 * 0.7;
-	public static final PURPLE_NOTE:Int = 0;
-	public static final BLUE_NOTE:Int = 1;
-	public static final GREEN_NOTE:Int = 2;
-	public static final RED_NOTE:Int = 3;
 
 	// Lua shit
 	public var noteSplashDisabled:Bool = false;
-	public var noteSplashTexture:String = null;
+	public var noteSplashTexture:String;
 	public var noteSplashHue:Float = 0;
 	public var noteSplashSat:Float = 0;
 	public var noteSplashBrt:Float = 0;
@@ -79,7 +76,7 @@ class Note extends FlxSprite
 	public var ratingMod:Float = 0; // 9 = unknown, 0.25 = shit, 0.5 = bad, 0.75 = good, 1 = sick
 	public var ratingDisabled:Bool = false;
 
-	public var texture(default, set):String = null;
+	public var texture(default, set):String;
 
 	public var noAnimation:Bool = false;
 	public var hitCausesMiss:Bool = false;
@@ -87,65 +84,12 @@ class Note extends FlxSprite
 
 	public var hitsoundDisabled:Bool = false;
 
-	private function set_texture(value:String):String
-	{
-		if (texture != value)
-		{
-			reloadNote('', value);
-		}
-		texture = value;
-		return value;
-	}
-
-	private function set_noteType(value:String):String
-	{
-		noteSplashTexture = PlayState.song.splashSkin;
-		colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
-		colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
-		colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
-
-		if (noteData > -1 && noteType != value)
-		{
-			switch (value)
-			{
-				case 'Hurt Note':
-					ignoreNote = mustPress;
-					reloadNote('HURT');
-					noteSplashTexture = 'HURTnoteSplashes';
-					colorSwap.hue = 0;
-					colorSwap.saturation = 0;
-					colorSwap.brightness = 0;
-					if (isSustainNote)
-					{
-						missHealth = 0.1;
-					}
-					else
-					{
-						missHealth = 0.3;
-					}
-					hitCausesMiss = true;
-				case 'No Animation':
-					noAnimation = true;
-				case 'GF Sing':
-					gfNote = true;
-			}
-			noteType = value;
-		}
-		noteSplashHue = colorSwap.hue;
-		noteSplashSat = colorSwap.saturation;
-		noteSplashBrt = colorSwap.brightness;
-		return value;
-	}
-
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?isSustainNote:Bool = false, ?inEditor:Bool = false)
 	{
 		super();
 
-		if (prevNote == null)
-			prevNote = this;
-
-		this.prevNote = prevNote;
-		isSustainNote = sustainNote;
+		this.prevNote = prevNote == null ? this : prevNote;
+		this.isSustainNote = isSustainNote;
 		this.inEditor = inEditor;
 
 		x += (Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
@@ -155,30 +99,19 @@ class Note extends FlxSprite
 		if (!inEditor)
 			this.strumTime += Options.save.data.noteOffset;
 
-		this.noteData = noteData;
+		this.noteData = Std.int(Math.abs(noteData));
 
-		if (noteData > -1)
+		if (this.noteData > -1)
 		{
 			texture = '';
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
 
-			x += STRUM_WIDTH * (noteData % 4);
+			x += STRUM_WIDTH * (this.noteData % 4);
 			if (!isSustainNote)
 			{ // Doing this 'if' check to fix the warnings on Senpai songs
-				var animToPlay:String = '';
-				switch (noteData % 4)
-				{
-					case 0:
-						animToPlay = 'purple';
-					case 1:
-						animToPlay = 'blue';
-					case 2:
-						animToPlay = 'green';
-					case 3:
-						animToPlay = 'red';
-				}
-				animation.play(animToPlay + 'Scroll');
+				var animToPlay:String = NoteColor.createByIndex(this.noteData % 4).getName();
+				animation.play('${animToPlay}Scroll');
 			}
 		}
 
@@ -193,7 +126,7 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			switch (noteData)
+			switch (this.noteData)
 			{
 				case 0:
 					animation.play('purpleholdend');
@@ -238,7 +171,6 @@ class Note extends FlxSprite
 					prevNote.scale.y *= (6 / height); // Auto adjust note size
 				}
 				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
 			}
 
 			if (PlayState.isPixelStage)
@@ -254,12 +186,46 @@ class Note extends FlxSprite
 		x += offsetX;
 	}
 
-	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
-	var lastNoteScaleToo:Float = 1;
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		if (mustPress)
+		{
+			// ok river
+			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
+				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
+				canBeHit = true;
+			else
+				canBeHit = false;
+
+			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
+				tooLate = true;
+		}
+		else
+		{
+			canBeHit = false;
+
+			if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
+			{
+				if ((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition)
+					wasGoodHit = true;
+			}
+		}
+
+		if (tooLate && !inEditor)
+		{
+			if (alpha > 0.3)
+				alpha = 0.3;
+		}
+	}
+
+	private var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
+	private var lastNoteScaleToo:Float = 1;
 
 	public var originalHeightForCalcs:Float = 6;
 
-	function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = ''):Void
+	private function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = ''):Void
 	{
 		var skin:String = texture;
 		if (texture.length < 1)
@@ -271,7 +237,7 @@ class Note extends FlxSprite
 			}
 		}
 
-		var animName:String = null;
+		var animName:Null<String> = null;
 		if (animation.curAnim != null)
 		{
 			animName = animation.curAnim.name;
@@ -339,84 +305,88 @@ class Note extends FlxSprite
 		}
 	}
 
-	function loadNoteAnims():Void
+	private function loadNoteAnims():Void
 	{
-		animation.addByPrefix('purpleScroll', 'purple alone');
-		animation.addByPrefix('blueScroll', 'blue alone');
-		animation.addByPrefix('greenScroll', 'green alone');
-		animation.addByPrefix('redScroll', 'red alone');
-
-		if (isSustainNote)
+		for (color in NoteColor.createAll())
 		{
-			animation.addByPrefix('purpleholdend', 'purple tail');
-			animation.addByPrefix('blueholdend', 'blue tail');
-			animation.addByPrefix('greenholdend', 'green tail');
-			animation.addByPrefix('redholdend', 'red tail');
+			animation.addByPrefix('${color}Scroll', '${color} alone');
 
-			animation.addByPrefix('purplehold', 'purple hold');
-			animation.addByPrefix('bluehold', 'blue hold');
-			animation.addByPrefix('greenhold', 'green hold');
-			animation.addByPrefix('redhold', 'red hold');
+			if (isSustainNote)
+			{
+				animation.addByPrefix('${color}holdend', '${color} tail');
+
+				animation.addByPrefix('${color}hold', '${color} hold');
+			}
 		}
 
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
 	}
 
-	function loadPixelNoteAnims():Void
+	private function loadPixelNoteAnims():Void
 	{
-		if (isSustainNote)
+		for (color in NoteColor.createAll())
 		{
-			animation.add('purpleholdend', [PURPLE_NOTE + 4]);
-			animation.add('blueholdend', [BLUE_NOTE + 4]);
-			animation.add('greenholdend', [GREEN_NOTE + 4]);
-			animation.add('redholdend', [RED_NOTE + 4]);
+			if (isSustainNote)
+			{
+				animation.add('${color}holdend', [color.getIndex() + 4]);
 
-			animation.add('purplehold', [PURPLE_NOTE]);
-			animation.add('bluehold', [BLUE_NOTE]);
-			animation.add('greenhold', [GREEN_NOTE]);
-			animation.add('redhold', [RED_NOTE]);
-		}
-		else
-		{
-			animation.add('purpleScroll', [PURPLE_NOTE + 4]);
-			animation.add('blueScroll', [BLUE_NOTE + 4]);
-			animation.add('greenScroll', [GREEN_NOTE + 4]);
-			animation.add('redScroll', [RED_NOTE + 4]);
+				animation.add('${color}hold', [color.getIndex()]);
+			}
+			else
+			{
+				animation.add('${color}Scroll', [color.getIndex() + 4]);
+			}
 		}
 	}
 
-	override function update(elapsed:Float):Void
+	private function set_texture(value:String):String
 	{
-		super.update(elapsed);
-
-		if (mustPress)
+		if (texture != value)
 		{
-			// ok river
-			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
-				canBeHit = true;
-			else
-				canBeHit = false;
-
-			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
-				tooLate = true;
+			reloadNote('', value);
 		}
-		else
-		{
-			canBeHit = false;
+		texture = value;
+		return value;
+	}
 
-			if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
+	private function set_noteType(value:String):String
+	{
+		noteSplashTexture = PlayState.song.splashSkin;
+		colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
+		colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
+		colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
+
+		if (noteData > -1 && noteType != value)
+		{
+			switch (value)
 			{
-				if ((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition)
-					wasGoodHit = true;
+				case 'Hurt Note':
+					ignoreNote = mustPress;
+					reloadNote('HURT');
+					noteSplashTexture = 'HURTnoteSplashes';
+					colorSwap.hue = 0;
+					colorSwap.saturation = 0;
+					colorSwap.brightness = 0;
+					if (isSustainNote)
+					{
+						missHealth = 0.1;
+					}
+					else
+					{
+						missHealth = 0.3;
+					}
+					hitCausesMiss = true;
+				case 'No Animation':
+					noAnimation = true;
+				case 'GF Sing':
+					gfNote = true;
 			}
+			noteType = value;
 		}
-
-		if (tooLate && !inEditor)
-		{
-			if (alpha > 0.3)
-				alpha = 0.3;
-		}
+		noteSplashHue = colorSwap.hue;
+		noteSplashSat = colorSwap.saturation;
+		noteSplashBrt = colorSwap.brightness;
+		return value;
 	}
 }

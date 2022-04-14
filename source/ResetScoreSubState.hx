@@ -6,16 +6,17 @@ import flixel.util.FlxColor;
 
 class ResetScoreSubState extends MusicBeatSubState
 {
-	var bg:FlxSprite;
-	var alphabetArray:Array<Alphabet> = [];
-	var icon:HealthIcon;
-	var onYes:Bool = false;
-	var yesText:Alphabet;
-	var noText:Alphabet;
+	private var bg:FlxSprite;
+	private var alphabetArray:Array<Alphabet> = [];
+	private var icon:HealthIcon;
+	private var onYes:Bool = false;
+	private var yesText:Alphabet;
+	private var noText:Alphabet;
 
-	var song:String;
-	var difficulty:Int;
-	var week:Int;
+	private var song:String;
+	private var difficulty:Int;
+	private var character:String;
+	private var week:Int;
 
 	// Week -1 = Freeplay
 	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
@@ -24,14 +25,18 @@ class ResetScoreSubState extends MusicBeatSubState
 
 		this.song = song;
 		this.difficulty = difficulty;
+		this.character = character;
 		this.week = week;
+	}
 
+	override public function create():Void
+	{
 		var name:String = song;
 		if (week > -1)
 		{
-			name = Week.weeksLoaded.get(Week.weeksList[week]).weekName;
+			name = Week.weeksLoaded.get(Week.weekList[week]).weekName;
 		}
-		name += ' (' + CoolUtil.difficulties[difficulty] + ')?';
+		name += ' (${CoolUtil.difficulties[difficulty]})?';
 
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0;
@@ -39,7 +44,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		add(bg);
 
 		var tooLong:Float = (name.length > 18) ? 0.8 : 1; // Fucking Winter Horrorland
-		var text:Alphabet = new Alphabet(0, 180, "Reset the score of", true);
+		var text:Alphabet = new Alphabet(0, 180, 'Reset the score of', true);
 		text.screenCenter(X);
 		alphabetArray.push(text);
 		text.alpha = 0;
@@ -72,7 +77,7 @@ class ResetScoreSubState extends MusicBeatSubState
 		updateOptions();
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -80,9 +85,8 @@ class ResetScoreSubState extends MusicBeatSubState
 		if (bg.alpha > 0.6)
 			bg.alpha = 0.6;
 
-		for (i in 0...alphabetArray.length)
+		for (spr in alphabetArray)
 		{
-			var spr:Alphabet = alphabetArray[i];
 			spr.alpha += elapsed * 2.5;
 		}
 		if (week == -1)
@@ -90,13 +94,13 @@ class ResetScoreSubState extends MusicBeatSubState
 
 		if (controls.UI_LEFT_P || controls.UI_RIGHT_P)
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 1);
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 1);
 			onYes = !onYes;
 			updateOptions();
 		}
 		if (controls.BACK)
 		{
-			FlxG.sound.play(Paths.sound('cancelMenu'), 1);
+			FlxG.sound.play(Paths.getSound('cancelMenu'), 1);
 			close();
 		}
 		else if (controls.ACCEPT)
@@ -109,15 +113,15 @@ class ResetScoreSubState extends MusicBeatSubState
 				}
 				else
 				{
-					Highscore.resetWeek(Week.weeksList[week], difficulty);
+					Highscore.resetWeek(Week.weekList[week], difficulty);
 				}
 			}
-			FlxG.sound.play(Paths.sound('cancelMenu'), 1);
+			FlxG.sound.play(Paths.getSound('cancelMenu'), 1);
 			close();
 		}
 	}
 
-	function updateOptions():Void
+	private function updateOptions():Void
 	{
 		var scales:Array<Float> = [0.75, 1];
 		var alphas:Array<Float> = [0.6, 1.25];

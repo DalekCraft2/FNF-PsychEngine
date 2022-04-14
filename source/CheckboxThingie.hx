@@ -15,10 +15,10 @@ class CheckboxThingie extends FlxSprite
 		super(x, y);
 
 		frames = Paths.getSparrowAtlas('checkbox');
-		animation.addByPrefix("unchecked", "unchecked", 24, false);
-		animation.addByPrefix("unchecking", "unchecking", 24, false);
-		animation.addByPrefix("checking", "checking", 24, false);
-		animation.addByPrefix("checked", "checked", 24, false);
+		animation.addByPrefix('unchecked', 'unchecked', 24, false);
+		animation.addByPrefix('unchecking', 'unchecking', 24, false);
+		animation.addByPrefix('checking', 'checking', 24, false);
+		animation.addByPrefix('checked', 'checked', 24, false);
 
 		antialiasing = Options.save.data.globalAntialiasing;
 		setGraphicSize(Std.int(0.9 * width));
@@ -29,7 +29,7 @@ class CheckboxThingie extends FlxSprite
 		daValue = checked;
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -55,7 +55,7 @@ class CheckboxThingie extends FlxSprite
 		}
 		else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
 		{
-			animation.play("unchecking", true);
+			animation.play('unchecking', true);
 			offset.set(25, 28);
 		}
 		return check;

@@ -56,24 +56,24 @@
 			"name": "SENPAI DOWN NOTE"
 		}
 	],
-	"no_antialiasing": true,
-	"image": "characters/senpai",
+	"noAntialiasing": true,
+	"image": "senpai",
 	"position": [
 		150,
 		360
 	],
-	"healthicon": "senpai-pixel",
-	"flip_x": false,
-	"healthbar_colors": [
+	"healthIcon": "senpai-pixel",
+	"flipX": false,
+	"healthBarColors": [
 		255,
 		170,
 		111
 	],
-	"camera_position": [
+	"cameraPosition": [
 		-240,
 		-330
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 6,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

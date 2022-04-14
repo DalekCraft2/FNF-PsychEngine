@@ -1,8 +1,14 @@
 package;
 
+import haxe.Json;
 import Section.SectionData;
 
 using StringTools;
+
+typedef SongWrapper =
+{
+	var song:SongData;
+}
 
 typedef SongData =
 {
@@ -17,6 +23,10 @@ typedef SongData =
 	 */
 	var songName:String;
 
+	// /**
+	//  * Since this is sometimes used to play a song with a different ID from the chart, I may add it again for that.
+	//  */
+	// var ?song:String;
 	var player1:String;
 	var player2:String;
 	var gfVersion:String;
@@ -28,20 +38,25 @@ typedef SongData =
 	var needsVoices:Bool;
 	var ?validScore:Bool;
 	var notes:Array<SectionData>;
-	var events:Array<Dynamic>;
+	var events:Array<Array<Dynamic>>;
 }
 
 // TODO SongMetaEditorState?
-typedef SongMeta =
+typedef SongMetaData =
 {
 	var ?offset:Int;
 	var ?name:String;
 	var ?icon:String;
-	var ?color:Array<Int>; // TODO Make this an FlxColor (or an array of FlxColors, like Myth)
+	var ?color:Array<Int>; // TODO Make this an FlxColor (or an array of FlxColors, like Myth (They're actually hex Strings))
 }
 
 class Song
 {
+	/**
+	 * The song ID used in case the requested song is missing.
+	 */
+	public static inline final DEFAULT_SONG:String = 'tutorial';
+
 	/**
 	 * The internal name of the song, as used in the file system.
 	 */
@@ -64,7 +79,40 @@ class Song
 	public var splashSkin:String;
 	public var validScore:Bool = true;
 	public var sections:Array<Section>;
-	public var events:Array<Dynamic>;
+	// public var events:Array<EventNoteData>;
+	public var events:Array<Array<Dynamic>>;
+
+	public static function createTemplateSongData():SongData
+	{
+		var songData:SongData = {
+			songId: 'test',
+			songName: 'Test',
+			player1: 'bf',
+			player2: 'dad',
+			gfVersion: 'gf',
+			stage: 'stage',
+			arrowSkin: 'NOTE_assets',
+			splashSkin: 'noteSplashes',
+			bpm: 150,
+			speed: 1,
+			needsVoices: true,
+			validScore: false,
+			notes: [],
+			events: []
+		};
+		return songData;
+	}
+
+	public static function createTemplateSongMetaData():SongMetaData
+	{
+		var songMetaData:SongMetaData = {
+			offset: 0,
+			name: 'Test',
+			icon: 'face',
+			color: [146, 113, 253]
+		}
+		return songMetaData;
+	}
 
 	public function new(songId:String, difficulty:String, ?folder:String)
 	{
@@ -92,20 +140,19 @@ class Song
 			var section:Section = new Section(sectionData);
 			sections.push(section);
 		}
+		// events = [];
 		events = songData.events;
 	}
 
-	private static function onLoadJson(songData:SongData):Void // Convert old charts to newest format
+	private static function conversionChecks(songData:SongData):Void // Convert old charts to newest format
 	{
 		if (songData.events == null)
 		{
 			songData.events = [];
-			for (secNum in 0...songData.notes.length)
+			for (section in songData.notes)
 			{
-				var sec:SectionData = songData.notes[secNum];
-
 				var i:Int = 0;
-				var notes:Array<Array<Dynamic>> = sec.sectionNotes;
+				var notes:Array<Array<Dynamic>> = section.sectionNotes;
 				var len:Int = notes.length;
 				while (i < len)
 				{
@@ -123,68 +170,87 @@ class Song
 		}
 	}
 
-	public static function loadFromJson(songId:String, difficulty:String, ?folder:String):SongData
+	public static function loadFromJsonDirect(rawJson:String):SongData
+	{
+		var songWrapper:SongWrapper = Json.parse(rawJson);
+		var songMetaData:SongMetaData = {name: songWrapper.song.songName};
+
+		return parseJson('rawsong', songWrapper, songMetaData);
+	}
+
+	public static function loadFromJson(id:String, difficulty:String, ?folder:String):SongData
 	{
 		if (folder == null)
 		{
-			folder = songId;
+			folder = id;
 		}
 
-		var songPath:String = 'songs/$folder/$songId$difficulty';
+		var songWrapper:SongWrapper = getSongWrapper(id, difficulty, folder);
+		var songMetaData:SongMetaData = getSongMetaData(id, folder);
 
-		var rawJson:{song:SongData} = Paths.getJson(songPath);
-		var songMeta:SongMeta = getSongMeta(songId, folder);
-
-		var songData:SongData = parseJson(songId, rawJson, songMeta);
-		onLoadJson(songData);
-		if (songId != 'events')
+		var songData:SongData = parseJson(id, songWrapper, songMetaData);
+		conversionChecks(songData);
+		if (id != 'events')
 			Stage.loadDirectory(songData);
 		return songData;
 	}
 
-	public static function getSongMeta(songId:String, ?folder:String):SongMeta
+	public static function getSongWrapper(id:String, difficulty:String, ?folder:String):SongWrapper
 	{
 		if (folder == null)
 		{
-			folder = songId;
+			folder = id;
 		}
-		var songMetaPath:String = 'songs/$folder/_meta';
-		var songMeta:SongMeta = Paths.getJson(songMetaPath);
-
-		if (songMeta == null)
-		{
-			songMeta = {
-				offset: 0,
-				name: songId.split('-').join(' '),
-				icon: 'face',
-				color: [146, 113, 253]
-			}
-		}
-		if (songMeta.offset == null)
-		{
-			songMeta.offset = 0;
-		}
-		if (songMeta.name == null)
-		{
-			songMeta.name = songId.split('-').join(' ');
-		}
-		if (songMeta.icon == null)
-		{
-			songMeta.icon = 'face';
-		}
-		if (songMeta.color == null || songMeta.color.length != 3)
-		{
-			songMeta.color = [146, 113, 253];
-		}
-
-		return songMeta;
+		var songPath:String = 'songs/$folder/$id$difficulty';
+		var songWrapper:SongWrapper = Paths.getJson(songPath);
+		return songWrapper;
 	}
 
-	public static function parseJson(songId:String, jsonData:Dynamic, songMetaData:SongMeta):SongData
+	public static function getSongMetaData(id:String, ?folder:String):SongMetaData
 	{
-		var songData:SongData = cast jsonData.song;
+		if (folder == null)
+		{
+			folder = id;
+		}
+		var songMetaPath:String = Paths.json('songs/$folder/_meta');
+		var songMetaData:SongMetaData = Paths.getJsonDirect(songMetaPath);
 
-		songData.songId = songId;
+		if (songMetaData == null)
+		{
+			songMetaData = createTemplateSongMetaData();
+			songMetaData.name = id.split('-').join(' ');
+		}
+		if (songMetaData.offset == null)
+		{
+			songMetaData.offset = 0;
+		}
+		if (songMetaData.name == null)
+		{
+			songMetaData.name = id.split('-').join(' ');
+		}
+		if (songMetaData.icon == null)
+		{
+			songMetaData.icon = 'face';
+		}
+		if (songMetaData.color == null || songMetaData.color.length != 3)
+		{
+			songMetaData.color = [146, 113, 253];
+		}
+
+		return songMetaData;
+	}
+
+	public static function parseJson(id:String, songWrapper:SongWrapper, songMetaData:SongMetaData):SongData
+	{
+		if (songWrapper == null)
+		{
+			Debug.logError('Could not find song data for song "$id"; using default');
+			songWrapper = getSongWrapper(DEFAULT_SONG, '');
+		}
+
+		var songData:SongData = songWrapper.song;
+
+		songData.songId = id;
 
 		// Enforce default values for optional fields.
 		if (songData.validScore == null)
@@ -197,8 +263,14 @@ class Song
 		}
 		else
 		{
-			songData.songName = songId.split('-').join(' ');
+			songData.songName = id.split('-').join(' ');
 		}
+
+		// This is for in case I want to add something to the JSON files which allows for playing a song with a different ID than the chart
+		// if (songData.song == null)
+		// {
+		// 	songData.song = songData.songId;
+		// }
 
 		// songData.offset = songMetaData.offset != null ? songMetaData.offset : 0;
 

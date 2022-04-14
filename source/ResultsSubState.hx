@@ -28,12 +28,7 @@ class ResultsSubState extends FlxSubState
 
 	public var music:FlxSound;
 
-	public var graphData:BitmapData;
-
-	public var ranking:String;
-	public var accuracy:String;
-
-	override function create():Void
+	override public function create():Void
 	{
 		super.create();
 
@@ -43,7 +38,7 @@ class ResultsSubState extends FlxSubState
 
 		if (!PlayState.inResults)
 		{
-			music = new FlxSound().loadEmbedded(Paths.music('breakfast'), true, true);
+			music = new FlxSound().loadEmbedded(Paths.getMusic('breakfast'), true, true);
 			music.volume = 0;
 			music.play(false, FlxG.random.int(0, Std.int(music.length / 2)));
 			FlxG.sound.list.add(music);
@@ -51,8 +46,7 @@ class ResultsSubState extends FlxSubState
 
 		background.alpha = 0;
 
-		text = new FlxText(20, -55, 0, "Song Cleared!");
-		text.size = 34;
+		text = new FlxText(20, -55, 0, 'Song Cleared!', 34);
 		text.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		text.color = FlxColor.WHITE;
 		text.scrollFactor.set();
@@ -62,7 +56,7 @@ class ResultsSubState extends FlxSubState
 		if (PlayState.isStoryMode)
 		{
 			score = PlayState.campaignScore;
-			text.text = "Week Cleared!";
+			text.text = 'Week Cleared!';
 		}
 
 		var sicks:Int = PlayState.isStoryMode ? PlayState.campaignSicks : PlayState.instance.sicks;
@@ -71,16 +65,14 @@ class ResultsSubState extends FlxSubState
 		var shits:Int = PlayState.isStoryMode ? PlayState.campaignShits : PlayState.instance.shits;
 
 		comboText = new FlxText(20, -75, 0,
-			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.songScore}\nAccuracy: ${CoolUtil.truncateFloat(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? "\nF1 - Replay Song" : ""}
-        ');
-		comboText.size = 28;
+			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.songScore}\nAccuracy: ${FlxMath.roundDecimal(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? '\nF1 - Replay Song' : ''}\n',
+			28);
 		comboText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		comboText.color = FlxColor.WHITE;
 		comboText.scrollFactor.set();
 		add(comboText);
 
-		contText = new FlxText(FlxG.width - 475, FlxG.height + 50, 0, 'Press ${Options.save.data.controllerMode ? 'A' : 'ENTER'} to continue.');
-		contText.size = 28;
+		contText = new FlxText(FlxG.width - 475, FlxG.height + 50, 0, 'Press ${Options.save.data.controllerMode ? 'A' : 'ENTER'} to continue.', 28);
 		contText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		contText.color = FlxColor.WHITE;
 		contText.scrollFactor.set();
@@ -101,8 +93,8 @@ class ResultsSubState extends FlxSubState
 
 		add(graphSprite);
 
-		var sicks:Float = CoolUtil.truncateFloat(PlayState.instance.sicks / PlayState.instance.goods, 1);
-		var goods:Float = CoolUtil.truncateFloat(PlayState.instance.goods / PlayState.instance.bads, 1);
+		var sicks:Float = FlxMath.roundDecimal(PlayState.instance.sicks / PlayState.instance.goods, 1);
+		var goods:Float = FlxMath.roundDecimal(PlayState.instance.goods / PlayState.instance.bads, 1);
 
 		if (sicks == Math.POSITIVE_INFINITY)
 			sicks = 0;
@@ -138,11 +130,11 @@ class ResultsSubState extends FlxSubState
 
 		graph.update();
 
-		mean = CoolUtil.truncateFloat(mean / PlayState.rep.replay.songNotes.length, 2);
+		mean = FlxMath.roundDecimal(mean / PlayState.rep.replay.songNotes.length, 2);
 
 		settingsText = new FlxText(20, FlxG.height + 50, 0,
-			'Mean: ${mean}ms (SICK:${Ratings.timingWindows[3]}ms,GOOD:${Ratings.timingWindows[2]}ms,BAD:${Ratings.timingWindows[1]}ms,SHIT:${Ratings.timingWindows[0]}ms)');
-		settingsText.size = 16;
+			'Mean: ${mean}ms (SICK:${Ratings.timingWindows[3]}ms,GOOD:${Ratings.timingWindows[2]}ms,BAD:${Ratings.timingWindows[1]}ms,SHIT:${Ratings.timingWindows[0]}ms)',
+			16);
 		settingsText.setBorderStyle(OUTLINE, FlxColor.BLACK, 2, 1);
 		settingsText.color = FlxColor.WHITE;
 		settingsText.scrollFactor.set();
@@ -164,9 +156,7 @@ class ResultsSubState extends FlxSubState
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
-	var frames = 0;
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -192,8 +182,6 @@ class ResultsSubState extends FlxSubState
 
 			if (PlayState.isStoryMode)
 			{
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				Conductor.changeBPM(102);
 				FlxG.switchState(new StoryMenuState());
 			}
 			else

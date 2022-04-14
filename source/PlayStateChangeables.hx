@@ -12,5 +12,6 @@ class PlayStateChangeables
 	public static var practiceMode:Bool;
 	public static var botPlay:Bool;
 	public static var optimize:Bool;
-	public static var zoom:Float;
+	// TODO Figure out what this was supposed to be used for
+	// public static var zoom:Float;
 }

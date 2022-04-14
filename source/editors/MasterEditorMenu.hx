@@ -1,8 +1,5 @@
 package editors;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -10,6 +7,10 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 
 using StringTools;
+
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
 
 class MasterEditorMenu extends MusicBeatState
 {
@@ -22,27 +23,31 @@ class MasterEditorMenu extends MusicBeatState
 		'Chart Editor'
 	];
 	private var grpTexts:FlxTypedGroup<Alphabet>;
-	private var directories:Array<String> = [null];
+	// TODO Remove this null from the initial list if possible
+	private var directories:Array<String> = [];
 
 	private var curSelected:Int = 0;
 	private var curDirectory:Int = 0;
 	private var directoryTxt:FlxText;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
 		persistentUpdate = true;
-		persistentDraw = true;
 
-		FlxG.camera.bgColor = FlxColor.BLACK;
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("Editors Main Menu", null);
+		DiscordClient.changePresence('Editors Main Menu', null);
 		#end
+
+		if (!FlxG.sound.music.playing)
+		{
+			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
+			Conductor.changeBPM(TitleState.titleData.bpm);
+		}
+
+		FlxG.camera.bgColor = FlxColor.BLACK;
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		bg.scrollFactor.set();
@@ -65,8 +70,8 @@ class MasterEditorMenu extends MusicBeatState
 		textBG.alpha = 0.6;
 		add(textBG);
 
-		directoryTxt = new FlxText(textBG.x, textBG.y + 4, FlxG.width, '', 32);
-		directoryTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
+		directoryTxt = new FlxText(textBG.x, textBG.y + 4, FlxG.width, 32);
+		directoryTxt.setFormat(Paths.font('vcr.ttf'), directoryTxt.size, CENTER);
 		directoryTxt.scrollFactor.set();
 		add(directoryTxt);
 
@@ -85,7 +90,7 @@ class MasterEditorMenu extends MusicBeatState
 		FlxG.mouse.visible = false;
 	}
 
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -122,8 +127,7 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Character Editor':
 					LoadingState.loadAndSwitchState(new CharacterEditorState(Character.DEFAULT_CHARACTER, false));
 				case 'Week Editor':
-				// TODO This is temporarily disabled whilst I try to finally implement SongMeta
-				// FlxG.switchState(new WeekEditorState());
+					FlxG.switchState(new WeekEditorState());
 				case 'Menu Character Editor':
 					FlxG.switchState(new MenuCharacterEditorState());
 				case 'Dialogue Portrait Editor':
@@ -146,19 +150,17 @@ class MasterEditorMenu extends MusicBeatState
 			bullShit++;
 
 			item.alpha = 0.6;
-			// item.setGraphicSize(Std.int(item.width * 0.8));
 
 			if (item.targetY == 0)
 			{
 				item.alpha = 1;
-				// item.setGraphicSize(Std.int(item.width));
 			}
 		}
 	}
 
-	function changeSelection(change:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 
 		curSelected += change;
 
@@ -169,10 +171,8 @@ class MasterEditorMenu extends MusicBeatState
 	}
 
 	#if FEATURE_MODS
-	function changeDirectory(change:Int = 0):Void
+	private function changeDirectory(change:Int = 0):Void
 	{
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-
 		curDirectory += change;
 
 		if (curDirectory < 0)
@@ -186,9 +186,11 @@ class MasterEditorMenu extends MusicBeatState
 		else
 		{
 			Paths.currentModDirectory = directories[curDirectory];
-			directoryTxt.text = '< Loaded Mod Directory: ' + Paths.currentModDirectory + ' >';
+			directoryTxt.text = '< Loaded Mod Directory: ${Paths.currentModDirectory} >';
 		}
 		directoryTxt.text = directoryTxt.text.toUpperCase();
+
+		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 	}
 	#end
 }

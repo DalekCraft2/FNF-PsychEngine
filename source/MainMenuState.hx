@@ -1,6 +1,5 @@
 package;
 
-import Achievement.AchievementData;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -24,11 +23,11 @@ class MainMenuState extends MusicBeatState
 {
 	public static var curSelected:Int = 0;
 
-	var menuItems:FlxTypedGroup<FlxSprite>;
+	private var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
 	private var camAchievement:FlxCamera;
 
-	var optionShit:Array<String> = [
+	private var menuOptions:Array<String> = [
 		'story_mode',
 		'freeplay',
 		#if FEATURE_MODS 'mods',
@@ -42,28 +41,28 @@ class MainMenuState extends MusicBeatState
 		'options'
 	];
 
-	var magenta:FlxSprite;
-	var camFollow:FlxObject;
-	var camFollowPos:FlxObject;
-	var debugKeys:Array<FlxKey>;
+	private var magenta:FlxSprite;
+	private var camFollow:FlxObject;
+	private var camFollowPos:FlxObject;
+	private var debugKeys:Array<FlxKey>;
 
-	override function create():Void
+	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		super.create();
 
-		Week.loadTheFirstEnabledMod();
+		persistentUpdate = true;
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence('In the Menus', null);
 		#end
+
+		Week.loadTheFirstEnabledMod();
 
 		if (!FlxG.sound.music.playing)
 		{
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
+			Conductor.changeBPM(TitleState.titleData.bpm);
 		}
 
 		debugKeys = Options.copyKey(Options.save.data.keyBinds.get('debug_1'));
@@ -75,10 +74,7 @@ class MainMenuState extends MusicBeatState
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camAchievement, false);
 
-		persistentUpdate = true;
-		persistentDraw = true;
-
-		var yScroll:Float = Math.max(0.25 - (0.05 * (optionShit.length - 4)), 0.1);
+		var yScroll:Float = Math.max(0.25 - (0.05 * (menuOptions.length - 4)), 0.1);
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuBG'));
 		// bg.color = 0xFFFDE871;
 		bg.scrollFactor.set(0, yScroll);
@@ -103,49 +99,41 @@ class MainMenuState extends MusicBeatState
 		magenta.color = 0xFFFD719B;
 		add(magenta);
 
-		// magenta.scrollFactor.set();
-
 		menuItems = new FlxTypedGroup();
 		add(menuItems);
 
 		var scale:Float = 1;
-		/*if(optionShit.length > 6) {
-			scale = 6 / optionShit.length;
-		}*/
 
-		for (i in 0...optionShit.length)
+		for (i in 0...menuOptions.length)
 		{
-			var offset:Float = 108 - (Math.max(optionShit.length, 4) - 4) * 80;
+			var offset:Float = 108 - (Math.max(menuOptions.length, 4) - 4) * 80;
 			var menuItem:FlxSprite = new FlxSprite(0, (i * 140) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
-			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_${optionShit[i]}');
-			menuItem.animation.addByPrefix('idle', optionShit[i] + " basic", 24);
-			menuItem.animation.addByPrefix('selected', optionShit[i] + " white", 24);
+			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_${menuOptions[i]}');
+			menuItem.animation.addByPrefix('idle', '${menuOptions[i]} basic', 24);
+			menuItem.animation.addByPrefix('selected', '${menuOptions[i]} white', 24);
 			menuItem.animation.play('idle');
 			menuItem.ID = i;
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
-			var scr:Float = (optionShit.length - 4) * 0.135;
-			if (optionShit.length < 6)
+			var scr:Float = (menuOptions.length - 4) * 0.135;
+			if (menuOptions.length < 6)
 				scr = 0;
 			menuItem.scrollFactor.set(0, scr);
 			menuItem.antialiasing = Options.save.data.globalAntialiasing;
-			// menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
 		}
 
 		FlxG.camera.follow(camFollowPos, null, 1);
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, 'Psych Engine v${EngineData.ENGINE_VERSION}', 12);
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0,
+			'Psych Engine v${EngineData.ENGINE_VERSION}\nFriday Night Funkin\' v${Application.current.meta.get('version')}\n', 16);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
-		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, 'Friday Night Funkin\' v${Application.current.meta.get('version')}', 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
+		// TODO Maybe reimpliment NewgroundsIO?
 		// NG.core.calls.event.logEvent('swag').send();
 
 		changeItem();
@@ -155,32 +143,19 @@ class MainMenuState extends MusicBeatState
 		var leDate:Date = Date.now();
 		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
 		{
-			var achievement:AchievementData = Achievement.achievementsLoaded.get('friday_night_play');
-			if (!Achievement.isAchievementUnlocked(achievement.icon))
+			var achievementId:String = 'friday_night_play';
+			if (!Achievement.isAchievementUnlocked(achievementId))
 			{ // It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievement.achievementsMap.set(achievement.icon, true);
-				giveAchievement();
-				Options.saveOptions();
+				// Unlocks "Freaky on a Friday Night" achievement
+				giveAchievement(achievementId);
 			}
 		}
 		#end
 	}
 
-	#if FEATURE_ACHIEVEMENTS
-	// Unlocks "Freaky on a Friday Night" achievement
-	function giveAchievement():Void
-	{
-		var achievement:Achievement = new Achievement('friday_night_play');
-		achievement.cameras = [camAchievement];
-		add(achievement);
-		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
-		Debug.logTrace('Giving achievement "friday_night_play"');
-	}
-	#end
+	private var selectedSomethin:Bool = false;
 
-	var selectedSomethin:Bool = false;
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -189,40 +164,40 @@ class MainMenuState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
 
-		var lerpVal:Float = CoolUtil.boundTo(elapsed * 7.5, 0, 1);
+		var lerpVal:Float = FlxMath.bound(elapsed * 7.5, 0, 1);
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
 		if (!selectedSomethin)
 		{
 			if (controls.UI_UP_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 				changeItem(-1);
 			}
 
 			if (controls.UI_DOWN_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'));
+				FlxG.sound.play(Paths.getSound('scrollMenu'));
 				changeItem(1);
 			}
 
 			if (controls.BACK)
 			{
 				selectedSomethin = true;
-				FlxG.sound.play(Paths.sound('cancelMenu'));
+				FlxG.sound.play(Paths.getSound('cancelMenu'));
 				FlxG.switchState(new TitleState());
 			}
 
 			if (controls.ACCEPT)
 			{
-				if (optionShit[curSelected] == 'donate')
+				if (menuOptions[curSelected] == 'donate')
 				{
 					CoolUtil.browserLoad('https://ninja-muffin24.itch.io/funkin');
 				}
 				else
 				{
 					selectedSomethin = true;
-					FlxG.sound.play(Paths.sound('confirmMenu'));
+					FlxG.sound.play(Paths.getSound('confirmMenu'));
 
 					if (Options.save.data.flashing)
 						FlxFlicker.flicker(magenta, 1.1, 0.15, false);
@@ -243,7 +218,7 @@ class MainMenuState extends MusicBeatState
 						{
 							FlxFlicker.flicker(spr, 1, 0.06, false, false, (flick:FlxFlicker) ->
 							{
-								var daChoice:String = optionShit[curSelected];
+								var daChoice:String = menuOptions[curSelected];
 
 								switch (daChoice)
 								{
@@ -255,8 +230,10 @@ class MainMenuState extends MusicBeatState
 									case 'mods':
 										FlxG.switchState(new ModsMenuState());
 									#end
+									#if FEATURE_ACHIEVEMENTS
 									case 'awards':
 										FlxG.switchState(new AchievementsMenuState());
+									#end
 									case 'credits':
 										FlxG.switchState(new CreditsState());
 									case 'options':
@@ -282,7 +259,17 @@ class MainMenuState extends MusicBeatState
 		});
 	}
 
-	function changeItem(huh:Int = 0):Void
+	#if FEATURE_ACHIEVEMENTS
+	private function giveAchievement(id:String):Void
+	{
+		var achievement:Achievement = new Achievement(id);
+		achievement.cameras = [camAchievement];
+		add(achievement);
+		Achievement.unlockAchievement(id);
+	}
+	#end
+
+	private function changeItem(huh:Int = 0):Void
 	{
 		curSelected += huh;
 

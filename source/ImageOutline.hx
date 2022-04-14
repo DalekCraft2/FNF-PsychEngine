@@ -9,11 +9,12 @@ import openfl.geom.Matrix;
 import openfl.geom.Point;
 import openfl.geom.Rectangle;
 
+using StringTools;
+
 // credits, original source https://lassieadventurestudio.wordpress.com/2008/10/07/image-outline/
 class ImageOutline
 {
-	private static var _color:UInt;
-	private static var _hex:String = "";
+	private static var _hex:String = '';
 	private static var _alpha:Float = 1;
 	private static var _weight:Float = 2;
 	private static var _brush:Float = 4;
@@ -32,14 +33,14 @@ class ImageOutline
 		// (unfortunately, IBitmapDrawable does not include width and height getters.)
 		if (Std.isOfType(src, DisplayObject))
 		{
-			var dsp:DisplayObject = cast(src, DisplayObject);
+			var dsp:DisplayObject = cast src;
 			m = dsp.transform.matrix;
 			w = Std.int(dsp.width);
 			h = Std.int(dsp.height);
 		}
 		else if (Std.isOfType(src, BitmapData))
 		{
-			var bmp:BitmapData = cast(src, BitmapData);
+			var bmp:BitmapData = cast src;
 			w = bmp.width;
 			h = bmp.height;
 		}
@@ -63,7 +64,6 @@ class ImageOutline
 	 */
 	public static function outline(src:BitmapData, weight:Int, color:UInt, alpha:Float = 1, antialias:Bool = false, threshold:Int = 150):BitmapData
 	{
-		_color = color;
 		_hex = _toHexString(color);
 		_alpha = alpha;
 		_weight = weight;
@@ -136,7 +136,7 @@ class ImageOutline
 	 */
 	private static function _parseARGB(a:Int):UInt
 	{
-		return Std.parseInt('0x${StringTools.hex(a)}$_hex');
+		return Std.parseInt('0x${a.hex()}$_hex');
 	}
 
 	/**
@@ -148,13 +148,13 @@ class ImageOutline
 		var g:Int = (hex >> 8 ^ r << 8);
 		var b:Int = (hex ^ (r << 16 | g << 8));
 
-		var red:String = StringTools.hex(r);
-		var green:String = StringTools.hex(g);
-		var blue:String = StringTools.hex(b);
+		var red:String = r.hex();
+		var green:String = g.hex();
+		var blue:String = b.hex();
 
-		red = (red.length < 2) ? "0" + red : red;
-		green = (green.length < 2) ? "0" + green : green;
-		blue = (blue.length < 2) ? "0" + blue : blue;
+		red = (red.length < 2) ? '0$red' : red;
+		green = (green.length < 2) ? '0$green' : green;
+		blue = (blue.length < 2) ? '0$blue' : blue;
 		return (red + green + blue).toUpperCase();
 	}
 }

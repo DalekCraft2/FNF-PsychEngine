@@ -18,7 +18,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singLEFT",
+			"anim": "singRIGHT",
 			"indices": [],
 			"name": "BF NOTE LEFT0"
 		},
@@ -51,7 +51,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singRIGHT",
+			"anim": "singLEFT",
 			"indices": [],
 			"name": "BF NOTE RIGHT0"
 		},
@@ -62,7 +62,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singLEFTmiss",
+			"anim": "singRIGHTmiss",
 			"indices": [],
 			"name": "BF NOTE LEFT MISS"
 		},
@@ -95,7 +95,7 @@
 			],
 			"loop": false,
 			"fps": 24,
-			"anim": "singRIGHTmiss",
+			"anim": "singLEFTmiss",
 			"indices": [],
 			"name": "BF NOTE RIGHT MISS"
 		},
@@ -127,7 +127,7 @@
 				15
 			],
 			"fps": 24,
-			"anim": "singLEFT-loop",
+			"anim": "singRIGHT-loop",
 			"loop": true,
 			"name": "BF NOTE LEFT0"
 		},
@@ -175,29 +175,29 @@
 				61
 			],
 			"fps": 24,
-			"anim": "singRIGHT-loop",
+			"anim": "singLEFT-loop",
 			"loop": true,
 			"name": "BF NOTE RIGHT0"
 		}
 	],
-	"no_antialiasing": false,
-	"image": "characters/bfCar",
+	"noAntialiasing": false,
+	"image": "bfCar",
 	"position": [
 		0,
 		350
 	],
-	"healthicon": "bf",
-	"flip_x": true,
-	"healthbar_colors": [
+	"healthIcon": "bf",
+	"flipX": true,
+	"healthBarColors": [
 		49,
 		176,
 		209
 	],
-	"camera_position": [
+	"cameraPosition": [
 		0,
 		0
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 1,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }

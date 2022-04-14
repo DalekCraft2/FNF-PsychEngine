@@ -1,22 +1,16 @@
 package;
 
-import flixel.addons.transition.FlxTransitionableState;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 
 class MusicBeatState extends FlxUIState
 {
-	private var lastBeat:Float = 0;
-	private var lastStep:Float = 0;
-
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
 	private var controls(get, never):Controls;
-
-	inline function get_controls():Controls
-		return PlayerSettings.player1.controls;
 
 	override public function create():Void
 	{
@@ -26,23 +20,7 @@ class MusicBeatState extends FlxUIState
 		transOut = FlxTransitionableState.defaultTransOut;
 	}
 
-	#if (FEATURE_VIDEOS && windows)
-	override public function onFocus():Void
-	{
-		super.onFocus();
-
-		FlxVideo.onFocus();
-	}
-
-	override public function onFocusLost():Void
-	{
-		super.onFocusLost();
-
-		FlxVideo.onFocusLost();
-	}
-	#end
-
-	override function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -52,11 +30,27 @@ class MusicBeatState extends FlxUIState
 		updateBeat();
 
 		if (oldStep != curStep && curStep > 0)
-			stepHit();
+			stepHit(curStep);
 
-		if (FlxG.save.data != null)
-			FlxG.save.data.fullscreen = FlxG.fullscreen;
+		if (EngineData.save.data != null)
+			EngineData.save.data.fullscreen = FlxG.fullscreen;
 	}
+
+	#if (FEATURE_VIDEOS && desktop)
+	override public function onFocusLost():Void
+	{
+		super.onFocusLost();
+
+		FlxVideo.onFocusLost();
+	}
+
+	override public function onFocus():Void
+	{
+		super.onFocus();
+
+		FlxVideo.onFocus();
+	}
+	#end
 
 	private function updateBeat():Void
 	{
@@ -70,23 +64,26 @@ class MusicBeatState extends FlxUIState
 			songTime: 0,
 			bpm: 0
 		}
-		for (i in 0...Conductor.bpmChangeMap.length)
+		for (bpmChange in Conductor.bpmChangeMap)
 		{
-			if (Conductor.songPosition >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
+			if (Conductor.songPosition >= bpmChange.songTime)
+				lastChange = bpmChange;
 		}
 
 		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
-	public function stepHit():Void
+	public function stepHit(step:Int):Void
 	{
-		if (curStep % 4 == 0)
-			beatHit();
+		if (step % 4 == 0)
+			beatHit(curBeat);
 	}
 
-	public function beatHit():Void
+	public function beatHit(beat:Int):Void
 	{
 		// Do nothing
 	}
+
+	private inline function get_controls():Controls
+		return PlayerSettings.player1.controls;
 }

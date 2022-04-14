@@ -100,24 +100,24 @@
 			"name": "BF LEFT NOTE"
 		}
 	],
-	"no_antialiasing": true,
-	"image": "characters/bfPixel",
+	"noAntialiasing": true,
+	"image": "bfPixel",
 	"position": [
 		80,
 		480
 	],
-	"healthicon": "bf-pixel",
-	"flip_x": true,
-	"healthbar_colors": [
+	"healthIcon": "bf-pixel",
+	"flipX": true,
+	"healthBarColors": [
 		123,
 		214,
 		246
 	],
-	"camera_position": [
+	"cameraPosition": [
 		50,
 		-160
 	],
-	"sing_duration": 4,
+	"singDuration": 4,
 	"scale": 6.8,
-	"cam_movement_mult": 1
+	"cameraMotionFactor": 1
 }
