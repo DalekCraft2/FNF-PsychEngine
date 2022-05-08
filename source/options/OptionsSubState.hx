@@ -1,8 +1,5 @@
 package options;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -13,9 +10,13 @@ import options.Options;
 
 using StringTools;
 
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
+
+// TODO Test whether it's possible to use FlxG.switchState with a SubState, so the OptionsState code could be merged with this and fix the transition bug
 class OptionsSubState extends MusicBeatSubState
 {
-	public static var instance:OptionsSubState;
 	public static var isInPause:Bool;
 	private static var category:OptionCategory;
 
@@ -29,6 +30,168 @@ class OptionsSubState extends MusicBeatSubState
 		super();
 
 		OptionsSubState.isInPause = isInPause;
+	}
+
+	override public function create():Void
+	{
+		super.create();
+
+		persistentDraw = false;
+
+		#if FEATURE_DISCORD
+		// Updating Discord Rich Presence
+		DiscordClient.changePresence('Changing options', null);
+		#end
+
+		if (isInPause)
+		{
+			var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+			bg.alpha = 0.6;
+			bg.scrollFactor.set();
+			add(bg);
+
+			cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
+		}
+
+		createDefault();
+		category = defCat;
+
+		optionText = new FlxTypedGroup();
+		add(optionText);
+
+		optionDesc = new FlxText(5, FlxG.height - 48, 0, 20);
+		optionDesc.setFormat(Paths.font('vcr.ttf'), optionDesc.size, LEFT, OUTLINE, FlxColor.BLACK);
+		optionDesc.textField.background = true;
+		optionDesc.textField.backgroundColor = FlxColor.BLACK;
+		refresh();
+		optionDesc.visible = false;
+		add(optionDesc);
+	}
+
+	override public function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		var upP:Bool = false;
+		var downP:Bool = false;
+		var leftP:Bool = false;
+		var rightP:Bool = false;
+		var accepted:Bool = false;
+		var back:Bool = false;
+		if (controls.keyboardScheme != NONE)
+		{
+			upP = controls.UI_UP_P;
+			downP = controls.UI_DOWN_P;
+			leftP = controls.UI_LEFT_P;
+			rightP = controls.UI_RIGHT_P;
+
+			accepted = controls.ACCEPT;
+			back = controls.BACK;
+		}
+
+		if (upP)
+		{
+			changeSelection(-1);
+		}
+		if (downP)
+		{
+			changeSelection(1);
+		}
+
+		var option:Option = category.options[curSelected];
+
+		if (back)
+		{
+			if (category == defCat)
+			{
+				close();
+				Debug.logTrace('Save options');
+				Options.flushSave();
+			}
+			else
+			{
+				category.curSelected = 0;
+				category = category.parent;
+				refresh();
+			}
+		}
+		if (!Std.isOfType(option, OptionCategory))
+		{
+			if (leftP)
+			{
+				if (option.left())
+				{
+					option.updateOptionText();
+					changeSelection();
+				}
+			}
+			if (rightP)
+			{
+				if (option.right())
+				{
+					option.updateOptionText();
+					changeSelection();
+				}
+			}
+		}
+
+		if (option.allowMultiKeyInput)
+		{
+			var pressed:FlxKey = FlxG.keys.firstJustPressed();
+			var released:FlxKey = FlxG.keys.firstJustReleased();
+			if (pressed != NONE)
+			{
+				if (option.keyPressed(pressed))
+				{
+					option.updateOptionText();
+					changeSelection();
+				}
+			}
+			if (released != NONE)
+			{
+				if (option.keyReleased(released))
+				{
+					option.updateOptionText();
+					changeSelection();
+				}
+			}
+		}
+
+		if (accepted)
+		{
+			if (Std.isOfType(option, OptionCategory))
+			{
+				category = cast option;
+				refresh();
+			}
+			else if (option.accept())
+			{
+				option.updateOptionText();
+			}
+			changeSelection();
+		}
+
+		if (Std.isOfType(option, ControlOption))
+		{
+			var controlOption:ControlOption = cast option;
+			if (controlOption.forceUpdate)
+			{
+				controlOption.forceUpdate = false;
+				// optionText.remove(optionText.members[curSelected]);
+				controlOption.updateOptionText();
+				changeSelection();
+			}
+		}
+	}
+
+	override public function close():Void
+	{
+		super.close();
+
+		if (!isInPause)
+		{
+			FlxG.switchState(new MainMenuState());
+		}
 	}
 
 	// TODO Make some of these not changeable whilst in PlayState, like in Kade Engine
@@ -78,7 +241,7 @@ class OptionsSubState extends MusicBeatSubState
 					]),
 				new BooleanOption('controllerMode', 'Controller Mode', 'Toggle playing with a controller instead of a keyboard.'),
 				new BooleanOption('resetKey', 'Reset Key', 'Toggle pressing the Reset keybind to game-over.'),
-				#if FEATURE_LUA new BooleanOption('loadLuaScripts', 'Load Lua Scripts', 'Toggle lua scripts.'),
+				#if FEATURE_SCRIPTS new BooleanOption('loadScripts', 'Load Scripts', 'Toggle scripts.'),
 				#end
 				new BooleanOption('ghostTapping', 'Ghost-Tapping', 'Toggle being able to pressing keys while no notes are able to be hit.'),
 				// TODO Finish the descriptions of these
@@ -156,7 +319,7 @@ class OptionsSubState extends MusicBeatSubState
 					(index:Int, name:String, indexAdd:Int) ->
 					{
 						if (name == 'None')
-							FlxG.sound.music.volume = 0;
+							FlxG.sound.music.stop();
 						else
 							FlxG.sound.playMusic(Paths.getMusic(Paths.formatToSongPath(name)));
 
@@ -180,7 +343,8 @@ class OptionsSubState extends MusicBeatSubState
 				new BooleanOption('globalAntialiasing', 'Antialiasing', 'Toggle the ability for sprites to have antialiasing.'),
 				new BooleanOption('allowOrderSorting', 'Sort Notes by Order',
 					'Allows notes to go infront and behind other notes. May cause FPS drops on very high note-density charts.'),
-				/*new OptionCategory('Caching', [
+				/*
+					new OptionCategory('Caching', [
 						new BooleanOption('shouldCache', 'Cache on Startup', 'Whether the engine caches assets when the game starts.'),
 						new BooleanOption('cacheSongs', 'Cache Songs', 'Whether the engine caches songs if it caches on startup.'),
 						new BooleanOption('cacheSounds', 'Cache Sounds', 'Whether the engine caches misc sounds if it caches on startup.'),
@@ -189,45 +353,12 @@ class OptionsSubState extends MusicBeatSubState
 						{
 							FlxGraphic.defaultPersist = state;
 						})
-					]) */
+					])
+				 */
 			]),
 			// TODO Get replays to work (First issue: sustains crash the game)
 			// new StateOption('Replays', new LoadReplayState())
 		]);
-	}
-
-	override public function create():Void
-	{
-		super.create();
-
-		#if FEATURE_DISCORD
-		// Updating Discord Rich Presence
-		DiscordClient.changePresence('Changing options', null);
-		#end
-
-		if (isInPause)
-		{
-			var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-			bg.alpha = 0.6;
-			bg.scrollFactor.set();
-			add(bg);
-
-			cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
-		}
-
-		createDefault();
-		category = defCat;
-
-		optionText = new FlxTypedGroup();
-		add(optionText);
-
-		optionDesc = new FlxText(5, FlxG.height - 48, 0, 20);
-		optionDesc.setFormat(Paths.font('vcr.ttf'), optionDesc.size, LEFT, OUTLINE, FlxColor.BLACK);
-		optionDesc.textField.background = true;
-		optionDesc.textField.backgroundColor = FlxColor.BLACK;
-		refresh();
-		optionDesc.visible = false;
-		add(optionDesc);
 	}
 
 	private function refresh():Void
@@ -283,127 +414,5 @@ class OptionsSubState extends MusicBeatSubState
 		}
 
 		category.curSelected = curSelected;
-	}
-
-	override public function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		var upP:Bool = false;
-		var downP:Bool = false;
-		var leftP:Bool = false;
-		var rightP:Bool = false;
-		var accepted:Bool = false;
-		var back:Bool = false;
-		if (controls.keyboardScheme != NONE)
-		{
-			upP = controls.UI_UP_P;
-			downP = controls.UI_DOWN_P;
-			leftP = controls.UI_LEFT_P;
-			rightP = controls.UI_RIGHT_P;
-
-			accepted = controls.ACCEPT;
-			back = controls.BACK;
-		}
-
-		if (upP)
-		{
-			changeSelection(-1);
-		}
-		if (downP)
-		{
-			changeSelection(1);
-		}
-
-		var option:Option = category.options[curSelected];
-
-		if (back)
-		{
-			if (category != defCat)
-			{
-				category.curSelected = 0;
-				category = category.parent;
-				refresh();
-			}
-			else
-			{
-				if (!isInPause)
-					FlxG.switchState(new MainMenuState());
-				else
-				{
-					PauseSubState.goBack = true;
-					close();
-				}
-				Debug.logTrace('Save options');
-				Options.flushSave();
-			}
-		}
-		if (!Std.isOfType(option, OptionCategory))
-		{
-			if (leftP)
-			{
-				if (option.left())
-				{
-					option.updateOptionText();
-					changeSelection();
-				}
-			}
-			if (rightP)
-			{
-				if (option.right())
-				{
-					option.updateOptionText();
-					changeSelection();
-				}
-			}
-		}
-
-		if (option.allowMultiKeyInput)
-		{
-			var pressed:FlxKey = FlxG.keys.firstJustPressed();
-			var released:FlxKey = FlxG.keys.firstJustReleased();
-			if (pressed != NONE)
-			{
-				if (option.keyPressed(pressed))
-				{
-					option.updateOptionText();
-					changeSelection();
-				}
-			}
-			if (released != NONE)
-			{
-				if (option.keyReleased(released))
-				{
-					option.updateOptionText();
-					changeSelection();
-				}
-			}
-		}
-
-		if (accepted)
-		{
-			if (Std.isOfType(option, OptionCategory))
-			{
-				category = cast option;
-				refresh();
-			}
-			else if (option.accept())
-			{
-				option.updateOptionText();
-			}
-			changeSelection();
-		}
-
-		if (Std.isOfType(option, ControlOption))
-		{
-			var controlOption:ControlOption = cast option;
-			if (controlOption.forceUpdate)
-			{
-				controlOption.forceUpdate = false;
-				// optionText.remove(optionText.members[curSelected]);
-				controlOption.updateOptionText();
-				changeSelection();
-			}
-		}
 	}
 }

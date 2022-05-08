@@ -3,8 +3,8 @@ package;
 #if FEATURE_ACHIEVEMENTS
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
 import flixel.group.FlxSpriteGroup;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -12,24 +12,22 @@ import haxe.io.Path;
 
 using StringTools;
 
-#if sys
-import sys.FileSystem;
-#end
-
-typedef AchievementData =
+typedef AchievementDef =
 {
 	var name:String;
 	var description:String;
 	var icon:String;
 	var unlocksAfter:String;
 	var hidden:Bool;
+	// TODO Figure out how this was used initially
 	var customGoal:Bool;
+	var modDirectory:String;
 }
 
 class Achievement extends FlxSpriteGroup
 {
 	// Gets filled when loading achievements
-	public static var achievementsLoaded:Map<String, AchievementData> = [];
+	public static var achievementsLoaded:Map<String, AchievementDef> = [];
 	public static var achievementList:Array<String> = [];
 	public static var achievementMap:Map<String, Bool> = [];
 
@@ -50,16 +48,12 @@ class Achievement extends FlxSpriteGroup
 
 	public static function isAchievementUnlocked(id:String):Bool
 	{
-		if (achievementMap.exists(id) && achievementMap.get(id))
-		{
-			return true;
-		}
-		return false;
+		return achievementMap.exists(id) && achievementMap.get(id);
 	}
 
 	public static function loadAchievements():Void
 	{
-		reloadAchievementData();
+		reloadAchievementDef();
 
 		if (EngineData.save.data != null)
 		{
@@ -102,7 +96,7 @@ class Achievement extends FlxSpriteGroup
 		// EDIT 2: Uhh this is weird, this message was written for Mind Games, so it doesn't apply logically for Psych Engine LOL
 	}
 
-	public static function reloadAchievementData():Void
+	public static function reloadAchievementDef():Void
 	{
 		achievementList = [];
 		achievementsLoaded.clear();
@@ -112,14 +106,14 @@ class Achievement extends FlxSpriteGroup
 		for (directory in directories)
 		{
 			var achievementDirectory:String = Path.join([directory, 'data/achievements']);
-			var achievementListPath:String = Path.join([achievementDirectory, 'achievementList.txt']);
+			var achievementListPath:String = Path.join([achievementDirectory, Path.withExtension('achievementList', Paths.TEXT_EXT)]);
 			if (Paths.exists(achievementListPath))
 			{
 				// Add achievements from achievementList.txt first
-				var achievementListFromDir:Array<String> = CoolUtil.coolTextFile(achievementListPath);
+				var achievementListFromDir:Array<String> = CoolUtil.listFromTextFile(achievementListPath);
 				for (achievementId in achievementListFromDir)
 				{
-					var path:String = Path.join([achievementDirectory, Path.withExtension(achievementId, 'json')]);
+					var path:String = Path.join([achievementDirectory, Path.withExtension(achievementId, Paths.JSON_EXT)]);
 					if (Paths.exists(path))
 					{
 						addAchievement(achievementId, path);
@@ -127,21 +121,19 @@ class Achievement extends FlxSpriteGroup
 				}
 			}
 
-			#if sys
-			if (FileSystem.exists(achievementDirectory))
+			if (Paths.fileSystem.exists(achievementDirectory))
 			{
 				// Add any achievements what were not included in the list but were in the directory
-				for (file in FileSystem.readDirectory(achievementDirectory))
+				for (file in Paths.fileSystem.readDirectory(achievementDirectory))
 				{
 					var path:String = Path.join([achievementDirectory, file]);
-					if (!FileSystem.isDirectory(path) && Path.extension(path) == 'json')
+					if (!Paths.fileSystem.isDirectory(path) && Path.extension(path) == Paths.JSON_EXT)
 					{
 						var achievementId:String = Path.withoutExtension(file);
 						addAchievement(achievementId, path);
 					}
 				}
 			}
-			#end
 		}
 	}
 
@@ -149,10 +141,10 @@ class Achievement extends FlxSpriteGroup
 	{
 		if (!achievementsLoaded.exists(id))
 		{
-			var data:AchievementData = Paths.getJsonDirect(path);
-			if (data != null)
+			var def:AchievementDef = Paths.getJsonDirect(path);
+			if (def != null)
 			{
-				achievementsLoaded.set(id, data);
+				achievementsLoaded.set(id, def);
 				achievementList.push(id);
 			}
 		}
@@ -164,23 +156,23 @@ class Achievement extends FlxSpriteGroup
 
 		EngineData.flushSave();
 
-		var achievementData:AchievementData = achievementsLoaded.get(id);
+		var achievementDef:AchievementDef = achievementsLoaded.get(id);
 
 		var achievementBG:FlxSprite = new FlxSprite(60, 50).makeGraphic(420, 120, FlxColor.BLACK);
 		achievementBG.scrollFactor.set();
 
 		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10,
-			achievementBG.y + 10).loadGraphic(Paths.getGraphic('achievements/${achievementData.icon}'));
+			achievementBG.y + 10).loadGraphic(Paths.getGraphic(Path.join(['achievements', achievementDef.icon])));
 		achievementIcon.scrollFactor.set();
 		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
-		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievementData.name, 16);
+		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievementDef.name, 16);
 		achievementName.setFormat(Paths.font('vcr.ttf'), achievementName.size, LEFT);
 		achievementName.scrollFactor.set();
 
-		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievementData.description, 16);
+		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievementDef.description, 16);
 		achievementText.setFormat(Paths.font('vcr.ttf'), achievementText.size, LEFT);
 		achievementText.scrollFactor.set();
 
@@ -251,10 +243,10 @@ class AttachedAchievement extends FlxSprite
 	{
 		if (Achievement.isAchievementUnlocked(id))
 		{
-			var achievementData:AchievementData = Achievement.achievementsLoaded.get(id);
-			if (achievementData != null)
+			var achievementDef:AchievementDef = Achievement.achievementsLoaded.get(id);
+			if (achievementDef != null)
 			{
-				var graphic:FlxGraphic = Paths.getGraphic('achievements/${achievementData.icon}');
+				var graphic:FlxGraphicAsset = Paths.getGraphic(Path.join(['achievements', achievementDef.icon]));
 				if (graphic == null)
 					graphic = Paths.getGraphic('achievements/missing');
 				loadGraphic(graphic);

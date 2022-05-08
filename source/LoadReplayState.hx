@@ -1,13 +1,13 @@
 package;
 
-import FreeplayState.SongMeta;
+import Song.SongMetadata;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import haxe.Exception;
-import lime.app.Application;
+import haxe.io.Path;
 import options.OptionsState;
 
 using StringTools;
@@ -15,16 +15,13 @@ using StringTools;
 #if FEATURE_STEPMANIA
 import sm.SMFile;
 #end
-#if sys
-import sys.FileSystem;
-#end
 
 // TODO Maybe just use a slightly edited copy of FreeplayState for this, or even integrate it into FreeplayState
 class LoadReplayState extends MusicBeatState
 {
 	private var curSelected:Int = 0;
 
-	private var songs:Array<SongMeta> = [];
+	private var songs:Array<SongMetadata> = [];
 
 	private var controlsStrings:Array<String> = [];
 	private var actualNames:Array<String> = [];
@@ -39,9 +36,7 @@ class LoadReplayState extends MusicBeatState
 
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
 		// TODO: Refactor this to use OpenFlAssets.
-		#if sys
-		controlsStrings = FileSystem.readDirectory('assets/replays/');
-		#end
+		controlsStrings = Paths.fileSystem.readDirectory('assets/replays/');
 		Debug.logTrace(controlsStrings);
 
 		controlsStrings.sort(sortByDate);
@@ -60,7 +55,7 @@ class LoadReplayState extends MusicBeatState
 			var string:String = controlsStrings[i];
 			actualNames[i] = string;
 			var rep:Replay = Replay.loadReplay(string);
-			controlsStrings[i] = '${string.split('time')[0]} ${CoolUtil.difficultyString(rep.replay.songDiff).toUpperCase()}';
+			controlsStrings[i] = '${string.split('time')[0]} ${Difficulty.difficultyString(rep.replay.songDiff).toUpperCase()}';
 		}
 
 		if (controlsStrings.length == 0)
@@ -128,9 +123,9 @@ class LoadReplayState extends MusicBeatState
 
 				#if FEATURE_STEPMANIA
 				if (PlayState.rep.replay.sm)
-					if (!Paths.exists(PlayState.rep.replay.chartPath.replace('converted.json', '')))
+					if (!Paths.exists(PlayState.rep.replay.chartPath.replace(Path.withExtension('converted', Paths.JSON_EXT), '')))
 					{
-						Application.current.window.alert('The SM file in this replay does not exist!', 'SM Replays');
+						Debug.displayAlert('The SM file in this replay does not exist!', 'SM Replays');
 						return;
 					}
 				#end
@@ -138,21 +133,24 @@ class LoadReplayState extends MusicBeatState
 				PlayState.isSM = PlayState.rep.replay.sm;
 				#if FEATURE_STEPMANIA
 				if (PlayState.isSM)
-					PlayState.pathToSm = PlayState.rep.replay.chartPath.replace('converted.json', '');
+					PlayState.pathToSm = PlayState.rep.replay.chartPath.replace(Path.withExtension('converted', Paths.JSON_EXT), '');
 				#end
 
 				#if FEATURE_STEPMANIA
 				if (PlayState.isSM)
 				{
 					songPath = Paths.getTextDirect(PlayState.rep.replay.chartPath);
+					var smPath:String = Path.join([
+						PlayState.pathToSm,
+						Path.withExtension(PlayState.rep.replay.songName.replace(' ', '_'), 'sm')
+					]);
 					try
 					{
-						PlayState.sm = SMFile.loadFile('${PlayState.pathToSm}/${PlayState.rep.replay.songName.replace(' ', '_')}.sm');
+						PlayState.sm = SMFile.loadFile(smPath);
 					}
 					catch (e:Exception)
 					{
-						Application.current.window.alert('Make sure that the SM file is called ${PlayState.pathToSm}/${PlayState.rep.replay.songName.replace(' ', '_')}.sm!\nAs I couldn\'t read it.',
-							'SM Replays');
+						Debug.displayAlert('Make sure that the SM file is called $smPath!\nAs I couldn\'t read it.', 'SM Replays');
 						return;
 					}
 				}
@@ -162,21 +160,21 @@ class LoadReplayState extends MusicBeatState
 				{
 					if (PlayState.isSM)
 					{
-						PlayState.song = Song.loadFromJsonDirect(songPath);
+						PlayState.song = Song.fromJsonString(songPath);
 					}
 					else
 					{
-						var diff:String = CoolUtil.difficultyString(PlayState.rep.replay.songDiff);
+						var diff:String = Difficulty.difficultyString(PlayState.rep.replay.songDiff);
 						if (PlayState.rep.replay.songId == null)
 						{
 							PlayState.rep.replay.songId = Paths.formatToSongPath(PlayState.rep.replay.songName);
 						}
-						PlayState.song = Song.loadFromJson(PlayState.rep.replay.songId, diff);
+						PlayState.song = Song.loadSong(PlayState.rep.replay.songId, diff);
 					}
 				}
 				catch (e:Exception)
 				{
-					Application.current.window.alert('Failed to load the song! Does the JSON exist?', 'Replays');
+					Debug.displayAlert('Failed to load the song! Does the JSON exist?', 'Replays');
 					return;
 				}
 				PlayState.isStoryMode = false;
@@ -213,7 +211,7 @@ class LoadReplayState extends MusicBeatState
 
 	public function addSong(songName:String, weekNum:Int):Void
 	{
-		songs.push(new SongMeta(songName, weekNum));
+		songs.push(new SongMetadata(songName, weekNum));
 	}
 
 	public function addWeek(songs:Array<String>, weekNum:Int):Void
@@ -239,12 +237,10 @@ class LoadReplayState extends MusicBeatState
 
 		poggerDetails.text = 'Replay Details - \nDate Created: ${rep.replay.timestamp}\nSong: ${rep.replay.songName}\nReplay Version: ${rep.replay.replayGameVer} (${(rep.replay.replayGameVer != Replay.REPLAY_VERSION ? 'OUTDATED not useable!' : 'Latest')})\n';
 
-		var bullShit:Int = 0;
-
-		for (item in grpControls.members)
+		for (i in 0...grpControls.members.length)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			var item:Alphabet = grpControls.members[i];
+			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
 

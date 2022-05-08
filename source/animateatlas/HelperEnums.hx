@@ -2,11 +2,11 @@ package animateatlas;
 
 enum abstract LoopMode(String) from String to String
 {
-	public static inline final LOOP:SymbolType = 'loop';
-	public static inline final PLAY_ONCE:SymbolType = 'playonce';
-	public static inline final SINGLE_FRAME:SymbolType = 'singleframe';
+	public static inline final LOOP:LoopMode = 'loop';
+	public static inline final PLAY_ONCE:LoopMode = 'playonce';
+	public static inline final SINGLE_FRAME:LoopMode = 'singleframe';
 
-	public static function isValid(value:SymbolType):Bool
+	public static function isValid(value:LoopMode):Bool
 	{
 		return value == LOOP || value == PLAY_ONCE || value == SINGLE_FRAME;
 	}

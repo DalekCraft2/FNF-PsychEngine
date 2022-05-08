@@ -6,9 +6,9 @@
 				10
 			],
 			"loop": false,
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "Dad Sing Note LEFT",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "Dad Sing Note LEFT",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				-30
 			],
 			"loop": false,
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "Dad Sing Note DOWN",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "Dad Sing Note DOWN",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				50
 			],
 			"loop": false,
-			"anim": "singUP",
-			"fps": 24,
-			"name": "Dad Sing Note UP",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "Dad Sing Note UP",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				27
 			],
 			"loop": false,
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "Dad Sing Note RIGHT",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "Dad Sing Note RIGHT",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				0
 			],
 			"loop": false,
-			"anim": "idle",
-			"fps": 24,
-			"name": "Dad idle dance",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "Dad idle dance",
 			"indices": []
 		},
 		{
@@ -61,15 +61,15 @@
 				0
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "idle-loop",
+			"frameRate": 24,
+			"name": "idle-loop",
 			"indices": [
 				10,
 				11,
 				12,
 				12
 			],
-			"name": "Dad idle dance"
+			"prefix": "Dad idle dance"
 		},
 		{
 			"offsets": [
@@ -77,15 +77,15 @@
 				10
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "singLEFT-loop",
+			"frameRate": 24,
+			"name": "singLEFT-loop",
 			"indices": [
 				12,
 				13,
 				14,
 				15
 			],
-			"name": "Dad Sing Note LEFT"
+			"prefix": "Dad Sing Note LEFT"
 		},
 		{
 			"offsets": [
@@ -93,15 +93,15 @@
 				27
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "singRIGHT-loop",
+			"frameRate": 24,
+			"name": "singRIGHT-loop",
 			"indices": [
 				15,
 				16,
 				17,
 				18
 			],
-			"name": "Dad Sing Note RIGHT"
+			"prefix": "Dad Sing Note RIGHT"
 		},
 		{
 			"offsets": [
@@ -109,15 +109,15 @@
 				50
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "singUP-loop",
+			"frameRate": 24,
+			"name": "singUP-loop",
 			"indices": [
 				56,
 				57,
 				58,
 				59
 			],
-			"name": "Dad Sing Note UP"
+			"prefix": "Dad Sing Note UP"
 		}
 	],
 	"noAntialiasing": false,

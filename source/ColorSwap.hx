@@ -122,23 +122,23 @@ class ColorSwapShader extends FlxShader
 		{
 			vec4 color = flixel_texture2D(bitmap, openfl_TextureCoordv);
 
-			vec4 swagColor = vec4(rgb2hsv(vec3(color[0], color[1], color[2])), color[3]);
+			vec4 hsvColor = vec4(rgb2hsv(vec3(color[0], color[1], color[2])), color[3]);
 
 			// [0] is the hue???
-			swagColor[0] = swagColor[0] + uTime[0];
-			swagColor[1] = swagColor[1] + uTime[1];
-			swagColor[2] = swagColor[2] * (1.0 + uTime[2]);
+			hsvColor[0] = hsvColor[0] + uTime[0];
+			hsvColor[1] = hsvColor[1] + uTime[1];
+			hsvColor[2] = hsvColor[2] * (1.0 + uTime[2]);
 			
-			if(swagColor[1] < 0.0)
+			if(hsvColor[1] < 0.0)
 			{
-				swagColor[1] = 0.0;
+				hsvColor[1] = 0.0;
 			}
-			else if(swagColor[1] > 1.0)
+			else if(hsvColor[1] > 1.0)
 			{
-				swagColor[1] = 1.0;
+				hsvColor[1] = 1.0;
 			}
 
-			color = vec4(hsv2rgb(vec3(swagColor[0], swagColor[1], swagColor[2])), swagColor[3]);
+			color = vec4(hsv2rgb(vec3(hsvColor[0], hsvColor[1], hsvColor[2])), hsvColor[3]);
 
 			if (awesomeOutline)
 			{

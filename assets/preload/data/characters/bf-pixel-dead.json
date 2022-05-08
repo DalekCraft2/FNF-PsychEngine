@@ -6,10 +6,10 @@
 				-26,
 				-12
 			],
-			"fps": 24,
-			"anim": "deathConfirm",
+			"frameRate": 24,
+			"name": "deathConfirm",
 			"indices": [],
-			"name": "RETRY CONFIRM"
+			"prefix": "RETRY CONFIRM"
 		},
 		{
 			"loop": false,
@@ -17,10 +17,10 @@
 				-30,
 				-12
 			],
-			"fps": 24,
-			"anim": "deathLoop",
+			"frameRate": 24,
+			"name": "deathLoop",
 			"indices": [],
-			"name": "Retry Loop"
+			"prefix": "Retry Loop"
 		},
 		{
 			"loop": false,
@@ -28,10 +28,10 @@
 				0,
 				0
 			],
-			"fps": 24,
-			"anim": "firstDeath",
+			"frameRate": 24,
+			"name": "firstDeath",
 			"indices": [],
-			"name": "BF Dies pixel"
+			"prefix": "BF Dies pixel"
 		}
 	],
 	"noAntialiasing": true,

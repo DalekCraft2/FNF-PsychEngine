@@ -2,7 +2,6 @@ package;
 
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
-import lime.app.Application;
 #end
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
@@ -20,17 +19,6 @@ class InitState extends FlxUIState
 	public static var muteKeys:Array<FlxKey> = [ZERO, NUMPADZERO];
 	public static var volumeDownKeys:Array<FlxKey> = [MINUS, NUMPADMINUS];
 	public static var volumeUpKeys:Array<FlxKey> = [PLUS, NUMPADPLUS];
-
-	public static function initTransition():Void
-	{
-		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
-		diamond.persist = true;
-		diamond.destroyOnNoUse = false;
-		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
-			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1), {asset: diamond, width: 32, height: 32},
-			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-	}
 
 	override public function create():Void
 	{
@@ -52,10 +40,10 @@ class InitState extends FlxUIState
 		FlxG.sound.muteKeys = muteKeys;
 		FlxG.sound.volumeDownKeys = volumeDownKeys;
 		FlxG.sound.volumeUpKeys = volumeUpKeys;
-		FlxG.keys.preventDefaultKeys = [TAB];
 
 		if (EngineData.save.data.fullscreen != null)
 		{
+			// TODO I'm pretty sure this doesn't work
 			FlxG.fullscreen = EngineData.save.data.fullscreen;
 		}
 
@@ -72,14 +60,7 @@ class InitState extends FlxUIState
 		Main.setFPSCap(Options.save.data.frameRate);
 
 		#if FEATURE_DISCORD
-		if (!DiscordClient.isInitialized)
-		{
-			DiscordClient.initialize();
-			Application.current.onExit.add((exitCode) ->
-			{
-				DiscordClient.shutdown();
-			});
-		}
+		DiscordClient.initialize();
 		#end
 
 		// FlxGraphic.defaultPersist = Options.save.data.persistentImages;
@@ -87,7 +68,7 @@ class InitState extends FlxUIState
 		FlxG.fixedTimestep = false;
 		FlxG.autoPause = false;
 
-		#if html5
+		#if web
 		FlxG.autoPause = true;
 		FlxG.mouse.visible = false;
 		#end
@@ -104,19 +85,22 @@ class InitState extends FlxUIState
 
 		var nextState:FlxUIState = new TitleState();
 		// TODO Implement caching
-		/*#if sys
+		/*
+			#if sys
 			if (Options.save.data.shouldCache && canCache)
 			{
 				nextState = new CachingState(nextState);
 			}
 			else
-			#end */
+			#end
+		 */
 		{
 			initTransition();
 		}
 
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
+		// This state isn't visible anyway, so a transition from it to TitleState is pointless and wastes time
+		transIn = null;
+		transOut = null;
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());
@@ -127,5 +111,16 @@ class InitState extends FlxUIState
 		#else
 		FlxG.switchState(nextState);
 		#end
+	}
+
+	public static function initTransition():Void
+	{
+		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+		diamond.persist = true;
+		diamond.destroyOnNoUse = false;
+		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
+			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
+		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1), {asset: diamond, width: 32, height: 32},
+			new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 	}
 }

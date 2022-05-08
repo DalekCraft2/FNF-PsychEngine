@@ -3,11 +3,13 @@ package editors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.text.FlxText;
 import flixel.util.FlxColor;
 
 using StringTools;
 
+#if FEATURE_MODS
+import flixel.text.FlxText;
+#end
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -22,13 +24,14 @@ class MasterEditorMenu extends MusicBeatState
 		'Character Editor',
 		'Chart Editor'
 	];
-	private var grpTexts:FlxTypedGroup<Alphabet>;
-	// TODO Remove this null from the initial list if possible
-	private var directories:Array<String> = [];
-
 	private var curSelected:Int = 0;
+	private var grpTexts:FlxTypedGroup<Alphabet>;
+
+	#if FEATURE_MODS
+	private var directories:Array<String> = [];
 	private var curDirectory:Int = 0;
 	private var directoryTxt:FlxText;
+	#end
 
 	override public function create():Void
 	{
@@ -44,7 +47,7 @@ class MasterEditorMenu extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleData.bpm);
+			Conductor.changeBPM(TitleState.titleDef.bpm);
 		}
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
@@ -59,10 +62,10 @@ class MasterEditorMenu extends MusicBeatState
 
 		for (i in 0...options.length)
 		{
-			var leText:Alphabet = new Alphabet(0, (70 * i) + 30, options[i], true, false);
-			leText.isMenuItem = true;
-			leText.targetY = i;
-			grpTexts.add(leText);
+			var text:Alphabet = new Alphabet(0, (70 * i) + 30, options[i], true, false);
+			text.isMenuItem = true;
+			text.targetY = i;
+			grpTexts.add(text);
 		}
 
 		#if FEATURE_MODS
@@ -137,17 +140,16 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Chart Editor': // felt it would be cool maybe
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 			}
-			FlxG.sound.music.volume = 0;
+			FlxG.sound.music.stop();
 			#if PRELOAD_ALL
 			FreeplayState.destroyFreeplayVocals();
 			#end
 		}
 
-		var bullShit:Int = 0;
-		for (item in grpTexts.members)
+		for (i in 0...grpTexts.members.length)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			var item:Alphabet = grpTexts.members[i];
+			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
 

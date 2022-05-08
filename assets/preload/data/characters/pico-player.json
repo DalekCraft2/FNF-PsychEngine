@@ -6,9 +6,9 @@
 				3,
 				0
 			],
-			"anim": "idle",
-			"fps": 24,
-			"name": "Pico Idle Dance",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "Pico Idle Dance",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				21,
 				27
 			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "pico Up note0",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "pico Up note0",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				84,
 				-80
 			],
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "Pico Down Note0",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "Pico Down Note0",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				80,
 				-38
 			],
-			"anim": "singDOWNmiss",
-			"fps": 24,
-			"name": "Pico Down Note MISS",
+			"name": "singDOWNmiss",
+			"frameRate": 24,
+			"prefix": "Pico Down Note MISS",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				28,
 				67
 			],
-			"anim": "singUPmiss",
-			"fps": 24,
-			"name": "pico Up note miss",
+			"name": "singUPmiss",
+			"frameRate": 24,
+			"prefix": "pico Up note miss",
 			"indices": []
 		},
 		{
@@ -61,10 +61,10 @@
 				2
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singLEFT",
+			"frameRate": 24,
+			"name": "singRIGHT",
 			"indices": [],
-			"name": "Pico Note Right0"
+			"prefix": "Pico Note Right0"
 		},
 		{
 			"offsets": [
@@ -72,10 +72,10 @@
 				-10
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singRIGHT",
+			"frameRate": 24,
+			"name": "singLEFT",
 			"indices": [],
-			"name": "Pico NOTE LEFT0"
+			"prefix": "Pico NOTE LEFT0"
 		},
 		{
 			"offsets": [
@@ -83,10 +83,10 @@
 				50
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singLEFTmiss",
+			"frameRate": 24,
+			"name": "singRIGHTmiss",
 			"indices": [],
-			"name": "Pico Note Right Miss"
+			"prefix": "Pico Note Right Miss"
 		},
 		{
 			"offsets": [
@@ -94,10 +94,10 @@
 				28
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singRIGHTmiss",
+			"frameRate": 24,
+			"name": "singLEFTmiss",
 			"indices": [],
-			"name": "Pico NOTE LEFT miss"
+			"prefix": "Pico NOTE LEFT miss"
 		}
 	],
 	"noAntialiasing": false,
@@ -108,6 +108,7 @@
 	],
 	"healthIcon": "pico",
 	"flipX": true,
+	"flipLR": true,
 	"healthBarColors": [
 		183,
 		216,

@@ -17,7 +17,7 @@ import openfl.errors.ArgumentError;
 
 /**
  * Since we can extract symbols from the exported timeline and instance them separatedly, this keeps track of all symbols.
- * Also, this is a "more readable" way of understanding the AnimationData
+ * Also, this is a "more readable" way of understanding the AnimationDef
  */
 class TileAnimationLibrary
 {

@@ -1,9 +1,9 @@
 package editors;
 
-import DialogueBoxPsych.DialogueAnimationData;
+import DialogueBoxPsych.DialogueAnimationDef;
 import DialogueBoxPsych.DialogueCharacter;
-import DialogueBoxPsych.DialogueData;
-import DialogueBoxPsych.DialogueLine;
+import DialogueBoxPsych.DialogueDef;
+import DialogueBoxPsych.DialogueLineDef;
 import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -16,7 +16,9 @@ import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import haxe.Json;
-import lime.system.Clipboard;
+import haxe.io.Path;
+import openfl.desktop.Clipboard;
+import openfl.desktop.ClipboardFormats;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
@@ -29,18 +31,18 @@ import Discord.DiscordClient;
 
 class DialogueEditorState extends MusicBeatState
 {
-	private static inline final DEFAULT_TEXT:String = 'coolswag';
+	private static inline final DEFAULT_TEXT:String = 'Lorem ipsum dolor sit amet';
 	private static inline final DEFAULT_BOXSTATE:String = 'normal';
 	private static inline final DEFAULT_SPEED:Float = 0.05;
 
 	private var character:DialogueCharacter;
 	private var box:FlxSprite;
-	private var daText:Alphabet;
+	private var text:Alphabet;
 
 	private var selectedText:FlxText;
 	private var animText:FlxText;
 
-	private var dialogueFile:DialogueData;
+	private var dialogueFile:DialogueDef;
 
 	override public function create():Void
 	{
@@ -108,7 +110,7 @@ class DialogueEditorState extends MusicBeatState
 
 		if (character.animation.curAnim != null)
 		{
-			if (daText.finishedText)
+			if (text.finishedText)
 			{
 				if (character.animationIsLoop() && character.animation.curAnim.finished)
 				{
@@ -131,7 +133,9 @@ class DialogueEditorState extends MusicBeatState
 				FlxG.sound.volumeUpKeys = [];
 				blockInput = true;
 
-				if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && Clipboard.text != null)
+				if (FlxG.keys.pressed.CONTROL
+					&& FlxG.keys.justPressed.V
+					&& Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT) != null)
 				{ // Copy paste
 					inputText.text = clipboardAdd(inputText.text);
 					inputText.caretIndex = inputText.text.length;
@@ -183,7 +187,7 @@ class DialogueEditorState extends MusicBeatState
 					var animToPlay:String = character.jsonFile.animations[curAnim].anim;
 					if (character.dialogueAnimations.exists(animToPlay))
 					{
-						character.playAnim(animToPlay, daText.finishedText);
+						character.playAnim(animToPlay, text.finishedText);
 						dialogueFile.dialogue[curSelected].expression = animToPlay;
 					}
 					animText.text = 'Animation: $animToPlay (${(curAnim + 1)} / ${character.jsonFile.animations.length}) - Press W or S to scroll';
@@ -226,7 +230,7 @@ class DialogueEditorState extends MusicBeatState
 					curAnim = 0;
 					if (character.jsonFile.animations.length > curAnim && character.jsonFile.animations[curAnim] != null)
 					{
-						character.playAnim(character.jsonFile.animations[curAnim].anim, daText.finishedText);
+						character.playAnim(character.jsonFile.animations[curAnim].anim, text.finishedText);
 						animText.text = 'Animation: ${character.jsonFile.animations[curAnim].anim} (${curAnim + 1} / ${character.jsonFile.animations.length}) - Press W or S to scroll';
 					}
 					else
@@ -328,9 +332,9 @@ class DialogueEditorState extends MusicBeatState
 		UI_box.addGroup(tabGroup);
 	}
 
-	private static function createTemplateDialogueLine():DialogueLine
+	private static function createTemplateDialogueLine():DialogueLineDef
 	{
-		var dialogueLine:DialogueLine = {
+		var dialogueLine:DialogueLineDef = {
 			portrait: DialogueCharacter.DEFAULT_CHARACTER,
 			expression: 'talk',
 			text: DEFAULT_TEXT,
@@ -347,7 +351,7 @@ class DialogueEditorState extends MusicBeatState
 		var isAngry:Bool = angryCheckbox.checked;
 		var anim:String = isAngry ? 'angry' : 'normal';
 
-		switch (character.jsonFile.dialogue_pos)
+		switch (character.jsonFile.dialoguePos)
 		{
 			case 'left':
 				box.flipX = true;
@@ -367,7 +371,7 @@ class DialogueEditorState extends MusicBeatState
 
 	private function reloadCharacter():Void
 	{
-		character.frames = Paths.getSparrowAtlas('dialogue/${character.jsonFile.image}');
+		character.frames = Paths.getSparrowAtlas(Path.join(['dialogue', character.jsonFile.image]));
 		character.jsonFile = character.jsonFile;
 		character.reloadAnimations();
 		character.setGraphicSize(Std.int(character.width * DialogueCharacter.DEFAULT_SCALE * character.jsonFile.scale));
@@ -375,7 +379,7 @@ class DialogueEditorState extends MusicBeatState
 		character.x = DialogueBoxPsych.LEFT_CHAR_X;
 		character.y = DialogueBoxPsych.DEFAULT_CHAR_Y;
 
-		switch (character.jsonFile.dialogue_pos)
+		switch (character.jsonFile.dialoguePos)
 		{
 			case 'right':
 				character.x = FlxG.width - character.width + DialogueBoxPsych.RIGHT_CHAR_X;
@@ -401,12 +405,12 @@ class DialogueEditorState extends MusicBeatState
 
 	private function reloadText(speed:Float = DEFAULT_SPEED):Void
 	{
-		if (daText != null)
+		if (text != null)
 		{
-			daText.killTheTimer();
-			daText.kill();
-			remove(daText);
-			daText.destroy();
+			text.killTheTimer();
+			text.kill();
+			remove(text);
+			text.destroy();
 		}
 
 		if (Math.isNaN(speed) || speed < 0.001)
@@ -417,8 +421,8 @@ class DialogueEditorState extends MusicBeatState
 			textToType = ' ';
 
 		Alphabet.setDialogueSound(soundInputText.text);
-		daText = new Alphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, textToType, false, true, speed, 0.7);
-		add(daText);
+		text = new Alphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, textToType, false, true, speed, 0.7);
+		add(text);
 
 		if (speed > 0)
 		{
@@ -449,7 +453,7 @@ class DialogueEditorState extends MusicBeatState
 		else if (curSelected >= dialogueFile.dialogue.length)
 			curSelected = 0;
 
-		var curDialogue:DialogueLine = dialogueFile.dialogue[curSelected];
+		var curDialogue:DialogueLineDef = dialogueFile.dialogue[curSelected];
 		characterInputText.text = curDialogue.portrait;
 		lineInputText.text = curDialogue.text;
 		angryCheckbox.checked = (curDialogue.boxState == 'angry');
@@ -461,20 +465,20 @@ class DialogueEditorState extends MusicBeatState
 		updateTextBox();
 		reloadText(curDialogue.speed);
 
-		var leLength:Int = character.jsonFile.animations.length;
-		if (leLength > 0)
+		var animsLength:Int = character.jsonFile.animations.length;
+		if (animsLength > 0)
 		{
-			for (i in 0...leLength)
+			for (i in 0...animsLength)
 			{
-				var leAnim:DialogueAnimationData = character.jsonFile.animations[i];
-				if (leAnim != null && leAnim.anim == curDialogue.expression)
+				var animation:DialogueAnimationDef = character.jsonFile.animations[i];
+				if (animation != null && animation.anim == curDialogue.expression)
 				{
 					curAnim = i;
 					break;
 				}
 			}
-			character.playAnim(character.jsonFile.animations[curAnim].anim, daText.finishedText);
-			animText.text = 'Animation: ${character.jsonFile.animations[curAnim].anim} (${(curAnim + 1)} / $leLength) - Press W or S to scroll';
+			character.playAnim(character.jsonFile.animations[curAnim].anim, text.finishedText);
+			animText.text = 'Animation: ${character.jsonFile.animations[curAnim].anim} (${(curAnim + 1)} / $animsLength) - Press W or S to scroll';
 		}
 		else
 		{
@@ -506,15 +510,14 @@ class DialogueEditorState extends MusicBeatState
 			prefix = prefix.substring(0, prefix.length - 1);
 		}
 
-		var text:String = prefix + Clipboard.text.replace('\n', '');
-		return text;
+		return prefix + Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT).replace('\n', '');
 	}
 
 	private var _file:FileReference = null;
 
 	private function loadDialogue():Void
 	{
-		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
+		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
 		_file = new FileReference();
 		_file.addEventListener(Event.SELECT, onLoadComplete);
 		_file.addEventListener(Event.CANCEL, onLoadCancel);
@@ -535,7 +538,7 @@ class DialogueEditorState extends MusicBeatState
 
 		if (fullPath != null)
 		{
-			var loadedDialog:DialogueData = Paths.getJsonDirect(fullPath);
+			var loadedDialog:DialogueDef = Paths.getJsonDirect(fullPath);
 			if (loadedDialog != null)
 			{
 				if (loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) // Make sure it's really a dialogue file
@@ -585,7 +588,7 @@ class DialogueEditorState extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data, 'dialogue.json');
+			_file.save(data, Path.withExtension('dialogue', Paths.JSON_EXT));
 		}
 	}
 

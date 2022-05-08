@@ -4,7 +4,7 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 
-class Option extends FlxTypedGroup<FlxSprite>
+abstract class Option extends FlxTypedGroup<FlxSprite>
 {
 	public var name:String;
 	public var description:String;
@@ -67,7 +67,7 @@ class Option extends FlxTypedGroup<FlxSprite>
 	public function createOptionText(curSelected:Int, optionText:FlxTypedGroup<Option>):Alphabet
 	{
 		remove(text);
-		text = new Alphabet(0, (70 * curSelected), name, false, false);
+		text = new Alphabet(0, (70 * curSelected), name, true, false);
 		text.isMenuItem = true;
 		add(text);
 		return text;

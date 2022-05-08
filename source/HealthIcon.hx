@@ -1,7 +1,8 @@
 package;
 
 import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import haxe.io.Path;
 
 using StringTools;
 
@@ -51,12 +52,15 @@ class HealthIcon extends FlxSprite
 	{
 		if (this.char != char)
 		{
-			var name:String = 'icons/$char';
-			if (!Paths.exists(Paths.image(name), IMAGE))
-				name = 'icons/icon-$char'; // Older versions of psych engine's support
-			if (!Paths.exists(Paths.image(name), IMAGE))
-				name = 'icons/icon-face'; // Prevents crash from missing icon
-			var file:FlxGraphic = Paths.getGraphic(name);
+			var iconPath:String = Path.join(['icons', char]);
+			if (!Paths.exists(Paths.image(iconPath), IMAGE))
+				iconPath = Path.join(['icons', 'icon-$char']); // Legacy support
+			if (!Paths.exists(Paths.image(iconPath), IMAGE))
+			{
+				Debug.logError('Could not find character icon with ID "$char"; using default');
+				iconPath = Path.join(['icons', 'face']); // Prevents crash from missing icon
+			}
+			var file:FlxGraphicAsset = Paths.getGraphic(iconPath);
 
 			loadGraphic(file, true, 150, 150);
 			iconOffsets[0] = (width - 150) / 2;

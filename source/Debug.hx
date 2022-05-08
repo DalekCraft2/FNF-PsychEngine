@@ -7,7 +7,8 @@ import flixel.system.debug.watch.Tracker.TrackerProfile;
 import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
-import lime.app.Application;
+import haxe.io.Path;
+import openfl.Lib;
 
 using StringTools;
 
@@ -16,6 +17,9 @@ import sys.FileSystem;
 import sys.io.File;
 import sys.io.FileOutput;
 #end
+
+// TODO Make a common method for logging called log() and have each of the other methods call that
+// TODO So, I just discovered FlxG.log.redirectTraces, which could make a lot of this class much simpler...
 
 /**
  * Hey you, developer!
@@ -30,6 +34,7 @@ class Debug
 	private static final LOG_STYLE_ERROR:LogStyle = new LogStyle('[ERROR] ', 'FF8888', 12, true, false, false, 'flixel/sounds/beep', true);
 	private static final LOG_STYLE_WARN:LogStyle = new LogStyle('[WARN ] ', 'D9F85C', 12, true, false, false, 'flixel/sounds/beep', true);
 	private static final LOG_STYLE_INFO:LogStyle = new LogStyle('[INFO ] ', '5CF878', 12, false);
+	// TODO Java (or, at least, Apache Log4j 2) has a log level in between these two called "Debug" (as well as a level above Error called "Fatal"), and I'm a sucker for Java, so...
 	private static final LOG_STYLE_TRACE:LogStyle = new LogStyle('[TRACE] ', '5CF878', 12, false);
 
 	private static var logFileWriter:DebugLogWriter;
@@ -40,11 +45,11 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logError(input:Dynamic, ?pos:PosInfos):Void
+	public static inline function logError(input:Any, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
-		var output:Array<Dynamic> = formatOutput(input, pos);
+		var output:Array<Any> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_ERROR);
 		writeToLogFile(output, 'ERROR');
 	}
@@ -55,11 +60,11 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logWarn(input:Dynamic, ?pos:PosInfos):Void
+	public static inline function logWarn(input:Any, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
-		var output:Array<Dynamic> = formatOutput(input, pos);
+		var output:Array<Any> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_WARN);
 		writeToLogFile(output, 'WARN');
 	}
@@ -69,11 +74,11 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static inline function logInfo(input:Dynamic, ?pos:PosInfos):Void
+	public static inline function logInfo(input:Any, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
-		var output:Array<Dynamic> = formatOutput(input, pos);
+		var output:Array<Any> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_INFO);
 		writeToLogFile(output, 'INFO');
 	}
@@ -84,11 +89,11 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static function logTrace(input:Dynamic, ?pos:PosInfos):Void
+	public static function logTrace(input:Any, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
-		var output:Array<Dynamic> = formatOutput(input, pos);
+		var output:Array<Any> = formatOutput(input, pos);
 		writeToFlxGLog(output, LOG_STYLE_TRACE);
 		writeToLogFile(output, 'TRACE');
 	}
@@ -101,18 +106,18 @@ class Debug
 	 */
 	public static function displayAlert(title:String, description:String):Void
 	{
-		Application.current.window.alert(description, title);
+		Lib.application.window.alert(description, title);
 	}
 
 	/**
 	 * Display the value of a particular field of a given object
 	 * in the Debug watch window, labelled with the specified name.
-	 		* Updates continuously.
+	 * Updates continuously.
 	 * @param object The object to watch.
 	 * @param field The string name of a field of the above object.
 	 * @param name
 	 */
-	public static inline function watchVariable(object:Dynamic, field:String, name:String):Void
+	public static inline function watchVariable(object:Any, field:String, name:String):Void
 	{
 		#if debug
 		if (object == null)
@@ -132,7 +137,7 @@ class Debug
 	 * @param name
 	 * @param value
 	 */
-	public static inline function quickWatch(name:String, value:Dynamic):Void
+	public static inline function quickWatch(name:String, value:Any):Void
 	{
 		#if debug
 		FlxG.watch.addQuick(name == null ? 'QuickWatch' : name, value);
@@ -142,9 +147,9 @@ class Debug
 
 	/**
 	 * The Console window already supports most hScript, meaning you can do most things you could already do in Haxe.
-	 		* However, you can also add custom commands using this function.
+	 * However, you can also add custom commands using this function.
 	 */
-	public static inline function addConsoleCommand(name:String, callbackFn:Dynamic):Void
+	public static inline function addConsoleCommand(name:String, callbackFn:Any):Void
 	{
 		FlxG.console.registerFunction(name, callbackFn);
 	}
@@ -152,7 +157,7 @@ class Debug
 	/**
 	 * Add an object with a custom alias so that it can be accessed via the console.
 	 */
-	public static inline function addObject(name:String, object:Dynamic):Void
+	public static inline function addObject(name:String, object:Any):Void
 	{
 		FlxG.console.registerObject(name, object);
 	}
@@ -164,7 +169,7 @@ class Debug
 	 * 
 	 * @param obj The object to display.
 	 */
-	public static inline function trackObject(obj:Dynamic):Void
+	public static inline function trackObject(obj:Any):Void
 	{
 		if (obj == null)
 		{
@@ -176,7 +181,7 @@ class Debug
 
 	/**
 	 * The game runs this function immediately when it starts.
-	 		* Use onGameStart() if it can wait until a little later.
+	 * Use onGameStart() if it can wait until a little later.
 	 */
 	public static function onInitProgram():Void
 	{
@@ -184,12 +189,12 @@ class Debug
 		trace('Initializing Debug tools...');
 
 		// Getting the original trace() function before overriding it.
-		var traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void = Log.trace;
+		var traceFunction:(v:Any, ?infos:PosInfos) -> Void = Log.trace;
 
 		// Override Haxe's vanilla trace() calls to use the Flixel console.
-		Log.trace = (data:Dynamic, ?info:PosInfos) ->
+		Log.trace = (data:Any, ?info:PosInfos) ->
 		{
-			var paramArray:Array<Dynamic> = [data];
+			var paramArray:Array<Any> = [data];
 
 			if (info != null)
 			{
@@ -218,7 +223,7 @@ class Debug
 		logInfo('This is a RELEASE build.');
 		#end
 		logInfo('HaxeFlixel version: ${Std.string(FlxG.VERSION)}');
-		logInfo('Friday Night Funkin\' version: ${Application.current.meta.get('version')}');
+		logInfo('Friday Night Funkin\' version: ${Lib.application.meta.get('version')}');
 		logInfo('Psych Engine version: ${EngineData.ENGINE_VERSION}');
 	}
 
@@ -240,7 +245,7 @@ class Debug
 		logFileWriter.setLogLevel(EngineData.save.data.debugLogLevel);
 	}
 
-	private static function writeToFlxGLog(data:Array<Dynamic>, logStyle:LogStyle):Void
+	private static function writeToFlxGLog(data:Array<Any>, logStyle:LogStyle):Void
 	{
 		if (FlxG != null && FlxG.game != null && FlxG.log != null)
 		{
@@ -248,7 +253,7 @@ class Debug
 		}
 	}
 
-	private static function writeToLogFile(data:Array<Dynamic>, logLevel:String = 'TRACE'):Void
+	private static function writeToLogFile(data:Array<Any>, logLevel:String = 'TRACE'):Void
 	{
 		if (logFileWriter != null && logFileWriter.isActive())
 		{
@@ -293,15 +298,15 @@ class Debug
 
 		addConsoleCommand('setLogLevel', (logLevel:String) ->
 		{
-			if (!DebugLogWriter.LOG_LEVELS.contains(logLevel))
-			{
-				Debug.logWarn('CONSOLE: Invalid log level $logLevel!');
-				Debug.logWarn('  Expected: ${DebugLogWriter.LOG_LEVELS.join(', ')}');
-			}
-			else
+			if (DebugLogWriter.LOG_LEVELS.contains(logLevel))
 			{
 				Debug.logInfo('CONSOLE: Setting log level to $logLevel...');
 				logFileWriter.setLogLevel(logLevel);
+			}
+			else
+			{
+				Debug.logWarn('CONSOLE: Invalid log level $logLevel!');
+				Debug.logWarn('  Expected: ${DebugLogWriter.LOG_LEVELS.join(', ')}');
 			}
 		});
 
@@ -309,7 +314,7 @@ class Debug
 		addConsoleCommand('playSong', (songName:String, ?difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
-			// TODO Reimplement these commands
+			// TODO Reimplement these commands (Note: This might be hard, because these relied on the fact that Kade Engine preloaded every song JSON, which would be really laggy)
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
 		addConsoleCommand('chartSong', (songName:String, ?difficulty:Int = 1) ->
@@ -319,28 +324,28 @@ class Debug
 		});
 	}
 
-	private static function formatOutput(input:Dynamic, pos:PosInfos):Array<Dynamic>
+	private static function formatOutput(input:Any, pos:PosInfos):Array<Any>
 	{
 		// This code is junk but I kept getting Null Function References.
-		var inArray:Array<Dynamic>;
+		var inArray:Array<Any>;
 		if (input == null)
 		{
 			inArray = ['<NULL>'];
 		}
-		else if (!Std.isOfType(input, Array))
+		else if (Std.isOfType(input, Array))
 		{
-			inArray = [input];
+			inArray = input;
 		}
 		else
 		{
-			inArray = input;
+			inArray = [input];
 		}
 
 		if (pos == null)
 			return inArray;
 
 		// Format the position ourselves.
-		var output:Array<Dynamic> = ['(${pos.className}/${pos.methodName}#${pos.lineNumber}): '];
+		var output:Array<Any> = ['(${pos.className}/${pos.methodName}#${pos.lineNumber}): '];
 
 		return output.concat(inArray);
 	}
@@ -351,7 +356,7 @@ class DebugLogWriter
 	private static final LOG_FOLDER:String = 'logs';
 	public static final LOG_LEVELS:Array<String> = ['ERROR', 'WARN', 'INFO', 'TRACE'];
 
-	public var traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void;
+	public var traceFunction:(v:Any, ?infos:PosInfos) -> Void;
 
 	/**
 	 * Set this to the current timestamp that the game started.
@@ -365,7 +370,7 @@ class DebugLogWriter
 	private var file:FileOutput;
 	#end
 
-	public function new(logLevelParam:String, traceFunction:(v:Dynamic, ?infos:PosInfos) -> Void)
+	public function new(logLevelParam:String, traceFunction:(v:Any, ?infos:PosInfos) -> Void)
 	{
 		logLevel = LOG_LEVELS.indexOf(logLevelParam);
 		this.traceFunction = traceFunction;
@@ -373,7 +378,7 @@ class DebugLogWriter
 		#if sys
 		printDebug('Initializing log file...');
 
-		var logFilePath:String = '$LOG_FOLDER/${Sys.time()}.log';
+		var logFilePath:String = Path.join([LOG_FOLDER, Path.withExtension(Std.string(getTime(true)), 'log')]);
 
 		// Make sure that the path exists
 		if (logFilePath.contains('/'))
@@ -439,7 +444,7 @@ class DebugLogWriter
 	/**
 	 * Output text to the log file.
 	 */
-	public function write(input:Array<Dynamic>, logLevel = 'TRACE'):Void
+	public function write(input:Array<Any>, logLevel:String = 'TRACE'):Void
 	{
 		var ts:String = FlxStringUtil.formatTime(getTime(), true);
 		var msg:String = '$ts [${logLevel.rpad(' ', 5)}] ${input.join('')}';

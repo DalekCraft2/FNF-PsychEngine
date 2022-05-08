@@ -7,11 +7,11 @@ class TankmenBG extends FlxSprite
 {
 	public static var animationNotes:Array<Array<Dynamic>> = [];
 
+	public var strumTime:Float = 0;
+
 	private var tankSpeed:Float = 0.7;
 	private var endingOffset:Float;
 	private var goingRight:Bool;
-
-	public var strumTime:Float = 0;
 
 	public function new(x:Float, y:Float, goingRight:Bool)
 	{

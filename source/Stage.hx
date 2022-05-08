@@ -1,7 +1,6 @@
 package;
 
-import haxe.io.Path;
-import Song.SongData;
+import Song.SongDef;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -9,10 +8,11 @@ import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
+import haxe.io.Path;
 
 using StringTools;
 
-typedef StageData =
+typedef StageDef =
 {
 	var directory:String;
 	var defaultZoom:Float;
@@ -21,14 +21,15 @@ typedef StageData =
 	var boyfriend:Array<Float>;
 	var girlfriend:Array<Float>;
 	var opponent:Array<Float>;
-	var hide_girlfriend:Bool;
-	var camera_boyfriend:Array<Float>;
-	var camera_opponent:Array<Float>;
-	var camera_girlfriend:Array<Float>;
-	var ?camera_speed:Float;
+	var hideGirlfriend:Bool;
+	var cameraBoyfriend:Array<Float>;
+	var cameraOpponent:Array<Float>;
+	var cameraGirlfriend:Array<Float>;
+	var ?cameraSpeed:Float;
 }
 
 // TODO Add layers to Stage JSON file, like Myth?
+// TODO Make this an FlxGroup, like Andromeda
 class Stage
 {
 	/**
@@ -42,11 +43,11 @@ class Stage
 	public var boyfriend:Array<Float>;
 	public var girlfriend:Array<Float>;
 	public var opponent:Array<Float>;
-	public var hide_girlfriend:Bool;
-	public var camera_boyfriend:Array<Float>;
-	public var camera_opponent:Array<Float>;
-	public var camera_girlfriend:Array<Float>;
-	public var camera_speed:Null<Float>;
+	public var hideGirlfriend:Bool;
+	public var cameraBoyfriend:Array<Float>;
+	public var cameraOpponent:Array<Float>;
+	public var cameraGirlfriend:Array<Float>;
+	public var cameraSpeed:Null<Float>;
 
 	/**
 	 * True = hide last BGs and show ones from slowBacks on certain step, False = Toggle visibility of BGs from SlowBacks on certain step
@@ -95,12 +96,12 @@ class Stage
 	public function new(id:String)
 	{
 		this.id = id;
-		var stageData:StageData = Paths.getJson(Path.join(['stages', id]));
-		if (stageData == null)
+		var stageDef:StageDef = Paths.getJson(Path.join(['stages', id]));
+		if (stageDef == null)
 		{
 			Debug.logError('Could not find stage data for stage "$id"; using default');
 			// Stage couldn't be found, create a dummy stage for preventing a crash
-			stageData = {
+			stageDef = {
 				directory: '',
 				defaultZoom: 0.9,
 				isPixelStage: false,
@@ -108,15 +109,15 @@ class Stage
 				boyfriend: [770, 100],
 				girlfriend: [400, 130],
 				opponent: [100, 100],
-				hide_girlfriend: false,
+				hideGirlfriend: false,
 
-				camera_boyfriend: [0, 0],
-				camera_opponent: [0, 0],
-				camera_girlfriend: [0, 0],
-				camera_speed: 1
+				cameraBoyfriend: [0, 0],
+				cameraOpponent: [0, 0],
+				cameraGirlfriend: [0, 0],
+				cameraSpeed: 1
 			};
 		}
-		copyDataFields(stageData);
+		copyDataFields(stageDef);
 
 		if (Options.save.data.noStage)
 			return;
@@ -175,8 +176,8 @@ class Stage
 				backgrounds.push(halloweenBG);
 
 				// PRECACHE SOUNDS
-				Paths.getSound('thunder_1');
-				Paths.getSound('thunder_2');
+				Paths.precacheSound('thunder_1');
+				Paths.precacheSound('thunder_2');
 
 			case 'philly':
 				if (!Options.save.data.lowQuality)
@@ -279,7 +280,7 @@ class Stage
 					resetLimoKill();
 
 					// PRECACHE SOUND
-					Paths.getSound('dancerdeath');
+					Paths.precacheSound('dancerdeath');
 				}
 
 				var fastCar:BGSprite = new BGSprite('limo/fastCarLol', -300, 160);
@@ -878,19 +879,19 @@ class Stage
 		}
 	}
 
-	private function copyDataFields(stageData:StageData):Void
+	private function copyDataFields(stageDef:StageDef):Void
 	{
-		directory = stageData.directory;
-		defaultZoom = stageData.defaultZoom;
-		isPixelStage = stageData.isPixelStage;
-		boyfriend = stageData.boyfriend;
-		girlfriend = stageData.girlfriend;
-		opponent = stageData.opponent;
-		hide_girlfriend = stageData.hide_girlfriend;
-		camera_boyfriend = stageData.camera_boyfriend;
-		camera_opponent = stageData.camera_opponent;
-		camera_girlfriend = stageData.camera_girlfriend;
-		camera_speed = stageData.camera_speed;
+		directory = stageDef.directory;
+		defaultZoom = stageDef.defaultZoom;
+		isPixelStage = stageDef.isPixelStage;
+		boyfriend = stageDef.boyfriend;
+		girlfriend = stageDef.girlfriend;
+		opponent = stageDef.opponent;
+		hideGirlfriend = stageDef.hideGirlfriend;
+		cameraBoyfriend = stageDef.cameraBoyfriend;
+		cameraOpponent = stageDef.cameraOpponent;
+		cameraGirlfriend = stageDef.cameraGirlfriend;
+		cameraSpeed = stageDef.cameraSpeed;
 	}
 
 	// Variables and Functions for Stages
@@ -1101,7 +1102,7 @@ class Stage
 
 	public static var forceNextDirectory:String;
 
-	public static function loadDirectory(song:SongData):Void
+	public static function loadDirectory(song:SongDef):Void
 	{
 		var stage:String = '';
 		if (song.stage != null)
@@ -1113,14 +1114,14 @@ class Stage
 			stage = 'stage';
 		}
 
-		var stageData:StageData = Paths.getJson(Path.join(['stages', stage]));
-		if (stageData == null)
+		var stageDef:StageDef = Paths.getJson(Path.join(['stages', stage]));
+		if (stageDef == null)
 		{ // preventing crashes
 			forceNextDirectory = '';
 		}
 		else
 		{
-			forceNextDirectory = stageData.directory;
+			forceNextDirectory = stageDef.directory;
 		}
 	}
 }

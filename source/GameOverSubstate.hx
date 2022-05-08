@@ -9,18 +9,21 @@ import flixel.util.FlxTimer;
 
 class GameOverSubState extends MusicBeatSubState
 {
-	public var boyfriend:Boyfriend;
-
-	private var camFollow:FlxPoint;
-	private var camFollowPos:FlxObject;
-	private var updateCamera:Bool = false;
+	public static var instance:GameOverSubState;
 
 	public static var characterName:String = 'bf';
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
+	public static var tempo:Int = 100;
 
-	public static var instance:GameOverSubState;
+	public var boyfriend:Boyfriend;
+
+	private var camFollow:FlxPoint;
+	private var camFollowPos:FlxObject;
+	private var updateCamera:Bool = false;
+	private var bfX:Float;
+	private var bfY:Float;
 
 	public static function resetVariables():Void
 	{
@@ -28,20 +31,30 @@ class GameOverSubState extends MusicBeatSubState
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
+		tempo = 100;
 	}
 
-	public function new(x:Float, y:Float, camX:Float, camY:Float)
+	public function new(x:Float, y:Float)
 	{
 		super();
 
-		// TODO Can this stuff be moved to create()?
-		#if FEATURE_LUA
-		PlayState.instance.setOnLuas('inGameOver', true);
+		bfX = x;
+		bfY = y;
+	}
+
+	override public function create():Void
+	{
+		super.create();
+
+		instance = this;
+
+		#if FEATURE_SCRIPTS
+		PlayState.instance.setOnScripts('inGameOver', true);
 		#end
 
 		Conductor.songPosition = 0;
 
-		boyfriend = new Boyfriend(x, y, characterName);
+		boyfriend = new Boyfriend(bfX, bfY, characterName);
 		boyfriend.x += boyfriend.positionArray[0];
 		boyfriend.y += boyfriend.positionArray[1];
 		add(boyfriend);
@@ -49,7 +62,7 @@ class GameOverSubState extends MusicBeatSubState
 		camFollow = new FlxPoint(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
 
 		FlxG.sound.play(Paths.getSound(deathSoundName));
-		Conductor.changeBPM(100);
+		Conductor.changeBPM(tempo);
 		FlxG.camera.scroll.set();
 		FlxG.camera.target = null;
 
@@ -58,15 +71,9 @@ class GameOverSubState extends MusicBeatSubState
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
 		add(camFollowPos);
-	}
 
-	override public function create():Void
-	{
-		super.create();
-
-		instance = this;
-		#if FEATURE_LUA
-		PlayState.instance.callOnLuas('onGameOverStart', []);
+		#if FEATURE_SCRIPTS
+		PlayState.instance.callOnScripts('onGameOverStart', []);
 		#end
 	}
 
@@ -76,8 +83,8 @@ class GameOverSubState extends MusicBeatSubState
 	{
 		super.update(elapsed);
 
-		#if FEATURE_LUA
-		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
+		#if FEATURE_SCRIPTS
+		PlayState.instance.callOnScripts('onUpdate', [elapsed]);
 		#end
 		if (updateCamera)
 		{
@@ -103,8 +110,8 @@ class GameOverSubState extends MusicBeatSubState
 
 			PlayState.loadRep = false;
 			PlayState.stageTesting = false;
-			#if FEATURE_LUA
-			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+			#if FEATURE_SCRIPTS
+			PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
 			#end
 		}
 
@@ -128,9 +135,16 @@ class GameOverSubState extends MusicBeatSubState
 		{
 			Conductor.songPosition = FlxG.sound.music.time;
 		}
-		#if FEATURE_LUA
-		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
+		#if FEATURE_SCRIPTS
+		PlayState.instance.callOnScripts('onUpdatePost', [elapsed]);
 		#end
+	}
+
+	override public function destroy():Void
+	{
+		super.destroy();
+
+		instance = null;
 	}
 
 	override public function beatHit(beat:Int):Void
@@ -148,6 +162,12 @@ class GameOverSubState extends MusicBeatSubState
 	private function coolStartDeath(volume:Float = 1):Void
 	{
 		FlxG.sound.playMusic(Paths.getMusic(loopSoundName), volume);
+
+		if (PlayState.song.songId == 'ugh' || PlayState.song.songId == 'guns' || PlayState.song.songId == 'stress')
+		{
+			// Jeff death sounds
+			FlxG.sound.play(Paths.getRandomSound('jeffGameover/jeffGameover-', 0, 25, 'week7'));
+		}
 	}
 
 	private function endBullshit():Void
@@ -166,8 +186,8 @@ class GameOverSubState extends MusicBeatSubState
 					PlayState.stageTesting = false;
 				});
 			});
-			#if FEATURE_LUA
-			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);
+			#if FEATURE_SCRIPTS
+			PlayState.instance.callOnScripts('onGameOverConfirm', [true]);
 			#end
 		}
 	}

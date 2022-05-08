@@ -2,9 +2,7 @@
     "offset": 0,
     "name": "Philly",
     "icon": "pico",
-    "color": [
-        148,
-        22,
-        83
+    "colors": [
+        "0xFF941653"
     ]
 }

@@ -1,6 +1,6 @@
 package;
 
-typedef SectionData =
+typedef SectionDef =
 {
 	var sectionNotes:Array<Array<Dynamic>>;
 	var lengthInSteps:Int;
@@ -10,6 +10,14 @@ typedef SectionData =
 	var bpm:Float;
 	var changeBPM:Bool;
 	var altAnim:Bool;
+	// TODO Integrate these two variables more
+	var ?CPUAltAnim:Bool;
+	var ?playerAltAnim:Bool;
+	// Myth Engine moment
+	var ?CPUPrimaryAltAnim:Bool;
+	var ?CPUSecondaryAltAnim:Bool;
+	var ?playerPrimaryAltAnim:Bool;
+	var ?playerSecondaryAltAnim:Bool;
 }
 
 class Section
@@ -25,10 +33,10 @@ class Section
 	 */
 	public static final COPYCAT:Int = 0;
 
-	public function new(sectionData:SectionData)
+	public function new(sectionDef:SectionDef)
 	{
 		notes = [];
-		for (noteArray in sectionData.sectionNotes)
+		for (noteArray in sectionDef.sectionNotes)
 		{
 			var strumTime:Float = noteArray[0];
 			var noteData:Int = noteArray[1];
@@ -39,9 +47,9 @@ class Section
 			note.noteType = noteType;
 			notes.push(note);
 		};
-		lengthInSteps = sectionData.lengthInSteps;
-		typeOfSection = sectionData.typeOfSection;
-		mustHitSection = sectionData.mustHitSection;
-		gfSection = sectionData.gfSection;
+		lengthInSteps = sectionDef.lengthInSteps;
+		typeOfSection = sectionDef.typeOfSection;
+		mustHitSection = sectionDef.mustHitSection;
+		gfSection = sectionDef.gfSection;
 	}
 }

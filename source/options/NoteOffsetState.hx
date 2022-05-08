@@ -52,13 +52,10 @@ class NoteOffsetState extends MusicBeatState
 		// Cameras
 		camGame = new FlxCamera();
 		camHUD = new FlxCamera();
-		camOther = new FlxCamera();
 		camHUD.bgColor.alpha = 0;
-		camOther.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camHUD, false);
-		FlxG.cameras.add(camOther, false);
 
 		FlxG.camera.scroll.set(120, 130);
 
@@ -125,16 +122,16 @@ class NoteOffsetState extends MusicBeatState
 			seperatedScore.push(FlxG.random.int(0, 9));
 		}
 
-		var daLoop:Int = 0;
+		var loopsDone:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.getGraphic('num$i'));
+			var numScore:FlxSprite = new FlxSprite(43 * loopsDone).loadGraphic(Paths.getGraphic('num$i'));
 			numScore.cameras = [camHUD];
 			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			numScore.updateHitbox();
 			numScore.antialiasing = Options.save.data.globalAntialiasing;
 			comboNums.add(numScore);
-			daLoop++;
+			loopsDone++;
 		}
 
 		dumbTexts = new FlxTypedGroup();

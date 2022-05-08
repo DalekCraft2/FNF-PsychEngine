@@ -6,10 +6,10 @@
 				0
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "idle",
+			"frameRate": 24,
+			"name": "idle",
 			"indices": [],
-			"name": "Monster Idle"
+			"prefix": "monster idle"
 		},
 		{
 			"offsets": [
@@ -17,21 +17,10 @@
 				50
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singUP",
+			"frameRate": 24,
+			"name": "singUP",
 			"indices": [],
-			"name": "Monster Up Note"
-		},
-		{
-			"offsets": [
-				-51,
-				0
-			],
-			"loop": false,
-			"fps": 24,
-			"anim": "singLEFT",
-			"indices": [],
-			"name": "Monster Left Note"
+			"prefix": "monster up note"
 		},
 		{
 			"offsets": [
@@ -39,10 +28,21 @@
 				0
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singRIGHT",
+			"frameRate": 24,
+			"name": "singLEFT",
 			"indices": [],
-			"name": "Monster Right Note"
+			"prefix": "Monster left note"
+		},
+		{
+			"offsets": [
+				-51,
+				0
+			],
+			"loop": false,
+			"frameRate": 24,
+			"name": "singRIGHT",
+			"indices": [],
+			"prefix": "Monster Right note"
 		},
 		{
 			"offsets": [
@@ -50,10 +50,10 @@
 				-94
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singDOWN",
+			"frameRate": 24,
+			"name": "singDOWN",
 			"indices": [],
-			"name": "Monster Down Note"
+			"prefix": "monster down"
 		},
 		{
 			"offsets": [
@@ -65,10 +65,10 @@
 				22,
 				23
 			],
-			"fps": 24,
-			"anim": "singUP-loop",
+			"frameRate": 24,
+			"name": "singUP-loop",
 			"loop": true,
-			"name": "Monster Up Note"
+			"prefix": "monster up note"
 		},
 		{
 			"offsets": [
@@ -80,10 +80,10 @@
 				28,
 				29
 			],
-			"fps": 24,
-			"anim": "singDOWN-loop",
+			"frameRate": 24,
+			"name": "singDOWN-loop",
 			"loop": true,
-			"name": "Monster Down Note"
+			"prefix": "monster down"
 		},
 		{
 			"offsets": [
@@ -95,10 +95,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "singLEFT-loop",
+			"frameRate": 24,
+			"name": "singRIGHT-loop",
 			"loop": true,
-			"name": "Monster Left Note"
+			"prefix": "Monster Right note"
 		},
 		{
 			"offsets": [
@@ -110,10 +110,10 @@
 				18,
 				19
 			],
-			"fps": 24,
-			"anim": "singRIGHT-loop",
+			"frameRate": 24,
+			"name": "singLEFT-loop",
 			"loop": true,
-			"name": "Monster Right Note"
+			"prefix": "Monster left note"
 		},
 		{
 			"offsets": [
@@ -125,10 +125,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "idle-loop",
+			"frameRate": 24,
+			"name": "idle-loop",
 			"loop": true,
-			"name": "Monster Idle"
+			"prefix": "monster idle"
 		}
 	],
 	"noAntialiasing": false,
@@ -139,6 +139,7 @@
 	],
 	"healthIcon": "monster",
 	"flipX": false,
+	"flipLR": true,
 	"healthBarColors": [
 		243,
 		255,

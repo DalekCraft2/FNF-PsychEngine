@@ -6,9 +6,9 @@
 				0
 			],
 			"loop": false,
-			"anim": "idle",
-			"fps": 24,
-			"name": "Tankman Idle Dance instance",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "Tankman Idle Dance instance",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				-10
 			],
 			"loop": false,
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "Tankman Note Left instance",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "Tankman Right Note instance",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				-98
 			],
 			"loop": false,
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "Tankman DOWN note instance",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "Tankman DOWN note instance",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				50
 			],
 			"loop": false,
-			"anim": "singUP",
-			"fps": 24,
-			"name": "Tankman UP note instance",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "Tankman UP note instance",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				-26
 			],
 			"loop": false,
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "Tankman Right Note instance",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "Tankman Note Left instance",
 			"indices": []
 		},
 		{
@@ -61,9 +61,9 @@
 				14
 			],
 			"loop": false,
-			"anim": "singDOWN-alt",
-			"fps": 24,
-			"name": "PRETTY GOOD",
+			"name": "singDOWN-alt",
+			"frameRate": 24,
+			"prefix": "PRETTY GOOD",
 			"indices": []
 		},
 		{
@@ -72,9 +72,9 @@
 				-8
 			],
 			"loop": false,
-			"anim": "singUP-alt",
-			"fps": 24,
-			"name": "TANKMAN UGH",
+			"name": "singUP-alt",
+			"frameRate": 24,
+			"prefix": "TANKMAN UGH",
 			"indices": []
 		}
 	],
@@ -86,6 +86,7 @@
 	],
 	"healthIcon": "tankman",
 	"flipX": true,
+	"flipLR": true,
 	"healthBarColors": [
 		255,
 		255,

@@ -6,9 +6,9 @@
 				0,
 				0
 			],
-			"anim": "danceLeft",
-			"fps": 24,
-			"name": "GF IDLE",
+			"name": "danceLeft",
+			"frameRate": 24,
+			"prefix": "GF IDLE",
 			"indices": [
 				30,
 				0,
@@ -34,9 +34,9 @@
 				0,
 				0
 			],
-			"anim": "danceRight",
-			"fps": 24,
-			"name": "GF IDLE",
+			"name": "danceRight",
+			"frameRate": 24,
+			"prefix": "GF IDLE",
 			"indices": [
 				15,
 				16,

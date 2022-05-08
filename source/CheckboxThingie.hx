@@ -5,7 +5,7 @@ import flixel.FlxSprite;
 class CheckboxThingie extends FlxSprite
 {
 	public var sprTracker:FlxSprite;
-	public var daValue(default, set):Bool;
+	public var value(default, set):Bool;
 	public var copyAlpha:Bool = true;
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
@@ -26,7 +26,7 @@ class CheckboxThingie extends FlxSprite
 
 		animationFinished(checked ? 'checking' : 'unchecking');
 		animation.finishCallback = animationFinished;
-		daValue = checked;
+		value = checked;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -43,7 +43,7 @@ class CheckboxThingie extends FlxSprite
 		}
 	}
 
-	private function set_daValue(check:Bool):Bool
+	private function set_value(check:Bool):Bool
 	{
 		if (check)
 		{

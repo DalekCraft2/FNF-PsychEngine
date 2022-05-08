@@ -24,6 +24,8 @@ class NoteColorState extends MusicBeatState
 	private var posX:Float = 230;
 	private var changingNote:Bool = false;
 
+	private var goToOptions:Bool = false;
+
 	override public function create():Void
 	{
 		super.create();
@@ -34,14 +36,8 @@ class NoteColorState extends MusicBeatState
 			bg.alpha = 0.6;
 			bg.scrollFactor.set();
 			add(bg);
-		}
-		else
-		{
-			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
-			bg.color = 0xFFEA71FD;
-			bg.screenCenter();
-			bg.antialiasing = Options.save.data.globalAntialiasing;
-			add(bg);
+
+			cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		}
 
 		blackBG = new FlxSprite(posX - 25).makeGraphic(870, 200, FlxColor.BLACK);
@@ -205,7 +201,9 @@ class NoteColorState extends MusicBeatState
 			if (!changingNote)
 			{
 				Options.flushSave();
+				// TODO Switch to the substate if in PlayState
 				FlxG.switchState(new OptionsState());
+				// close();
 			}
 			else
 			{

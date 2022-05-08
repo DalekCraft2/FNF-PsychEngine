@@ -1,8 +1,5 @@
 package;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import editors.MasterEditorMenu;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -16,12 +13,15 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import lime.app.Application;
+import openfl.Lib;
 import options.OptionsState;
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
 
 class MainMenuState extends MusicBeatState
 {
-	public static var curSelected:Int = 0;
+	private static var curSelected:Int = 0;
 
 	private var menuItems:FlxTypedGroup<FlxSprite>;
 	private var camGame:FlxCamera;
@@ -62,7 +62,7 @@ class MainMenuState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleData.bpm);
+			Conductor.changeBPM(TitleState.titleDef.bpm);
 		}
 
 		debugKeys = Options.copyKey(Options.save.data.keyBinds.get('debug_1'));
@@ -75,8 +75,9 @@ class MainMenuState extends MusicBeatState
 		FlxG.cameras.add(camAchievement, false);
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (menuOptions.length - 4)), 0.1);
+		// var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuDesat'));
+		// bg.color = 0xFFFFEA72; // Tint used to get menuBG from menuDesat (or, at least, it is close to what the tint is)
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuBG'));
-		// bg.color = 0xFFFDE871;
 		bg.scrollFactor.set(0, yScroll);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
@@ -128,7 +129,7 @@ class MainMenuState extends MusicBeatState
 		FlxG.camera.follow(camFollowPos, null, 1);
 
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0,
-			'Psych Engine v${EngineData.ENGINE_VERSION}\nFriday Night Funkin\' v${Application.current.meta.get('version')}\n', 16);
+			'Psych Engine v${EngineData.ENGINE_VERSION}\nFriday Night Funkin\' v${Lib.application.meta.get('version')}\n', 16);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -140,8 +141,8 @@ class MainMenuState extends MusicBeatState
 
 		#if FEATURE_ACHIEVEMENTS
 		Achievement.loadAchievements();
-		var leDate:Date = Date.now();
-		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
+		var date:Date = Date.now();
+		if (date.getDay() == 5 && date.getHours() >= 18)
 		{
 			var achievementId:String = 'friday_night_play';
 			if (!Achievement.isAchievementUnlocked(achievementId))
@@ -192,7 +193,7 @@ class MainMenuState extends MusicBeatState
 			{
 				if (menuOptions[curSelected] == 'donate')
 				{
-					CoolUtil.browserLoad('https://ninja-muffin24.itch.io/funkin');
+					FlxG.openURL('https://ninja-muffin24.itch.io/funkin');
 				}
 				else
 				{
@@ -218,9 +219,9 @@ class MainMenuState extends MusicBeatState
 						{
 							FlxFlicker.flicker(spr, 1, 0.06, false, false, (flick:FlxFlicker) ->
 							{
-								var daChoice:String = menuOptions[curSelected];
+								var selectedOption:String = menuOptions[curSelected];
 
-								switch (daChoice)
+								switch (selectedOption)
 								{
 									case 'story_mode':
 										FlxG.switchState(new StoryMenuState());

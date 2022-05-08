@@ -16,31 +16,31 @@ using StringTools;
 import Discord.DiscordClient;
 #end
 
-// TODO Use JSON for credits because who doesn't love JSON
-/*typedef CreditData =
-	{
+typedef CreditDef =
+{
 	var name:String;
 	var icon:String;
 	var description:String;
 	var link:String;
 	var color:String; // Will be changed to FlxColor
 	var modDirectory:String;
-}*/
+}
+
 class CreditsState extends MusicBeatState
 {
+	private static final OFFSET:Float = -75;
+
 	private var curSelected:Int = -1;
 
-	private var grpOptions:FlxTypedGroup<Alphabet>;
+	private var grpCredits:FlxTypedGroup<Alphabet>;
 	private var iconArray:Array<AttachedSprite> = [];
-	private var creditsStuff:Array<Array<String>> = [];
+	private var credits:Array<CreditDef> = [];
 
 	private var bg:FlxSprite;
 	private var descText:FlxText;
 	private var intendedColor:Int;
 	private var colorTween:FlxTween;
 	private var descBox:AttachedSprite;
-
-	private static final OFFSET:Float = -75;
 
 	override public function create():Void
 	{
@@ -57,56 +57,43 @@ class CreditsState extends MusicBeatState
 		add(bg);
 		bg.screenCenter();
 
-		grpOptions = new FlxTypedGroup();
-		add(grpOptions);
+		grpCredits = new FlxTypedGroup();
+		add(grpCredits);
 
-		#if FEATURE_MODS
-		var path:String = 'modList.txt';
-		if (Paths.exists(path))
+		var modsAdded:Array<String> = [];
+
+		var directories:Array<String> = Paths.getDirectoryLoadOrder();
+		for (directory in directories)
 		{
-			var leMods:Array<String> = CoolUtil.coolTextFile(path);
-			for (mod in leMods)
+			if (modsAdded.contains(directory))
+				continue;
+
+			var creditsFile:String = Path.join([directory, Path.withExtension('data/credits', Paths.TEXT_EXT)]);
+
+			if (Paths.exists(creditsFile))
 			{
-				if (leMods.length > 1 && mod.length > 0)
+				var firstarray:Array<String> = CoolUtil.listFromTextFile(creditsFile);
+				for (i in firstarray)
 				{
-					var modSplit:Array<String> = mod.split('|');
-					if (!Paths.IGNORE_MOD_FOLDERS.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
-					{
-						if (modSplit[1] == '1')
-							pushModCreditsToList(modSplit[0]);
-						else
-							modsAdded.push(modSplit[0]);
-					}
+					var arr:Array<String> = i.replace('\\n', '\n').split('::');
+					credits.push({
+						name: arr[0],
+						icon: arr[1],
+						description: arr[2],
+						link: arr[3],
+						color: arr[4],
+						modDirectory: directory
+					});
 				}
 			}
+			modsAdded.push(directory);
 		}
 
-		var arrayOfFolders:Array<String> = Paths.getModDirectories();
-		arrayOfFolders.push('');
-		for (folder in arrayOfFolders)
+		for (i in 0...credits.length)
 		{
-			pushModCreditsToList(folder);
-		}
-		#end
-
-		var creditsFile:String = Paths.txt('credits');
-		if (Paths.exists(creditsFile))
-		{
-			var firstarray:Array<String> = CoolUtil.coolTextFile(creditsFile);
-			for (creditLine in firstarray)
-			{
-				var arr:Array<String> = creditLine.replace('\\n', '\n').split('::');
-				if (arr.length > 5)
-					arr.push('');
-				creditsStuff.push(arr);
-			}
-		}
-
-		for (i in 0...creditsStuff.length)
-		{
-			var credit:Array<String> = creditsStuff[i];
+			var credit:CreditDef = credits[i];
 			var isSelectable:Bool = !unselectableCheck(i);
-			var optionText:Alphabet = new Alphabet(0, 70 * i, credit[0], !isSelectable, false);
+			var optionText:Alphabet = new Alphabet(0, 70 * i, credit.name, !isSelectable, false);
 
 			optionText.isMenuItem = true;
 			optionText.screenCenter(X);
@@ -116,16 +103,15 @@ class CreditsState extends MusicBeatState
 				optionText.x -= 70;
 			}
 			optionText.forceX = optionText.x;
-			// optionText.yMult = 90;
 			optionText.targetY = i;
-			grpOptions.add(optionText);
+			grpCredits.add(optionText);
 			if (isSelectable)
 			{
-				if (credit[5] != null)
+				if (credit.modDirectory != null)
 				{
-					Paths.currentModDirectory = credit[5];
+					Paths.currentModDirectory = credit.modDirectory;
 				}
-				var icon:AttachedSprite = new AttachedSprite('credits/${credit[1]}');
+				var icon:AttachedSprite = new AttachedSprite(Path.join(['credits', credit.icon]));
 				icon.xAdd = optionText.width + 10;
 				icon.sprTracker = optionText;
 				// using a FlxGroup is too much fuss!
@@ -148,13 +134,10 @@ class CreditsState extends MusicBeatState
 		descText.scrollFactor.set();
 		descBox.sprTracker = descText;
 		add(descText);
-		if (creditsStuff[curSelected] != null && creditsStuff[curSelected].length > 1)
+		if (!unselectableCheck(curSelected))
 			bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
-		if (creditsStuff.length > 1)
-		{
-			changeSelection();
-		}
+		changeSelection();
 	}
 
 	private var quitting:Bool = false;
@@ -171,7 +154,7 @@ class CreditsState extends MusicBeatState
 
 		if (!quitting)
 		{
-			if (creditsStuff.length > 1)
+			if (credits.length > 1)
 			{
 				var shiftMult:Int = 1;
 				if (FlxG.keys.pressed.SHIFT)
@@ -180,36 +163,36 @@ class CreditsState extends MusicBeatState
 				var upP:Bool = controls.UI_UP_P;
 				var downP:Bool = controls.UI_DOWN_P;
 
-				if (creditsStuff.length > 1)
+				if (upP)
 				{
-					if (upP)
-					{
-						changeSelection(-1 * shiftMult);
-						holdTime = 0;
-					}
-					if (downP)
-					{
-						changeSelection(1 * shiftMult);
-						holdTime = 0;
-					}
+					changeSelection(-1 * shiftMult);
+					holdTime = 0;
+				}
+				if (downP)
+				{
+					changeSelection(1 * shiftMult);
+					holdTime = 0;
+				}
 
-					if (controls.UI_DOWN || controls.UI_UP)
-					{
-						var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
-						holdTime += elapsed;
-						var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
+				if (controls.UI_DOWN || controls.UI_UP)
+				{
+					var checkLastHold:Int = Math.floor((holdTime - 0.5) * 10);
+					holdTime += elapsed;
+					var checkNewHold:Int = Math.floor((holdTime - 0.5) * 10);
 
-						if (holdTime > 0.5 && checkNewHold - checkLastHold > 0)
-						{
-							changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
-						}
+					if (holdTime > 0.5 && checkNewHold - checkLastHold > 0)
+					{
+						changeSelection((checkNewHold - checkLastHold) * (controls.UI_UP ? -shiftMult : shiftMult));
 					}
 				}
 			}
 
 			if (controls.ACCEPT)
 			{
-				CoolUtil.browserLoad(creditsStuff[curSelected][3]);
+				if (credits.length > 0)
+				{
+					FlxG.openURL(credits[curSelected].link);
+				}
 			}
 			if (controls.BACK)
 			{
@@ -224,7 +207,7 @@ class CreditsState extends MusicBeatState
 			}
 		}
 
-		for (item in grpOptions.members)
+		for (item in grpCredits.members)
 		{
 			if (!item.isBold)
 			{
@@ -249,94 +232,65 @@ class CreditsState extends MusicBeatState
 
 	private function changeSelection(change:Int = 0):Void
 	{
-		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
-		do
+		if (credits.length > 0)
 		{
-			curSelected += change;
-			if (curSelected < 0)
-				curSelected = creditsStuff.length - 1;
-			if (curSelected >= creditsStuff.length)
-				curSelected = 0;
-		}
-		while (unselectableCheck(curSelected));
-
-		var newColor:Int = getCurrentBGColor();
-		if (newColor != intendedColor)
-		{
-			if (colorTween != null)
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
+			do
 			{
-				colorTween.cancel();
+				curSelected += change;
+				if (curSelected < 0)
+					curSelected = credits.length - 1;
+				if (curSelected >= credits.length)
+					curSelected = 0;
 			}
-			intendedColor = newColor;
-			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
-				onComplete: (twn:FlxTween) ->
+			while (unselectableCheck(curSelected));
+
+			var newColor:Int = getCurrentBGColor();
+			if (newColor != intendedColor)
+			{
+				if (colorTween != null)
 				{
-					colorTween = null;
+					colorTween.cancel();
 				}
-			});
-		}
+				intendedColor = newColor;
+				colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
+					onComplete: (twn:FlxTween) ->
+					{
+						colorTween = null;
+					}
+				});
+			}
 
-		var bullShit:Int = 0;
-
-		for (item in grpOptions.members)
-		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
-
-			if (!unselectableCheck(bullShit - 1))
+			for (i in 0...grpCredits.members.length)
 			{
-				item.alpha = 0.6;
-				if (item.targetY == 0)
+				var item:Alphabet = grpCredits.members[i];
+				item.targetY = i - curSelected;
+
+				if (!unselectableCheck(i - 1))
 				{
-					item.alpha = 1;
+					item.alpha = 0.6;
+					if (item.targetY == 0)
+					{
+						item.alpha = 1;
+					}
 				}
 			}
+
+			descText.text = credits[curSelected].description;
+			descText.y = FlxG.height - descText.height + OFFSET - 60;
+
+			if (moveTween != null)
+				moveTween.cancel();
+			moveTween = FlxTween.tween(descText, {y: descText.y + 75}, 0.25, {ease: FlxEase.sineOut});
+
+			descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
+			descBox.updateHitbox();
 		}
-
-		descText.text = creditsStuff[curSelected][2];
-		descText.y = FlxG.height - descText.height + OFFSET - 60;
-
-		if (moveTween != null)
-			moveTween.cancel();
-		moveTween = FlxTween.tween(descText, {y: descText.y + 75}, 0.25, {ease: FlxEase.sineOut});
-
-		descBox.setGraphicSize(Std.int(descText.width + 20), Std.int(descText.height + 25));
-		descBox.updateHitbox();
 	}
-
-	#if FEATURE_MODS
-	private var modsAdded:Array<String> = [];
-
-	private function pushModCreditsToList(folder:String):Void
-	{
-		if (modsAdded.contains(folder))
-			return;
-
-		var creditsFile:String;
-		if (folder != null && folder.trim().length > 0)
-			creditsFile = Paths.mods(Path.join([folder, 'data/credits.txt']));
-		else
-			creditsFile = Paths.mods('data/credits.txt');
-
-		if (Paths.exists(creditsFile))
-		{
-			var firstarray:Array<String> = CoolUtil.listFromString(Paths.getTextDirect(creditsFile));
-			for (i in firstarray)
-			{
-				var arr:Array<String> = i.replace('\\n', '\n').split('::');
-				if (arr.length >= 5)
-					arr.push(folder);
-				creditsStuff.push(arr);
-			}
-			creditsStuff.push(['']);
-		}
-		modsAdded.push(folder);
-	}
-	#end
 
 	private function getCurrentBGColor():Int
 	{
-		var bgColor:String = creditsStuff[curSelected][4];
+		var bgColor:String = credits[curSelected].color;
 		if (!bgColor.startsWith('0x'))
 		{
 			bgColor = '0xFF$bgColor';
@@ -346,6 +300,14 @@ class CreditsState extends MusicBeatState
 
 	private function unselectableCheck(num:Int):Bool
 	{
-		return creditsStuff[num].length <= 1;
+		var credit:CreditDef = credits[num];
+		if (credit != null)
+		{
+			return credit.icon == null && credit.description == null && credit.link == null && credit.color == null;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

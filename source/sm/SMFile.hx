@@ -1,11 +1,10 @@
 package sm;
 
-import Section.SectionData;
-import Song.SongData;
+import Section.SectionDef;
+import Song.SongDef;
 import Song.SongWrapper;
 import haxe.Exception;
 import haxe.Json;
-import lime.app.Application;
 
 using StringTools;
 
@@ -52,7 +51,7 @@ class SMFile
 
 			if (_fileData.toString().split('#NOTES').length > 2)
 			{
-				Application.current.window.alert('The chart must only have 1 difficulty, this one has ${(_fileData.toString().split('#NOTES').length - 1)}',
+				Debug.displayAlert('The chart must only have 1 difficulty, this one has ${(_fileData.toString().split('#NOTES').length - 1)}',
 					'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
@@ -60,8 +59,7 @@ class SMFile
 
 			if (!header.MUSIC.toLowerCase().contains('ogg'))
 			{
-				Application.current.window.alert('The music MUST be an OGG File, make sure the sm file has the right music property.',
-					'SM File loading (${header.TITLE})');
+				Debug.displayAlert('The music MUST be an OGG File, make sure the sm file has the right music property.', 'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
 			}
@@ -70,8 +68,7 @@ class SMFile
 			inc += 3; // skip three lines down
 			if (!data[inc].contains('dance-double:') && !data[inc].contains('dance-single'))
 			{
-				Application.current.window.alert('The file you are loading is neither a Dance Double chart or a Dance Single chart',
-					'SM File loading (${header.TITLE})');
+				Debug.displayAlert('The file you are loading is neither a Dance Double chart or a Dance Single chart', 'SM File loading (${header.TITLE})');
 				isValid = false;
 				return;
 			}
@@ -104,14 +101,14 @@ class SMFile
 		}
 		catch (e:Exception)
 		{
-			Application.current.window.alert('Failure to load file.\n$e', 'SM File loading');
+			Debug.displayAlert('Failure to load file.\n$e', 'SM File loading');
 		}
 	}
 
 	public function convertToFNF(saveTo:String):String
 	{
 		// array's for helds
-		var heldNotes:Array<Array<Dynamic>>;
+		var heldNotes:Array<Array<Any>>;
 
 		if (isDouble) // held storage lanes
 			heldNotes = [[], [], [], [], [], [], [], []];
@@ -125,7 +122,7 @@ class SMFile
 
 		// init a fnf song
 
-		var song:SongData = {
+		var song:SongDef = {
 			songId: Paths.formatToSongPath(header.TITLE),
 			songName: header.TITLE,
 			player1: 'bf',
@@ -169,7 +166,7 @@ class SMFile
 
 			// section declaration
 
-			var section:SectionData = {
+			var section:SectionDef = {
 				sectionNotes: [],
 				lengthInSteps: 16,
 				typeOfSection: 0,
@@ -270,7 +267,7 @@ class SMFile
 		for (i in 0...song.notes.length) // loops through sections
 		{
 			// TODO Figure out how to do this in Psych, or adapt Psych to be more like Kade (yet again)
-			// var section:SectionData = song.notes[i];
+			// var section:SectionDef = song.notes[i];
 
 			// var currentBeat:Int = 4 * i;
 
@@ -289,11 +286,12 @@ class SMFile
 		{
 			song.events = header.changeEvents;
 		}
-		/*var newSections:Array<SectionData> = [];
+		/*
+			var newSections:Array<SectionDef> = [];
 
-			for(s in 0...song.notes.length) // lets go ahead and make sure each note is actually in their own section haha
+			for (s in 0...song.notes.length) // lets go ahead and make sure each note is actually in their own section haha
 			{
-				var sec:SectionData = {
+				var sec:SectionDef = {
 					startTime: song.notes[s].startTime,
 					endTime: song.notes[s].endTime,
 					lengthInSteps: 16,
@@ -304,16 +302,17 @@ class SMFile
 					typeOfSection: 0,
 					altAnim: song.notes[s].altAnim
 				};
-				for(i in song.notes)
+				for (i in song.notes)
 				{
-					for(ii in i.sectionNotes)
+					for (ii in i.sectionNotes)
 					{
 						if (ii[0] >= sec.startTime && ii[0] < sec.endTime)
 							sec.sectionNotes.push(ii);
 					}
 				}
 				newSections.push(sec);
-		}*/
+			}
+		 */
 
 		// WE ALREADY DO THIS
 

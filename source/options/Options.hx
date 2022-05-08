@@ -3,6 +3,7 @@ package options;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.FlxSubState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
@@ -75,7 +76,7 @@ class OptionDefaults
 	];
 	public static final controllerMode:Bool = false;
 	public static final resetKey:Bool = true;
-	public static final loadLuaScripts:Bool = true;
+	public static final loadScripts:Bool = true;
 	public static final ghostTapping:Bool = true;
 	public static final scrollType:String = 'multiplicative';
 	public static final scrollSpeed:Float = 1;
@@ -177,12 +178,30 @@ class StateOption extends Option
 	}
 }
 
+class SubStateOption extends Option
+{
+	private var subState:FlxSubState;
+
+	public function new(?name:String, ?description:String, subState:FlxSubState)
+	{
+		super(name, description);
+
+		this.subState = subState;
+	}
+
+	override public function accept():Bool
+	{
+		FlxG.state.openSubState(subState);
+		return false;
+	}
+}
+
 /**
  * A class made to simplify the reading/writing of values in the save file
  */
 class ValueOption<T> extends Option
 {
-	public var property:String = 'dummy';
+	public var property:String;
 
 	public var value(get, set):T;
 	public var defaultValue(get, never):T;
@@ -296,7 +315,7 @@ class ArrowOption<T> extends ValueOption<T>
 		super.createOptionText(curSelected, optionText);
 
 		remove(labelAlphabet);
-		labelAlphabet = new Alphabet(0, (70 * curSelected), label, false, false);
+		labelAlphabet = new Alphabet(0, (70 * curSelected), label, true, false);
 		labelAlphabet.isMenuItem = true;
 		labelAlphabet.xAdd = text.width + 120;
 		labelAlphabet.targetY = text.targetY;
@@ -575,7 +594,8 @@ class StringOption extends ArrowOption<String>
 
 // TODO Combine this with Psych's options for directly editing judgements
 
-/*class JudgementsOption extends ArrowOption<String>
+/*
+	class JudgementsOption extends ArrowOption<String>
 	{
 	private var names:Array<String> = [];
 
@@ -585,7 +605,7 @@ class StringOption extends ArrowOption<String>
 
 		var index:Int = 0;
 
-		var judgementOrder:Array<String> = CoolUtil.coolTextFile(Paths.txt('judgementOrder'));
+		var judgementOrder:Array<String> = CoolUtil.listFromTextFile(Paths.txt('judgementOrder'));
 
 		for (judgement in judgementOrder)
 		{
@@ -645,7 +665,7 @@ class StringOption extends ArrowOption<String>
 
 		this.defaultDesc = description;
 
-		var noteskinOrder:Array<String> = CoolUtil.coolTextFile(Paths.file('images/skins/noteskinOrder.txt', TEXT));
+		var noteskinOrder:Array<String> = CoolUtil.listFromTextFile(Paths.file(Path.withExtension('images/skins/noteskinOrder', Paths.TEXT_EXT), TEXT));
 		for (skin in noteskinOrder)
 			if (Options.noteSkins.contains(skin) && skin != 'fallback')
 				names.push(skin);
@@ -686,7 +706,8 @@ class StringOption extends ArrowOption<String>
 	{
 		description = '${defaultDesc}.\nSkin description: ${Note.skinManifest.get(value).desc}';
 	}
-}*/
+	}
+ */
 class ControlOption extends ValueOption<Array<FlxKey>>
 {
 	public var forceUpdate:Bool = false;

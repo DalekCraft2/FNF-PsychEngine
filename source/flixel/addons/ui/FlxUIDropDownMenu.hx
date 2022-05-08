@@ -218,7 +218,8 @@ class FlxUIDropDownMenu extends FlxUIGroup implements IFlxUIWidget implements IF
 			else
 				button.alpha = 1;
 		}
-		/*for (button in list)
+		/*
+			for (button in list)
 				button.y -= buttonHeight * selection;
 			for (button in list)
 			{
@@ -226,7 +227,8 @@ class FlxUIDropDownMenu extends FlxUIGroup implements IFlxUIWidget implements IF
 					button.alpha = 0;
 				else
 					button.alpha = 1;
-		}*/
+			}
+		 */
 	}
 
 	override private function set_visible(value:Bool):Bool
@@ -370,10 +372,12 @@ class FlxUIDropDownMenu extends FlxUIGroup implements IFlxUIWidget implements IF
 		return t;
 	}
 
-	/*public function setUIControlCallback(uiControlCallback:(Bool, FlxUIDropDownMenu) -> Void):Void
+	/*
+		public function setUIControlCallback(uiControlCallback:(Bool, FlxUIDropDownMenu) -> Void):Void
 		{
 			_ui_control_callback = uiControlCallback;
-	}*/
+		}
+	 */
 	public function changeLabelByIndex(i:Int, newLabel:String):Void
 	{
 		var btn:FlxUIButton = getBtnByIndex(i);

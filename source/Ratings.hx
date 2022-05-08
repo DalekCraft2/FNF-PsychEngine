@@ -1,7 +1,7 @@
 package;
 
-import options.Options.OptionDefaults;
 import flixel.math.FlxMath;
+import options.Options.OptionDefaults;
 
 class Ratings
 {
@@ -112,27 +112,32 @@ class Ratings
 
 	public static function judgeNote(noteDiff:Float):String
 	{
+		// tryna do MS based judgment due to popular demand
+		var timingWindows:Array<Int> = [
+			Options.save.data.sickWindow,
+			Options.save.data.goodWindow,
+			Options.save.data.badWindow
+		];
+		var windowNames:Array<String> = ['sick', 'good', 'bad'];
+
 		var diff:Float = Math.abs(noteDiff);
-		for (index in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
+		// for (index in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
+		// {
+		// 	var time:Float = timingWindows[index];
+		// 	var nextTime:Float = index + 1 > timingWindows.length - 1 ? 0 : timingWindows[index + 1];
+		// 	if (diff < time && diff >= nextTime)
+		// 	{
+		// 		return windowNames[index];
+		// 	}
+		// }
+		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
-			var time:Float = timingWindows[index];
-			var nextTime:Float = index + 1 > timingWindows.length - 1 ? 0 : timingWindows[index + 1];
-			if (diff < time && diff >= nextTime)
+			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
 			{
-				switch (index)
-				{
-					case 0: // shit
-						return 'shit';
-					case 1: // bad
-						return 'bad';
-					case 2: // good
-						return 'good';
-					case 3: // sick
-						return 'sick';
-				}
+				return windowNames[i];
 			}
 		}
-		return 'good';
+		return 'shit';
 	}
 
 	public static function calculateRanking(score:Int, scoreDefault:Int, nps:Int, maxNPS:Int, accuracy:Float):String

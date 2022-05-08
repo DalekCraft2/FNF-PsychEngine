@@ -1,4 +1,4 @@
-package;
+package animateatlas;
 
 import animateatlas.HelperEnums.LoopMode;
 import animateatlas.JSONData.AnimationData;
@@ -7,7 +7,9 @@ import animateatlas.displayobject.SpriteAnimationLibrary;
 import animateatlas.displayobject.SpriteMovieClip;
 import animateatlas.tilecontainer.TileAnimationLibrary;
 import animateatlas.tilecontainer.TileContainerMovieClip;
-import openfl.Assets;
+import flixel.graphics.FlxGraphic;
+import flixel.system.FlxAssets.FlxGraphicAsset;
+import haxe.io.Path;
 import openfl.Lib;
 import openfl.display.BitmapData;
 import openfl.display.Sprite;
@@ -33,9 +35,18 @@ class Main extends Sprite
 		graphics.beginFill(0x333333);
 		graphics.drawRect(0, 0, Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
 
-		var animationData:AnimationData = Paths.getJsonDirect('assets/TEST/Animation.json');
-		var atlasData:AtlasData = Paths.getJsonDirect('assets/TEST/spritemap.json');
-		var bitmapData:BitmapData = Assets.getBitmapData('assets/TEST/spritemap.png');
+		var animationData:AnimationData = Paths.getJsonDirect(Path.withExtension('assets/TEST/Animation', Paths.JSON_EXT));
+		var atlasData:AtlasData = Paths.getJsonDirect(Path.withExtension('assets/TEST/spritemap', Paths.JSON_EXT));
+		var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(Path.withExtension('assets/TEST/spritemap', Paths.IMAGE_EXT));
+		var bitmapData:BitmapData = null;
+		if (graphicAsset is FlxGraphic)
+		{
+			bitmapData = cast(graphicAsset, FlxGraphic).bitmap;
+		}
+		else if (graphicAsset is BitmapData)
+		{
+			bitmapData = graphicAsset;
+		}
 
 		aa = new TileAnimationLibrary(animationData, atlasData, bitmapData);
 		ss = new SpriteAnimationLibrary(animationData, atlasData, bitmapData);

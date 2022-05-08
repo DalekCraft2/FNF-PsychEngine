@@ -1,16 +1,19 @@
 package;
 
+import Difficulty.DifficultyDef;
+import Section.SectionDef;
+import flixel.util.FlxColor;
 import haxe.Json;
-import Section.SectionData;
+import haxe.io.Path;
 
 using StringTools;
 
 typedef SongWrapper =
 {
-	var song:SongData;
+	var song:SongDef;
 }
 
-typedef SongData =
+typedef SongDef =
 {
 	/**
 	 * The internal name of the song, as used in the file system.
@@ -37,17 +40,8 @@ typedef SongData =
 	var speed:Float;
 	var needsVoices:Bool;
 	var ?validScore:Bool;
-	var notes:Array<SectionData>;
+	var notes:Array<SectionDef>;
 	var events:Array<Array<Dynamic>>;
-}
-
-// TODO SongMetaEditorState?
-typedef SongMetaData =
-{
-	var ?offset:Int;
-	var ?name:String;
-	var ?icon:String;
-	var ?color:Array<Int>; // TODO Make this an FlxColor (or an array of FlxColors, like Myth (They're actually hex Strings))
 }
 
 class Song
@@ -79,12 +73,12 @@ class Song
 	public var splashSkin:String;
 	public var validScore:Bool = true;
 	public var sections:Array<Section>;
-	// public var events:Array<EventNoteData>;
+	// public var events:Array<EventNoteDef>;
 	public var events:Array<Array<Dynamic>>;
 
-	public static function createTemplateSongData():SongData
+	public static function createTemplateSongDef():SongDef
 	{
-		var songData:SongData = {
+		var songDef:SongDef = {
 			songId: 'test',
 			songName: 'Test',
 			player1: 'bf',
@@ -100,56 +94,15 @@ class Song
 			notes: [],
 			events: []
 		};
-		return songData;
+		return songDef;
 	}
 
-	public static function createTemplateSongMetaData():SongMetaData
+	private static function conversionChecks(songDef:SongDef):Void // Convert old charts to newest format
 	{
-		var songMetaData:SongMetaData = {
-			offset: 0,
-			name: 'Test',
-			icon: 'face',
-			color: [146, 113, 253]
-		}
-		return songMetaData;
-	}
-
-	public function new(songId:String, difficulty:String, ?folder:String)
-	{
-		// TODO Set the song's ID and name in this constructor, and remove those two fields from SongData so they can be isolated to _meta.json files
-		id = songId;
-		var songData:SongData = loadFromJson(songId, difficulty, folder);
-		copyDataFields(songData);
-	}
-
-	public function copyDataFields(songData:SongData):Void
-	{
-		player1 = songData.player1;
-		player2 = songData.player2;
-		gfVersion = songData.gfVersion;
-		stage = songData.stage;
-		bpm = songData.bpm;
-		speed = songData.speed;
-		needsVoices = songData.needsVoices;
-		arrowSkin = songData.arrowSkin;
-		splashSkin = songData.splashSkin;
-		validScore = songData.validScore;
-		sections = [];
-		for (sectionData in songData.notes)
+		if (songDef.events == null)
 		{
-			var section:Section = new Section(sectionData);
-			sections.push(section);
-		}
-		// events = [];
-		events = songData.events;
-	}
-
-	private static function conversionChecks(songData:SongData):Void // Convert old charts to newest format
-	{
-		if (songData.events == null)
-		{
-			songData.events = [];
-			for (section in songData.notes)
+			songDef.events = [];
+			for (section in songDef.notes)
 			{
 				var i:Int = 0;
 				var notes:Array<Array<Dynamic>> = section.sectionNotes;
@@ -159,26 +112,37 @@ class Song
 					var note:Array<Dynamic> = notes[i];
 					if (note[1] < 0)
 					{
-						songData.events.push([note[0], [[note[2], note[3], note[4]]]]);
+						songDef.events.push([note[0], [[note[2], note[3], note[4]]]]);
 						notes.remove(note);
 						len = notes.length;
 					}
 					else
 						i++;
 				}
+
+				// Compatibility with Kade Engine 1.8's per-section alt animations
+				if (section.CPUAltAnim)
+				{
+					section.altAnim = true;
+				}
+				// ... and with Myth's
+				if (section.CPUPrimaryAltAnim)
+				{
+					section.altAnim = true;
+				}
 			}
 		}
 	}
 
-	public static function loadFromJsonDirect(rawJson:String):SongData
+	public static function fromJsonString(rawJson:String):SongDef
 	{
 		var songWrapper:SongWrapper = Json.parse(rawJson);
-		var songMetaData:SongMetaData = {name: songWrapper.song.songName};
+		var songMetadataDef:SongMetadataDef = {name: songWrapper.song.songName};
 
-		return parseJson('rawsong', songWrapper, songMetaData);
+		return parseJson('rawsong', songWrapper, songMetadataDef);
 	}
 
-	public static function loadFromJson(id:String, difficulty:String, ?folder:String):SongData
+	public static function getSongDef(id:String, difficulty:String, ?folder:String):SongDef
 	{
 		if (folder == null)
 		{
@@ -186,13 +150,41 @@ class Song
 		}
 
 		var songWrapper:SongWrapper = getSongWrapper(id, difficulty, folder);
-		var songMetaData:SongMetaData = getSongMetaData(id, folder);
+		var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(id, folder);
 
-		var songData:SongData = parseJson(id, songWrapper, songMetaData);
-		conversionChecks(songData);
+		var songDef:SongDef = parseJson(id, songWrapper, songMetadataDef);
+		conversionChecks(songDef);
+		return songDef;
+	}
+
+	public static function getSong(id:String, difficulty:String, ?folder:String):Song
+	{
+		var songDef:SongDef = getSongDef(id, difficulty, folder);
+		var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(id, difficulty);
+
+		var song:Song = new Song(songDef);
+
+		song.id = id;
+
+		// Inject info from _meta.json.
+		if (songMetadataDef != null && songMetadataDef.name != null)
+		{
+			song.name = songMetadataDef.name;
+		}
+		else
+		{
+			song.name = song.id.split('-').join(' ');
+		}
+
+		return song;
+	}
+
+	public static function loadSong(id:String, difficulty:String, ?folder:String):SongDef
+	{
+		var songDef:SongDef = getSongDef(id, difficulty, folder);
 		if (id != 'events')
-			Stage.loadDirectory(songData);
-		return songData;
+			Stage.loadDirectory(songDef);
+		return songDef;
 	}
 
 	public static function getSongWrapper(id:String, difficulty:String, ?folder:String):SongWrapper
@@ -201,46 +193,11 @@ class Song
 		{
 			folder = id;
 		}
-		var songPath:String = 'songs/$folder/$id$difficulty';
-		var songWrapper:SongWrapper = Paths.getJson(songPath);
+		var songWrapper:SongWrapper = Paths.getJson(Path.join(['songs', folder, '$id$difficulty']));
 		return songWrapper;
 	}
 
-	public static function getSongMetaData(id:String, ?folder:String):SongMetaData
-	{
-		if (folder == null)
-		{
-			folder = id;
-		}
-		var songMetaPath:String = Paths.json('songs/$folder/_meta');
-		var songMetaData:SongMetaData = Paths.getJsonDirect(songMetaPath);
-
-		if (songMetaData == null)
-		{
-			songMetaData = createTemplateSongMetaData();
-			songMetaData.name = id.split('-').join(' ');
-		}
-		if (songMetaData.offset == null)
-		{
-			songMetaData.offset = 0;
-		}
-		if (songMetaData.name == null)
-		{
-			songMetaData.name = id.split('-').join(' ');
-		}
-		if (songMetaData.icon == null)
-		{
-			songMetaData.icon = 'face';
-		}
-		if (songMetaData.color == null || songMetaData.color.length != 3)
-		{
-			songMetaData.color = [146, 113, 253];
-		}
-
-		return songMetaData;
-	}
-
-	public static function parseJson(id:String, songWrapper:SongWrapper, songMetaData:SongMetaData):SongData
+	public static function parseJson(id:String, songWrapper:SongWrapper, songMetadataDef:SongMetadataDef):SongDef
 	{
 		if (songWrapper == null)
 		{
@@ -248,32 +205,141 @@ class Song
 			songWrapper = getSongWrapper(DEFAULT_SONG, '');
 		}
 
-		var songData:SongData = songWrapper.song;
+		var songDef:SongDef = songWrapper.song;
 
-		songData.songId = id;
+		songDef.songId = id;
 
 		// Enforce default values for optional fields.
-		if (songData.validScore == null)
-			songData.validScore = true;
+		if (songDef.validScore == null)
+			songDef.validScore = true;
 
 		// Inject info from _meta.json.
-		if (songMetaData != null && songMetaData.name != null)
+		if (songMetadataDef != null && songMetadataDef.name != null)
 		{
-			songData.songName = songMetaData.name;
+			songDef.songName = songMetadataDef.name;
 		}
 		else
 		{
-			songData.songName = id.split('-').join(' ');
+			songDef.songName = songDef.songId.split('-').join(' ');
 		}
 
 		// This is for in case I want to add something to the JSON files which allows for playing a song with a different ID than the chart
-		// if (songData.song == null)
+		// if (songDef.song == null)
 		// {
-		// 	songData.song = songData.songId;
+		// 	songDef.song = songDef.songId;
 		// }
 
-		// songData.offset = songMetaData.offset != null ? songMetaData.offset : 0;
+		// songDef.offset = songMetadataDef.offset != null ? songMetadataDef.offset : 0;
 
-		return songData;
+		return songDef;
+	}
+
+	public function new(songDef:SongDef)
+	{
+		// TODO Set the song's ID and name in this constructor, and remove those two fields from SongDef so they can be isolated to _meta.json files
+		player1 = songDef.player1;
+		player2 = songDef.player2;
+		gfVersion = songDef.gfVersion;
+		stage = songDef.stage;
+		bpm = songDef.bpm;
+		speed = songDef.speed;
+		needsVoices = songDef.needsVoices;
+		arrowSkin = songDef.arrowSkin;
+		splashSkin = songDef.splashSkin;
+		validScore = songDef.validScore;
+		sections = [];
+		for (sectionDef in songDef.notes)
+		{
+			var section:Section = new Section(sectionDef);
+			sections.push(section);
+		}
+		// events = [];
+		events = songDef.events;
+	}
+}
+
+// TODO SongMetadataEditorState?
+typedef SongMetadataDef =
+{
+	var ?offset:Int;
+	var ?name:String;
+	var ?artist:String;
+	var ?week:Int;
+	var ?freeplayDialogue:Bool;
+	var ?difficulties:Array<DifficultyDef>;
+	var ?initDifficulty:String;
+	// var ?songOptions:Array<Dynamic>;
+	// var ?hasExtraDifficulties:Bool;
+	var ?icon:String;
+	var ?background:String;
+	var ?colors:Array<String>;
+}
+
+class SongMetadata
+{
+	public var id:String;
+	public var folder:String;
+
+	public var name:String;
+	public var artist:String;
+	public var week:Int;
+	public var freeplayDialogue:Bool;
+	// TODO Use individual song difficulties in Freeplay
+	public var difficulties:Array<DifficultyDef>;
+	public var initDifficulty:String;
+	// public var songOptions:Array<Dynamic>;
+	// public var hasExtraDifficulties:Bool;
+	public var icon:String;
+	public var background:String;
+	public var colors:Array<FlxColor>;
+
+	public static function createTemplateSongMetadataDef():SongMetadataDef
+	{
+		var songMetadataDef:SongMetadataDef = {
+			offset: 0,
+			name: 'Test',
+			icon: 'face',
+			colors: ["0xFF9271FD"]
+		}
+		return songMetadataDef;
+	}
+
+	public static function getSongMetadata(id:String, ?folder:String):SongMetadataDef
+	{
+		if (folder == null)
+		{
+			folder = id;
+		}
+		var songMetadataDef:SongMetadataDef = Paths.getJson(Path.join(['songs', folder, '_meta']));
+
+		if (songMetadataDef == null)
+		{
+			songMetadataDef = createTemplateSongMetadataDef();
+			songMetadataDef.name = id.split('-').join(' ');
+		}
+
+		return songMetadataDef;
+	}
+
+	public function new(songId:String, week:Int)
+	{
+		this.id = songId;
+		folder = Paths.currentModDirectory;
+
+		var songMetadataDef:SongMetadataDef = getSongMetadata(songId);
+		name = songMetadataDef.name == null ? songId.split('-').join(' ') : songMetadataDef.name;
+		artist = songMetadataDef.artist == null ? '' : songMetadataDef.artist;
+		// this.week = songMetadataDef.week == null ? 0 : songMetadataDef.week;
+		this.week = songMetadataDef.week == null ? week : songMetadataDef.week;
+		freeplayDialogue = songMetadataDef.freeplayDialogue == null ? false : songMetadataDef.freeplayDialogue;
+		difficulties = songMetadataDef.difficulties == null ? [] : songMetadataDef.difficulties;
+		initDifficulty = songMetadataDef.initDifficulty == null ? 'normal' : songMetadataDef.initDifficulty;
+		icon = songMetadataDef.icon == null ? 'face' : songMetadataDef.icon;
+		background = songMetadataDef.background == null ? 'default' : songMetadataDef.background;
+		colors = songMetadataDef.colors == null ? [] : [for (hexString in songMetadataDef.colors) Std.parseInt(hexString)];
+		if (colors.length == 0)
+		{
+			colors.push(0xFF9271FD);
+		}
 	}
 }

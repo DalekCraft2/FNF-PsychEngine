@@ -9,7 +9,9 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.Json;
+import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 
@@ -29,19 +31,29 @@ class AtlasFrameMaker extends FlxFramesCollection
 		var frameCollection:FlxFramesCollection;
 		var frameArray:Array<Array<FlxFrame>> = [];
 
-		if (Paths.exists(Paths.file('images/$key/spritemap1.json')))
+		if (Paths.exists(Paths.file(Path.join(['images', key, Path.withExtension('spritemap1', Paths.JSON_EXT)]))))
 		{
-			#if FEATURE_LUA
+			#if FEATURE_SCRIPTS
 			PlayState.instance.addTextToDebug('Only Spritemaps made with Adobe Animate 2018 are supported');
 			#end
 			Debug.logTrace('Only Spritemaps made with Adobe Animate 2018 are supported');
 			return null;
 		}
 
-		var animationData:AnimationData = Paths.getJsonDirect(Paths.getText('images/$key/Animation.json'));
-		var atlasData:AtlasData = Json.parse(Paths.getText('images/$key/spritemap.json').replace('\uFEFF', ''));
+		var animationData:AnimationData = Paths.getJson(Path.join(['images', key, Path.withExtension('Animation', Paths.JSON_EXT)]));
+		var atlasData:AtlasData = Json.parse(Paths.getText(Path.join(['images', key, Path.withExtension('spritemap', Paths.JSON_EXT)])).replace('\uFEFF', ''));
 
-		var graphic:FlxGraphic = Paths.getGraphic('$key/spritemap');
+		var graphicAsset:FlxGraphicAsset = Paths.getGraphic(Path.join([key, 'spritemap']));
+		var graphic:FlxGraphic = null;
+		if (graphicAsset is FlxGraphic)
+		{
+			graphic = graphicAsset;
+		}
+		else if (graphicAsset is BitmapData)
+		{
+			graphic = FlxGraphic.fromBitmapData(graphicAsset);
+		}
+
 		var ss:SpriteAnimationLibrary = new SpriteAnimationLibrary(animationData, atlasData, graphic.bitmap);
 		var t:SpriteMovieClip = ss.createAnimation(noAntialiasing);
 		if (_excludeArray == null)
@@ -72,7 +84,7 @@ class AtlasFrameMaker extends FlxFramesCollection
 		var sizeInfo:Rectangle = new Rectangle(0, 0);
 		t.currentLabel = animation;
 		var bitMapArray:Array<BitmapData> = [];
-		var daFramez:Array<FlxFrame> = [];
+		var framesArray:Array<FlxFrame> = [];
 		var firstPass:Bool = true;
 		var frameSize:FlxPoint = new FlxPoint(0, 0);
 
@@ -99,14 +111,13 @@ class AtlasFrameMaker extends FlxFramesCollection
 		for (i in 0...bitMapArray.length)
 		{
 			var b:FlxGraphic = FlxGraphic.fromBitmapData(bitMapArray[i]);
-			var theFrame:FlxFrame = new FlxFrame(b);
-			theFrame.parent = b;
-			theFrame.name = animation + i;
-			theFrame.sourceSize.set(frameSize.x, frameSize.y);
-			theFrame.frame = new FlxRect(0, 0, bitMapArray[i].width, bitMapArray[i].height);
-			daFramez.push(theFrame);
-			// Debug.logTrace(daFramez);
+			var frame:FlxFrame = new FlxFrame(b);
+			frame.parent = b;
+			frame.name = animation + i;
+			frame.sourceSize.set(frameSize.x, frameSize.y);
+			frame.frame = new FlxRect(0, 0, bitMapArray[i].width, bitMapArray[i].height);
+			framesArray.push(frame);
 		}
-		return daFramez;
+		return framesArray;
 	}
 }

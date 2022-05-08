@@ -1,5 +1,6 @@
 package;
 
+// TODO If you're going to import this class from Kade, then you should use it as much as Kade Engine does, or we'll end up with dozens of classes which are barely integrated
 class TimingStruct
 {
 	public static var allTimings:Array<TimingStruct> = [];

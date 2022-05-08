@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.input.gamepad.FlxGamepad;
-import flixel.util.FlxSignal.FlxTypedSignal;
 
 class PlayerSettings
 {

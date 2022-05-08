@@ -2,16 +2,10 @@ package options;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionableState;
 
-// FIXME The transition to this menu has no fade-in
+// FIXME The transition to this menu has no fade-in (Because of the transition overriding the OptionsSubState if super.create() is called)
 class OptionsState extends MusicBeatState
 {
-	// public function new()
-	// {
-	// 	super();
-	// 	FlxTransitionableState.skipNextTransOut = true;
-	// }
 	override public function create():Void
 	{
 		// One day, I'll figure out how to both call the super method and open a SubState in the create() method
@@ -20,7 +14,7 @@ class OptionsState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleData.bpm);
+			Conductor.changeBPM(TitleState.titleDef.bpm);
 		}
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
@@ -32,14 +26,4 @@ class OptionsState extends MusicBeatState
 
 		openSubState(new OptionsSubState());
 	}
-	/*override public function update(elapsed:Float):Void
-		{
-			super.update(elapsed);
-
-			if (subState == null)
-			{
-				openSubState(new OptionsSubState());
-				Debug.logTrace('Opened SubState');
-			}
-	}*/
 }

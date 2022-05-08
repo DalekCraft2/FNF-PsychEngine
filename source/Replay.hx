@@ -1,6 +1,7 @@
 package;
 
 import haxe.Json;
+import haxe.io.Path;
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -9,12 +10,12 @@ import sys.io.File;
 class Ana
 {
 	public var hitTime:Float;
-	public var nearestNote:Array<Dynamic>;
+	public var nearestNote:Array<Any>;
 	public var hit:Bool;
 	public var hitJudge:String;
 	public var key:Int;
 
-	public function new(_hitTime:Float, _nearestNote:Array<Dynamic>, _hit:Bool, _hitJudge:String, _key:Int)
+	public function new(_hitTime:Float, _nearestNote:Array<Any>, _hit:Bool, _hitJudge:String, _key:Int)
 	{
 		hitTime = _hitTime;
 		nearestNote = _nearestNote;
@@ -34,14 +35,14 @@ class Analysis
 	}
 }
 
-typedef ReplayJSON =
+typedef ReplayDef =
 {
 	var replayGameVer:String;
 	var timestamp:Date;
 	var songId:String;
 	var songName:String;
 	var songDiff:Int;
-	var songNotes:Array<Array<Dynamic>>;
+	var songNotes:Array<Array<Any>>;
 	var songJudgements:Array<String>;
 	var noteSpeed:Float;
 	var chartPath:String;
@@ -56,7 +57,7 @@ class Replay
 	public static final REPLAY_VERSION:String = '1.2'; // replay file version
 
 	public var path:String = '';
-	public var replay:ReplayJSON;
+	public var replay:ReplayDef;
 
 	public function new(path:String)
 	{
@@ -89,15 +90,12 @@ class Replay
 		return rep;
 	}
 
-	public function saveReplay(notearray:Array<Array<Dynamic>>, judge:Array<String>, ana:Analysis):Void
+	public function saveReplay(notearray:Array<Array<Any>>, judge:Array<String>, ana:Analysis):Void
 	{
-		#if FEATURE_STEPMANIA
-		var chartPath:String = PlayState.isSM ? '${PlayState.pathToSm}/converted.json' : '';
-		#else
-		var chartPath:String = '';
-		#end
+		var chartPath:String = #if FEATURE_STEPMANIA PlayState.isSM ? Path.join([PlayState.pathToSm, Path.withExtension('converted', Paths.JSON_EXT)]) : #end
+		'';
 
-		var json:ReplayJSON = {
+		var json:ReplayDef = {
 			songId: PlayState.song.songId,
 			songName: PlayState.song.songName,
 			songDiff: PlayState.storyDifficulty,
@@ -117,12 +115,12 @@ class Replay
 
 		var time:Float = Date.now().getTime();
 
-		path = 'replay-${PlayState.song.songId}-time$time.kadeReplay'; // for score screen shit
+		path = Path.withExtension('replay-${PlayState.song.songId}-time$time', 'kadeReplay'); // for score screen shit
 
 		#if sys
-		if (!FileSystem.exists('assets/replays'))
+		if (!Paths.fileSystem.exists('assets/replays'))
 			FileSystem.createDirectory('assets/replays');
-		File.saveContent('assets/replays/$path', data);
+		File.saveContent(Path.join(['assets/replays', path]), data);
 
 		loadFromJson();
 
@@ -132,17 +130,15 @@ class Replay
 
 	public function loadFromJson():Void
 	{
-		#if sys
-		Debug.logTrace('Loading assets/replays/$path replay...');
+		Debug.logTrace('Loading ${Path.join(['assets/replays', path])} replay...');
 		try
 		{
-			var repl:ReplayJSON = Paths.getJsonDirect('assets/replays/$path');
+			var repl:ReplayDef = Paths.getJsonDirect(Path.join(['assets/replays', path]));
 			replay = repl;
 		}
 		catch (e)
 		{
 			Debug.logError('Error loading replay: ${e.message}');
 		}
-		#end
 	}
 }

@@ -6,12 +6,13 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.graphics.FlxGraphic;
 import flixel.math.FlxMath;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
 import haxe.io.Path;
+import openfl.Assets;
 import openfl.display.BitmapData;
-import openfl.utils.Assets;
 import sys.FileSystem;
 import sys.thread.Thread;
 
@@ -27,7 +28,7 @@ class CachingState extends MusicBeatState
 	private var text:FlxText;
 	private var kadeLogo:FlxSprite;
 
-	public static var bitmapData:Map<String, FlxGraphic>;
+	public static var bitmapData:Map<String, FlxGraphicAsset>;
 
 	private var images:Array<String> = [];
 	private var music:Array<String> = [];
@@ -76,19 +77,21 @@ class CachingState extends MusicBeatState
 			Debug.logTrace('Caching images...');
 
 			// TODO: Refactor this to use OpenFLAssets.
-			for (i in FileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/characters')))
+			for (i in Paths.fileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/characters')))
 			{
-				if (Path.extension(i) != 'png')
+				if (Path.extension(i) != Paths.IMAGE_EXT)
 					continue;
 				images.push(i);
 			}
 
-			/*for (i in FileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/noteskins')))
+			/*
+				for (i in Paths.fileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/noteskins')))
 				{
-					if (Path.extension(i) != 'png')
+					if (Path.extension(i) != Paths.IMAGE_EXT)
 						continue;
 					images.push(i);
-			}*/
+				}
+			 */
 		}
 
 		Debug.logTrace('Caching music...');
@@ -141,15 +144,24 @@ class CachingState extends MusicBeatState
 
 		for (i in images)
 		{
-			var replaced:String = i.replace('.png', '');
+			var replaced:String = Path.withoutExtension(i);
 
-			var imagePath:String = Paths.image('characters/$i', 'shared');
+			var imagePath:String = Paths.image(Path.join(['characters', i]), 'shared');
 			Debug.logTrace('Caching character graphic $i ($imagePath)...');
-			var data:BitmapData = Assets.getBitmapData(imagePath);
-			var graph:FlxGraphic = FlxGraphic.fromBitmapData(data);
-			graph.persist = true;
-			graph.destroyOnNoUse = false;
-			bitmapData.set(replaced, graph);
+			var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(imagePath);
+			var graphic:FlxGraphic = null;
+			if (graphicAsset is FlxGraphic)
+			{
+				graphic = graphicAsset;
+			}
+			else if (graphicAsset is BitmapData)
+			{
+				graphic = FlxGraphic.fromBitmapData(graphicAsset);
+			}
+
+			graphic.persist = true;
+			graphic.destroyOnNoUse = false;
+			bitmapData.set(replaced, graphic);
 			done++;
 		}
 

@@ -8,7 +8,7 @@ import flixel.util.FlxColor;
 
 class OutdatedState extends MusicBeatState
 {
-	public static var leftState:Bool = false;
+	private static var leftState:Bool = false;
 
 	private var warnText:FlxText;
 
@@ -36,7 +36,7 @@ class OutdatedState extends MusicBeatState
 			if (controls.ACCEPT)
 			{
 				leftState = true;
-				CoolUtil.browserLoad('https://github.com/ShadowMario/FNF-PsychEngine/releases');
+				FlxG.openURL('https://github.com/ShadowMario/FNF-PsychEngine/releases');
 			}
 			else if (controls.BACK)
 			{

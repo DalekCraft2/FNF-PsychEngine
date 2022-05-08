@@ -1,6 +1,6 @@
 package;
 
-import Song.SongData;
+import Song.SongDef;
 
 /**
  * @author
@@ -21,7 +21,9 @@ class Conductor
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
 
-	// safeFrames in milliseconds
+	/**
+	 * safeFrames in milliseconds
+	 */
 	// Must be initialized in a method, otherwise it will try to use Options.save before it is loaded and cause an NPE
 	public static var safeZoneOffset:Float;
 
@@ -32,28 +34,7 @@ class Conductor
 		safeZoneOffset = (Options.save.data.safeFrames / 60) * 1000;
 	}
 
-	public static function judgeNote(note:Note,
-			diff:Float = 0):String // STOLEN FROM KADE ENGINE (bbpanzu) - I had to rewrite it later anyway after i added the custom hit windows lmao (Shadow Mario)
-	{
-		// tryna do MS based judgment due to popular demand
-		var timingWindows:Array<Int> = [
-			Options.save.data.sickWindow,
-			Options.save.data.goodWindow,
-			Options.save.data.badWindow
-		];
-		var windowNames:Array<String> = ['sick', 'good', 'bad'];
-
-		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
-		{
-			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
-			{
-				return windowNames[i];
-			}
-		}
-		return 'shit';
-	}
-
-	public static function mapBPMChanges(song:SongData):Void
+	public static function mapBPMChanges(song:SongDef):Void
 	{
 		bpmChangeMap = [];
 
@@ -77,7 +58,6 @@ class Conductor
 			totalSteps += deltaSteps;
 			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
 		}
-		// Debug.logTrace('Created BPM map: $bpmChangeMap');
 	}
 
 	public static function changeBPM(newBpm:Float):Void

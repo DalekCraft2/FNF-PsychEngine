@@ -20,7 +20,7 @@
             "type": "hxcpp",
             "request": "launch",
             "preLaunchTask": "Build Windows (Final)",
-            "program": "${workspaceFolder}/export/release/windows/bin/Mock Engine.exe"
+            "program": "${workspaceFolder}/export/final/windows/bin/Mock Engine.exe"
         },
         {
             "name": "Launch HTML5 (Release)",
@@ -41,7 +41,7 @@
             "type": "node-terminal",
             "request": "launch",
             "preLaunchTask": "Build HTML5 (Final)",
-            "command": "npx live-server \"${workspaceFolder}/export/release/html5/bin/\""
+            "command": "npx live-server \"${workspaceFolder}/export/final/html5/bin/\""
         },
         {
             "name": "Launch Linux (Release)",
@@ -62,7 +62,7 @@
             "type": "hxcpp",
             "request": "launch",
             "preLaunchTask": "Build Linux (Final)",
-            "program": "${workspaceFolder}/export/release/linux/bin/Mock Engine"
+            "program": "${workspaceFolder}/export/final/linux/bin/Mock Engine"
         },
     ],
 }

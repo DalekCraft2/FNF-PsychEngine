@@ -2,9 +2,7 @@
     "offset": 0,
     "name": "Winter Horrorland",
     "icon": "monster",
-    "color": [
-        160,
-        209,
-        255
+    "colors": [
+        "0xFFA0D1FF"
     ]
 }

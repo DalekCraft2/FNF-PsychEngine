@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
+import haxe.io.Path;
 
 class StoryMenuItem extends FlxSprite
 {
@@ -14,7 +15,7 @@ class StoryMenuItem extends FlxSprite
 	{
 		super(x, y);
 
-		loadGraphic(Paths.getGraphic('storymenu/$weekName'));
+		loadGraphic(Paths.getGraphic(Path.join(['storymenu', weekName])));
 		// Debug.logTrace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
 		antialiasing = Options.save.data.globalAntialiasing;
 	}

@@ -6,9 +6,9 @@
 				0,
 				0
 			],
-			"anim": "idle",
-			"fps": 24,
-			"name": "Mom Idle",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "Mom Idle",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				250,
 				-23
 			],
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "Mom Left Pose",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "Mom Left Pose",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				10,
 				-60
 			],
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "Mom Pose Left",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "Mom Pose Left",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				20,
 				-160
 			],
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "MOM DOWN POSE",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "MOM DOWN POSE",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				14,
 				71
 			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "Mom Up Pose",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "Mom Up Pose",
 			"indices": []
 		}
 	],

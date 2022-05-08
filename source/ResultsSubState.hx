@@ -9,7 +9,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import openfl.display.BitmapData;
 
 using StringTools;
 
@@ -36,13 +35,11 @@ class ResultsSubState extends FlxSubState
 		background.scrollFactor.set();
 		add(background);
 
-		if (!PlayState.inResults)
-		{
-			music = new FlxSound().loadEmbedded(Paths.getMusic('breakfast'), true, true);
-			music.volume = 0;
-			music.play(false, FlxG.random.int(0, Std.int(music.length / 2)));
-			FlxG.sound.list.add(music);
-		}
+		// TODO Can't this just use FlxG.sound.music...?
+		music = new FlxSound().loadEmbedded(Paths.getMusic('breakfast'), true, true);
+		music.volume = 0;
+		music.play(false, FlxG.random.int(0, Std.int(music.length / 2)));
+		FlxG.sound.list.add(music);
 
 		background.alpha = 0;
 
@@ -109,7 +106,7 @@ class ResultsSubState extends FlxSubState
 			// 1 = length
 			// 2 = type
 			// 3 = diff
-			var note:Array<Dynamic> = PlayState.rep.replay.songNotes[i];
+			var note:Array<Any> = PlayState.rep.replay.songNotes[i];
 			// judgement
 			var judge:String = PlayState.rep.replay.songJudgements[i];
 
@@ -172,7 +169,7 @@ class ResultsSubState extends FlxSubState
 				music.fadeOut(0.3);
 
 			PlayState.loadRep = false;
-			// PlayState.stageTesting = false;
+			PlayState.stageTesting = false;
 			PlayState.rep = null;
 
 			#if !switch
@@ -194,7 +191,7 @@ class ResultsSubState extends FlxSubState
 			PlayState.rep = null;
 
 			PlayState.loadRep = false;
-			// PlayState.stageTesting = false;
+			PlayState.stageTesting = false;
 
 			#if !switch
 			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.songScore), PlayState.storyDifficulty);

@@ -4,89 +4,73 @@ using StringTools;
 
 class Highscore
 {
-	public static var weekScores:Map<String, Int> = [];
-	public static var songScores:Map<String, Int> = [];
-	public static var songRating:Map<String, Float> = [];
-	public static var songCombos:Map<String, String> = [];
+	private static var weekScores:Map<String, Int> = [];
+	private static var songScores:Map<String, Int> = [];
+	private static var songRating:Map<String, Float> = [];
+	private static var songCombos:Map<String, String> = [];
 
 	public static function resetSong(song:String, diff:Int = 0):Void
 	{
-		var daSong:String = formatSong(song, diff);
-		setScore(daSong, 0);
-		setRating(daSong, 0);
+		var formattedSong:String = formatSong(song, diff);
+		setScore(formattedSong, 0);
+		setRating(formattedSong, 0);
 	}
 
 	public static function resetWeek(week:String, diff:Int = 0):Void
 	{
-		var daWeek:String = formatSong(week, diff);
-		setWeekScore(daWeek, 0);
-	}
-
-	public static function floorDecimal(value:Float, decimals:Int):Float
-	{
-		if (decimals < 1)
-		{
-			return Math.floor(value);
-		}
-
-		var tempMult:Float = 1;
-		for (i in 0...decimals)
-		{
-			tempMult *= 10;
-		}
-		var newValue:Float = Math.floor(value * tempMult);
-		return newValue / tempMult;
+		var formattedWeek:String = formatSong(week, diff);
+		setWeekScore(formattedWeek, 0);
 	}
 
 	public static function saveScore(song:String, score:Int = 0, ?diff:Int = 0, ?rating:Float = -1):Void
 	{
-		var daSong:String = formatSong(song, diff);
+		var formattedSong:String = formatSong(song, diff);
 
-		if (songScores.exists(daSong))
+		if (songScores.exists(formattedSong))
 		{
-			if (songScores.get(daSong) < score)
+			if (songScores.get(formattedSong) < score)
 			{
-				setScore(daSong, score);
+				setScore(formattedSong, score);
 				if (rating >= 0)
-					setRating(daSong, rating);
+					setRating(formattedSong, rating);
 			}
 		}
 		else
 		{
-			setScore(daSong, score);
+			setScore(formattedSong, score);
 			if (rating >= 0)
-				setRating(daSong, rating);
+				setRating(formattedSong, rating);
 		}
 	}
 
 	public static function saveCombo(song:String, combo:String, ?diff:Int = 0):Void
 	{
-		var daSong:String = formatSong(song, diff);
+		var formattedSong:String = formatSong(song, diff);
 		var finalCombo:String = combo.split(')')[0].replace('(', '');
 
-		if (!Options.save.data.botPlay)
+		if (!PlayStateChangeables.botPlay)
 		{
-			if (songCombos.exists(daSong))
+			if (songCombos.exists(formattedSong))
 			{
-				if (getComboInt(songCombos.get(daSong)) < getComboInt(finalCombo))
-					setCombo(daSong, finalCombo);
+				if (getComboInt(songCombos.get(formattedSong)) < getComboInt(finalCombo))
+					setCombo(formattedSong, finalCombo);
 			}
 			else
-				setCombo(daSong, finalCombo);
+				setCombo(formattedSong, finalCombo);
 		}
 	}
 
 	public static function saveWeekScore(week:String, score:Int = 0, ?diff:Int = 0):Void
 	{
-		var daWeek:String = formatSong(week, diff);
+		var formattedWeek:String = formatSong(week, diff);
 
-		if (weekScores.exists(daWeek))
+		if (weekScores.exists(formattedWeek))
 		{
-			if (weekScores.get(daWeek) < score)
-				setWeekScore(daWeek, score);
+			if (weekScores.get(formattedWeek) < score)
+				setWeekScore(formattedWeek, score);
 		}
 		else
-			setWeekScore(daWeek, score);
+			setWeekScore(formattedWeek, score);
 	}
 
 	/**
@@ -126,7 +110,7 @@ class Highscore
 
 	public static function formatSong(song:String, diff:Int):String
 	{
-		return Paths.formatToSongPath(song) + CoolUtil.getDifficultyFilePath(diff);
+		return Paths.formatToSongPath(song) + Difficulty.getDifficultyFilePath(diff);
 	}
 
 	private static function getComboInt(combo:String):Int
@@ -148,37 +132,38 @@ class Highscore
 
 	public static function getScore(song:String, diff:Int):Int
 	{
-		var daSong:String = formatSong(song, diff);
-		if (!songScores.exists(daSong))
-			setScore(daSong, 0);
+		var formattedSong:String = formatSong(song, diff);
+		if (!songScores.exists(formattedSong))
+			setScore(formattedSong, 0);
 
-		return songScores.get(daSong);
+		return songScores.get(formattedSong);
 	}
 
 	public static function getCombo(song:String, diff:Int):String
 	{
-		if (!songCombos.exists(formatSong(song, diff)))
-			setCombo(formatSong(song, diff), '');
+		var formattedSong:String = formatSong(song, diff);
+		if (!songCombos.exists(formattedSong))
+			setCombo(formattedSong, '');
 
-		return songCombos.get(formatSong(song, diff));
+		return songCombos.get(formattedSong);
 	}
 
 	public static function getRating(song:String, diff:Int):Float
 	{
-		var daSong:String = formatSong(song, diff);
-		if (!songRating.exists(daSong))
-			setRating(daSong, 0);
+		var formattedSong:String = formatSong(song, diff);
+		if (!songRating.exists(formattedSong))
+			setRating(formattedSong, 0);
 
-		return songRating.get(daSong);
+		return songRating.get(formattedSong);
 	}
 
 	public static function getWeekScore(week:String, diff:Int):Int
 	{
-		var daWeek:String = formatSong(week, diff);
-		if (!weekScores.exists(daWeek))
-			setWeekScore(daWeek, 0);
+		var formattedWeek:String = formatSong(week, diff);
+		if (!weekScores.exists(formattedWeek))
+			setWeekScore(formattedWeek, 0);
 
-		return weekScores.get(daWeek);
+		return weekScores.get(formattedWeek);
 	}
 
 	public static function load():Void

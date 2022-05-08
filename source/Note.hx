@@ -3,8 +3,9 @@ package;
 import NoteKey.NoteColor;
 import editors.ChartingState;
 import flixel.FlxSprite;
+import haxe.io.Path;
 
-typedef EventNoteData =
+typedef EventNoteDef =
 {
 	var strumTime:Float;
 	var event:String;
@@ -12,9 +13,8 @@ typedef EventNoteData =
 	var value2:String;
 }
 
-// TODO Use the below typedef (and maybe find a better name to differentiate it from the noteData field in Note)
-
-typedef NoteData =
+// TODO Use the below typedef
+typedef NoteDef =
 {
 	var strumTime:Float;
 	var noteData:Int;
@@ -24,6 +24,8 @@ typedef NoteData =
 
 class Note extends FlxSprite
 {
+	public static final STRUM_WIDTH:Float = 160 * 0.7;
+
 	public var strumTime:Float = 0;
 
 	public var mustPress:Bool = false;
@@ -51,9 +53,7 @@ class Note extends FlxSprite
 
 	private var earlyHitMult:Float = 0.5;
 
-	public static final STRUM_WIDTH:Float = 160 * 0.7;
-
-	// Lua shit
+	// Script API shit
 	public var noteSplashDisabled:Bool = false;
 	public var noteSplashTexture:String;
 	public var noteSplashHue:Float = 0;
@@ -126,17 +126,8 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			switch (this.noteData)
-			{
-				case 0:
-					animation.play('purpleholdend');
-				case 1:
-					animation.play('blueholdend');
-				case 2:
-					animation.play('greenholdend');
-				case 3:
-					animation.play('redholdend');
-			}
+			var animToPlay:String = NoteColor.createByIndex(this.noteData % 4).getName();
+			animation.play('${animToPlay}holdend');
 
 			updateHitbox();
 
@@ -147,17 +138,8 @@ class Note extends FlxSprite
 
 			if (prevNote.isSustainNote)
 			{
-				switch (prevNote.noteData)
-				{
-					case 0:
-						prevNote.animation.play('purplehold');
-					case 1:
-						prevNote.animation.play('bluehold');
-					case 2:
-						prevNote.animation.play('greenhold');
-					case 3:
-						prevNote.animation.play('redhold');
-				}
+				var animToPlay:String = NoteColor.createByIndex(prevNote.noteData % 4).getName();
+				prevNote.animation.play('${animToPlay}hold');
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
 				if (PlayState.instance != null)
@@ -252,18 +234,18 @@ class Note extends FlxSprite
 		{
 			if (isSustainNote)
 			{
-				loadGraphic(Paths.getGraphic('weeb/pixelUI/${blahblah}ENDS', 'week6'));
+				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', '${blahblah}ENDS']), 'week6'));
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.getGraphic('weeb/pixelUI/${blahblah}ENDS', 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', '${blahblah}ENDS']), 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			else
 			{
-				loadGraphic(Paths.getGraphic('weeb/pixelUI/$blahblah', 'week6'));
+				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', blahblah]), 'week6'));
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.getGraphic('weeb/pixelUI/$blahblah', 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', blahblah]), 'week6'), true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 			loadPixelNoteAnims();
@@ -275,12 +257,14 @@ class Note extends FlxSprite
 				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.PIXEL_ZOOM / 2);
 				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
 
-				/*if(animName != null && !animName.endsWith('end'))
+				/*
+					if (animName != null && !animName.endsWith('end'))
 					{
 						lastScaleY /= lastNoteScaleToo;
 						lastNoteScaleToo = (6 / height);
-						lastScaleY *= lastNoteScaleToo; 
-				}*/
+						lastScaleY *= lastNoteScaleToo;
+					}
+				 */
 			}
 		}
 		else
@@ -297,25 +281,18 @@ class Note extends FlxSprite
 
 		if (animName != null)
 			animation.play(animName, true);
-
-		if (inEditor)
-		{
-			setGraphicSize(ChartingState.GRID_SIZE, ChartingState.GRID_SIZE);
-			updateHitbox();
-		}
 	}
 
 	private function loadNoteAnims():Void
 	{
 		for (color in NoteColor.createAll())
 		{
-			animation.addByPrefix('${color}Scroll', '${color} alone');
+			animation.addByPrefix('${color}Scroll', '${color} alone'); // Normal notes
 
 			if (isSustainNote)
 			{
-				animation.addByPrefix('${color}holdend', '${color} tail');
-
-				animation.addByPrefix('${color}hold', '${color} hold');
+				animation.addByPrefix('${color}hold', '${color} hold'); // Holds
+				animation.addByPrefix('${color}holdend', '${color} tail'); // Tails
 			}
 		}
 
@@ -329,13 +306,12 @@ class Note extends FlxSprite
 		{
 			if (isSustainNote)
 			{
-				animation.add('${color}holdend', [color.getIndex() + 4]);
-
-				animation.add('${color}hold', [color.getIndex()]);
+				animation.add('${color.getName()}holdend', [color.getIndex() + 4]); // Tails
+				animation.add('${color.getName()}hold', [color.getIndex()]); // Holds
 			}
 			else
 			{
-				animation.add('${color}Scroll', [color.getIndex() + 4]);
+				animation.add('${color.getName()}Scroll', [color.getIndex() + 4]); // Normal notes
 			}
 		}
 	}

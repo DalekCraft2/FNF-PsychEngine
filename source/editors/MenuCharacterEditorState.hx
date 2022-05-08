@@ -1,6 +1,6 @@
 package editors;
 
-import MenuCharacter.MenuCharacterData;
+import MenuCharacter.MenuCharacterDef;
 import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -13,6 +13,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import haxe.Json;
+import haxe.io.Path;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileReference;
@@ -26,7 +27,7 @@ import Discord.DiscordClient;
 class MenuCharacterEditorState extends MusicBeatState
 {
 	private var grpWeekCharacters:FlxTypedGroup<MenuCharacter>;
-	private var characterFile:MenuCharacterData;
+	private var characterFile:MenuCharacterDef;
 	private var txtOffsets:FlxText;
 	private var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
 
@@ -332,7 +333,7 @@ class MenuCharacterEditorState extends MusicBeatState
 		var char:MenuCharacter = grpWeekCharacters.members[curTypeSelected];
 
 		char.alpha = 1;
-		char.frames = Paths.getSparrowAtlas('menucharacters/${characterFile.image}');
+		char.frames = Paths.getSparrowAtlas(Path.join(['menucharacters', characterFile.image]));
 		char.animation.addByPrefix('idle', characterFile.idleAnim, 24);
 		if (curTypeSelected == 1)
 			char.animation.addByPrefix('confirm', characterFile.confirmAnim, 24, false);
@@ -363,7 +364,7 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	private function loadCharacter():Void
 	{
-		var jsonFilter:FileFilter = new FileFilter('JSON', 'json');
+		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
 		_file = new FileReference();
 		_file.addEventListener(Event.SELECT, onLoadComplete);
 		_file.addEventListener(Event.CANCEL, onLoadCancel);
@@ -384,7 +385,7 @@ class MenuCharacterEditorState extends MusicBeatState
 
 		if (fullPath != null)
 		{
-			var loadedChar:MenuCharacterData = Paths.getJsonDirect(fullPath);
+			var loadedChar:MenuCharacterDef = Paths.getJsonDirect(fullPath);
 			if (loadedChar != null)
 			{
 				if (loadedChar.idleAnim != null && loadedChar.confirmAnim != null) // Make sure it's really a character
@@ -442,7 +443,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-			_file.save(data, '$characterName.json');
+			_file.save(data, Path.withExtension(characterName, Paths.JSON_EXT));
 		}
 	}
 

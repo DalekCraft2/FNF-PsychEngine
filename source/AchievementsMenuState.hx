@@ -1,11 +1,8 @@
 package;
 
 #if FEATURE_ACHIEVEMENTS
-import Achievement.AchievementData;
+import Achievement.AchievementDef;
 import Achievement.AttachedAchievement;
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -14,12 +11,16 @@ import flixel.util.FlxColor;
 
 using StringTools;
 
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
+
 class AchievementsMenuState extends MusicBeatState
 {
-	private var options:Array<String> = [];
-	private var grpOptions:FlxTypedGroup<Alphabet>;
-
 	private static var curSelected:Int = 0;
+
+	private var achievements:Array<String> = [];
+	private var grpAchievements:FlxTypedGroup<Alphabet>;
 
 	private var achievementArray:Array<AttachedAchievement> = [];
 	private var achievementIndex:Array<Int> = [];
@@ -32,43 +33,44 @@ class AchievementsMenuState extends MusicBeatState
 		persistentUpdate = true;
 
 		#if FEATURE_DISCORD
-		DiscordClient.changePresence('Achievements Menu', null);
+		DiscordClient.changePresence('Achievements Menu');
 		#end
 
+		// var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		// menuBG.color = 0xFF9372FF; // Tint used to get menuBGBlue from menuDesat (or, at least, it is close to what the tint is)
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuBGBlue'));
-		// menuBG.color = 0xFF9271FD; // TODO Find the colors used to tint the menuDesat image to get menuBG and menuBGBlue
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
 		menuBG.antialiasing = Options.save.data.globalAntialiasing;
 		add(menuBG);
 
-		grpOptions = new FlxTypedGroup();
-		add(grpOptions);
+		grpAchievements = new FlxTypedGroup();
+		add(grpAchievements);
 
 		Achievement.loadAchievements();
 		for (i in 0...Achievement.achievementList.length)
 		{
 			var achievementId:String = Achievement.achievementList[i];
-			var achievementData:AchievementData = Achievement.achievementsLoaded.get(achievementId);
-			if (!achievementData.hidden || Achievement.achievementMap.exists(achievementId))
+			var achievementDef:AchievementDef = Achievement.achievementsLoaded.get(achievementId);
+			if (!achievementDef.hidden || Achievement.achievementMap.exists(achievementId))
 			{
-				options.push(achievementData.name);
+				achievements.push(achievementDef.name);
 				achievementIndex.push(i);
 			}
 		}
 
-		for (i in 0...options.length)
+		for (i in 0...achievements.length)
 		{
 			var achievementId:String = Achievement.achievementList[achievementIndex[i]];
-			var achievementData:AchievementData = Achievement.achievementsLoaded.get(achievementId);
-			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210, Achievement.isAchievementUnlocked(achievementId) ? achievementData.name : '?', false,
+			var achievementDef:AchievementDef = Achievement.achievementsLoaded.get(achievementId);
+			var optionText:Alphabet = new Alphabet(0, (100 * i) + 210, Achievement.isAchievementUnlocked(achievementId) ? achievementDef.name : '?', false,
 				false);
 			optionText.isMenuItem = true;
 			optionText.x += 280;
 			optionText.xAdd = 200;
 			optionText.targetY = i;
-			grpOptions.add(optionText);
+			grpAchievements.add(optionText);
 
 			var icon:AttachedAchievement = new AttachedAchievement(optionText.x - 105, optionText.y, achievementId);
 			icon.sprTracker = optionText;
@@ -114,40 +116,40 @@ class AchievementsMenuState extends MusicBeatState
 
 	private function changeSelection(change:Int = 0):Void
 	{
-		curSelected += change;
-		if (curSelected < 0)
-			curSelected = options.length - 1;
-		if (curSelected >= options.length)
-			curSelected = 0;
-
-		// TODO Try to change the variables what are named like this so I know what the fuck I'm looking at
-		var bullShit:Int = 0;
-
-		for (item in grpOptions.members)
+		if (achievements.length > 0)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			curSelected += change;
+			if (curSelected < 0)
+				curSelected = achievements.length - 1;
+			if (curSelected >= achievements.length)
+				curSelected = 0;
 
-			item.alpha = 0.6;
-			if (item.targetY == 0)
+			for (i in 0...grpAchievements.members.length)
 			{
-				item.alpha = 1;
-			}
-		}
+				var item:Alphabet = grpAchievements.members[i];
+				item.targetY = i - curSelected;
 
-		for (i in 0...achievementArray.length)
-		{
-			var achievement:AttachedAchievement = achievementArray[i];
-			achievement.alpha = 0.6;
-			if (i == curSelected)
-			{
-				achievement.alpha = 1;
+				item.alpha = 0.6;
+				if (item.targetY == 0)
+				{
+					item.alpha = 1;
+				}
 			}
+
+			for (i in 0...achievementArray.length)
+			{
+				var achievement:AttachedAchievement = achievementArray[i];
+				achievement.alpha = 0.6;
+				if (i == curSelected)
+				{
+					achievement.alpha = 1;
+				}
+			}
+			var achievementId:String = Achievement.achievementList[achievementIndex[curSelected]];
+			var achievementDef:AchievementDef = Achievement.achievementsLoaded.get(achievementId);
+			descText.text = achievementDef.description;
+			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 		}
-		var achievementId:String = Achievement.achievementList[achievementIndex[curSelected]];
-		var achievementData:AchievementData = Achievement.achievementsLoaded.get(achievementId);
-		descText.text = achievementData.description;
-		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 	}
 }
 #end

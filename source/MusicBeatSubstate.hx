@@ -3,7 +3,7 @@ package;
 import Conductor.BPMChangeEvent;
 import flixel.FlxSubState;
 
-class MusicBeatSubState extends FlxSubState
+abstract class MusicBeatSubState extends FlxSubState
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
@@ -16,14 +16,27 @@ class MusicBeatSubState extends FlxSubState
 
 		var oldStep:Int = curStep;
 
-		updateCurStep();
+		updateStep();
+		updateBeat();
+
 		curBeat = Math.floor(curStep / 4);
 
 		if (oldStep != curStep && curStep > 0)
 			stepHit(curStep);
 	}
 
-	private function updateCurStep():Void
+	public function stepHit(step:Int):Void
+	{
+		if (step % 4 == 0)
+			beatHit(curBeat);
+	}
+
+	public function beatHit(beat:Int):Void
+	{
+		// Do nothing
+	}
+
+	private function updateStep():Void
 	{
 		var lastChange:BPMChangeEvent = {
 			stepTime: 0,
@@ -36,18 +49,12 @@ class MusicBeatSubState extends FlxSubState
 				lastChange = bpmChange;
 		}
 
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
-	public function stepHit(step:Int):Void
+	private function updateBeat():Void
 	{
-		if (step % 4 == 0)
-			beatHit(curBeat);
-	}
-
-	public function beatHit(beat:Int):Void
-	{
-		// Do nothing
+		curBeat = Math.floor(curStep / 4);
 	}
 
 	private inline function get_controls():Controls

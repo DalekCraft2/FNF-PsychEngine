@@ -3,6 +3,7 @@ package;
 import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import haxe.io.Path;
 
 class StrumNote extends FlxSprite
 {
@@ -67,10 +68,10 @@ class StrumNote extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.getGraphic('weeb/pixelUI/$texture', 'week6'));
+			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'));
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.getGraphic('weeb/pixelUI/$texture', 'week6'), true, Math.floor(width), Math.floor(height));
+			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));

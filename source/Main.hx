@@ -1,10 +1,12 @@
 package;
 
+#if USE_CUSTOM_CACHE
+import flixel.graphics.FlxGraphic;
+import openfl.Assets;
+#end
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
-import flixel.graphics.FlxGraphic;
-import openfl.Assets;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
@@ -20,8 +22,6 @@ class Main extends Sprite
 	private var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	private var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
-	public static var instance:Main;
-
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
@@ -33,8 +33,6 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
-
-		instance = this;
 
 		if (stage != null)
 		{
@@ -73,12 +71,17 @@ class Main extends Sprite
 		// Run this first so we can see logs.
 		Debug.onInitProgram();
 
-		// TODO The fade transition only works properly if image persistence is off, but the entire game breaks when it's off, so I need to completely remake the Psych cache system
-		// This probably means using the Kade cache system, which is possibly unoptimized, but I don't care; I can probably improve it later
+		#if polymod
+		// Gotta run this before any assets get loaded.
+		ModCore.initialize();
+		#end
 
+		#if USE_CUSTOM_CACHE
 		// fuck you, persistent caching stays ON during sex
 		FlxGraphic.defaultPersist = true;
+		Assets.cache.enabled = false;
 		// the reason for this is we're going to be handling our own cache smartly
+		#end
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, frameRate, frameRate, skipSplash, startFullscreen));
 
 		#if !mobile
@@ -89,42 +92,6 @@ class Main extends Sprite
 
 		// Finish up loading debug tools.
 		Debug.onGameStart();
-	}
-
-	public static function dumpObject(graphic:FlxGraphic):Void
-	{
-		@:privateAccess
-		for (key in FlxG.bitmap._cache.keys())
-		{
-			var obj:FlxGraphic = FlxG.bitmap._cache.get(key);
-			if (obj != null)
-			{
-				if (obj == graphic)
-				{
-					Assets.cache.removeBitmapData(key);
-					FlxG.bitmap._cache.remove(key);
-					obj.destroy();
-					break;
-				}
-			}
-		}
-	}
-
-	public static function dumpCache():Void
-	{
-		// SPECIAL THANKS TO HAYA
-		@:privateAccess
-		for (key in FlxG.bitmap._cache.keys())
-		{
-			var obj:FlxGraphic = FlxG.bitmap._cache.get(key);
-			if (obj != null)
-			{
-				Assets.cache.removeBitmapData(key);
-				FlxG.bitmap._cache.remove(key);
-				obj.destroy();
-			}
-		}
-		Assets.cache.clear('shared');
 	}
 
 	public static function setFPSCap(cap:Float):Void

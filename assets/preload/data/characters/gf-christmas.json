@@ -6,9 +6,9 @@
 				0,
 				0
 			],
-			"anim": "cheer",
-			"fps": 24,
-			"name": "GF Cheer",
+			"name": "cheer",
+			"frameRate": 24,
+			"prefix": "GF Cheer",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				0,
 				-19
 			],
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "GF left note",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "GF left note",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				0,
 				-20
 			],
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "GF Down Note",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "GF Down Note",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				0,
 				4
 			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "GF Up Note",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "GF Up Note",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				0,
 				-20
 			],
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "GF Right Note",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "GF Right Note",
 			"indices": []
 		},
 		{
@@ -61,9 +61,9 @@
 				0,
 				-21
 			],
-			"anim": "sad",
-			"fps": 24,
-			"name": "gf sad",
+			"name": "sad",
+			"frameRate": 24,
+			"prefix": "gf sad",
 			"indices": [
 				0,
 				1,
@@ -86,9 +86,9 @@
 				0,
 				-9
 			],
-			"anim": "danceLeft",
-			"fps": 24,
-			"name": "GF Dancing Beat",
+			"name": "danceLeft",
+			"frameRate": 24,
+			"prefix": "GF Dancing Beat",
 			"indices": [
 				30,
 				0,
@@ -114,9 +114,9 @@
 				0,
 				-9
 			],
-			"anim": "danceRight",
-			"fps": 24,
-			"name": "GF Dancing Beat",
+			"name": "danceRight",
+			"frameRate": 24,
+			"prefix": "GF Dancing Beat",
 			"indices": [
 				15,
 				16,
@@ -141,9 +141,9 @@
 				0,
 				-9
 			],
-			"anim": "hairFall",
-			"fps": 24,
-			"name": "GF Dancing Beat Hair Landing",
+			"name": "hairFall",
+			"frameRate": 24,
+			"prefix": "GF Dancing Beat Hair Landing",
 			"indices": [
 				0,
 				1,
@@ -165,9 +165,9 @@
 				0,
 				-17
 			],
-			"anim": "scared",
-			"fps": 24,
-			"name": "GF FEAR",
+			"name": "scared",
+			"frameRate": 24,
+			"prefix": "GF FEAR",
 			"indices": []
 		}
 	],

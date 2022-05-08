@@ -6,9 +6,9 @@
 				59,
 				-20
 			],
-			"anim": "hey",
-			"fps": 24,
-			"name": "spooky kids YEAH!!",
+			"name": "hey",
+			"frameRate": 24,
+			"prefix": "spooky kids YEAH!!",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				130,
 				-10
 			],
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "note sing left",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "note sing left",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				-130,
 				-14
 			],
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "spooky sing right",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "spooky sing right",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				-50,
 				-130
 			],
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "spooky DOWN note",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "spooky DOWN note",
 			"indices": []
 		},
 		{
@@ -50,14 +50,14 @@
 				0,
 				0
 			],
-			"fps": 12,
-			"anim": "danceLeft",
+			"frameRate": 12,
+			"name": "danceLeft",
 			"indices": [
 				0,
 				2,
 				6
 			],
-			"name": "spooky dance idle"
+			"prefix": "spooky dance idle"
 		},
 		{
 			"loop": false,
@@ -65,15 +65,15 @@
 				0,
 				0
 			],
-			"fps": 12,
-			"anim": "danceRight",
+			"frameRate": 12,
+			"name": "danceRight",
 			"indices": [
 				8,
 				10,
 				12,
 				14
 			],
-			"name": "spooky dance idle"
+			"prefix": "spooky dance idle"
 		},
 		{
 			"loop": false,
@@ -81,10 +81,10 @@
 				-20,
 				26
 			],
-			"fps": 24,
-			"anim": "singUP",
+			"frameRate": 24,
+			"name": "singUP",
 			"indices": [],
-			"name": "spooky UP NOTE"
+			"prefix": "spooky UP NOTE"
 		}
 	],
 	"noAntialiasing": false,

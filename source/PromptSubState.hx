@@ -94,7 +94,8 @@ class PromptSubState extends MusicBeatSubState
 			textshit.scrollFactor.set();
 			add(textshit);
 
-			/*buttons = new FlxSprite(0, 0);
+			/*
+				buttons = new FlxSprite(0, 0);
 				buttons.frames = Paths.getSparrowAtlas('ui/prompt_buttons');
 				buttons.animation.addByPrefix('button0', 'buttons0000');
 				buttons.animation.addByPrefix('button1', 'buttons0001');
@@ -102,11 +103,13 @@ class PromptSubState extends MusicBeatSubState
 				buttons.screenCenter();
 				buttons.scrollFactor.set();
 				buttons.y = panel.y + panel.height - 30;
-				add(buttons); */
+				add(buttons);
+			 */
 		}
 	}
 
-	/*override public function update(elapsed:Float):Void
+	/*
+		override public function update(elapsed:Float):Void
 		{
 			super.update(elapsed);
 
@@ -148,7 +151,8 @@ class PromptSubState extends MusicBeatSubState
 					close();
 				}
 			}
-	}*/
+		}
+	 */
 	private function makeSelectorGraphic(panel:FlxSprite, width:Int, height:Int, color:FlxColor):Void
 	{
 		panel.makeGraphic(width, height, color);

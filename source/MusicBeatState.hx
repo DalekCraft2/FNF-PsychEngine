@@ -2,10 +2,9 @@ package;
 
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 
-class MusicBeatState extends FlxUIState
+abstract class MusicBeatState extends FlxUIState
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
@@ -14,10 +13,9 @@ class MusicBeatState extends FlxUIState
 
 	override public function create():Void
 	{
-		super.create();
+		Paths.clearUnusedMemory();
 
-		transIn = FlxTransitionableState.defaultTransIn;
-		transOut = FlxTransitionableState.defaultTransOut;
+		super.create();
 	}
 
 	override public function update(elapsed:Float):Void
@@ -26,7 +24,7 @@ class MusicBeatState extends FlxUIState
 
 		var oldStep:Int = curStep;
 
-		updateCurStep();
+		updateStep();
 		updateBeat();
 
 		if (oldStep != curStep && curStep > 0)
@@ -36,28 +34,40 @@ class MusicBeatState extends FlxUIState
 			EngineData.save.data.fullscreen = FlxG.fullscreen;
 	}
 
-	#if (FEATURE_VIDEOS && desktop)
+	#if FEATURE_VIDEOS
 	override public function onFocusLost():Void
 	{
 		super.onFocusLost();
 
-		FlxVideo.onFocusLost();
+		if (VideoHandler.instance != null)
+		{
+			VideoHandler.instance.onFocusLost();
+		}
 	}
 
 	override public function onFocus():Void
 	{
 		super.onFocus();
 
-		FlxVideo.onFocus();
+		if (VideoHandler.instance != null)
+		{
+			VideoHandler.instance.onFocus();
+		}
 	}
 	#end
 
-	private function updateBeat():Void
+	public function stepHit(step:Int):Void
 	{
-		curBeat = Math.floor(curStep / 4);
+		if (step % 4 == 0)
+			beatHit(curBeat);
 	}
 
-	private function updateCurStep():Void
+	public function beatHit(beat:Int):Void
+	{
+		// Do nothing
+	}
+
+	private function updateStep():Void
 	{
 		var lastChange:BPMChangeEvent = {
 			stepTime: 0,
@@ -73,15 +83,9 @@ class MusicBeatState extends FlxUIState
 		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
-	public function stepHit(step:Int):Void
+	private function updateBeat():Void
 	{
-		if (step % 4 == 0)
-			beatHit(curBeat);
-	}
-
-	public function beatHit(beat:Int):Void
-	{
-		// Do nothing
+		curBeat = Math.floor(curStep / 4);
 	}
 
 	private inline function get_controls():Controls

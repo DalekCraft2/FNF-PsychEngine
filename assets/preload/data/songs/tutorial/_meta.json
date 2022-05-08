@@ -2,9 +2,7 @@
     "offset": 0,
     "name": "Tutorial",
     "icon": "gf",
-    "color": [
-        165,
-        0,
-        77
+    "colors": [
+        "0xFFA5004D"
     ]
 }

@@ -66,7 +66,7 @@ extern class LibVLC
 	public function getHeight():Int;
 
 	// @:native('getMeta')
-	// public function getMeta(meta:Dynamic):String;
+	// public function getMeta(meta:Any):String;
 	@:native('isPlaying')
 	public function isPlaying():Bool;
 

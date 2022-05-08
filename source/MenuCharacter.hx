@@ -3,7 +3,7 @@ package;
 import flixel.FlxSprite;
 import haxe.io.Path;
 
-typedef MenuCharacterData =
+typedef MenuCharacterDef =
 {
 	var image:String;
 	var ?scale:Float;
@@ -62,45 +62,45 @@ class MenuCharacter extends FlxSprite
 			case '':
 				visible = false;
 			default:
-				var menuCharacterData:MenuCharacterData = Paths.getJson(Path.join(['menucharacters', id]));
-				if (menuCharacterData == null)
+				var menuCharacterDef:MenuCharacterDef = Paths.getJson(Path.join(['menucharacters', id]));
+				if (menuCharacterDef == null)
 				{
 					Debug.logError('Could not find menu character data for menu character "$id"; using default');
-					menuCharacterData = Paths.getJson(Path.join(['menucharacters', DEFAULT_MENU_CHARACTER]));
+					menuCharacterDef = Paths.getJson(Path.join(['menucharacters', DEFAULT_MENU_CHARACTER]));
 				}
 
-				frames = Paths.getSparrowAtlas('menucharacters/${menuCharacterData.image}');
+				frames = Paths.getSparrowAtlas(Path.join(['menucharacters', menuCharacterDef.image]));
 
-				if (menuCharacterData.idleAnim != null)
+				if (menuCharacterDef.idleAnim != null)
 				{
-					idleAnim = menuCharacterData.idleAnim;
+					idleAnim = menuCharacterDef.idleAnim;
 				}
 				else
 				{
 					idleAnim = '';
 				}
 
-				if (menuCharacterData.confirmAnim != null)
+				if (menuCharacterDef.confirmAnim != null)
 				{
-					confirmAnim = menuCharacterData.confirmAnim;
+					confirmAnim = menuCharacterDef.confirmAnim;
 				}
 				else
 				{
 					confirmAnim = '';
 				}
 
-				if (menuCharacterData.flipX != null)
+				if (menuCharacterDef.flipX != null)
 				{
-					flipX = menuCharacterData.flipX;
+					flipX = menuCharacterDef.flipX;
 				}
 				else
 				{
 					flipX = false;
 				}
 
-				if (menuCharacterData.scale != null)
+				if (menuCharacterDef.scale != null)
 				{
-					scale.set(menuCharacterData.scale, menuCharacterData.scale);
+					scale.set(menuCharacterDef.scale, menuCharacterDef.scale);
 					updateHitbox();
 				}
 				else
@@ -108,27 +108,27 @@ class MenuCharacter extends FlxSprite
 					scale.set(1, 1);
 				}
 
-				if (menuCharacterData.position != null)
+				if (menuCharacterDef.position != null)
 				{
-					offset.set(menuCharacterData.position[0], menuCharacterData.position[1]);
+					offset.set(menuCharacterDef.position[0], menuCharacterDef.position[1]);
 				}
 				else
 				{
 					offset.set();
 				}
 
-				if (menuCharacterData.loopIdle != null)
+				if (menuCharacterDef.loopIdle != null)
 				{
-					loopIdle = menuCharacterData.loopIdle;
+					loopIdle = menuCharacterDef.loopIdle;
 				}
 				else
 				{
 					loopIdle = false;
 				}
 
-				if (menuCharacterData.dances != null)
+				if (menuCharacterDef.dances != null)
 				{
-					dances = menuCharacterData.dances;
+					dances = menuCharacterDef.dances;
 				}
 				else
 				{
@@ -137,17 +137,17 @@ class MenuCharacter extends FlxSprite
 
 				if (dances)
 				{
-					if (menuCharacterData.danceLeftIndices != null)
+					if (menuCharacterDef.danceLeftIndices != null)
 					{
-						danceLeftIndices = menuCharacterData.danceLeftIndices;
+						danceLeftIndices = menuCharacterDef.danceLeftIndices;
 					}
 					else
 					{
 						danceLeftIndices = [];
 					}
-					if (menuCharacterData.danceRightIndices != null)
+					if (menuCharacterDef.danceRightIndices != null)
 					{
-						danceRightIndices = menuCharacterData.danceRightIndices;
+						danceRightIndices = menuCharacterDef.danceRightIndices;
 					}
 					else
 					{

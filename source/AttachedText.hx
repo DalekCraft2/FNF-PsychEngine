@@ -2,6 +2,7 @@ package;
 
 import flixel.FlxSprite;
 
+// TODO Figure out how this is different from Alphabet
 class AttachedText extends Alphabet
 {
 	public var offsetX:Float = 0;

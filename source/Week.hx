@@ -4,11 +4,7 @@ import haxe.io.Path;
 
 using StringTools;
 
-#if sys
-import sys.FileSystem;
-#end
-
-typedef WeekData =
+typedef WeekDef =
 {
 	// JSON variables
 	var songs:Array<String>;
@@ -50,9 +46,9 @@ class Week
 	public var hideFreeplay:Bool;
 	public var difficulties:Array<String>;
 
-	public static function createTemplateWeekData():WeekData
+	public static function createTemplateWeekDef():WeekDef
 	{
-		var weekData:WeekData = {
+		var weekDef:WeekDef = {
 			songs: ['bopeebo', 'fresh', 'dadbattle'],
 			weekCharacters: ['dad', 'bf', 'gf'],
 			weekBackground: 'stage',
@@ -65,23 +61,23 @@ class Week
 			hideFreeplay: false,
 			difficulties: []
 		};
-		return weekData;
+		return weekDef;
 	}
 
-	// HELP: Is there any way to convert a WeekData to Week without having to put all variables there manually? I'm kind of a noob in haxe lmao
-	public function new(weekData:WeekData, id:String)
+	// HELP: Is there any way to convert a WeekDef to Week without having to put all variables there manually? I'm kind of a noob in haxe lmao
+	public function new(weekDef:WeekDef, id:String)
 	{
-		songs = weekData.songs;
-		weekCharacters = weekData.weekCharacters;
-		weekBackground = weekData.weekBackground;
-		weekBefore = weekData.weekBefore;
-		storyName = weekData.storyName;
-		weekName = weekData.weekName;
-		startUnlocked = weekData.startUnlocked;
-		hiddenUntilUnlocked = weekData.hiddenUntilUnlocked;
-		hideStoryMode = weekData.hideStoryMode;
-		hideFreeplay = weekData.hideFreeplay;
-		difficulties = weekData.difficulties;
+		songs = weekDef.songs;
+		weekCharacters = weekDef.weekCharacters;
+		weekBackground = weekDef.weekBackground;
+		weekBefore = weekDef.weekBefore;
+		storyName = weekDef.storyName;
+		weekName = weekDef.weekName;
+		startUnlocked = weekDef.startUnlocked;
+		hiddenUntilUnlocked = weekDef.hiddenUntilUnlocked;
+		hideStoryMode = weekDef.hideStoryMode;
+		hideFreeplay = weekDef.hideFreeplay;
+		difficulties = weekDef.difficulties;
 
 		this.id = id;
 	}
@@ -98,14 +94,14 @@ class Week
 		for (directory in directories)
 		{
 			var weekDirectory:String = Path.join([directory, 'data/weeks']);
-			var weekListPath:String = Path.join([weekDirectory, 'weekList.txt']);
+			var weekListPath:String = Path.join([weekDirectory, Path.withExtension('weekList', Paths.TEXT_EXT)]);
 			if (Paths.exists(weekListPath))
 			{
 				// Add weeks from weekList.txt first
-				var weekListFromDir:Array<String> = CoolUtil.coolTextFile(weekListPath);
+				var weekListFromDir:Array<String> = CoolUtil.listFromTextFile(weekListPath);
 				for (weekId in weekListFromDir)
 				{
-					var path:String = Path.join([weekDirectory, Path.withExtension(weekId, 'json')]);
+					var path:String = Path.join([weekDirectory, Path.withExtension(weekId, Paths.JSON_EXT)]);
 					if (Paths.exists(path))
 					{
 						addWeek(weekId, path, directory);
@@ -113,21 +109,19 @@ class Week
 				}
 			}
 
-			#if sys
-			if (FileSystem.exists(weekDirectory))
+			if (Paths.fileSystem.exists(weekDirectory))
 			{
 				// Add any weeks what were not included in the list but were in the directory
-				for (file in FileSystem.readDirectory(weekDirectory))
+				for (file in Paths.fileSystem.readDirectory(weekDirectory))
 				{
 					var path:String = Path.join([weekDirectory, file]);
-					if (!FileSystem.isDirectory(path) && Path.extension(path) == 'json')
+					if (!Paths.fileSystem.isDirectory(path) && Path.extension(path) == Paths.JSON_EXT)
 					{
 						var weekId:String = Path.withoutExtension(file);
 						addWeek(weekId, path, directory);
 					}
 				}
 			}
-			#end
 		}
 	}
 
@@ -135,10 +129,10 @@ class Week
 	{
 		if (!weeksLoaded.exists(id))
 		{
-			var data:WeekData = Paths.getJsonDirect(path);
-			if (data != null)
+			var def:WeekDef = Paths.getJsonDirect(path);
+			if (def != null)
 			{
-				var week:Week = new Week(data, id);
+				var week:Week = new Week(def, id);
 				#if FEATURE_MODS
 				week.folder = directory.substring(Paths.mods().length, directory.length);
 				#end
@@ -153,7 +147,7 @@ class Week
 
 	// FUNCTIONS YOU WILL PROBABLY NEVER NEED TO USE
 	// To use on PlayState.hx or Highscore stuff
-	public static function getWeekDataId():String
+	public static function getCurrentWeekId():String
 	{
 		return weekList[PlayState.storyWeek];
 	}
@@ -161,15 +155,15 @@ class Week
 	// Used on LoadingState, nothing really too relevant
 	public static function getCurrentWeek():Week
 	{
-		return weeksLoaded.get(getWeekDataId());
+		return weeksLoaded.get(getCurrentWeekId());
 	}
 
-	public static function setDirectoryFromWeek(?data:Week):Void
+	public static function setDirectoryFromWeek(?week:Week):Void
 	{
 		Paths.currentModDirectory = '';
-		if (data != null && data.folder != null && data.folder.length > 0)
+		if (week != null && week.folder != null && week.folder.length > 0)
 		{
-			Paths.currentModDirectory = data.folder;
+			Paths.currentModDirectory = week.folder;
 		}
 	}
 
@@ -178,9 +172,10 @@ class Week
 		Paths.currentModDirectory = '';
 
 		#if FEATURE_MODS
-		if (Paths.exists('modList.txt'))
+		var modListPath:String = Path.withExtension('modList', Paths.TEXT_EXT);
+		if (Paths.exists(modListPath))
 		{
-			var list:Array<String> = CoolUtil.listFromString(Paths.getTextDirect('modList.txt'));
+			var list:Array<String> = CoolUtil.listFromString(Paths.getTextDirect(modListPath));
 			var foundTheTop:Bool = false;
 			for (i in list)
 			{

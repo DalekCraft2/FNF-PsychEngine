@@ -1,7 +1,7 @@
 package editors;
 
-import Section.SectionData;
-import Song.SongData;
+import Section.SectionDef;
+import Song.SongDef;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -15,16 +15,25 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSort;
 import flixel.util.FlxTimer;
+import haxe.io.Path;
 import openfl.events.KeyboardEvent;
 
 using StringTools;
 
+// TODO Ensure that this and EditorScript have the most up-to-date code from their respective copied classes (PlayState and FunkinScript)
+// Yes, this is mostly a copy of PlayState, it's kinda dumb to make a direct copy of it but... ehhh
 class EditorPlayState extends MusicBeatState
 {
 	private static final COMBO_X:Float = 400;
 	private static final COMBO_Y:Float = 340;
 
-	// Yes, this is mostly a copy of PlayState, it's kinda dumb to make a direct copy of it but... ehhh
+	public static var instance:EditorPlayState;
+
+	private var vocals:FlxSound;
+
+	public var notes:FlxTypedGroup<Note>;
+	public var unspawnNotes:Array<Note> = [];
+
 	private var strumLine:FlxSprite;
 	private var comboGroup:FlxTypedGroup<FlxSprite>;
 
@@ -33,11 +42,7 @@ class EditorPlayState extends MusicBeatState
 	public var playerStrums:FlxTypedGroup<StrumNote>;
 	public var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
-	public var notes:FlxTypedGroup<Note>;
-	public var unspawnNotes:Array<Note> = [];
-
 	private var generatedMusic:Bool = false;
-	private var vocals:FlxSound;
 
 	private var startOffset:Float = 0;
 	private var startPos:Float = 0;
@@ -62,8 +67,6 @@ class EditorPlayState extends MusicBeatState
 
 	// Less laggy controls
 	private var keysArray:Array<Array<FlxKey>>;
-
-	public static var instance:EditorPlayState;
 
 	override public function create():Void
 	{
@@ -112,19 +115,19 @@ class EditorPlayState extends MusicBeatState
 			vocals = new FlxSound();
 
 		generateSong(PlayState.song.songId);
-		#if FEATURE_LUA
-		if (Options.save.data.loadLuaScripts)
+		#if FEATURE_SCRIPTS
+		if (Options.save.data.loadScripts)
 		{
 			for (notetype in noteTypeMap.keys())
 			{
-				var luaToLoad:String = Paths.lua('notetypes/$notetype');
-				if (Paths.exists(luaToLoad))
+				var scriptPath:String = Paths.script(Path.join(['notetypes', notetype]));
+				if (Paths.exists(scriptPath))
 				{
-					var lua:EditorLua = new EditorLua(luaToLoad);
+					var script:EditorScript = new EditorScript(scriptPath);
 					new FlxTimer().start(0.1, (tmr:FlxTimer) ->
 					{
-						lua.stop();
-						lua = null;
+						script.stop();
+						script = null;
 					});
 				}
 			}
@@ -213,7 +216,8 @@ class EditorPlayState extends MusicBeatState
 			var fakeCrochet:Float = (60 / PlayState.song.bpm) * 1000;
 			notes.forEachAlive((daNote:Note) ->
 			{
-				/*if (daNote.y > FlxG.height)
+				/*
+					if (daNote.y > FlxG.height)
 					{
 						daNote.active = false;
 						daNote.visible = false;
@@ -222,7 +226,8 @@ class EditorPlayState extends MusicBeatState
 					{
 						daNote.visible = true;
 						daNote.active = true;
-				}*/
+					}
+				 */
 
 				// i am so fucking sorry for this if condition
 				var strumX:Float = 0;
@@ -275,11 +280,11 @@ class EditorPlayState extends MusicBeatState
 								if (daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center
 									&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
 								{
-									var swagRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
-									swagRect.height = (center - daNote.y) / daNote.scale.y;
-									swagRect.y = daNote.frameHeight - swagRect.height;
+									var clipRect:FlxRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
+									clipRect.height = (center - daNote.y) / daNote.scale.y;
+									clipRect.y = daNote.frameHeight - clipRect.height;
 
-									daNote.clipRect = swagRect;
+									daNote.clipRect = clipRect;
 								}
 							}
 						}
@@ -294,11 +299,11 @@ class EditorPlayState extends MusicBeatState
 								&& daNote.y + daNote.offset.y * daNote.scale.y <= center
 								&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))))
 							{
-								var swagRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
-								swagRect.y = (center - daNote.y) / daNote.scale.y;
-								swagRect.height -= swagRect.y;
+								var clipRect:FlxRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
+								clipRect.y = (center - daNote.y) / daNote.scale.y;
+								clipRect.height -= clipRect.y;
 
-								daNote.clipRect = swagRect;
+								daNote.clipRect = clipRect;
 							}
 						}
 					}
@@ -387,6 +392,8 @@ class EditorPlayState extends MusicBeatState
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		}
+
+		instance = null;
 	}
 
 	override public function onFocusLost():Void
@@ -449,19 +456,18 @@ class EditorPlayState extends MusicBeatState
 
 	private function generateSong(dataPath:String):Void
 	{
-		FlxG.sound.playMusic(Paths.getInst(PlayState.song.songId), 0, false);
+		FlxG.sound.music.loadEmbedded(Paths.getInst(PlayState.song.songId), false);
 		FlxG.sound.music.pause();
 		FlxG.sound.music.onComplete = endSong;
 		vocals.pause();
-		vocals.volume = 0;
 
-		var songData:SongData = PlayState.song;
-		Conductor.changeBPM(songData.bpm);
+		var songDef:SongDef = PlayState.song;
+		Conductor.changeBPM(songDef.bpm);
 
 		notes = new FlxTypedGroup();
 		add(notes);
 
-		var sections:Array<SectionData> = songData.notes;
+		var sections:Array<SectionDef> = songDef.notes;
 		for (section in sections)
 		{
 			for (noteArray in section.sectionNotes)
@@ -837,22 +843,22 @@ class EditorPlayState extends MusicBeatState
 
 		var rating:FlxSprite = new FlxSprite();
 
-		var daRating:String = 'sick';
+		var ratingName:String = 'sick';
 
 		if (noteDiff > Conductor.safeZoneOffset * 0.75)
 		{
-			daRating = 'shit';
+			ratingName = 'shit';
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.5)
 		{
-			daRating = 'bad';
+			ratingName = 'bad';
 		}
 		else if (noteDiff > Conductor.safeZoneOffset * 0.25)
 		{
-			daRating = 'good';
+			ratingName = 'good';
 		}
 
-		if (daRating == 'sick' && !note.noteSplashDisabled)
+		if (ratingName == 'sick' && !note.noteSplashDisabled)
 		{
 			spawnNoteSplashOnNote(note);
 		}
@@ -862,11 +868,11 @@ class EditorPlayState extends MusicBeatState
 
 		if (PlayState.isPixelStage)
 		{
-			pixelShitPart1 = 'weeb/pixelUI/';
+			pixelShitPart1 = 'weeb/pixelUI';
 			pixelShitPart2 = '-pixel';
 		}
 
-		rating.loadGraphic(Paths.getGraphic('$pixelShitPart1$daRating$pixelShitPart2'));
+		rating.loadGraphic(Paths.getGraphic(Path.join([pixelShitPart1, '$ratingName$pixelShitPart2'])));
 		rating.screenCenter();
 		rating.x = coolText.x - 40;
 		rating.y -= 60;
@@ -877,7 +883,7 @@ class EditorPlayState extends MusicBeatState
 		rating.x += Options.save.data.comboOffset[0];
 		rating.y -= Options.save.data.comboOffset[1];
 
-		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}combo$pixelShitPart2'));
+		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic(Path.join([pixelShitPart1, 'combo$pixelShitPart2'])));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
@@ -915,12 +921,12 @@ class EditorPlayState extends MusicBeatState
 		seperatedScore.push(Math.floor(combo / 10) % 10);
 		seperatedScore.push(combo % 10);
 
-		var daLoop:Int = 0;
+		var loopsDone:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('${pixelShitPart1}num$i$pixelShitPart2'));
+			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic(Path.join([pixelShitPart1, 'num$i$pixelShitPart2'])));
 			numScore.screenCenter();
-			numScore.x = coolText.x + (43 * daLoop) - 90;
+			numScore.x = coolText.x + (43 * loopsDone) - 90;
 			numScore.y += 80;
 
 			numScore.x += Options.save.data.comboOffset[2];
@@ -953,7 +959,7 @@ class EditorPlayState extends MusicBeatState
 				startDelay: Conductor.crochet * 0.002
 			});
 
-			daLoop++;
+			loopsDone++;
 		}
 		// Debug.logTrace(combo);
 		// Debug.logTrace(seperatedScore);

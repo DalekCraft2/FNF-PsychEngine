@@ -6,10 +6,10 @@
 				7,
 				0
 			],
-			"fps": 24,
-			"anim": "idle",
+			"frameRate": 24,
+			"name": "idle",
 			"indices": [],
-			"name": "BF IDLE"
+			"prefix": "BF IDLE"
 		},
 		{
 			"loop": false,
@@ -17,9 +17,9 @@
 				0,
 				0
 			],
-			"anim": "singRIGHTmiss",
-			"fps": 24,
-			"name": "BF LEFT MISS",
+			"name": "singLEFTmiss",
+			"frameRate": 24,
+			"prefix": "BF LEFT MISS",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				0,
 				0
 			],
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "BF LEFT NOTE",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "BF LEFT NOTE",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				0,
 				0
 			],
-			"anim": "singUPmiss",
-			"fps": 24,
-			"name": "BF UP MISS",
+			"name": "singUPmiss",
+			"frameRate": 24,
+			"prefix": "BF UP MISS",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				0,
 				0
 			],
-			"anim": "singUP",
-			"fps": 24,
-			"name": "BF UP NOTE",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "BF UP NOTE",
 			"indices": []
 		},
 		{
@@ -61,9 +61,9 @@
 				0,
 				0
 			],
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "BF RIGHT NOTE",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "BF RIGHT NOTE",
 			"indices": []
 		},
 		{
@@ -72,9 +72,9 @@
 				0,
 				0
 			],
-			"anim": "singLEFTmiss",
-			"fps": 24,
-			"name": "BF RIGHT MISS",
+			"name": "singRIGHTmiss",
+			"frameRate": 24,
+			"prefix": "BF RIGHT MISS",
 			"indices": []
 		},
 		{
@@ -83,9 +83,9 @@
 				0,
 				0
 			],
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "BF DOWN NOTE",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "BF DOWN NOTE",
 			"indices": []
 		},
 		{
@@ -94,9 +94,9 @@
 				0,
 				0
 			],
-			"anim": "singDOWNmiss",
-			"fps": 24,
-			"name": "BF DOWN MISS",
+			"name": "singDOWNmiss",
+			"frameRate": 24,
+			"prefix": "BF DOWN MISS",
 			"indices": []
 		}
 	],
@@ -108,6 +108,7 @@
 	],
 	"healthIcon": "bf-pixel",
 	"flipX": true,
+	"flipLR": true,
 	"healthBarColors": [
 		123,
 		214,

@@ -6,10 +6,10 @@
 				0
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "idle",
+			"frameRate": 24,
+			"name": "idle",
 			"indices": [],
-			"name": "BF idle dance"
+			"prefix": "BF idle dance"
 		},
 		{
 			"offsets": [
@@ -17,10 +17,10 @@
 				-6
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singRIGHT",
+			"frameRate": 24,
+			"name": "singLEFT",
 			"indices": [],
-			"name": "BF NOTE LEFT0"
+			"prefix": "BF NOTE LEFT0"
 		},
 		{
 			"offsets": [
@@ -28,10 +28,10 @@
 				-51
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singDOWN",
+			"frameRate": 24,
+			"name": "singDOWN",
 			"indices": [],
-			"name": "BF NOTE DOWN0"
+			"prefix": "BF NOTE DOWN0"
 		},
 		{
 			"offsets": [
@@ -39,10 +39,10 @@
 				27
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singUP",
+			"frameRate": 24,
+			"name": "singUP",
 			"indices": [],
-			"name": "BF NOTE UP0"
+			"prefix": "BF NOTE UP0"
 		},
 		{
 			"offsets": [
@@ -50,10 +50,10 @@
 				-7
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singLEFT",
+			"frameRate": 24,
+			"name": "singRIGHT",
 			"indices": [],
-			"name": "BF NOTE RIGHT0"
+			"prefix": "BF NOTE RIGHT0"
 		},
 		{
 			"offsets": [
@@ -61,10 +61,10 @@
 				19
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singRIGHTmiss",
+			"frameRate": 24,
+			"name": "singLEFTmiss",
 			"indices": [],
-			"name": "BF NOTE LEFT MISS"
+			"prefix": "BF NOTE LEFT MISS"
 		},
 		{
 			"offsets": [
@@ -72,10 +72,10 @@
 				-19
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singDOWNmiss",
+			"frameRate": 24,
+			"name": "singDOWNmiss",
 			"indices": [],
-			"name": "BF NOTE DOWN MISS"
+			"prefix": "BF NOTE DOWN MISS"
 		},
 		{
 			"offsets": [
@@ -83,10 +83,10 @@
 				27
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singUPmiss",
+			"frameRate": 24,
+			"name": "singUPmiss",
 			"indices": [],
-			"name": "BF NOTE UP MISS"
+			"prefix": "BF NOTE UP MISS"
 		},
 		{
 			"offsets": [
@@ -94,10 +94,10 @@
 				22
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "singLEFTmiss",
+			"frameRate": 24,
+			"name": "singRIGHTmiss",
 			"indices": [],
-			"name": "BF NOTE RIGHT MISS"
+			"prefix": "BF NOTE RIGHT MISS"
 		},
 		{
 			"offsets": [
@@ -105,10 +105,10 @@
 				5
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "hey",
+			"frameRate": 24,
+			"name": "hey",
 			"indices": [],
-			"name": "BF HEY"
+			"prefix": "BF HEY"
 		},
 		{
 			"offsets": [
@@ -116,10 +116,10 @@
 				18
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "hurt",
+			"frameRate": 24,
+			"name": "hurt",
 			"indices": [],
-			"name": "BF hit"
+			"prefix": "BF hit"
 		},
 		{
 			"offsets": [
@@ -127,10 +127,10 @@
 				0
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "scared",
+			"frameRate": 24,
+			"name": "scared",
 			"indices": [],
-			"name": "BF idle shaking"
+			"prefix": "BF idle shaking"
 		},
 		{
 			"offsets": [
@@ -138,10 +138,10 @@
 				11
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "firstDeath",
+			"frameRate": 24,
+			"name": "firstDeath",
 			"indices": [],
-			"name": "BF dies"
+			"prefix": "BF dies"
 		},
 		{
 			"offsets": [
@@ -149,10 +149,10 @@
 				5
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "deathLoop",
+			"frameRate": 24,
+			"name": "deathLoop",
 			"indices": [],
-			"name": "BF Dead Loop"
+			"prefix": "BF Dead Loop"
 		},
 		{
 			"offsets": [
@@ -160,10 +160,10 @@
 				69
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "deathConfirm",
+			"frameRate": 24,
+			"name": "deathConfirm",
 			"indices": [],
-			"name": "BF Dead confirm"
+			"prefix": "BF Dead confirm"
 		},
 		{
 			"offsets": [
@@ -171,10 +171,10 @@
 				-16
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "dodge",
+			"frameRate": 24,
+			"name": "dodge",
 			"indices": [],
-			"name": "boyfriend dodge"
+			"prefix": "boyfriend dodge"
 		},
 		{
 			"offsets": [
@@ -182,10 +182,10 @@
 				267
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "attack",
+			"frameRate": 24,
+			"name": "attack",
 			"indices": [],
-			"name": "boyfriend attack"
+			"prefix": "boyfriend attack"
 		},
 		{
 			"offsets": [
@@ -193,10 +193,10 @@
 				-40
 			],
 			"loop": false,
-			"fps": 24,
-			"anim": "pre-attack",
+			"frameRate": 24,
+			"name": "pre-attack",
 			"indices": [],
-			"name": "bf pre attack"
+			"prefix": "bf pre attack"
 		}
 	],
 	"noAntialiasing": false,
@@ -207,6 +207,7 @@
 	],
 	"healthIcon": "bf",
 	"flipX": true,
+	"flipLR": true,
 	"healthBarColors": [
 		49,
 		176,

@@ -62,13 +62,13 @@ class LatencyState extends FlxState
 			FlxG.resetState();
 		}
 
-		noteGrp.forEach((daNote:Note) ->
+		noteGrp.forEach((note:Note) ->
 		{
-			daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * 0.45);
-			daNote.x = strumLine.x + 30;
+			note.y = (strumLine.y - (Conductor.songPosition - note.strumTime) * 0.45);
+			note.x = strumLine.x + 30;
 
-			if (daNote.y < strumLine.y)
-				daNote.kill();
+			if (note.y < strumLine.y)
+				note.kill();
 		});
 	}
 }

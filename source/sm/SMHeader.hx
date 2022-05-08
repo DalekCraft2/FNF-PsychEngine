@@ -20,7 +20,7 @@ class SMHeader
 	public var BPMS:String = ''; // time=bpm
 
 	// public var changeEvents:Array<Song.Event>;
-	public var changeEvents:Array<Array<Dynamic>>;
+	public var changeEvents:Array<Array<Any>>;
 
 	public function new(headerData:Array<String>)
 	{
@@ -103,7 +103,7 @@ class SMHeader
 	{
 		var propName:String = line.split('#')[1].split(':')[0];
 		var value:String = line.split(':')[1].split(';')[0];
-		var prop:Dynamic = Reflect.getProperty(this, propName);
+		var prop:Any = Reflect.getProperty(this, propName);
 
 		if (prop != null)
 		{

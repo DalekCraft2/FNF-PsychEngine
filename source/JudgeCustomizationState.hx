@@ -1,6 +1,5 @@
 package;
 
-import Stage.StageData;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.math.FlxPoint;
@@ -11,7 +10,7 @@ import options.OptionsState;
 
 class JudgeCustomizationState extends MusicBeatState
 {
-	private var stage:StageData;
+	private var stage:Stage;
 	private var judge:FlxSprite;
 	private var judgePlacementPos:FlxPoint;
 	private var defaultPos:FlxPoint;
@@ -167,7 +166,7 @@ class JudgeCustomizationState extends MusicBeatState
 			coolText.screenCenter();
 		}
 
-		var daLoop:Float = 0;
+		var loopsDone:Float = 0;
 		var idx:Int = -1;
 		for (i in seperatedScore)
 		{
@@ -178,7 +177,7 @@ class JudgeCustomizationState extends MusicBeatState
 			}
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('num$i'));
 			numScore.screenCenter(XY);
-			numScore.x = coolText.x + (43 * daLoop) - 90;
+			numScore.x = coolText.x + (43 * loopsDone) - 90;
 			numScore.y += 25;
 
 			numScore.antialiasing = true;
@@ -207,7 +206,7 @@ class JudgeCustomizationState extends MusicBeatState
 			numScore.velocity.y -= FlxG.random.int(140, 160);
 			numScore.velocity.x = FlxG.random.float(-5, 5);
 
-			daLoop++;
+			loopsDone++;
 		}
 	}
 }

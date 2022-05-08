@@ -2,9 +2,7 @@
     "offset": 0,
     "name": "Spookeez",
     "icon": "spooky",
-    "color": [
-        34,
-        51,
-        68
+    "colors": [
+        "0xFF223344"
     ]
 }

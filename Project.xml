@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://lime.software/project/1.0.2"
+<project xmlns="http://lime.software/project/1.0.3"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://lime.software/project/1.0.2 http://lime.software/xsd/project-1.0.2.xsd">
+    xsi:schemaLocation="http://lime.software/project/1.0.3 http://lime.software/xsd/project-1.0.3.xsd">
 
     <!-- _________________________ Application Settings _________________________ -->
 
@@ -41,8 +41,9 @@
 
     <!-- _____________________________ Path Settings ____________________________ -->
 
+    <set name="BUILD_DIR" value="export/release" unless="debug || final" />
     <set name="BUILD_DIR" value="export/debug" if="debug" />
-    <set name="BUILD_DIR" value="export/release" unless="debug" />
+    <set name="BUILD_DIR" value="export/final" if="final" />
     <set name="BUILD_DIR" value="export/32bit" if="32bits" />
 
     <source path="source" />
@@ -55,17 +56,20 @@
     <!-- Defines whether the Discord client should be enabled. (Library's README says that it only works on the CPP target.) -->
     <define name="FEATURE_DISCORD" if="cpp" />
 
+    <!-- Defines whether scripts should be enabled. (Currently set to only work when Lua is available, because I haven't tested HScript yet) -->
+    <define name="FEATURE_SCRIPTS" if="cpp" />
+
     <!-- Defines whether Lua scripts should be enabled. (Library's README says that it only works on the CPP target.) -->
-    <define name="FEATURE_LUA" if="cpp" />
+    <define name="FEATURE_LUA" if="FEATURE_SCRIPTS cpp" />
 
     <!-- Defines whether Mods should be enabled. -->
-    <define name="FEATURE_MODS" if="desktop" />
+    <define name="FEATURE_MODS" if="desktop"/>
 
     <!-- Defines whether StepMania files can be loaded. -->
     <define name="FEATURE_STEPMANIA" if="desktop" />
 
     <!-- Defines whether videos should be enabled. -->
-    <define name="FEATURE_VIDEOS" if="web || windows" unless="32bits" />
+    <define name="FEATURE_VIDEOS" if="web || cpp" />
 
     <!-- Defines whether watermarks should display on the title screen. -->
     <define name="PSYCH_WATERMARKS" />
@@ -76,9 +80,12 @@
     <!-- <define name="GITAROO_EASTER_EGG" /> -->
 
     <!-- DON'T ENABLE THIS -->
-    <define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/>
+    <define name="CHECK_FOR_UPDATES" if="desktop officialBuild" />
+
+    <!-- <define name="USE_CUSTOM_CACHE" /> -->
 
     <define name="PRELOAD_ALL" unless="web" />
+    <!-- <define name="PRELOAD_ALL" /> -->
 
     <section if="PRELOAD_ALL">
         <library name="shared" preload="true" />
@@ -101,27 +108,19 @@
 
     <!-- TODO Attempt to move everything into a single library like Myth does -->
     <section if="TITLE_SCREEN_EASTER_EGG">
-        <assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web" />
-        <assets path="assets/secrets" rename="assets" exclude="*.mp3" unless="web" />
+        <assets path="assets/secrets" rename="assets" />
     </section>
-    <assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
-    <assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
-    <assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />
-    <assets path="assets/shared" library="shared" exclude="*.mp3" unless="web" />
-    <assets path="assets/week2" library="week2" exclude="*.ogg" if="web" />
-    <assets path="assets/week2" library="week2" exclude="*.mp3" unless="web" />
-    <assets path="assets/week3" library="week3" exclude="*.ogg" if="web" />
-    <assets path="assets/week3" library="week3" exclude="*.mp3" unless="web" />
-    <assets path="assets/week4" library="week4" exclude="*.ogg" if="web" />
-    <assets path="assets/week4" library="week4" exclude="*.mp3" unless="web" />
-    <assets path="assets/week5" library="week5" exclude="*.ogg" if="web" />
-    <assets path="assets/week5" library="week5" exclude="*.mp3" unless="web" />
-    <assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
-    <assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
-    <assets path="assets/week7" library="week7" exclude="*.ogg" if="web" />
-    <assets path="assets/week7" library="week7" exclude="*.mp3" unless="web" />
-    <assets path="dlls" rename='' if="FEATURE_VIDEOS cpp" />
-    <assets path="plugins" if="FEATURE_VIDEOS cpp" />
+    <assets path="assets/preload" rename="assets" />
+    <assets path="assets/shared" library="shared" />
+    <assets path="assets/week2" library="week2" />
+    <assets path="assets/week3" library="week3" />
+    <assets path="assets/week4" library="week4" />
+    <assets path="assets/week5" library="week5" />
+    <assets path="assets/week6" library="week6" />
+    <assets path="assets/week7" library="week7" />
+
+    <assets path="lib/x64" rename='' if="FEATURE_VIDEOS cpp" unless="32bits" />
+    <assets path="lib/x86" rename='' if="FEATURE_VIDEOS cpp 32bits" />
 
     <assets path='art/readme.txt' rename='README.txt' />
     <assets path='LICENSE.txt' />
@@ -129,11 +128,7 @@
 
     <assets path='mods' embed="false" if="FEATURE_MODS" />
 
-    <!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
-		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
-		THEN UHHH I USED THE NAME OF THE FONT WITH SETFORMAT() ON THE TEXT!!!
-		NOT USING A DIRECT THING TO THE ASSET!!!
-	-->
+    <!-- Using a path to a font asset is fine. Stop screaming. bruh -->
 
     <!-- _______________________________ Libraries ______________________________ -->
 
@@ -148,14 +143,15 @@
     <!--In case you want to use nape with flixel-->
     <!-- <haxelib name="nape-haxe4" /> -->
 
-    <!-- Make sure to use https://github.com/KadeDev/extension-webm/ -->
-    <!-- <haxelib name="extension-webm" /> -->
-
     <haxelib name="linc_luajit" if="FEATURE_LUA" />
-    <!-- <haxelib name="faxe" if='switch' /> -->
     <!-- <haxelib name="newgrounds" /> -->
-    <!-- <haxelib name="polymod" if="FEATURE_MODS" /> -->
+
+    <!-- Enable this if you want to use Polymod to manage assets (and mods, if enabled). (Requires that mods use Polymod folders such as _append for some assets) -->
+    <!-- It also works well for finding things which need to be optimized, because it causes so much lag -->
+    <!-- <haxelib name="polymod" /> -->
+
     <haxelib name="discord_rpc" if="FEATURE_DISCORD" />
+
     <haxelib name="hxcpp-debug-server" if="cpp debug" />
 
     <!-- ______________________________ Haxedefines _____________________________ -->
@@ -189,6 +185,10 @@
 
     <!--Enable this for Nape release builds for a serious peformance improvement-->
     <!-- <haxedef name="NAPE_RELEASE_BUILD" unless="debug" /> -->
+
+    <haxedef name="POLYMOD_MOD_METADATA_FILE" value="/_meta.json" />
+    <haxedef name="POLYMOD_MOD_ICON_FILE" value="/_icon.png" />
+    <haxedef name="POLYMOD_MOD_PACK_FILE" value="/_pack.txt" />
 
     <!-- _________________________________ Custom _______________________________ -->
 

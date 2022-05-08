@@ -43,8 +43,6 @@ class GameplayChangersSubState extends MusicBeatSubState
 			var optionText:Alphabet = new Alphabet(0, 70 * i, optionsArray[i].name, true, false, 0.05, 0.8);
 			optionText.isMenuItem = true;
 			optionText.x += 300;
-			/*optionText.forceX = 300;
-				optionText.yMult = 90; */
 			optionText.xAdd = 120;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
@@ -286,13 +284,15 @@ class GameplayChangersSubState extends MusicBeatSubState
 		}
 		optionsArray.push(option);
 
-		/*var option:GameplayOption = new GameplayOption('Playback Rate', 'songSpeed', 'float', 1);
+		/*
+			var option:GameplayOption = new GameplayOption('Playback Rate', 'songSpeed', 'float', 1);
 			option.scrollSpeed = 1;
 			option.minValue = 0.5;
 			option.maxValue = 2.5;
 			option.changeValue = 0.1;
 			option.displayFormat = '%vX';
-			optionsArray.push(option); */
+			optionsArray.push(option);
+		 */
 
 		var option:GameplayOption = new GameplayOption('Health Gain Multiplier', 'healthGain', 'float', 1);
 		option.scrollSpeed = 2.5;
@@ -336,7 +336,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 		var val:Dynamic = option.getValue();
 		if (option.type == 'percent')
 			val *= 100;
-		var def:Dynamic = option.defaultValue;
+		var def:Any = option.defaultValue;
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
@@ -357,12 +357,10 @@ class GameplayChangersSubState extends MusicBeatSubState
 		if (curSelected >= optionsArray.length)
 			curSelected = 0;
 
-		var bullShit:Int = 0;
-
-		for (item in grpOptions.members)
+		for (i in 0...grpOptions.members.length)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			var item:Alphabet = grpOptions.members[i];
+			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
 			if (item.targetY == 0)
@@ -386,7 +384,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 	{
 		for (checkbox in checkboxGroup)
 		{
-			checkbox.daValue = optionsArray[checkbox.ID].getValue();
+			checkbox.value = optionsArray[checkbox.ID].getValue();
 		}
 	}
 }
@@ -407,7 +405,7 @@ class GameplayOption
 
 	private var variable:String; // Variable from ClientPrefs.hx's gameplaySettings
 
-	public var defaultValue:Dynamic;
+	public var defaultValue:Any;
 
 	public var curOption:Int = 0; // Don't change this
 	public var options:Array<String>; // Only used in string type
@@ -486,7 +484,7 @@ class GameplayOption
 		return Reflect.field(Options.save.data, variable);
 	}
 
-	public function setValue(value:Dynamic):Void
+	public function setValue(value:Any):Void
 	{
 		Reflect.setField(Options.save.data, variable, value);
 	}

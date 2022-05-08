@@ -34,7 +34,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.showBoyfriend = true;
 		addOption(option);
 
-		#if !html5 // Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
+		#if !web // Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
 		option = new IntegerOption('frameRate', 'Framerate', 'Pretty self explanatory, isn\'t it?', 1, 60, 240, ' FPS', '', (value:Int, change:Int) ->
 		{
 			if (Options.save.data.frameRate > FlxG.drawFramerate)

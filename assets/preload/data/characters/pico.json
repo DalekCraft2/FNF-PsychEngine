@@ -6,10 +6,10 @@
 				0,
 				0
 			],
-			"fps": 24,
-			"anim": "idle",
+			"frameRate": 24,
+			"name": "idle",
 			"indices": [],
-			"name": "Pico Idle Dance"
+			"prefix": "Pico Idle Dance"
 		},
 		{
 			"loop": false,
@@ -17,10 +17,10 @@
 				65,
 				9
 			],
-			"fps": 24,
-			"anim": "singLEFT",
+			"frameRate": 24,
+			"name": "singRIGHT",
 			"indices": [],
-			"name": "Pico Note Right0"
+			"prefix": "Pico Note Right0"
 		},
 		{
 			"loop": false,
@@ -28,10 +28,10 @@
 				-68,
 				-7
 			],
-			"fps": 24,
-			"anim": "singRIGHT",
+			"frameRate": 24,
+			"name": "singLEFT",
 			"indices": [],
-			"name": "Pico NOTE LEFT0"
+			"prefix": "Pico NOTE LEFT0"
 		},
 		{
 			"loop": false,
@@ -39,10 +39,10 @@
 				-60,
 				41
 			],
-			"fps": 24,
-			"anim": "singRIGHTmiss",
+			"frameRate": 24,
+			"name": "singLEFTmiss",
 			"indices": [],
-			"name": "Pico NOTE LEFT miss"
+			"prefix": "Pico NOTE LEFT miss"
 		},
 		{
 			"loop": false,
@@ -50,10 +50,10 @@
 				62,
 				64
 			],
-			"fps": 24,
-			"anim": "singLEFTmiss",
+			"frameRate": 24,
+			"name": "singRIGHTmiss",
 			"indices": [],
-			"name": "Pico Note Right Miss"
+			"prefix": "Pico Note Right Miss"
 		},
 		{
 			"loop": false,
@@ -61,10 +61,10 @@
 				-29,
 				27
 			],
-			"fps": 24,
-			"anim": "singUP",
+			"frameRate": 24,
+			"name": "singUP",
 			"indices": [],
-			"name": "pico Up note0"
+			"prefix": "pico Up note0"
 		},
 		{
 			"loop": false,
@@ -72,10 +72,10 @@
 				200,
 				-70
 			],
-			"fps": 24,
-			"anim": "singDOWN",
+			"frameRate": 24,
+			"name": "singDOWN",
 			"indices": [],
-			"name": "Pico Down Note0"
+			"prefix": "Pico Down Note0"
 		},
 		{
 			"loop": false,
@@ -83,10 +83,10 @@
 				210,
 				-28
 			],
-			"fps": 24,
-			"anim": "singDOWNmiss",
+			"frameRate": 24,
+			"name": "singDOWNmiss",
 			"indices": [],
-			"name": "Pico Down Note MISS"
+			"prefix": "Pico Down Note MISS"
 		},
 		{
 			"loop": false,
@@ -94,10 +94,10 @@
 				-19,
 				67
 			],
-			"fps": 24,
-			"anim": "singUPmiss",
+			"frameRate": 24,
+			"name": "singUPmiss",
 			"indices": [],
-			"name": "pico Up note miss"
+			"prefix": "pico Up note miss"
 		}
 	],
 	"noAntialiasing": false,
@@ -108,6 +108,7 @@
 	],
 	"healthIcon": "pico",
 	"flipX": true,
+	"flipLR": true,
 	"healthBarColors": [
 		183,
 		216,

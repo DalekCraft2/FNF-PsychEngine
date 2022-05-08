@@ -1,11 +1,10 @@
 package;
 
-import flash.media.Sound;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
+import flixel.system.FlxAssets.FlxSoundAsset;
 import flixel.system.FlxSound;
 import flixel.util.FlxTimer;
 
@@ -16,6 +15,10 @@ using StringTools;
  */
 class Alphabet extends FlxSpriteGroup
 {
+	private static final LETTERS:String = 'abcdefghijklmnopqrstuvwxyz';
+	private static final NUMBERS:String = '1234567890';
+	private static final SYMBOLS:String = "!#$%&'()*+,./:;<=>?@[\\]^_|×-“”←↑→↓♥";
+
 	public var delay:Float = 0.05;
 	public var paused:Bool = false;
 
@@ -107,12 +110,7 @@ class Alphabet extends FlxSpriteGroup
 			remove(letter);
 			lettersArray.remove(letter);
 		}
-		/*for (letter in lettersArray)
-			{
-				letter.destroy();
-				remove(letter);
-				lettersArray.remove(letter);
-		}*/
+
 		lettersArray = [];
 		splitWords = [];
 		loopNum = 0;
@@ -163,9 +161,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			var isNumber:Bool = AlphaCharacter.NUMBERS.contains(character);
-			var isSymbol:Bool = AlphaCharacter.SYMBOLS.contains(character);
-			var isAlphabet:Bool = AlphaCharacter.LETTERS.contains(character.toLowerCase());
+			var isNumber:Bool = NUMBERS.contains(character);
+			var isSymbol:Bool = SYMBOLS.contains(character);
+			var isAlphabet:Bool = LETTERS.contains(character.toLowerCase());
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null)
@@ -232,13 +230,14 @@ class Alphabet extends FlxSpriteGroup
 
 	private var dialogueSound:FlxSound;
 
-	private static var soundDialog:Sound;
+	private static var soundDialog:FlxSoundAsset;
 
 	private var consecutiveSpaces:Int = 0;
 
+	// TODO Make this not static
 	public static function setDialogueSound(name:String = ''):Void
 	{
-		if (name == null || name.trim() == '')
+		if (name.trim() == '')
 			name = 'dialogue';
 		soundDialog = Paths.getSound(name);
 		if (soundDialog == null)
@@ -315,9 +314,9 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
-			var isNumber:Bool = AlphaCharacter.NUMBERS.contains(splitWords[loopNum]);
-			var isSymbol:Bool = AlphaCharacter.SYMBOLS.contains(splitWords[loopNum]);
-			var isAlphabet:Bool = AlphaCharacter.LETTERS.contains(splitWords[loopNum].toLowerCase());
+			var isNumber:Bool = NUMBERS.contains(splitWords[loopNum]);
+			var isSymbol:Bool = SYMBOLS.contains(splitWords[loopNum]);
+			var isAlphabet:Bool = LETTERS.contains(splitWords[loopNum].toLowerCase());
 
 			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
@@ -414,13 +413,7 @@ class AlphaCharacter extends FlxSprite
 	/**
 	 * This value controls how far down the letters are moved when they are aligned at the bottom instead of at the top
 	 */
-	public static final Y_CORRECTION:Float = 90;
-
-	public static final LETTERS:String = 'abcdefghijklmnopqrstuvwxyz';
-
-	public static final NUMBERS:String = '1234567890';
-
-	public static final SYMBOLS:String = "!#$%&'()*+,./:;<=>?@[\\]^_|×-“”←↑→↓♥";
+	private static final Y_CORRECTION:Float = 90;
 
 	public var row:Int = 0;
 
@@ -430,8 +423,7 @@ class AlphaCharacter extends FlxSprite
 	{
 		super(x, y);
 
-		var tex:FlxAtlasFrames = Paths.getSparrowAtlas(bold ? 'fonts/bold' : 'fonts/default');
-		frames = tex;
+		frames = Paths.getSparrowAtlas(bold ? 'fonts/bold' : 'fonts/default');
 
 		setGraphicSize(Std.int(width * textSize));
 		updateHitbox();
@@ -451,7 +443,11 @@ class AlphaCharacter extends FlxSprite
 
 	public function createBoldNumber(letter:String):Void
 	{
-		animation.addByPrefix(letter, letter, 24);
+		// TODO Surgically insert the bold letters from the original Psych alphabet into the PolyEngine alphabet
+		frames = Paths.getSparrowAtlas('fonts/alphabet');
+
+		// animation.addByPrefix(letter, letter, 24);
+		animation.addByPrefix(letter, 'bold$letter', 24);
 		animation.play(letter);
 		updateHitbox();
 

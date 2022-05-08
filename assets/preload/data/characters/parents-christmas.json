@@ -6,9 +6,9 @@
 				0
 			],
 			"loop": false,
-			"anim": "idle",
-			"fps": 24,
-			"name": "Parent Christmas Idle",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "Parent Christmas Idle",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				24
 			],
 			"loop": false,
-			"anim": "singUP",
-			"fps": 24,
-			"name": "Parent Up Note Dad",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "Parent Up Note Dad",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				-29
 			],
 			"loop": false,
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "Parent Down Note Dad",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "Parent Down Note Dad",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				16
 			],
 			"loop": false,
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "Parent Left Note Dad",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "Parent Left Note Dad",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				-23
 			],
 			"loop": false,
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "Parent Right Note Dad",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "Parent Right Note Dad",
 			"indices": []
 		},
 		{
@@ -61,9 +61,9 @@
 				-22
 			],
 			"loop": false,
-			"anim": "singRIGHT-alt",
-			"fps": 24,
-			"name": "Parent Right Note Mom",
+			"name": "singRIGHT-alt",
+			"frameRate": 24,
+			"prefix": "Parent Right Note Mom",
 			"indices": []
 		},
 		{
@@ -72,9 +72,9 @@
 				-27
 			],
 			"loop": false,
-			"anim": "singDOWN-alt",
-			"fps": 24,
-			"name": "Parent Down Note Mom",
+			"name": "singDOWN-alt",
+			"frameRate": 24,
+			"prefix": "Parent Down Note Mom",
 			"indices": []
 		},
 		{
@@ -83,9 +83,9 @@
 				15
 			],
 			"loop": false,
-			"anim": "singLEFT-alt",
-			"fps": 24,
-			"name": "Parent Left Note Mom",
+			"name": "singLEFT-alt",
+			"frameRate": 24,
+			"prefix": "Parent Left Note Mom",
 			"indices": []
 		},
 		{
@@ -94,9 +94,9 @@
 				24
 			],
 			"loop": false,
-			"anim": "singUP-alt",
-			"fps": 24,
-			"name": "Parent Up Note Mom",
+			"name": "singUP-alt",
+			"frameRate": 24,
+			"prefix": "Parent Up Note Mom",
 			"indices": []
 		},
 		{
@@ -110,10 +110,10 @@
 				12,
 				13
 			],
-			"fps": 24,
-			"anim": "idle-loop",
+			"frameRate": 24,
+			"name": "idle-loop",
 			"loop": true,
-			"name": "Parent Christmas Idle"
+			"prefix": "Parent Christmas Idle"
 		},
 		{
 			"offsets": [
@@ -126,10 +126,10 @@
 				12,
 				13
 			],
-			"fps": 24,
-			"anim": "singUP-loop",
+			"frameRate": 24,
+			"name": "singUP-loop",
 			"loop": true,
-			"name": "Parent Up Note Dad"
+			"prefix": "Parent Up Note Dad"
 		},
 		{
 			"offsets": [
@@ -142,10 +142,10 @@
 				14,
 				15
 			],
-			"fps": 24,
-			"anim": "singLEFT-loop",
+			"frameRate": 24,
+			"name": "singLEFT-loop",
 			"loop": true,
-			"name": "Parent Left Note Dad"
+			"prefix": "Parent Left Note Dad"
 		},
 		{
 			"offsets": [
@@ -158,10 +158,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "singDOWN-loop",
+			"frameRate": 24,
+			"name": "singDOWN-loop",
 			"loop": true,
-			"name": "Parent Down Note Dad"
+			"prefix": "Parent Down Note Dad"
 		},
 		{
 			"offsets": [
@@ -174,10 +174,10 @@
 				14,
 				15
 			],
-			"fps": 24,
-			"anim": "singRIGHT-loop",
+			"frameRate": 24,
+			"name": "singRIGHT-loop",
 			"loop": true,
-			"name": "Parent Right Note Dad"
+			"prefix": "Parent Right Note Dad"
 		},
 		{
 			"offsets": [
@@ -190,10 +190,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "singRIGHT-alt-loop",
+			"frameRate": 24,
+			"name": "singRIGHT-alt-loop",
 			"loop": true,
-			"name": "Parent Right Note Mom"
+			"prefix": "Parent Right Note Mom"
 		},
 		{
 			"offsets": [
@@ -206,10 +206,10 @@
 				12,
 				13
 			],
-			"fps": 24,
-			"anim": "singUP-alt-loop",
+			"frameRate": 24,
+			"name": "singUP-alt-loop",
 			"loop": true,
-			"name": "Parent Up Note Mom"
+			"prefix": "Parent Up Note Mom"
 		},
 		{
 			"offsets": [
@@ -222,10 +222,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "singLEFT-alt-loop",
+			"frameRate": 24,
+			"name": "singLEFT-alt-loop",
 			"loop": true,
-			"name": "Parent Left Note Mom"
+			"prefix": "Parent Left Note Mom"
 		},
 		{
 			"offsets": [
@@ -238,10 +238,10 @@
 				13,
 				14
 			],
-			"fps": 24,
-			"anim": "singDOWN-alt-loop",
+			"frameRate": 24,
+			"name": "singDOWN-alt-loop",
 			"loop": true,
-			"name": "Parent Down Note Mom"
+			"prefix": "Parent Down Note Mom"
 		}
 	],
 	"noAntialiasing": false,

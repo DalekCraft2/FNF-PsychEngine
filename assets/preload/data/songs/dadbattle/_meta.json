@@ -2,9 +2,7 @@
     "offset": 0,
     "name": "DadBattle",
     "icon": "dad",
-    "color": [
-        146,
-        113,
-        253
+    "colors": [
+        "0xFF9271FD"
     ]
 }

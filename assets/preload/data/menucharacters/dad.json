@@ -1,5 +1,4 @@
 {
-	
 	"image": "Menu_Dad",
 	"position": [
 		0,
@@ -7,5 +6,5 @@
 	],
 	"scale": 1,
 	"idleAnim": "M Dad Idle",
-	"confirmAnim": "M Dad Idle"
+	"confirmAnim": ""
 }

@@ -6,9 +6,9 @@
 				-280
 			],
 			"loop": false,
-			"anim": "idle",
-			"fps": 24,
-			"name": "idle spirit_",
+			"name": "idle",
+			"frameRate": 24,
+			"prefix": "idle spirit_",
 			"indices": []
 		},
 		{
@@ -17,9 +17,9 @@
 				-280
 			],
 			"loop": false,
-			"anim": "singLEFT",
-			"fps": 24,
-			"name": "left_",
+			"name": "singLEFT",
+			"frameRate": 24,
+			"prefix": "left_",
 			"indices": []
 		},
 		{
@@ -28,9 +28,9 @@
 				110
 			],
 			"loop": false,
-			"anim": "singDOWN",
-			"fps": 24,
-			"name": "spirit down_",
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "spirit down_",
 			"indices": []
 		},
 		{
@@ -39,9 +39,9 @@
 				-280
 			],
 			"loop": false,
-			"anim": "singRIGHT",
-			"fps": 24,
-			"name": "right_",
+			"name": "singRIGHT",
+			"frameRate": 24,
+			"prefix": "right_",
 			"indices": []
 		},
 		{
@@ -50,9 +50,9 @@
 				-240
 			],
 			"loop": false,
-			"anim": "singUP",
-			"fps": 24,
-			"name": "up_",
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "up_",
 			"indices": []
 		}
 	],

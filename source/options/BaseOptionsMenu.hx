@@ -83,15 +83,13 @@ class BaseOptionsMenu extends MusicBeatSubState
 			var optionText:Alphabet = new Alphabet(0, 70 * i, option.name, false, false);
 			optionText.isMenuItem = true;
 			optionText.x += 300;
-			/*optionText.forceX = 300;
-				optionText.yMult = 90; */
 			optionText.xAdd = 200;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
 
 			if (option is ValueOption)
 			{
-				var valueOption:ValueOption<Dynamic> = cast option;
+				var valueOption:ValueOption<Any> = cast option;
 				if (valueOption is BooleanOption)
 				{
 					var booleanOption:BooleanOption = cast valueOption;
@@ -299,10 +297,10 @@ class BaseOptionsMenu extends MusicBeatSubState
 	private function updateTextFrom(option:Option):Void
 	{
 		var text:String = option.displayFormat;
-		var val:Dynamic = option.value;
+		var val:Any = option.value;
 		if (option.type == 'percent')
 			val *= 100;
-		var def:Dynamic = option.defaultValue;
+		var def:Any = option.defaultValue;
 		option.text = text.replace('%v', val).replace('%d', def);
 	}
 
@@ -327,12 +325,10 @@ class BaseOptionsMenu extends MusicBeatSubState
 		descText.screenCenter(Y);
 		descText.y += 270;
 
-		var bullShit:Int = 0;
-
-		for (item in grpOptions.members)
+		for (i in 0...grpOptions.members.length)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			var item:Alphabet = grpOptions.members[i];
+			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
 			if (item.targetY == 0)
@@ -384,7 +380,7 @@ class BaseOptionsMenu extends MusicBeatSubState
 	{
 		for (checkbox in checkboxGroup)
 		{
-			checkbox.daValue = (optionsArray[checkbox.ID].value);
+			checkbox.value = (optionsArray[checkbox.ID].value);
 		}
 	}
 }

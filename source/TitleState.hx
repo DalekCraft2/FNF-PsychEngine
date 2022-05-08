@@ -10,6 +10,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import haxe.io.Path;
 
 using StringTools;
 
@@ -17,7 +18,7 @@ using StringTools;
 import haxe.Http;
 #end
 
-typedef TitleData =
+typedef TitleDef =
 {
 	var titlex:Float;
 	var titley:Float;
@@ -51,7 +52,7 @@ class TitleState extends MusicBeatState
 
 	private var mustUpdate:Bool = false;
 
-	public static var titleData:TitleData;
+	public static var titleDef:TitleDef;
 
 	public static var updateVersion:String = '';
 
@@ -64,26 +65,6 @@ class TitleState extends MusicBeatState
 
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		Week.loadTheFirstEnabledMod();
-
-		// TODO Try to switch to Polymod because I am so sick of this custom asset system.
-		/*#if (polymod && !html5)
-			if (FileSystem.exists(Paths.mods()))
-			{
-				var folders:Array<String> = [];
-				for (file in FileSystem.readDirectory(Paths.mods()))
-				{
-					var path:String = Paths.mods(file);
-					if (FileSystem.isDirectory(path))
-					{
-						folders.push(file);
-					}
-				}
-				if (folders.length > 0)
-				{
-					polymod.Polymod.init({modRoot: 'mods', dirs: folders});
-				}
-			}
-			#end */
 
 		#if CHECK_FOR_UPDATES
 		if (!closedState)
@@ -116,10 +97,10 @@ class TitleState extends MusicBeatState
 
 		// DEBUG BULLSHIT
 
-		swagShader = new ColorSwap();
+		colorShader = new ColorSwap();
 
 		// IGNORE THIS!!!
-		titleData = Paths.getJsonDirect(Paths.file('images/gfDanceTitle.json'));
+		titleDef = Paths.getJsonDirect(Paths.file(Path.withExtension('images/gfDanceTitle', Paths.JSON_EXT)));
 
 		#if TITLE_SCREEN_EASTER_EGG
 		if (EngineData.save.data.psychDevsEasterEgg == null)
@@ -127,17 +108,17 @@ class TitleState extends MusicBeatState
 		switch (EngineData.save.data.psychDevsEasterEgg.toUpperCase())
 		{
 			case 'SHADOW':
-				titleData.gfx += 210;
-				titleData.gfy += 40;
+				titleDef.gfx += 210;
+				titleDef.gfy += 40;
 			case 'RIVER':
-				titleData.gfx += 100;
-				titleData.gfy += 20;
+				titleDef.gfx += 100;
+				titleDef.gfy += 20;
 			case 'SHUBS':
-				titleData.gfx += 160;
-				titleData.gfy -= 10;
+				titleDef.gfx += 160;
+				titleDef.gfy -= 10;
 			case 'BBPANZU':
-				titleData.gfx += 45;
-				titleData.gfy += 100;
+				titleDef.gfx += 45;
+				titleDef.gfy += 100;
 		}
 		#end
 
@@ -278,12 +259,12 @@ class TitleState extends MusicBeatState
 			skipIntro();
 		}
 
-		if (swagShader != null)
+		if (colorShader != null)
 		{
 			if (controls.UI_LEFT)
-				swagShader.hue -= elapsed * 0.1;
+				colorShader.hue -= elapsed * 0.1;
 			if (controls.UI_RIGHT)
-				swagShader.hue += elapsed * 0.1;
+				colorShader.hue += elapsed * 0.1;
 		}
 	}
 
@@ -315,15 +296,17 @@ class TitleState extends MusicBeatState
 			{
 				case 1:
 					#if PSYCH_WATERMARKS
-					createCoolText(['Psych Engine by'], 15);
+					// createCoolText(['Psych Engine by'], 15);
+					createCoolText(['Psych Engine ruined by'], 15);
 					#else
 					createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
 					#end
 				case 3:
 					#if PSYCH_WATERMARKS
-					addMoreText('Shadow Mario', 15);
-					addMoreText('RiverOaken', 15);
-					addMoreText('shubs', 15);
+					// addMoreText('Shadow Mario', 15);
+					// addMoreText('RiverOaken', 15);
+					// addMoreText('shubs', 15);
+					addMoreText('DalekCraft', 15);
 					#else
 					addMoreText('present');
 					#end
@@ -363,7 +346,7 @@ class TitleState extends MusicBeatState
 	private var gfDance:FlxSprite;
 	private var danceLeft:Bool = false;
 	private var titleText:FlxSprite;
-	private var swagShader:ColorSwap;
+	private var colorShader:ColorSwap;
 
 	private function startIntro():Void
 	{
@@ -377,14 +360,14 @@ class TitleState extends MusicBeatState
 			}
 		}
 
-		Conductor.changeBPM(titleData.bpm);
+		Conductor.changeBPM(titleDef.bpm);
 		persistentUpdate = true;
 
 		var bg:FlxSprite = new FlxSprite();
 
-		if (titleData.backgroundSprite != null && titleData.backgroundSprite.length > 0 && titleData.backgroundSprite != 'none')
+		if (titleDef.backgroundSprite != null && titleDef.backgroundSprite.length > 0 && titleDef.backgroundSprite != 'none')
 		{
-			bg.loadGraphic(Paths.getGraphic(titleData.backgroundSprite));
+			bg.loadGraphic(Paths.getGraphic(titleDef.backgroundSprite));
 		}
 		else
 		{
@@ -392,7 +375,7 @@ class TitleState extends MusicBeatState
 		}
 		add(bg);
 
-		logoBl = new FlxSprite(titleData.titlex, titleData.titley);
+		logoBl = new FlxSprite(titleDef.titlex, titleDef.titley);
 		logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
 
 		logoBl.antialiasing = Options.save.data.globalAntialiasing;
@@ -400,8 +383,8 @@ class TitleState extends MusicBeatState
 		logoBl.animation.play('bump');
 		logoBl.updateHitbox();
 
-		swagShader = new ColorSwap();
-		gfDance = new FlxSprite(titleData.gfx, titleData.gfy);
+		colorShader = new ColorSwap();
+		gfDance = new FlxSprite(titleDef.gfx, titleDef.gfy);
 
 		#if TITLE_SCREEN_EASTER_EGG
 		var easterEgg:String = EngineData.save.data.psychDevsEasterEgg;
@@ -440,11 +423,11 @@ class TitleState extends MusicBeatState
 		gfDance.antialiasing = Options.save.data.globalAntialiasing;
 
 		add(gfDance);
-		gfDance.shader = swagShader.shader;
+		gfDance.shader = colorShader.shader;
 		add(logoBl);
-		logoBl.shader = swagShader.shader;
+		logoBl.shader = colorShader.shader;
 
-		titleText = new FlxSprite(titleData.startx, titleData.starty);
+		titleText = new FlxSprite(titleDef.startx, titleDef.starty);
 		titleText.frames = Paths.getSparrowAtlas('titleEnter');
 		titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 		titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
@@ -482,16 +465,9 @@ class TitleState extends MusicBeatState
 
 	private function getIntroTextShit():Array<Array<String>>
 	{
-		var firstArray:Array<String> = CoolUtil.coolTextFile(Paths.txt('introText'));
+		var introTextLines:Array<String> = CoolUtil.listFromTextFile(Paths.txt('introText'));
 
-		var swagGoodArray:Array<Array<String>> = [];
-
-		for (i in firstArray)
-		{
-			swagGoodArray.push(i.split('--'));
-		}
-
-		return swagGoodArray;
+		return [for (i in introTextLines) i.split('--')];
 	}
 
 	private function createCoolText(textArray:Array<String>, ?offset:Float = 0):Void

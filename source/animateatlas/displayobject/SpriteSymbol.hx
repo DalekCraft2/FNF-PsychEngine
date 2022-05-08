@@ -212,7 +212,9 @@ class SpriteSymbol extends Sprite
 		return -1;
 	}
 
-	/** Moves all movie clips and frames, recursively. */
+	/** 
+	 * Moves all movie clips and frames, recursively.
+	 */
 	private function moveMovieclip_MovieClips(direction:Int = 1):Void
 	{
 		if (type == SymbolType.MOVIE_CLIP)

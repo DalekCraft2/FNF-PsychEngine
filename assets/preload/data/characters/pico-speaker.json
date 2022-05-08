@@ -6,10 +6,10 @@
 				0,
 				0
 			],
-			"fps": 24,
-			"anim": "shoot1",
+			"frameRate": 24,
+			"name": "shoot1",
 			"indices": [],
-			"name": "Pico shoot 1"
+			"prefix": "Pico shoot 1"
 		},
 		{
 			"offsets": [
@@ -17,14 +17,14 @@
 				0
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "shoot1-loop",
+			"frameRate": 24,
+			"name": "shoot1-loop",
 			"indices": [
 				23,
 				24,
 				25
 			],
-			"name": "Pico shoot 1"
+			"prefix": "Pico shoot 1"
 		},
 		{
 			"loop": false,
@@ -32,10 +32,10 @@
 				0,
 				-128
 			],
-			"fps": 24,
-			"anim": "shoot2",
+			"frameRate": 24,
+			"name": "shoot2",
 			"indices": [],
-			"name": "Pico shoot 2"
+			"prefix": "Pico shoot 2"
 		},
 		{
 			"offsets": [
@@ -43,14 +43,14 @@
 				-128
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "shoot2-loop",
+			"frameRate": 24,
+			"name": "shoot2-loop",
 			"indices": [
 				57,
 				58,
 				59
 			],
-			"name": "Pico shoot 2"
+			"prefix": "Pico shoot 2"
 		},
 		{
 			"loop": false,
@@ -58,10 +58,10 @@
 				413,
 				-64
 			],
-			"fps": 24,
-			"anim": "shoot3",
+			"frameRate": 24,
+			"name": "shoot3",
 			"indices": [],
-			"name": "Pico shoot 3"
+			"prefix": "Pico shoot 3"
 		},
 		{
 			"offsets": [
@@ -69,14 +69,14 @@
 				-64
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "shoot3-loop",
+			"frameRate": 24,
+			"name": "shoot3-loop",
 			"indices": [
 				50,
 				51,
 				52
 			],
-			"name": "Pico shoot 3"
+			"prefix": "Pico shoot 3"
 		},
 		{
 			"loop": false,
@@ -84,10 +84,10 @@
 				440,
 				-19
 			],
-			"fps": 24,
-			"anim": "shoot4",
+			"frameRate": 24,
+			"name": "shoot4",
 			"indices": [],
-			"name": "Pico shoot 4"
+			"prefix": "Pico shoot 4"
 		},
 		{
 			"offsets": [
@@ -95,14 +95,14 @@
 				-19
 			],
 			"loop": true,
-			"fps": 24,
-			"anim": "shoot4-loop",
+			"frameRate": 24,
+			"name": "shoot4-loop",
 			"indices": [
 				50,
 				51,
 				52
 			],
-			"name": "Pico shoot 4"
+			"prefix": "Pico shoot 4"
 		}
 	],
 	"noAntialiasing": false,
@@ -124,5 +124,6 @@
 	],
 	"singDuration": 4,
 	"scale": 1,
-	"cameraMotionFactor": 1
+	"cameraMotionFactor": 1,
+	"initialAnimation": "shoot1-loop"
 }

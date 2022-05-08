@@ -1,5 +1,6 @@
 package;
 
+import options.OptionsSubState;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.transition.FlxTransitionableState;
@@ -13,31 +14,31 @@ import flixel.util.FlxStringUtil;
 
 class PauseSubState extends MusicBeatSubState
 {
-	public static var goToOptions:Bool = false;
-	public static var goBack:Bool = false;
+	public static var songName:String = '';
+
+	private static var pauseMusic:FlxSound;
+	private static var volumeTween:FlxTween;
 
 	private var grpMenuShit:FlxTypedGroup<Alphabet>;
-
 	private var menuItems:Array<String> = [];
 	private var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Options', 'Change Difficulty', 'Exit to Menu'];
 	private var difficultyChoices:Array<String> = [];
 	private var curSelected:Int = 0;
 
-	public static var playingPause:Bool = false;
-
-	private var pauseMusic:FlxSound;
 	private var practiceText:FlxText;
 	private var skipTimeText:FlxText;
 	private var skipTimeTracker:Alphabet;
 	private var curTime:Float = Math.max(0, Conductor.songPosition);
 
-	public static var songName:String = '';
+	private var goToOptions:Bool = false;
 
 	override public function create():Void
 	{
 		super.create();
 
-		if (CoolUtil.difficulties.length <= 1)
+		persistentDraw = false; // This is so the pause screen is hidden when an OptionsSubState is opened
+
+		if (Difficulty.difficulties.length <= 1)
 			menuItemsOG.remove('Change Difficulty'); // No need to change difficulty if there is only one!
 
 		if (PlayState.chartingMode)
@@ -56,13 +57,18 @@ class PauseSubState extends MusicBeatSubState
 		}
 		menuItems = menuItemsOG;
 
-		for (diff in CoolUtil.difficulties)
+		if (PlayState.isStoryMode)
+		{
+			menuItemsOG.insert(2, 'Restart with Cutscene');
+		}
+
+		for (diff in Difficulty.difficulties)
 		{
 			difficultyChoices.push(diff);
 		}
 		difficultyChoices.push('BACK');
 
-		if (!playingPause)
+		if (pauseMusic == null || !pauseMusic.playing)
 		{
 			pauseMusic = new FlxSound();
 			if (songName != null)
@@ -75,17 +81,10 @@ class PauseSubState extends MusicBeatSubState
 			}
 			pauseMusic.volume = 0;
 			pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
-			pauseMusic.ID = 9000;
 
 			FlxG.sound.list.add(pauseMusic);
-		}
-		else
-		{
-			for (i in FlxG.sound.list)
-			{
-				if (i.ID == 9000) // jankiest static variable
-					pauseMusic = i;
-			}
+
+			volumeTween = FlxTween.tween(pauseMusic, {volume: 0.5}, 20);
 		}
 
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -101,7 +100,7 @@ class PauseSubState extends MusicBeatSubState
 		levelInfo.x = FlxG.width - (levelInfo.width + 20);
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, CoolUtil.difficultyString(), 32);
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, Difficulty.difficultyString(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), levelDifficulty.size, RIGHT);
 		levelDifficulty.updateHitbox();
@@ -152,8 +151,12 @@ class PauseSubState extends MusicBeatSubState
 	{
 		super.update(elapsed);
 
-		if (pauseMusic.volume < 0.5)
-			pauseMusic.volume += 0.01 * elapsed;
+		// This has to be done on the update after the Accept key is pressed, otherwise the options menu automatically selects the first category
+		if (goToOptions)
+		{
+			openSubState(new OptionsSubState(true));
+			goToOptions = false;
+		}
 
 		updateSkipTextStuff();
 
@@ -170,8 +173,8 @@ class PauseSubState extends MusicBeatSubState
 			changeSelection(1);
 		}
 
-		var daSelected:String = menuItems[curSelected];
-		switch (daSelected)
+		var selectedOption:String = menuItems[curSelected];
+		switch (selectedOption)
 		{
 			case 'Skip Time':
 				if (controls.UI_LEFT_P)
@@ -207,14 +210,14 @@ class PauseSubState extends MusicBeatSubState
 		{
 			if (menuItems == difficultyChoices)
 			{
-				if (menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected))
+				if (menuItems.length - 1 != curSelected && difficultyChoices.contains(selectedOption))
 				{
 					var name:String = PlayState.song.songId;
-					var difficulty:String = CoolUtil.getDifficultyFilePath(curSelected);
-					PlayState.song = Song.loadFromJson(name, difficulty);
+					var difficulty:String = Difficulty.getDifficultyFilePath(curSelected);
+					PlayState.song = Song.loadSong(name, difficulty);
 					PlayState.storyDifficulty = curSelected;
 					FlxG.resetState();
-					FlxG.sound.music.volume = 0;
+					FlxG.sound.music.stop();
 					PlayState.changedDifficulty = true;
 					PlayState.chartingMode = false;
 					return;
@@ -224,16 +227,18 @@ class PauseSubState extends MusicBeatSubState
 				regenMenu();
 			}
 
-			switch (daSelected)
+			switch (selectedOption)
 			{
 				case 'Resume':
 					close();
 				case 'Restart Song':
 					restartSong();
+				case 'Restart with Cutscene':
+					restartSong();
+					PlayState.seenCutscene = false;
 				case 'Options':
-					// FIXME Pause music never stops if one enters the options menu and then leaves both it and the pause menu
 					goToOptions = true;
-					close();
+				// openSubState(new OptionsSubState(true));
 				case 'Change Difficulty':
 					menuItems = difficultyChoices;
 					regenMenu();
@@ -302,16 +307,28 @@ class PauseSubState extends MusicBeatSubState
 		if (!goToOptions)
 		{
 			Debug.logTrace('Destroying music for pause menu');
+			if (volumeTween != null)
+			{
+				volumeTween.cancel();
+				volumeTween.destroy();
+				volumeTween = null;
+			}
 			pauseMusic.destroy();
-			playingPause = false;
+			pauseMusic = null;
 		}
 	}
 
 	public static function restartSong(noTrans:Bool = false):Void
 	{
-		PlayState.instance.paused = true; // For lua
-		FlxG.sound.music.volume = 0;
-		PlayState.instance.vocals.volume = 0;
+		PlayState.instance.paused = true; // For scripts
+		if (FlxG.sound.music != null && FlxG.sound.music.playing)
+		{
+			FlxG.sound.music.stop();
+		}
+		if (PlayState.instance.vocals != null && PlayState.instance.vocals.playing)
+		{
+			PlayState.instance.vocals.stop();
+		}
 
 		if (noTrans)
 		{
@@ -332,12 +349,10 @@ class PauseSubState extends MusicBeatSubState
 		if (curSelected >= menuItems.length)
 			curSelected = 0;
 
-		var bullShit:Int = 0;
-
-		for (item in grpMenuShit.members)
+		for (i in 0...grpMenuShit.members.length)
 		{
-			item.targetY = bullShit - curSelected;
-			bullShit++;
+			var item:Alphabet = grpMenuShit.members[i];
+			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
 
@@ -363,13 +378,6 @@ class PauseSubState extends MusicBeatSubState
 			grpMenuShit.remove(obj, true);
 			obj.destroy();
 		}
-
-		/*for (obj in grpMenuShit.members)
-			{
-				obj.kill();
-				grpMenuShit.remove(obj, true);
-				obj.destroy();
-		}*/
 
 		for (i in 0...menuItems.length)
 		{

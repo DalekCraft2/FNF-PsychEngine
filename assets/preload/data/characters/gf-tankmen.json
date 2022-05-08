@@ -6,8 +6,8 @@
 				0,
 				-27
 			],
-			"fps": 24,
-			"anim": "sad",
+			"frameRate": 24,
+			"name": "sad",
 			"indices": [
 				0,
 				1,
@@ -23,7 +23,7 @@
 				11,
 				12
 			],
-			"name": "GF Crying at Gunpoint"
+			"prefix": "GF Crying at Gunpoint"
 		},
 		{
 			"loop": false,
@@ -31,8 +31,8 @@
 				0,
 				-9
 			],
-			"fps": 24,
-			"anim": "danceLeft",
+			"frameRate": 24,
+			"name": "danceLeft",
 			"indices": [
 				30,
 				0,
@@ -51,7 +51,7 @@
 				13,
 				14
 			],
-			"name": "GF Dancing at Gunpoint"
+			"prefix": "GF Dancing at Gunpoint"
 		},
 		{
 			"loop": false,
@@ -59,8 +59,8 @@
 				0,
 				-9
 			],
-			"fps": 24,
-			"anim": "danceRight",
+			"frameRate": 24,
+			"name": "danceRight",
 			"indices": [
 				15,
 				16,
@@ -78,7 +78,7 @@
 				28,
 				29
 			],
-			"name": "GF Dancing at Gunpoint"
+			"prefix": "GF Dancing at Gunpoint"
 		}
 	],
 	"noAntialiasing": false,

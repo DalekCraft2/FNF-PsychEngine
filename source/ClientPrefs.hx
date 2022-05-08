@@ -29,7 +29,7 @@ class ClientPrefs
 	public static var controllerMode:Bool = false;
 	public static var hitsoundVolume:Float = 0;
 	public static var pauseMusic:String = 'Tea Time';
-	public static var gameplaySettings:Map<String, Dynamic> = [
+	public static var gameplaySettings:Map<String, Any> = [
 		'scrollSpeed' => 1.0,
 		'scrollType' => 'multiplicative',
 		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
@@ -178,14 +178,16 @@ class ClientPrefs
 				FlxG.updateFramerate = frameRate;
 			}
 		}
-		/*if (Options.save.data.cursing != null)
+		/*
+			if (Options.save.data.cursing != null)
 			{
 				cursing = Options.save.data.cursing;
 			}
 			if (Options.save.data.violence != null)
 			{
 				violence = Options.save.data.violence;
-		}*/
+			}
+		 */
 		if (Options.save.data.camZooms != null)
 		{
 			camZooms = Options.save.data.camZooms;
@@ -261,7 +263,7 @@ class ClientPrefs
 		}
 		if (Options.save.data.gameplaySettings != null)
 		{
-			var savedMap:Map<String, Dynamic> = Options.save.data.gameplaySettings;
+			var savedMap:Map<String, Any> = Options.save.data.gameplaySettings;
 			for (name => value in savedMap)
 			{
 				gameplaySettings.set(name, value);
@@ -291,7 +293,7 @@ class ClientPrefs
 		}
 	}
 
-	public static inline function getGameplaySetting(name:String, defaultValue:Dynamic):Dynamic
+	public static inline function getGameplaySetting(name:String, defaultValue:Any):Any
 	{
 		return /*PlayState.isStoryMode ? defaultValue : */ (gameplaySettings.exists(name) ? gameplaySettings.get(name) : defaultValue);
 	}
