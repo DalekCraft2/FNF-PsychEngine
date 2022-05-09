@@ -281,8 +281,7 @@ class ModsMenuState extends MusicBeatState
 		add(descriptionTxt);
 		visibleWhenHasMods.push(descriptionTxt);
 
-		var i:Int = 0;
-		while (i < modList.length)
+		for (i in 0...modList.length)
 		{
 			var enableState:ModEnableState = modList[i];
 			if (!Paths.fileSystem.exists(Paths.mods(enableState.title)))
@@ -328,7 +327,6 @@ class ModsMenuState extends MusicBeatState
 			newMod.icon.xAdd = -newMod.icon.width - 30;
 			newMod.icon.yAdd = -45;
 			add(newMod.icon);
-			i++;
 		}
 
 		if (curSelected >= mods.length)
@@ -713,8 +711,9 @@ class ModsMenuState extends MusicBeatState
 				if (curSelected >= mods.length)
 					--curSelected;
 				changeSelection();
+				Debug.logTrace('Successfully deleted directory $path');
 			}
-			catch (e)
+			catch (e:Exception)
 			{
 				Debug.logError('Error deleting directory "$path": $e');
 			}

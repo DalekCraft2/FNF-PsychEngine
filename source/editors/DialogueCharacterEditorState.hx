@@ -823,7 +823,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 			{
 				if (loadedChar.dialoguePos != null) // Make sure it's really a dialogue character
 				{
-					var cutName:String = _file.name.substr(0, _file.name.length - 5);
+					var cutName:String = Path.withoutExtension(_file.name);
 					Debug.logTrace('Successfully loaded file: $cutName');
 					character.jsonFile = loadedChar;
 					reloadCharacter();

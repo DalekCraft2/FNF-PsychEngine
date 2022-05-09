@@ -3,46 +3,6 @@
         "editor.formatOnSave": true,
         "editor.formatOnPaste": true
     },
-    "lime.targetConfigurations": [
-        {
-            "label": "Windows",
-            "target": "windows",
-            "args": []
-        },
-        {
-            "label": "Windows / Debug",
-            "target": "windows",
-            "args": [
-                "-debug"
-            ]
-        },
-        {
-            "label": "Windows / Final",
-            "target": "windows",
-            "args": [
-                "-final"
-            ]
-        },
-        {
-            "label": "Linux",
-            "target": "linux",
-            "args": []
-        },
-        {
-            "label": "Linux / Debug",
-            "target": "linux",
-            "args": [
-                "-debug"
-            ]
-        },
-        {
-            "label": "Linux / Final",
-            "target": "linux",
-            "args": [
-                "-final"
-            ]
-        }
-    ],
     "Lua.diagnostics.globals": [
         "FUNCTION_CONTINUE",
         "FUNCTION_STOP",

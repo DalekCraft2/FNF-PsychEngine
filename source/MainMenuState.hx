@@ -1,6 +1,8 @@
 package;
 
+#if sys
 import editors.MasterEditorMenu;
+#end
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -245,7 +247,8 @@ class MainMenuState extends MusicBeatState
 					});
 				}
 			}
-			#if desktop
+			// TODO These editors actually work in HTML5, but they can't access our own JSON files without using ChartingState's approach, so I want to somehow make them all easy to use in HTML5
+			#if sys // Only allow editors if files can be written to, because they are useless otherwise
 			else if (FlxG.keys.anyJustPressed(debugKeys))
 			{
 				selectedSomethin = true;

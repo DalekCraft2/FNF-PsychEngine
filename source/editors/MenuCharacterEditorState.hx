@@ -390,7 +390,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			{
 				if (loadedChar.idleAnim != null && loadedChar.confirmAnim != null) // Make sure it's really a character
 				{
-					var cutName:String = _file.name.substr(0, _file.name.length - 5);
+					var cutName:String = Path.withoutExtension(_file.name);
 					Debug.logTrace('Successfully loaded file: $cutName');
 					characterFile = loadedChar;
 					reloadCharacter();

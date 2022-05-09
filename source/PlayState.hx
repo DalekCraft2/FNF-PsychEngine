@@ -2039,9 +2039,9 @@ class PlayState extends MusicBeatState
 
 	public function clearNotesBefore(time:Float):Void
 	{
-		var i:Int = unspawnNotes.length - 1;
-		while (i >= 0)
+		while (unspawnNotes.length > 0)
 		{
+			var i:Int = unspawnNotes.length - 1;
 			var note:Note = unspawnNotes[i];
 			if (note.strumTime - 500 < time)
 			{
@@ -2053,12 +2053,11 @@ class PlayState extends MusicBeatState
 				unspawnNotes.remove(note);
 				note.destroy();
 			}
-			--i;
 		}
 
-		i = notes.length - 1;
-		while (i >= 0)
+		while (notes.length > 0)
 		{
+			var i:Int = notes.length - 1;
 			var note:Note = notes.members[i];
 			if (note.strumTime - 500 < time)
 			{
@@ -2070,7 +2069,6 @@ class PlayState extends MusicBeatState
 				notes.remove(note, true);
 				note.destroy();
 			}
-			--i;
 		}
 	}
 

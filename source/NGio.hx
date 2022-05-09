@@ -60,6 +60,40 @@ class NGio
 		}
 	}
 
+	public static inline function postScore(score:Int = 0, song:String):Void
+	{
+		if (isLoggedIn)
+		{
+			for (id in NG.core.scoreBoards.keys())
+			{
+				var board:ScoreBoard = NG.core.scoreBoards.get(id);
+
+				if (song == board.name)
+				{
+					board.postScore(score, 'Uhh meow?');
+				}
+
+				// Debug.logTrace('Loaded scoreboard ID:$id, name:${board.name}');
+			}
+		}
+	}
+
+	public static inline function logEvent(event:String):Void
+	{
+		NG.core.calls.event.logEvent(event).send();
+		Debug.logTrace('Should have logged: $event');
+	}
+
+	public static inline function unlockMedal(id:Int):Void
+	{
+		if (isLoggedIn)
+		{
+			var medal:Medal = NG.core.medals.get(id);
+			if (!medal.unlocked)
+				medal.sendUnlock();
+		}
+	}
+
 	public function new(api:String, encKey:String, ?sessionId:String)
 	{
 		Debug.logTrace('Connecting to newgrounds');
@@ -149,24 +183,6 @@ class NGio
 		// // more info on scores --- http://www.newgrounds.io/help/components/#scoreboard-getscores
 	}
 
-	public static inline function postScore(score:Int = 0, song:String):Void
-	{
-		if (isLoggedIn)
-		{
-			for (id in NG.core.scoreBoards.keys())
-			{
-				var board:ScoreBoard = NG.core.scoreBoards.get(id);
-
-				if (song == board.name)
-				{
-					board.postScore(score, 'Uhh meow?');
-				}
-
-				// Debug.logTrace('Loaded scoreboard ID:$id, name:${board.name}');
-			}
-		}
-	}
-
 	private function onNGScoresFetch():Void
 	{
 		scoreboardsLoaded = true;
@@ -183,22 +199,6 @@ class NGio
 		// board.postScore(HighScore.score);
 
 		// scoreboardArray = NG.core.scoreBoards.get(8004).scores;
-	}
-
-	public static inline function logEvent(event:String):Void
-	{
-		NG.core.calls.event.logEvent(event).send();
-		Debug.logTrace('Should have logged: $event');
-	}
-
-	public static inline function unlockMedal(id:Int):Void
-	{
-		if (isLoggedIn)
-		{
-			var medal:Medal = NG.core.medals.get(id);
-			if (!medal.unlocked)
-				medal.sendUnlock();
-		}
 	}
 }
 #end

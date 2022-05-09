@@ -1,5 +1,6 @@
 package editors;
 
+#if FEATURE_SCRIPTS
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -519,3 +520,4 @@ class EditorScript
 		return EditorPlayState.instance;
 	}
 }
+#end

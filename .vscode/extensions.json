@@ -1,8 +1,7 @@
 {
     "recommendations": [
-        "nadako.vshaxe",
-        "wiggin77.codedox",
-        "vshaxe.hxcpp-debugger",
+        "vshaxe.haxe-extension-pack",
+        "vshaxe.haxe-checkstyle",
         "openfl.lime-vscode-extension"
     ]
 }

@@ -1,5 +1,6 @@
 package;
 
+#if FEATURE_MODS
 import flixel.util.FlxColor;
 import haxe.io.Path;
 #if polymod
@@ -66,3 +67,4 @@ class ModMetadata
 		}
 	}
 }
+#end

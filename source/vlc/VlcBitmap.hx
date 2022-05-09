@@ -1,6 +1,6 @@
 package vlc;
 
-#if (cpp && !mobile)
+#if cpp
 import cpp.NativeArray;
 import cpp.UInt8;
 import flixel.FlxG;

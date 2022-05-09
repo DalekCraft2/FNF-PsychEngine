@@ -1,11 +1,11 @@
 package;
 
 import FileSystemCP.IFileSystem;
-import Mod.ModEnableState;
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.FlxAssets.FlxSoundAsset;
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
 import openfl.Assets;
@@ -15,6 +15,9 @@ import openfl.utils.AssetType;
 
 using StringTools;
 
+#if FEATURE_MODS
+import Mod.ModEnableState;
+#end
 #if USE_CUSTOM_CACHE
 import flixel.graphics.FlxGraphic;
 import openfl.system.System;
@@ -61,11 +64,10 @@ class Paths
 			{
 				// get rid of it
 				var obj:FlxGraphicAsset = currentTrackedGraphics.get(key);
-				@:privateAccess
 				if (obj != null)
 				{
 					Assets.cache.removeBitmapData(key);
-					FlxG.bitmap._cache.remove(key);
+					FlxG.bitmap.removeByKey(key);
 					if (obj is FlxGraphic)
 					{
 						cast(obj, FlxGraphic).destroy();
@@ -95,7 +97,7 @@ class Paths
 			if (obj != null && !currentTrackedGraphics.exists(key))
 			{
 				Assets.cache.removeBitmapData(key);
-				FlxG.bitmap._cache.remove(key);
+				FlxG.bitmap.removeByKey(key);
 				if (obj is FlxGraphic)
 				{
 					cast(obj, FlxGraphic).destroy();
@@ -469,7 +471,7 @@ class Paths
 					// Attempt to parse and return the JSON data.
 					return Json.parse(rawJson);
 				}
-				catch (e)
+				catch (e:Exception)
 				{
 					Debug.logError('Error parsing a JSON file from path "$path": $e');
 					Debug.logError(e.stack);
@@ -656,7 +658,8 @@ class Paths
 		return directories;
 	}
 
-	public static function listSongsToCache()
+	// This is just taken from Kade Engine so the CachingState class doesn't have errors (even though it can compile without that class because I don't use it)
+	public static function listSongsToCache():Array<String>
 	{
 		// We need to query OpenFlAssets, not the file system, because of Polymod.
 		var soundAssets:Array<String> = Assets.list(MUSIC).concat(Assets.list(SOUND));

@@ -570,6 +570,7 @@ class WeekEditorState extends MusicBeatState
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 
+		// TODO Use the "data" field in FileReference to get the file data instead of getting the path
 		var fullPath:Null<String> = null;
 		@:privateAccess
 		if (_file.__path != null)
@@ -582,7 +583,7 @@ class WeekEditorState extends MusicBeatState
 			{
 				if (loadedWeek.weekCharacters != null && loadedWeek.weekName != null) // Make sure it's really a week
 				{
-					var cutName:String = _file.name.substr(0, _file.name.length - 5);
+					var cutName:String = Path.withoutExtension(_file.name);
 					Debug.logTrace('Successfully loaded file: $cutName');
 
 					weekDefName = cutName;

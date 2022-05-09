@@ -3,9 +3,14 @@ package;
 #if polymod
 import polymod.Polymod;
 #else
+#if FEATURE_MODS
 import Mod.ModMetadata;
+#end
 import haxe.io.Bytes;
 import haxe.io.Path;
+
+using StringTools;
+
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -15,8 +20,6 @@ import js.Browser;
 import js.Lib;
 import js.html.ScriptElement;
 #end
-
-using StringTools;
 #end
 
 /**
@@ -30,9 +33,9 @@ class FileSystemCP
 		#if polymod
 		return Polymod.getFileSystem();
 		#elseif sys
-		return new SysFileSystem(Paths.mods());
+		return new SysFileSystem(#if FEATURE_MODS Paths.mods() #end);
 		#elseif nodefs
-		return new NodeFileSystem(Paths.mods());
+		return new NodeFileSystem(#if FEATURE_MODS Paths.mods() #end);
 		#else
 		return new StubFileSystem();
 		#end
@@ -114,12 +117,14 @@ interface IFileSystem
  */
 class SysFileSystem implements IFileSystem
 {
+	#if FEATURE_MODS
 	public var modRoot(default, null):String;
 
 	public function new(modRoot:String)
 	{
 		this.modRoot = modRoot;
 	}
+	#end
 
 	public inline function exists(path:String)
 	{
@@ -261,12 +266,14 @@ class NodeFileSystem implements IFileSystem
 	// hack to make sure NodeUtils.injectJSCode is called
 	private static var _jsCodeInjected:Bool = injectJSCode();
 
+	#if FEATURE_MODS
 	public var modRoot(default, null):String;
 
 	public function new(modRoot:String)
 	{
 		this.modRoot = modRoot;
 	}
+	#end
 
 	// -----------------------------------------------------------------------------------------------
 	// -----------------------------------------------------------------------------------------------

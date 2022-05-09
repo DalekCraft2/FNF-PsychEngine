@@ -41,6 +41,7 @@ class AttachedSprite extends FlxSprite
 		if (sprTracker != null)
 		{
 			setPosition(sprTracker.x + xAdd, sprTracker.y + yAdd);
+			// FIXME NPE here when the ModsMenuState calls update() after the last mod has been removed from the list
 			scrollFactor.set(sprTracker.scrollFactor.x, sprTracker.scrollFactor.y);
 
 			if (copyAngle)

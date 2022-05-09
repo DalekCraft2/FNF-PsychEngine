@@ -1,5 +1,6 @@
 package;
 
+#if FEATURE_SCRIPTS
 import DialogueBoxPsych.DialogueDef;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxBasic;
@@ -216,7 +217,7 @@ class FunkinScript
 		#elseif mac
 		set('buildTarget', 'mac');
 		#elseif html5
-		set('buildTarget', 'browser');
+		set('buildTarget', 'html5');
 		#elseif android
 		set('buildTarget', 'android');
 		#else
@@ -2595,3 +2596,4 @@ class DebugScriptText extends FlxText
 			alpha = disableTime;
 	}
 }
+#end

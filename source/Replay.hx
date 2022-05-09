@@ -1,5 +1,6 @@
 package;
 
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
 #if sys
@@ -136,7 +137,7 @@ class Replay
 			var repl:ReplayDef = Paths.getJsonDirect(Path.join(['assets/replays', path]));
 			replay = repl;
 		}
-		catch (e)
+		catch (e:Exception)
 		{
 			Debug.logError('Error loading replay: ${e.message}');
 		}

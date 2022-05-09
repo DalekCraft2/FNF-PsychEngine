@@ -5,13 +5,13 @@ import openfl.events.Event;
 
 using StringTools;
 
-#if web
+#if (js && html5)
 import openfl.events.NetStatusEvent;
 import openfl.media.SoundTransform;
 import openfl.media.Video;
 import openfl.net.NetConnection;
 import openfl.net.NetStream;
-#else
+#elseif cpp
 import vlc.VlcBitmap;
 #end
 
@@ -23,10 +23,10 @@ class VideoHandler
 
 	public var finishCallback:() -> Void;
 
-	#if web
+	#if (js && html5)
 	private var netStream:NetStream;
 	private var player:Video;
-	#elseif desktop
+	#elseif cpp
 	private var vlcBitmap:VlcBitmap;
 	#end
 
@@ -34,7 +34,7 @@ class VideoHandler
 	{
 		instance = this;
 
-		#if web
+		#if (js && html5)
 		FlxG.stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		player = new Video();
 		player.x = 0;
@@ -59,7 +59,7 @@ class VideoHandler
 			}
 		});
 		netStream.play(name);
-		#elseif desktop
+		#elseif cpp
 		// by Polybius, check out PolyEngine! https://github.com/polybiusproxy/PolyEngine
 
 		vlcBitmap = new VlcBitmap();
@@ -82,7 +82,7 @@ class VideoHandler
 
 	public function onFocusLost():Void
 	{
-		#if web
+		#if (js && html5)
 		if (netStream != null)
 		{
 			if (FlxG.autoPause)
@@ -90,7 +90,7 @@ class VideoHandler
 				netStream.pause();
 			}
 		}
-		#elseif desktop
+		#elseif cpp
 		if (vlcBitmap != null)
 		{
 			if (FlxG.autoPause)
@@ -103,7 +103,7 @@ class VideoHandler
 
 	public function onFocus():Void
 	{
-		#if web
+		#if (js && html5)
 		if (netStream != null)
 		{
 			if (FlxG.autoPause)
@@ -111,7 +111,7 @@ class VideoHandler
 				netStream.resume();
 			}
 		}
-		#elseif desktop
+		#elseif cpp
 		if (vlcBitmap != null)
 		{
 			if (FlxG.autoPause || !vlcBitmap.isPlaying)
@@ -125,7 +125,7 @@ class VideoHandler
 	// This function also checks for whether the video should be skipped, and I would rename it to "update" if that wasn't taken by FlxBasic
 	private function onEnterFrame(event:Event):Void
 	{
-		#if web
+		#if (js && html5)
 		// Skip video if the accept keybind is pressed
 		if (PlayerSettings.player1.controls.ACCEPT)
 		{
@@ -138,7 +138,7 @@ class VideoHandler
 			soundTransform.volume = 0;
 		}
 		netStream.soundTransform = soundTransform;
-		#elseif desktop
+		#elseif cpp
 		// Skip video if the accept keybind  is pressed
 		if (PlayerSettings.player1.controls.ACCEPT)
 		{
@@ -159,7 +159,7 @@ class VideoHandler
 
 	private function onComplete():Void
 	{
-		#if web
+		#if (js && html5)
 		netStream.close();
 
 		netStream.dispose();
@@ -167,7 +167,7 @@ class VideoHandler
 		{
 			FlxG.game.removeChild(player);
 		}
-		#elseif desktop
+		#elseif cpp
 		vlcBitmap.stop();
 
 		// Clean player, just in case!
@@ -198,7 +198,7 @@ class VideoHandler
 		instance = null;
 	}
 
-	#if desktop
+	#if cpp
 	private function checkFile(fileName:String):String
 	{
 		var pDir:String = '';

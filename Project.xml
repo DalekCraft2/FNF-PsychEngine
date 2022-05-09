@@ -5,7 +5,7 @@
 
     <!-- _________________________ Application Settings _________________________ -->
 
-    <app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="Main" version="0.2.7" company="DalekCraft" />
+    <app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="Main" version="0.2.7.1" company="DalekCraft" />
 
     <!--Switch Export with Unique ApplicationID and Icon-->
     <set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -63,12 +63,12 @@
     <define name="FEATURE_LUA" if="FEATURE_SCRIPTS cpp" />
 
     <!-- Defines whether Mods should be enabled. -->
-    <define name="FEATURE_MODS" if="desktop"/>
+    <define name="FEATURE_MODS" if="desktop" />
 
     <!-- Defines whether StepMania files can be loaded. -->
     <define name="FEATURE_STEPMANIA" if="desktop" />
 
-    <!-- Defines whether videos should be enabled. -->
+    <!-- Defines whether videos should be enabled. Works with CPP (currently only on Windows) or with both JavaScript and HTML5. -->
     <define name="FEATURE_VIDEOS" if="web || cpp" />
 
     <!-- Defines whether watermarks should display on the title screen. -->
@@ -107,9 +107,7 @@
     </section>
 
     <!-- TODO Attempt to move everything into a single library like Myth does -->
-    <section if="TITLE_SCREEN_EASTER_EGG">
-        <assets path="assets/secrets" rename="assets" />
-    </section>
+    <assets path="assets/secrets" rename="assets" if="TITLE_SCREEN_EASTER_EGG" />
     <assets path="assets/preload" rename="assets" />
     <assets path="assets/shared" library="shared" />
     <assets path="assets/week2" library="week2" />
@@ -119,6 +117,7 @@
     <assets path="assets/week6" library="week6" />
     <assets path="assets/week7" library="week7" />
 
+    <!-- TODO Figure out whether "32bits" is the correct Haxe compiler flag for 32 bits -->
     <assets path="lib/x64" rename='' if="FEATURE_VIDEOS cpp" unless="32bits" />
     <assets path="lib/x86" rename='' if="FEATURE_VIDEOS cpp 32bits" />
 
