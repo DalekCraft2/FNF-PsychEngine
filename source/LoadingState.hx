@@ -70,9 +70,9 @@ class LoadingState extends MusicBeatState
 		loadBar.antialiasing = Options.save.data.globalAntialiasing;
 		add(loadBar);
 
-		loadText = new FlxText(0, 0, '0%', 32);
+		loadText = new FlxText(0, 0, 0, '0%', 32);
 		loadText.scrollFactor.set();
-		loadText.setFormat(Paths.font('vcr.ttf'), loadText.size, CENTER, OUTLINE, FlxColor.BLACK);
+		loadText.setFormat(Paths.font('vcr.ttf'), loadText.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		loadText.screenCenter(X);
 		loadText.y = FlxG.height - loadText.height;
 		add(loadText);

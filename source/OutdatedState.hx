@@ -22,7 +22,7 @@ class OutdatedState extends MusicBeatState
 		warnText = new FlxText(0, 0, FlxG.width,
 			'Sup bro, looks like you\'re running an\noutdated version of Psych Engine (${EngineData.ENGINE_VERSION}),\nplease update to ${TitleState.updateVersion}!\nPress ESCAPE to proceed anyway.\n\nThank you for using the Engine!\n',
 			32);
-		warnText.setFormat(Paths.font('vcr.ttf'), warnText.size, CENTER);
+		warnText.setFormat(Paths.font('vcr.ttf'), warnText.size, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
 	}

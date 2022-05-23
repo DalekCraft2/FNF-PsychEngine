@@ -39,6 +39,16 @@ class NoteColorState extends MusicBeatState
 
 			cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		}
+		// TODO I want to make this a substate so I don't have to have this "else" statement
+		else
+		{
+			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+			bg.color = 0xFFEA71FD;
+			bg.updateHitbox();
+			bg.screenCenter();
+			bg.antialiasing = Options.save.data.globalAntialiasing;
+			add(bg);
+		}
 
 		blackBG = new FlxSprite(posX - 25).makeGraphic(870, 200, FlxColor.BLACK);
 		blackBG.alpha = 0.4;

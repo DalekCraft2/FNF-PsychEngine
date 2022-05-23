@@ -4,7 +4,6 @@ import DialogueBoxPsych.DialogueAnimationDef;
 import DialogueBoxPsych.DialogueCharacter;
 import DialogueBoxPsych.DialogueDef;
 import DialogueBoxPsych.DialogueLineDef;
-import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxUI;
@@ -15,12 +14,14 @@ import flixel.addons.ui.FlxUITabMenu;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
+import openfl.net.FileFilter;
 import openfl.net.FileReference;
 
 using StringTools;
@@ -78,17 +79,17 @@ class DialogueEditorState extends MusicBeatState
 
 		var addLineText:FlxText = new FlxText(10, 10, FlxG.width - 20,
 			'Press O to remove the current dialogue line, Press P to add another line after the current one.', 16);
-		addLineText.setFormat(Paths.font('vcr.ttf'), addLineText.size, LEFT, OUTLINE, FlxColor.BLACK);
+		addLineText.setFormat(Paths.font('vcr.ttf'), addLineText.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		addLineText.scrollFactor.set();
 		add(addLineText);
 
 		selectedText = new FlxText(10, 32, FlxG.width - 20, 24);
-		selectedText.setFormat(Paths.font('vcr.ttf'), selectedText.size, LEFT, OUTLINE, FlxColor.BLACK);
+		selectedText.setFormat(Paths.font('vcr.ttf'), selectedText.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		selectedText.scrollFactor.set();
 		add(selectedText);
 
 		animText = new FlxText(10, 62, FlxG.width - 20, 24);
-		animText.setFormat(Paths.font('vcr.ttf'), animText.size, LEFT, OUTLINE, FlxColor.BLACK);
+		animText.setFormat(Paths.font('vcr.ttf'), animText.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		animText.scrollFactor.set();
 		add(animText);
 		changeText();
@@ -168,7 +169,7 @@ class DialogueEditorState extends MusicBeatState
 			}
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				FlxG.switchState(new MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenuState());
 				transitioning = true;
 			}
 			var negaMult:Array<Int> = [1, -1];
@@ -269,13 +270,14 @@ class DialogueEditorState extends MusicBeatState
 
 	private function addEditorBox():Void
 	{
-		var tabs:Array<{name:String, label:String}> = [{name: 'Dialogue Line', label: 'Dialogue Line'},];
+		var tabs:Array<{name:String, label:String}> = [{name: 'Dialogue Line', label: 'Dialogue Line'}];
 		UI_box = new FlxUITabMenu(null, tabs, true);
 		UI_box.resize(250, 210);
 		UI_box.x = FlxG.width - UI_box.width - 10;
 		UI_box.y = 10;
 		UI_box.scrollFactor.set();
-		UI_box.alpha = 0.8;
+		// FIXME There's some bug here where clicking a not-fully-opaque UI Tab will make its members become more transparent
+		// UI_box.alpha = 0.8;
 		addDialogueLineUI();
 		add(UI_box);
 	}
@@ -311,11 +313,11 @@ class DialogueEditorState extends MusicBeatState
 
 		var loadButton:FlxButton = new FlxButton(20, lineInputText.y + 25, 'Load Dialogue', () ->
 		{
-			loadDialogue();
+			fileBrowseDialog();
 		});
 		var saveButton:FlxButton = new FlxButton(loadButton.x + 120, loadButton.y, 'Save Dialogue', () ->
 		{
-			saveDialogue();
+			fileSaveDialog();
 		});
 
 		tabGroup.add(new FlxText(10, speedStepper.y - 18, 0, 'Interval/Speed (ms):'));
@@ -513,92 +515,132 @@ class DialogueEditorState extends MusicBeatState
 		return prefix + Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT).replace('\n', '');
 	}
 
-	private var _file:FileReference = null;
+	private var _file:FileReference;
 
-	private function loadDialogue():Void
+	private function fileBrowseDialog():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
-		_file = new FileReference();
-		_file.addEventListener(Event.SELECT, onLoadComplete);
-		_file.addEventListener(Event.CANCEL, onLoadCancel);
-		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		addLoadListeners();
 		_file.browse([jsonFilter]);
 	}
 
-	private function onLoadComplete(e:Event):Void
+	private function addLoadListeners():Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadSelect);
+		_file.addEventListener(Event.COMPLETE, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+	}
+
+	private function removeLoadListeners():Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadSelect);
+		_file.removeEventListener(Event.COMPLETE, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+	}
 
-		var fullPath:Null<String> = null;
-		@:privateAccess
-		if (_file.__path != null)
-			fullPath = _file.__path;
-
-		if (fullPath != null)
+	/**
+	 * Called when a file has been selected.
+	 */
+	private function onLoadSelect(e:Event):Void
+	{
+		try
 		{
-			var loadedDialog:DialogueDef = Paths.getJsonDirect(fullPath);
+			_file.load();
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+		}
+	}
+
+	/**
+	 * Called when the file has finished loading.
+	 */
+	private function onLoadComplete(e:Event):Void
+	{
+		try
+		{
+			var jsonString:String = _file.data.toString();
+			var loadedDialog:DialogueDef = Json.parse(jsonString);
 			if (loadedDialog != null)
 			{
 				if (loadedDialog.dialogue != null && loadedDialog.dialogue.length > 0) // Make sure it's really a dialogue file
 				{
-					var cutName:String = Path.withoutExtension(_file.name);
-					Debug.logTrace('Successfully loaded file: $cutName');
 					dialogueFile = loadedDialog;
 					changeText();
-					_file = null;
+					Debug.logTrace('Successfully loaded file: ${_file.name}');
+					removeLoadListeners();
 					return;
 				}
 			}
 		}
-		_file = null;
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+			return;
+		}
+		removeLoadListeners();
+		Debug.logError('Could not load file');
 	}
 
 	/**
-	 * Called when the save file dialog is cancelled.
+	 * Called when the load file dialog is cancelled.
 	 */
 	private function onLoadCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
+		removeLoadListeners();
 		Debug.logTrace('Cancelled file loading.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while loading the file.
 	 */
 	private function onLoadError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
-		Debug.logError('Problem loading file');
+		removeLoadListeners();
+		Debug.logError('Error loading file: ${e.text}');
 	}
 
-	private function saveDialogue():Void
+	private function fileSaveDialog():Void
 	{
 		var data:String = Json.stringify(dialogueFile, '\t');
 		if (data.length > 0)
 		{
-			_file = new FileReference();
-			_file.addEventListener(Event.COMPLETE, onSaveComplete);
-			_file.addEventListener(Event.CANCEL, onSaveCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+			data += '\n'; // I like newlines at the ends of files.
+			addSaveListeners();
 			_file.save(data, Path.withExtension('dialogue', Paths.JSON_EXT));
 		}
 	}
 
-	private function onSaveComplete(e:Event):Void
+	private function addSaveListeners():Void
+	{
+		_file = new FileReference();
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+	}
+
+	private function removeSaveListeners():Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		Debug.logInfo('Successfully saved file.');
+	}
+
+	/**
+	 * Called when the file has finished saving.
+	 */
+	private function onSaveComplete(e:Event):Void
+	{
+		removeSaveListeners();
+		Debug.logTrace('Successfully saved file.');
 	}
 
 	/**
@@ -606,21 +648,16 @@ class DialogueEditorState extends MusicBeatState
 	 */
 	private function onSaveCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
+		removeSaveListeners();
+		Debug.logTrace('Cancelled file saving.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while saving the file.
 	 */
 	private function onSaveError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-		Debug.logError('Problem saving file');
+		removeSaveListeners();
+		Debug.logError('Error saving file: ${e.text}');
 	}
 }

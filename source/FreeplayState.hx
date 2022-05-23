@@ -1,8 +1,7 @@
 package;
 
 import Song.SongMetadata;
-import editors.ChartingState;
-import flash.events.MouseEvent;
+import editors.ChartEditorState;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -17,6 +16,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.io.Path;
+import openfl.events.MouseEvent;
 
 using StringTools;
 
@@ -71,10 +71,12 @@ class FreeplayState extends MusicBeatState
 		Week.reloadWeekData();
 		for (i in 0...Week.weekList.length)
 		{
-			if (weekIsLocked(Week.weekList[i]))
+			var weekId:String = Week.weekList[i];
+
+			if (weekIsLocked(weekId))
 				continue;
 
-			var week:Week = Week.weeksLoaded.get(Week.weekList[i]);
+			var week:Week = Week.weeksLoaded.get(weekId);
 
 			Week.setDirectoryFromWeek(week);
 			for (song in week.songs)
@@ -122,13 +124,14 @@ class FreeplayState extends MusicBeatState
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
+			// TODO screw this, let's use an FlxGroup
 			iconArray.push(icon);
 			add(icon);
 		}
 		Week.setDirectoryFromWeek();
 
 		scoreText = new FlxText(FlxG.width * 0.7, 5, 0, 32);
-		scoreText.setFormat(Paths.font('vcr.ttf'), scoreText.size, RIGHT);
+		scoreText.setFormat(Paths.font('vcr.ttf'), scoreText.size, FlxColor.WHITE, RIGHT);
 
 		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(1, 66, FlxColor.BLACK);
 		scoreBG.alpha = 0.6;
@@ -181,7 +184,7 @@ class FreeplayState extends MusicBeatState
 		var size:Int = 18;
 		#end
 		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, textString, size);
-		text.setFormat(Paths.font('vcr.ttf'), text.size, RIGHT);
+		text.setFormat(Paths.font('vcr.ttf'), text.size, FlxColor.WHITE, RIGHT);
 		text.scrollFactor.set();
 		add(text);
 	}
@@ -443,7 +446,7 @@ class FreeplayState extends MusicBeatState
 				var nextState:FlxState;
 				if (FlxG.keys.pressed.SHIFT)
 				{
-					nextState = new ChartingState();
+					nextState = new ChartEditorState();
 					PlayState.chartingMode = true;
 				}
 				else
@@ -510,7 +513,7 @@ class FreeplayState extends MusicBeatState
 			PlayState.songMultiplier = rate;
 
 			if (isCharting)
-				LoadingState.loadAndSwitchState(new ChartingState(reloadSong));
+				LoadingState.loadAndSwitchState(new ChartEditorState(reloadSong));
 			else
 				LoadingState.loadAndSwitchState(new PlayState());
 		}

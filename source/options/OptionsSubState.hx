@@ -60,7 +60,7 @@ class OptionsSubState extends MusicBeatSubState
 		add(optionText);
 
 		optionDesc = new FlxText(5, FlxG.height - 48, 0, 20);
-		optionDesc.setFormat(Paths.font('vcr.ttf'), optionDesc.size, LEFT, OUTLINE, FlxColor.BLACK);
+		optionDesc.setFormat(Paths.font('vcr.ttf'), optionDesc.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		optionDesc.textField.background = true;
 		optionDesc.textField.backgroundColor = FlxColor.BLACK;
 		refresh();

@@ -1,7 +1,11 @@
 package;
 
 import Difficulty.DifficultyDef;
+import EventNote.EventNoteDef;
+import EventNote.EventSectionDef;
+import EventNote.LegacyEventNoteDef;
 import Section.SectionDef;
+import Section.SectionEntry;
 import flixel.util.FlxColor;
 import haxe.Json;
 import haxe.io.Path;
@@ -41,7 +45,7 @@ typedef SongDef =
 	var needsVoices:Bool;
 	var ?validScore:Bool;
 	var notes:Array<SectionDef>;
-	var events:Array<Array<Dynamic>>;
+	var events:Array<EventSectionDef>;
 }
 
 class Song
@@ -73,8 +77,7 @@ class Song
 	public var splashSkin:String;
 	public var validScore:Bool = true;
 	public var sections:Array<Section>;
-	// public var events:Array<EventNoteDef>;
-	public var events:Array<Array<Dynamic>>;
+	public var events:Array<EventSectionDef>;
 
 	public static function createTemplateSongDef():SongDef
 	{
@@ -105,15 +108,19 @@ class Song
 			for (section in songDef.notes)
 			{
 				var i:Int = 0;
-				var notes:Array<Array<Dynamic>> = section.sectionNotes;
+				var notes:Array<SectionEntry> = section.sectionNotes;
 				var len:Int = notes.length;
 				while (i < len)
 				{
-					var note:Array<Dynamic> = notes[i];
-					if (note[1] < 0)
+					var sectionEntry:SectionEntry = notes[i];
+					if (Section.isEvent(sectionEntry))
 					{
-						songDef.events.push([note[0], [[note[2], note[3], note[4]]]]);
-						notes.remove(note);
+						var sectionEntry:LegacyEventNoteDef = sectionEntry;
+
+						var eventDef:EventNoteDef = new EventNoteDef([sectionEntry.event, sectionEntry.value1, sectionEntry.value2]);
+						var eventSection:EventSectionDef = new EventSectionDef([sectionEntry.strumTime, [eventDef]]);
+						songDef.events.push(eventSection);
+						notes.remove(sectionEntry);
 						len = notes.length;
 					}
 					else

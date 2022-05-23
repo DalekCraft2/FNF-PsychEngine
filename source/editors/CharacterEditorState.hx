@@ -21,12 +21,14 @@ import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
 import openfl.desktop.Clipboard;
 import openfl.desktop.ClipboardFormats;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
+import openfl.net.FileFilter;
 import openfl.net.FileReference;
 
 using StringTools;
@@ -111,7 +113,7 @@ class CharacterEditorState extends MusicBeatState
 		});
 		changeBGbutton.cameras = [camMenu];
 
-		loadChar(!charId.startsWith('bf'), false);
+		loadChar(charId.startsWith('bf'), false);
 
 		healthBarBG = new FlxSprite(30, FlxG.height - 75).loadGraphic(Paths.getGraphic('healthBar'));
 		healthBarBG.scrollFactor.set();
@@ -128,7 +130,7 @@ class CharacterEditorState extends MusicBeatState
 		dumbTexts.cameras = [camHUD];
 
 		textAnim = new FlxText(300, 16, 0, 16);
-		textAnim.setFormat(Paths.font('vcr.ttf'), textAnim.size, RIGHT, OUTLINE, FlxColor.BLACK);
+		textAnim.setFormat(Paths.font('vcr.ttf'), textAnim.size, FlxColor.WHITE, RIGHT, OUTLINE, FlxColor.BLACK);
 		textAnim.borderSize = 1;
 		textAnim.scrollFactor.set();
 		textAnim.cameras = [camHUD];
@@ -142,7 +144,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var tipText:FlxText = new FlxText(FlxG.width - 320, FlxG.height - 15 - 16 * TIP_TEXT.split('\n').length, 300, TIP_TEXT, 12);
 		tipText.cameras = [camHUD];
-		tipText.setFormat(null, tipText.size, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
+		tipText.setFormat(null, tipText.size, FlxColor.WHITE, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
 		tipText.scrollFactor.set();
 		tipText.borderSize = 1;
 		add(tipText);
@@ -247,7 +249,7 @@ class CharacterEditorState extends MusicBeatState
 				}
 				else
 				{
-					FlxG.switchState(new MasterEditorMenu());
+					FlxG.switchState(new MasterEditorMenuState());
 				}
 				FlxG.mouse.visible = false;
 				return;
@@ -575,7 +577,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var saveButton:FlxButton = new FlxButton(animationInputText.x, animationInputText.y + 35, 'Save Offsets', () ->
 		{
-			saveOffsets();
+			offsetsFileSaveDialog();
 		});
 
 		tabGroup.add(new FlxText(10, animationInputText.y - 18, 0, 'Add/Remove Animation:'));
@@ -586,6 +588,7 @@ class CharacterEditorState extends MusicBeatState
 		uiBox.addGroup(tabGroup);
 	}
 
+	private var playerCheckBox:FlxUICheckBox;
 	private var charDropDown:FlxUIDropDownMenu;
 
 	private function addSettingsUI():Void
@@ -593,7 +596,7 @@ class CharacterEditorState extends MusicBeatState
 		var tabGroup:FlxUI = new FlxUI(null, uiBox);
 		tabGroup.name = 'Settings';
 
-		var playerCheckBox:FlxUICheckBox = new FlxUICheckBox(10, 60, null, null, 'Playable Character', 100);
+		playerCheckBox = new FlxUICheckBox(10, 60, null, null, 'Playable Character', 100);
 		playerCheckBox.checked = charId.startsWith('bf');
 		playerCheckBox.callback = () ->
 		{
@@ -603,11 +606,12 @@ class CharacterEditorState extends MusicBeatState
 			ghostChar.flipX = char.flipX;
 		};
 
+		// TODO Maybe replace this with a file chooser, like the other editors
 		charDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), (character:String) ->
 		{
 			charId = characterList[Std.parseInt(character)];
 			playerCheckBox.checked = charId.startsWith('bf');
-			loadChar(!playerCheckBox.checked);
+			loadChar(playerCheckBox.checked);
 			updatePresence();
 			reloadCharacterDropDown();
 		});
@@ -616,7 +620,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var reloadCharacterButton:FlxButton = new FlxButton(140, 20, 'Reload Char', () ->
 		{
-			loadChar(!playerCheckBox.checked);
+			loadChar(playerCheckBox.checked);
 			reloadCharacterDropDown();
 		});
 
@@ -756,7 +760,7 @@ class CharacterEditorState extends MusicBeatState
 
 		var saveCharacterButton:FlxButton = new FlxButton(reloadImageButton.x, noAntialiasingCheckBox.y + 40, 'Save Character', () ->
 		{
-			saveCharacter();
+			fileSaveDialog();
 		});
 
 		healthColorStepperR = new FlxUINumericStepper(singDurationStepper.x, saveCharacterButton.y, 20, char.healthBarColors[0], 0, 255, 0);
@@ -1052,7 +1056,7 @@ class CharacterEditorState extends MusicBeatState
 		for (anim => offsets in char.animOffsets)
 		{
 			var text:FlxText = new FlxText(10, 20 + (18 * loopsDone), 0, '$anim: $offsets', 16);
-			text.setFormat(null, text.size, CENTER, OUTLINE, FlxColor.BLACK);
+			text.setFormat(null, text.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 			text.scrollFactor.set();
 			text.borderSize = 1;
 			text.cameras = [camHUD];
@@ -1072,7 +1076,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	private function loadChar(isDad:Bool, blahBlahBlah:Bool = true):Void
+	private function loadChar(isPlayer:Bool, blahBlahBlah:Bool = true):Void
 	{
 		var i:Int = charLayer.members.length - 1;
 		while (i >= 0)
@@ -1087,11 +1091,11 @@ class CharacterEditorState extends MusicBeatState
 			--i;
 		}
 		charLayer.clear();
-		ghostChar = new Character(0, 0, charId, !isDad);
+		ghostChar = new Character(0, 0, charId, isPlayer);
 		ghostChar.debugMode = true;
 		ghostChar.alpha = 0.6;
 
-		char = new Character(0, 0, charId, !isDad);
+		char = new Character(0, 0, charId, isPlayer);
 		if (char.animationsArray[0] != null)
 		{
 			char.playAnim(char.animationsArray[0].name, true);
@@ -1128,13 +1132,13 @@ class CharacterEditorState extends MusicBeatState
 	{
 		var x:Float = char.getMidpoint().x;
 		var y:Float = char.getMidpoint().y;
-		if (!char.isPlayer)
+		if (char.isPlayer)
 		{
-			x += 150 + char.cameraPosition[0];
+			x -= 100 + char.cameraPosition[0];
 		}
 		else
 		{
-			x -= 100 + char.cameraPosition[0];
+			x += 150 + char.cameraPosition[0];
 		}
 		y -= 100 - char.cameraPosition[1];
 
@@ -1300,9 +1304,112 @@ class CharacterEditorState extends MusicBeatState
 		#end
 	}
 
+	private function clipboardAdd(prefix:String = ''):String
+	{
+		if (prefix.toLowerCase().endsWith('v')) // probably copy paste attempt
+		{
+			prefix = prefix.substring(0, prefix.length - 1);
+		}
+
+		return prefix + Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT).replace('\n', '');
+	}
+
 	private var _file:FileReference;
 
-	private function saveOffsets():Void
+	private function fileBrowseDialog():Void
+	{
+		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
+		addLoadListeners();
+		_file.browse([jsonFilter]);
+	}
+
+	private function addLoadListeners():Void
+	{
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadSelect);
+		_file.addEventListener(Event.COMPLETE, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+	}
+
+	private function removeLoadListeners():Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadSelect);
+		_file.removeEventListener(Event.COMPLETE, onLoadComplete);
+		_file.removeEventListener(Event.CANCEL, onLoadCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+	}
+
+	/**
+	 * Called when a file has been selected.
+	 */
+	private function onLoadSelect(e:Event):Void
+	{
+		try
+		{
+			_file.load();
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+		}
+	}
+
+	/**
+	 * Called when the file has finished loading.
+	 */
+	private function onLoadComplete(e:Event):Void
+	{
+		try
+		{
+			var jsonString:String = _file.data.toString();
+			var loadedChar:CharacterDef = Json.parse(jsonString);
+			if (loadedChar != null)
+			{
+				if (loadedChar.animations != null) // Make sure it's really a dialogue character
+				{
+					var charId:String = Path.withoutExtension(_file.name);
+					playerCheckBox.checked = charId.startsWith('bf');
+					loadChar(playerCheckBox.checked);
+					updatePresence();
+					reloadCharacterDropDown();
+					Debug.logTrace('Successfully loaded file: ${_file.name}');
+					removeLoadListeners();
+					return;
+				}
+			}
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+			return;
+		}
+		removeLoadListeners();
+		Debug.logError('Could not load file');
+	}
+
+	/**
+	 * Called when the load file dialog is cancelled.
+	 */
+	private function onLoadCancel(e:Event):Void
+	{
+		removeLoadListeners();
+		Debug.logTrace('Cancelled file loading.');
+	}
+
+	/**
+	 * Called if there is an error while loading the file.
+	 */
+	private function onLoadError(e:IOErrorEvent):Void
+	{
+		removeLoadListeners();
+		Debug.logError('Error loading file: ${e.text}');
+	}
+
+	private function offsetsFileSaveDialog():Void
 	{
 		var data:String = '';
 		for (anim => offsets in char.animOffsets)
@@ -1320,39 +1427,7 @@ class CharacterEditorState extends MusicBeatState
 		}
 	}
 
-	private function onSaveComplete(e:Event):Void
-	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-		Debug.logInfo('Successfully saved file.');
-	}
-
-	/**
-	 * Called when the save file dialog is cancelled.
-	 */
-	private function onSaveCancel(e:Event):Void
-	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-	}
-
-	/**
-	 * Called if there is an error while saving the gameplay recording.
-	 */
-	private function onSaveError(e:IOErrorEvent):Void
-	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-		Debug.logError('Problem saving file');
-	}
-
-	private function saveCharacter():Void
+	private function fileSaveDialog():Void
 	{
 		var json:CharacterDef = {
 			animations: char.animationsArray,
@@ -1374,22 +1449,52 @@ class CharacterEditorState extends MusicBeatState
 
 		if (data.length > 0)
 		{
-			_file = new FileReference();
-			_file.addEventListener(Event.COMPLETE, onSaveComplete);
-			_file.addEventListener(Event.CANCEL, onSaveCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+			data += '\n'; // I like newlines at the ends of files.
+			addSaveListeners();
 			_file.save(data, Path.withExtension(charId, Paths.JSON_EXT));
 		}
 	}
 
-	private function clipboardAdd(prefix:String = ''):String
+	private function addSaveListeners():Void
 	{
-		if (prefix.toLowerCase().endsWith('v')) // probably copy paste attempt
-		{
-			prefix = prefix.substring(0, prefix.length - 1);
-		}
+		_file = new FileReference();
+		_file.addEventListener(Event.COMPLETE, onSaveComplete);
+		_file.addEventListener(Event.CANCEL, onSaveCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+	}
 
-		var text:String = prefix + Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT).replace('\n', '');
-		return text;
+	private function removeSaveListeners():Void
+	{
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+		_file = null;
+	}
+
+	/**
+	 * Called when the file has finished saving.
+	 */
+	private function onSaveComplete(e:Event):Void
+	{
+		removeSaveListeners();
+		Debug.logTrace('Successfully saved file.');
+	}
+
+	/**
+	 * Called when the save file dialog is cancelled.
+	 */
+	private function onSaveCancel(e:Event):Void
+	{
+		removeSaveListeners();
+		Debug.logTrace('Cancelled file saving.');
+	}
+
+	/**
+	 * Called if there is an error while saving the file.
+	 */
+	private function onSaveError(e:IOErrorEvent):Void
+	{
+		removeSaveListeners();
+		Debug.logError('Error saving file: ${e.text}');
 	}
 }

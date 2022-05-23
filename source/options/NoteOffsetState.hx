@@ -426,7 +426,7 @@ class NoteOffsetState extends MusicBeatState
 
 	private function createTexts():Void
 	{
-		for (i in 0...4)
+		for (i in 0...NoteKey.createAll().length)
 		{
 			var text:FlxText = new FlxText(10, 48 + (i * 30), 0, 24);
 			text.setFormat(Paths.font('vcr.ttf'), text.size, LEFT, OUTLINE, FlxColor.BLACK);

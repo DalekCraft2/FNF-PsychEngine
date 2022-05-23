@@ -103,7 +103,7 @@ class Alphabet extends FlxSpriteGroup
 
 	public function changeText(newText:String, newTypingSpeed:Float = -1):Void
 	{
-		for (i in 0...lettersArray.length)
+		while (lettersArray.length > 0)
 		{
 			var letter:AlphaCharacter = lettersArray[0];
 			letter.destroy();

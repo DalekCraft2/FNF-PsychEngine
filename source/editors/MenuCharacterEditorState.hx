@@ -1,7 +1,6 @@
 package editors;
 
 import MenuCharacter.MenuCharacterDef;
-import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxUI;
@@ -12,10 +11,13 @@ import flixel.addons.ui.FlxUITabMenu;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
+import flixel.util.FlxColor;
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
+import openfl.net.FileFilter;
 import openfl.net.FileReference;
 
 using StringTools;
@@ -62,13 +64,13 @@ class MenuCharacterEditorState extends MusicBeatState
 		add(grpWeekCharacters);
 
 		txtOffsets = new FlxText(20, 10, 0, '[0, 0]', 32);
-		txtOffsets.setFormat(Paths.font('vcr.ttf'), txtOffsets.size, CENTER);
+		txtOffsets.setFormat(Paths.font('vcr.ttf'), txtOffsets.size, FlxColor.WHITE, CENTER);
 		txtOffsets.alpha = 0.7;
 		add(txtOffsets);
 
 		var tipText:FlxText = new FlxText(0, 540, FlxG.width,
 			'Arrow Keys - Change Offset (Hold shift for 10x speed)\nSpace - Play "Start Press" animation (Boyfriend Character Type)', 16);
-		tipText.setFormat(Paths.font('vcr.ttf'), tipText.size, CENTER);
+		tipText.setFormat(Paths.font('vcr.ttf'), tipText.size, FlxColor.WHITE, CENTER);
 		tipText.scrollFactor.set();
 		add(tipText);
 
@@ -104,7 +106,7 @@ class MenuCharacterEditorState extends MusicBeatState
 			FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				FlxG.switchState(new MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenuState());
 			}
 
 			var shiftMult:Int = 1;
@@ -198,7 +200,7 @@ class MenuCharacterEditorState extends MusicBeatState
 
 		var loadButton:FlxButton = new FlxButton(0, 480, 'Load Character', () ->
 		{
-			loadCharacter();
+			fileBrowseDialog();
 		});
 		loadButton.screenCenter(X);
 		loadButton.x -= 60;
@@ -206,7 +208,7 @@ class MenuCharacterEditorState extends MusicBeatState
 
 		var saveButton:FlxButton = new FlxButton(0, 480, 'Save Character', () ->
 		{
-			saveCharacter();
+			fileSaveDialog();
 		});
 		saveButton.screenCenter(X);
 		saveButton.x += 60;
@@ -362,36 +364,60 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	private var _file:FileReference;
 
-	private function loadCharacter():Void
+	private function fileBrowseDialog():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
-		_file = new FileReference();
-		_file.addEventListener(Event.SELECT, onLoadComplete);
-		_file.addEventListener(Event.CANCEL, onLoadCancel);
-		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		addLoadListeners();
 		_file.browse([jsonFilter]);
 	}
 
-	private function onLoadComplete(e:Event):Void
+	private function addLoadListeners():Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadSelect);
+		_file.addEventListener(Event.COMPLETE, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+	}
+
+	private function removeLoadListeners():Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadSelect);
+		_file.removeEventListener(Event.COMPLETE, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+	}
 
-		var fullPath:Null<String> = null;
-		@:privateAccess
-		if (_file.__path != null)
-			fullPath = _file.__path;
-
-		if (fullPath != null)
+	/**
+	 * Called when a file has been selected.
+	 */
+	private function onLoadSelect(e:Event):Void
+	{
+		try
 		{
-			var loadedChar:MenuCharacterDef = Paths.getJsonDirect(fullPath);
+			_file.load();
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+		}
+	}
+
+	/**
+	 * Called when the file has finished loading.
+	 */
+	private function onLoadComplete(e:Event):Void
+	{
+		try
+		{
+			var jsonString:String = _file.data.toString();
+			var loadedChar:MenuCharacterDef = Json.parse(jsonString);
 			if (loadedChar != null)
 			{
 				if (loadedChar.idleAnim != null && loadedChar.confirmAnim != null) // Make sure it's really a character
 				{
-					var cutName:String = Path.withoutExtension(_file.name);
-					Debug.logTrace('Successfully loaded file: $cutName');
 					characterFile = loadedChar;
 					reloadCharacter();
 					imageInputText.text = characterFile.image;
@@ -399,61 +425,78 @@ class MenuCharacterEditorState extends MusicBeatState
 					confirmInputText.text = characterFile.image;
 					scaleStepper.value = characterFile.scale;
 					updateOffset();
-					_file = null;
+					Debug.logTrace('Successfully loaded file: ${_file.name}');
+					removeLoadListeners();
 					return;
 				}
 			}
 		}
-		_file = null;
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+			return;
+		}
+		removeLoadListeners();
+		Debug.logError('Could not load file');
 	}
 
 	/**
-	 * Called when the save file dialog is cancelled.
+	 * Called when the load file dialog is cancelled.
 	 */
 	private function onLoadCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
+		removeLoadListeners();
 		Debug.logTrace('Cancelled file loading.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while loading the file.
 	 */
 	private function onLoadError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
-		Debug.logError('Problem loading file');
+		removeLoadListeners();
+		Debug.logError('Error loading file: ${e.text}');
 	}
 
-	private function saveCharacter():Void
+	private function fileSaveDialog():Void
 	{
 		var data:String = Json.stringify(characterFile, '\t');
 		if (data.length > 0)
 		{
+			data += '\n'; // I like newlines at the ends of files.
+
 			var splitImage:Array<String> = imageInputText.text.trim().split('_');
 			var characterName:String = splitImage[splitImage.length - 1].toLowerCase().replace(' ', '');
 
-			_file = new FileReference();
-			_file.addEventListener(Event.COMPLETE, onSaveComplete);
-			_file.addEventListener(Event.CANCEL, onSaveCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+			addSaveListeners();
 			_file.save(data, Path.withExtension(characterName, Paths.JSON_EXT));
 		}
 	}
 
-	private function onSaveComplete(e:Event):Void
+	private function addSaveListeners():Void
+	{
+		_file = new FileReference();
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+	}
+
+	private function removeSaveListeners():Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		Debug.logInfo('Successfully saved file.');
+	}
+
+	/**
+	 * Called when the file has finished saving.
+	 */
+	private function onSaveComplete(e:Event):Void
+	{
+		removeSaveListeners();
+		Debug.logTrace('Successfully saved file.');
 	}
 
 	/**
@@ -461,21 +504,16 @@ class MenuCharacterEditorState extends MusicBeatState
 	 */
 	private function onSaveCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
+		removeSaveListeners();
+		Debug.logTrace('Cancelled file saving.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while saving the file.
 	 */
 	private function onSaveError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-		Debug.logError('Problem saving file');
+		removeSaveListeners();
+		Debug.logError('Error saving file: ${e.text}');
 	}
 }

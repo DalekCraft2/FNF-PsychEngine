@@ -1,5 +1,6 @@
 package editors;
 
+import Note.NoteDef;
 import Section.SectionDef;
 import Song.SongDef;
 import flixel.FlxG;
@@ -137,26 +138,26 @@ class EditorPlayState extends MusicBeatState
 		noteTypeMap = null;
 
 		scoreTxt = new FlxText(0, FlxG.height - 50, FlxG.width, 'Hits: 0 | Misses: 0', 20);
-		scoreTxt.setFormat(Paths.font('vcr.ttf'), scoreTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
+		scoreTxt.setFormat(Paths.font('vcr.ttf'), scoreTxt.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !Options.save.data.hideHud;
 		add(scoreTxt);
 
 		beatTxt = new FlxText(10, 610, FlxG.width, 'Beat: 0', 20);
-		beatTxt.setFormat(Paths.font('vcr.ttf'), beatTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
+		beatTxt.setFormat(Paths.font('vcr.ttf'), beatTxt.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		beatTxt.scrollFactor.set();
 		beatTxt.borderSize = 1.25;
 		add(beatTxt);
 
 		stepTxt = new FlxText(10, 640, FlxG.width, 'Step: 0', 20);
-		stepTxt.setFormat(Paths.font('vcr.ttf'), stepTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
+		stepTxt.setFormat(Paths.font('vcr.ttf'), stepTxt.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		stepTxt.scrollFactor.set();
 		stepTxt.borderSize = 1.25;
 		add(stepTxt);
 
 		var tipText:FlxText = new FlxText(10, FlxG.height - 24, 0, 'Press ESC to Go Back to Chart Editor', 16);
-		tipText.setFormat(Paths.font('vcr.ttf'), tipText.size, LEFT, OUTLINE, FlxColor.BLACK);
+		tipText.setFormat(Paths.font('vcr.ttf'), tipText.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		tipText.borderSize = 2;
 		tipText.scrollFactor.set();
 		add(tipText);
@@ -177,7 +178,7 @@ class EditorPlayState extends MusicBeatState
 		{
 			FlxG.sound.music.pause();
 			vocals.pause();
-			LoadingState.loadAndSwitchState(new editors.ChartingState());
+			LoadingState.loadAndSwitchState(new editors.ChartEditorState());
 		}
 
 		if (startingSong)
@@ -470,18 +471,20 @@ class EditorPlayState extends MusicBeatState
 		var sections:Array<SectionDef> = songDef.notes;
 		for (section in sections)
 		{
-			for (noteArray in section.sectionNotes)
+			for (sectionEntry in section.sectionNotes)
 			{
-				if (noteArray[1] > -1)
+				if (!Section.isEvent(sectionEntry))
 				{ // Real notes
-					var strumTime:Float = noteArray[0];
+					var noteDef:NoteDef = sectionEntry;
+
+					var strumTime:Float = noteDef.strumTime;
 					if (strumTime >= startPos)
 					{
-						var noteData:Int = Std.int(noteArray[1] % 4);
+						var noteData:Int = Std.int(noteDef.noteData % 4);
 
 						var mustHitNote:Bool = section.mustHitSection;
 
-						if (noteArray[1] > 3)
+						if (noteDef.noteData > 3)
 						{
 							mustHitNote = !section.mustHitSection;
 						}
@@ -491,10 +494,10 @@ class EditorPlayState extends MusicBeatState
 							oldNote = unspawnNotes[unspawnNotes.length - 1];
 						var note:Note = new Note(strumTime, noteData, oldNote);
 						note.mustPress = mustHitNote;
-						note.sustainLength = noteArray[2];
-						note.noteType = noteArray[3];
-						if (!Std.isOfType(noteArray[3], String))
-							note.noteType = ChartingState.NOTE_TYPES[noteArray[3]]; // Backward compatibility + compatibility with Week 7 charts
+						note.sustainLength = noteDef.sustainLength;
+						note.noteType = noteDef.noteType;
+						if (!Std.isOfType(noteDef.noteType, String))
+							note.noteType = ChartEditorState.NOTE_TYPES[noteDef.noteType]; // Backward compatibility + compatibility with Week 7 charts
 						note.scrollFactor.set();
 
 						var sustainLength:Float = note.sustainLength / Conductor.stepCrochet;
@@ -575,7 +578,7 @@ class EditorPlayState extends MusicBeatState
 
 	private function endSong():Void
 	{
-		LoadingState.loadAndSwitchState(new editors.ChartingState());
+		LoadingState.loadAndSwitchState(new editors.ChartEditorState());
 	}
 
 	private function resyncVocals():Void
@@ -984,9 +987,8 @@ class EditorPlayState extends MusicBeatState
 
 	private function generateStaticArrows(player:Int):Void
 	{
-		for (i in 0...4)
+		for (i in 0...NoteKey.createAll().length)
 		{
-			// Debug.logTrace(i);
 			var targetAlpha:Float = 1;
 			if (player < 1 && Options.save.data.middleScroll)
 				targetAlpha = 0.35;

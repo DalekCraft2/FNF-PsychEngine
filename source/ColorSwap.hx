@@ -12,28 +12,28 @@ class ColorSwap
 	private function set_hue(value:Float):Float
 	{
 		hue = value;
-		shader.uTime.value[0] = hue;
+		shader.data.uTime.value[0] = hue;
 		return hue;
 	}
 
 	private function set_saturation(value:Float):Float
 	{
 		saturation = value;
-		shader.uTime.value[1] = saturation;
+		shader.data.uTime.value[1] = saturation;
 		return saturation;
 	}
 
 	private function set_brightness(value:Float):Float
 	{
 		brightness = value;
-		shader.uTime.value[2] = brightness;
+		shader.data.uTime.value[2] = brightness;
 		return brightness;
 	}
 
 	public function new()
 	{
-		shader.uTime.value = [0, 0, 0];
-		shader.awesomeOutline.value = [false];
+		shader.data.uTime.value = [0, 0, 0];
+		shader.data.awesomeOutline.value = [false];
 	}
 }
 

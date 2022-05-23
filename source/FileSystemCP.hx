@@ -1,16 +1,18 @@
 package;
 
+import haxe.io.Bytes;
+
+using StringTools;
+
 #if polymod
 import polymod.Polymod;
 #else
 #if FEATURE_MODS
 import Mod.ModMetadata;
 #end
-import haxe.io.Bytes;
+#if (sys || nodefs)
 import haxe.io.Path;
-
-using StringTools;
-
+#end
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -123,6 +125,10 @@ class SysFileSystem implements IFileSystem
 	public function new(modRoot:String)
 	{
 		this.modRoot = modRoot;
+	}
+	#else
+	public function new()
+	{
 	}
 	#end
 
@@ -254,9 +260,8 @@ class SysFileSystem implements IFileSystem
 		return [];
 	}
 }
-#elseif nodefs
-// TODO I'd like to use js.html.FileSystem for JS and HTML5 but I have absolutely no idea how to get an instance of it. It also may be for the client's filesystem, and not the server's.
 
+#elseif nodefs
 /**
  * An implementation of IFileSystem which accesses files from the local directory,
  * when running in Node.js via Electron.
@@ -272,6 +277,10 @@ class NodeFileSystem implements IFileSystem
 	public function new(modRoot:String)
 	{
 		this.modRoot = modRoot;
+	}
+	#else
+	public function new()
+	{
 	}
 	#end
 
@@ -505,7 +514,7 @@ class StubFileSystem implements IFileSystem
 	public inline function scanMods():Array<String>
 		return [];
 
-	public inline function getMetadata(modId:String):Array<ModMetadata>
+	public inline function getMetadata(modId:String):Null<ModMetadata>
 		return null;
 	#end
 }

@@ -22,44 +22,44 @@ class WiggleEffect
 
 	public function new()
 	{
-		shader.uTime.value = [0];
+		shader.data.uTime.value = [0];
 	}
 
 	public function update(elapsed:Float):Void
 	{
-		shader.uTime.value[0] += elapsed;
+		shader.data.uTime.value[0] += elapsed;
 	}
 
 	public function setValue(value:Float):Void
 	{
-		shader.uTime.value[0] = value;
+		shader.data.uTime.value[0] = value;
 	}
 
 	private function set_effectType(v:WiggleEffectType):WiggleEffectType
 	{
 		effectType = v;
-		shader.effectType.value = [WiggleEffectType.getConstructors().indexOf(Std.string(v))];
+		shader.data.effectType.value = [WiggleEffectType.getConstructors().indexOf(Std.string(v))];
 		return v;
 	}
 
 	private function set_waveSpeed(v:Float):Float
 	{
 		waveSpeed = v;
-		shader.uSpeed.value = [waveSpeed];
+		shader.data.uSpeed.value = [waveSpeed];
 		return v;
 	}
 
 	private function set_waveFrequency(v:Float):Float
 	{
 		waveFrequency = v;
-		shader.uFrequency.value = [waveFrequency];
+		shader.data.uFrequency.value = [waveFrequency];
 		return v;
 	}
 
 	private function set_waveAmplitude(v:Float):Float
 	{
 		waveAmplitude = v;
-		shader.uWaveAmplitude.value = [waveAmplitude];
+		shader.data.uWaveAmplitude.value = [waveAmplitude];
 		return v;
 	}
 }

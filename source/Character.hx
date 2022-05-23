@@ -1,5 +1,6 @@
 package;
 
+import Note.NoteDef;
 import Section.SectionDef;
 import Song.SongDef;
 import animateatlas.AtlasFrameMaker;
@@ -64,7 +65,7 @@ class Character extends FlxSprite
 	/**
 	 * This is used for Pico's animations in Stress; the TankmenBG class functions similarly
 	 */
-	public var animationNotes:Array<Array<Dynamic>> = [];
+	public var animationNotes:Array<NoteDef> = [];
 
 	public var stunned:Bool = false;
 
@@ -235,11 +236,11 @@ class Character extends FlxSprite
 			{
 				// TODO Add configuration in order to avoid hardcoding Pico things in Week 7
 				case 'pico-speaker':
-					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0])
+					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0].strumTime)
 					{
 						var shootAnim:Int = 1;
 
-						if (animationNotes[0][1] >= 2)
+						if (animationNotes[0].noteData >= 2)
 							shootAnim = 3;
 
 						shootAnim += FlxG.random.int(0, 1);
@@ -474,9 +475,9 @@ class Character extends FlxSprite
 		animationNotes.sort(sortAnims);
 	}
 
-	private function sortAnims(val1:Array<Any>, val2:Array<Any>):Int
+	private function sortAnims(val1:NoteDef, val2:NoteDef):Int
 	{
-		return FlxSort.byValues(FlxSort.ASCENDING, val1[0], val2[0]);
+		return FlxSort.byValues(FlxSort.ASCENDING, val1.strumTime, val2.strumTime);
 	}
 
 	public var danceEveryNumBeats:Int = 2;

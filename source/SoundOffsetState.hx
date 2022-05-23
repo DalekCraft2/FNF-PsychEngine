@@ -1,13 +1,13 @@
 package;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import options.OptionsState;
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
 
 // TODO: turn this into a chart thing
 class SoundOffsetState extends MusicBeatState

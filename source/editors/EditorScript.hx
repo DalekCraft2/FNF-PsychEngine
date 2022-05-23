@@ -154,7 +154,7 @@ class EditorScript
 		set('botPlay', PlayStateChangeables.botPlay);
 		set('practiceMode', PlayStateChangeables.practiceMode);
 
-		for (i in 0...4)
+		for (i in 0...NoteKey.createAll().length)
 		{
 			set('defaultPlayerStrumX$i', 0);
 			set('defaultPlayerStrumY$i', 0);
@@ -343,80 +343,82 @@ class EditorScript
 	public function get(variable:String):Dynamic
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return false;
+			Lua.getglobal(lua, variable);
+			var result:Any = Convert.fromLua(lua, -1);
+			Lua.pop(lua, 1);
+
+			return result;
 		}
-
-		var result:Any;
-		Lua.getglobal(lua, variable);
-		result = Convert.fromLua(lua, -1);
-		Lua.pop(lua, 1);
-
-		// Debug.logTrace('variable: $variable, result: $result, result type: ${Type.typeof(result)}');
-		return result;
 		#elseif hscript
-		return interp.variables.get(variable);
+		if (interp != null)
+		{
+			return interp.variables.get(variable);
+		}
 		#end
+		return null;
 	}
 
 	public function set(variable:String, data:Any):Void
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return;
-		}
-
-		if (Reflect.isFunction(data))
-		{
-			Lua_helper.add_callback(lua, variable, data);
-		}
-		else
-		{
-			Convert.toLua(lua, data);
-			Lua.setglobal(lua, variable);
+			if (Reflect.isFunction(data))
+			{
+				Lua_helper.add_callback(lua, variable, data);
+			}
+			else
+			{
+				Convert.toLua(lua, data);
+				Lua.setglobal(lua, variable);
+			}
 		}
 		#elseif hscript
-		interp.variables.set(variable, data);
+		if (interp != null)
+		{
+			interp.variables.set(variable, data);
+		}
 		#end
 	}
 
 	public function call(funcName:String, args:Array<Any>):Any
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return FUNCTION_CONTINUE;
-		}
+			Lua.getglobal(lua, funcName);
 
-		Lua.getglobal(lua, funcName);
+			for (arg in args)
+			{
+				Convert.toLua(lua, arg);
+			}
 
-		for (arg in args)
-		{
-			Convert.toLua(lua, arg);
-		}
+			var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
+			var error:String = getLuaErrorMessage(lua);
 
-		var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
-		var error:String = getLuaErrorMessage(lua);
-
-		if (error != null)
-		{
-			if (error != 'attempt to call a nil value')
-			{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
-				scriptTrace(error);
+			if (error != null)
+			{
+				if (error != 'attempt to call a nil value')
+				{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
+					scriptTrace(error);
+				}
+			}
+			if (result != null && resultIsAllowed(lua, result))
+			{
+				return Convert.fromLua(lua, result);
 			}
 		}
-		if (result != null && resultIsAllowed(lua, result))
-		{
-			return Convert.fromLua(lua, result);
-		}
 		#elseif hscript
-		var possiblyFunc:Dynamic = get(funcName);
-		if (Reflect.isFunction(possiblyFunc))
+		if (interp != null)
 		{
-			var func:Function = cast possiblyFunc;
-			return Reflect.callMethod(null, func, args);
+			var possiblyFunc:Dynamic = get(funcName);
+			if (Reflect.isFunction(possiblyFunc))
+			{
+				var func:Function = cast possiblyFunc;
+				return Reflect.callMethod(null, func, args);
+			}
 		}
 		#end
 		return FUNCTION_CONTINUE;
@@ -425,13 +427,11 @@ class EditorScript
 	public function stop():Void
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return;
+			Lua.close(lua);
+			lua = null;
 		}
-
-		Lua.close(lua);
-		lua = null;
 		#elseif hscript
 		interp = null;
 		#end

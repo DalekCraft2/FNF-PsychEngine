@@ -1,14 +1,16 @@
 package;
 
-import flash.display.Graphics;
-import flash.display.Shape;
-import flash.display.Sprite;
-import flash.text.TextField;
 import flixel.FlxG;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import openfl.display.Graphics;
+import openfl.display.Shape;
+import openfl.display.Sprite;
+import openfl.text.AntiAliasType;
+import openfl.text.GridFitType;
+import openfl.text.TextField;
 import openfl.text.TextFieldAutoSize;
 import openfl.text.TextFormat;
 
@@ -105,10 +107,8 @@ class HitGraph extends Sprite
 		tf.wordWrap = false;
 		tf.embedFonts = true;
 		tf.selectable = false;
-		#if flash
 		tf.antiAliasType = AntiAliasType.NORMAL;
 		tf.gridFitType = GridFitType.PIXEL;
-		#end
 		tf.defaultTextFormat = new TextFormat(Paths.font('vcr.ttf'), size, color.to24Bit());
 		tf.alpha = color.alphaFloat;
 		tf.autoSize = TextFieldAutoSize.LEFT;

@@ -94,7 +94,7 @@ class PauseSubState extends MusicBeatSubState
 
 		var levelInfo:FlxText = new FlxText(20, 15, 0, PlayState.song.songName, 32);
 		levelInfo.scrollFactor.set();
-		levelInfo.setFormat(Paths.font('vcr.ttf'), levelInfo.size, RIGHT);
+		levelInfo.setFormat(Paths.font('vcr.ttf'), levelInfo.size, FlxColor.WHITE, RIGHT);
 		levelInfo.updateHitbox();
 		levelInfo.alpha = 0;
 		levelInfo.x = FlxG.width - (levelInfo.width + 20);
@@ -102,7 +102,7 @@ class PauseSubState extends MusicBeatSubState
 
 		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, Difficulty.difficultyString(), 32);
 		levelDifficulty.scrollFactor.set();
-		levelDifficulty.setFormat(Paths.font('vcr.ttf'), levelDifficulty.size, RIGHT);
+		levelDifficulty.setFormat(Paths.font('vcr.ttf'), levelDifficulty.size, FlxColor.WHITE, RIGHT);
 		levelDifficulty.updateHitbox();
 		levelDifficulty.alpha = 0;
 		levelDifficulty.x = FlxG.width - (levelDifficulty.width + 20);
@@ -110,7 +110,7 @@ class PauseSubState extends MusicBeatSubState
 
 		var blueballedTxt:FlxText = new FlxText(20, 15 + 64, 0, 'Blueballed: ${PlayState.deathCounter}', 32);
 		blueballedTxt.scrollFactor.set();
-		blueballedTxt.setFormat(Paths.font('vcr.ttf'), blueballedTxt.size, RIGHT);
+		blueballedTxt.setFormat(Paths.font('vcr.ttf'), blueballedTxt.size, FlxColor.WHITE, RIGHT);
 		blueballedTxt.updateHitbox();
 		blueballedTxt.alpha = 0;
 		blueballedTxt.x = FlxG.width - (blueballedTxt.width + 20);
@@ -118,7 +118,7 @@ class PauseSubState extends MusicBeatSubState
 
 		practiceText = new FlxText(20, 15 + 101, 0, 'PRACTICE MODE', 32);
 		practiceText.scrollFactor.set();
-		practiceText.setFormat(Paths.font('vcr.ttf'), practiceText.size, RIGHT);
+		practiceText.setFormat(Paths.font('vcr.ttf'), practiceText.size, FlxColor.WHITE, RIGHT);
 		practiceText.updateHitbox();
 		practiceText.visible = PlayStateChangeables.practiceMode;
 		practiceText.x = FlxG.width - (practiceText.width + 20);
@@ -126,7 +126,7 @@ class PauseSubState extends MusicBeatSubState
 
 		var chartingText:FlxText = new FlxText(20, 15 + 101, 0, 'CHARTING MODE', 32);
 		chartingText.scrollFactor.set();
-		chartingText.setFormat(Paths.font('vcr.ttf'), chartingText.size, RIGHT);
+		chartingText.setFormat(Paths.font('vcr.ttf'), chartingText.size, FlxColor.WHITE, RIGHT);
 		chartingText.x = FlxG.width - (chartingText.width + 20);
 		chartingText.y = FlxG.height - (chartingText.height + 20);
 		chartingText.updateHitbox();
@@ -389,7 +389,7 @@ class PauseSubState extends MusicBeatSubState
 			if (menuItems[i] == 'Skip Time')
 			{
 				skipTimeText = new FlxText(0, 0, 0, 64);
-				skipTimeText.setFormat(Paths.font('vcr.ttf'), skipTimeText.size, CENTER, OUTLINE, FlxColor.BLACK);
+				skipTimeText.setFormat(Paths.font('vcr.ttf'), skipTimeText.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 				skipTimeText.scrollFactor.set();
 				skipTimeText.borderSize = 2;
 				skipTimeTracker = item;

@@ -1,25 +1,67 @@
 package;
 
 import NoteKey.NoteColor;
-import editors.ChartingState;
 import flixel.FlxSprite;
+import flixel.util.typeLimit.OneOfTwo;
 import haxe.io.Path;
 
-typedef EventNoteDef =
+// TODO Maybe I should take this "abstract" approach with some other objects what use JSON...
+abstract NoteDef(Array<Dynamic>) /*from Array<Dynamic> to Array<Dynamic>*/
 {
-	var strumTime:Float;
-	var event:String;
-	var value1:String;
-	var value2:String;
-}
+	public static inline final INDEX_STRUM_TIME:Int = 0;
+	public static inline final INDEX_NOTE_DATA:Int = 1;
+	public static inline final INDEX_SUSTAIN_LENGTH:Int = 2;
+	public static inline final INDEX_NOTE_TYPE:Int = 3;
 
-// TODO Use the below typedef
-typedef NoteDef =
-{
-	var strumTime:Float;
-	var noteData:Int;
-	var ?sustainLength:Float;
-	var ?noteType:String;
+	public var strumTime(get, set):Float;
+	public var noteData(get, set):Int;
+	public var sustainLength(get, set):Null<Float>;
+	public var noteType(get, set):OneOfTwo<Null<Int>, String>;
+
+	public inline function new(array:Array<Dynamic>)
+	{
+		this = array;
+	}
+
+	private function get_strumTime():Float
+	{
+		return this[INDEX_STRUM_TIME];
+	}
+
+	private function set_strumTime(value:Float):Float
+	{
+		return this[INDEX_STRUM_TIME] = value;
+	}
+
+	private function get_noteData():Int
+	{
+		return this[INDEX_NOTE_DATA];
+	}
+
+	private function set_noteData(value:Int):Int
+	{
+		return this[INDEX_NOTE_DATA] = value;
+	}
+
+	private function get_sustainLength():Null<Float>
+	{
+		return this[INDEX_SUSTAIN_LENGTH];
+	}
+
+	private function set_sustainLength(value:Null<Float>):Null<Float>
+	{
+		return this[INDEX_SUSTAIN_LENGTH] = value;
+	}
+
+	private function get_noteType():OneOfTwo<Null<Int>, String>
+	{
+		return this[INDEX_NOTE_TYPE];
+	}
+
+	private function set_noteType(value:OneOfTwo<Null<Int>, String>):OneOfTwo<Null<Int>, String>
+	{
+		return this[INDEX_NOTE_TYPE] = value;
+	}
 }
 
 class Note extends FlxSprite

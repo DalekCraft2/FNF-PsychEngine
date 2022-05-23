@@ -1,11 +1,12 @@
 package;
 
+import Note.NoteDef;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
 class TankmenBG extends FlxSprite
 {
-	public static var animationNotes:Array<Array<Dynamic>> = [];
+	public static var animationNotes:Array<NoteDef> = [];
 
 	public var strumTime:Float = 0;
 

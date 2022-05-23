@@ -1,8 +1,5 @@
 package;
 
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
@@ -13,6 +10,9 @@ import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
+#end
 
 class InitState extends FlxUIState
 {
@@ -105,7 +105,7 @@ class InitState extends FlxUIState
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());
 		#elseif CHARTING
-		FlxG.switchState(new ChartingState());
+		FlxG.switchState(new ChartEditorState());
 		#elseif CHARACTER
 		FlxG.switchState(new CharacterEditorState('bf', nextState));
 		#else

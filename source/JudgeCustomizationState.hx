@@ -168,12 +168,12 @@ class JudgeCustomizationState extends MusicBeatState
 
 		var loopsDone:Float = 0;
 		var idx:Int = -1;
-		for (i in seperatedScore)
+		for (digit in seperatedScore)
 		{
 			idx++;
-			if (i == '-')
+			if (digit == '-')
 			{
-				i = 'Negative';
+				digit = 'Negative';
 			}
 			var numScore:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('num$i'));
 			numScore.screenCenter(XY);

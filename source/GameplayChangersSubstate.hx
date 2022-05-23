@@ -58,7 +58,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 			}
 			else
 			{
-				var valueText:AttachedText = new AttachedText(Std.string(optionsArray[i].getValue()), optionText.width + 80, true, 0.8);
+				var valueText:AttachedText = new AttachedText(Std.string(optionsArray[i].getValue()), optionText.width + 80, 0, true, 0.8);
 				valueText.sprTracker = optionText;
 				valueText.copyAlpha = true;
 				valueText.ID = i;

@@ -3,14 +3,11 @@ package editors;
 import Song.SongMetadata;
 import Song.SongMetadataDef;
 import Week.WeekDef;
-import flash.net.FileFilter;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUI;
 import flixel.addons.ui.FlxUICheckBox;
 import flixel.addons.ui.FlxUIInputText;
-import flixel.addons.ui.FlxUINumericStepper;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -18,12 +15,12 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
+import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
-import openfl.desktop.Clipboard;
-import openfl.desktop.ClipboardFormats;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
+import openfl.net.FileFilter;
 import openfl.net.FileReference;
 
 using StringTools;
@@ -60,7 +57,7 @@ class WeekEditorState extends MusicBeatState
 		super.create();
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, 32);
-		txtWeekTitle.setFormat(Paths.font('vcr.ttf'), txtWeekTitle.size, RIGHT);
+		txtWeekTitle.setFormat(Paths.font('vcr.ttf'), txtWeekTitle.size, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
 
 		var uiTexture:FlxAtlasFrames = Paths.getSparrowAtlas('campaign_menu_UI_assets');
@@ -86,7 +83,7 @@ class WeekEditorState extends MusicBeatState
 		add(lock);
 
 		missingFileText = new FlxText(0, 0, FlxG.width, 24);
-		missingFileText.setFormat(Paths.font('vcr.ttf'), missingFileText.size, CENTER, OUTLINE, FlxColor.BLACK);
+		missingFileText.setFormat(Paths.font('vcr.ttf'), missingFileText.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		missingFileText.borderSize = 2;
 		missingFileText.visible = false;
 		add(missingFileText);
@@ -124,14 +121,6 @@ class WeekEditorState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		if (loadedWeek != null)
-		{
-			weekDef = loadedWeek;
-			loadedWeek = null;
-
-			reloadAllShit();
-		}
-
 		var blockInput:Bool = false;
 		for (inputText in blockPressWhileTypingOn)
 		{
@@ -155,7 +144,7 @@ class WeekEditorState extends MusicBeatState
 			FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
 			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				FlxG.switchState(new MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenuState());
 			}
 		}
 
@@ -276,25 +265,18 @@ class WeekEditorState extends MusicBeatState
 
 		var loadWeekButton:FlxButton = new FlxButton(0, 650, 'Load Week', () ->
 		{
-			loadWeek();
+			fileBrowseDialog();
 		});
 		loadWeekButton.screenCenter(X);
-		loadWeekButton.x -= 120;
+		loadWeekButton.x -= 60;
 		add(loadWeekButton);
-
-		var freeplayButton:FlxButton = new FlxButton(0, 650, 'Freeplay', () ->
-		{
-			FlxG.switchState(new WeekEditorFreeplayState(weekDef));
-		});
-		freeplayButton.screenCenter(X);
-		add(freeplayButton);
 
 		var saveWeekButton:FlxButton = new FlxButton(0, 650, 'Save Week', () ->
 		{
-			saveWeek(weekDef);
+			fileSaveDialog();
 		});
 		saveWeekButton.screenCenter(X);
-		saveWeekButton.x += 120;
+		saveWeekButton.x += 60;
 		add(saveWeekButton);
 	}
 
@@ -370,13 +352,21 @@ class WeekEditorState extends MusicBeatState
 	private var difficultiesInputText:FlxUIInputText;
 	private var lockedCheckbox:FlxUICheckBox;
 	private var hiddenUntilUnlockCheckbox:FlxUICheckBox;
+	private var hideFreeplayCheckbox:FlxUICheckBox;
 
 	private function addOtherUI():Void
 	{
 		var tabGroup:FlxUI = new FlxUI(null, UI_box);
 		tabGroup.name = 'Other';
 
-		lockedCheckbox = new FlxUICheckBox(10, 30, null, null, 'Week starts Locked', 100);
+		hideFreeplayCheckbox = new FlxUICheckBox(10, 30, null, null, 'Hide Week from Freeplay', 100);
+		hideFreeplayCheckbox.checked = weekDef.hideFreeplay;
+		hideFreeplayCheckbox.callback = () ->
+		{
+			weekDef.hideFreeplay = hideFreeplayCheckbox.checked;
+		};
+
+		lockedCheckbox = new FlxUICheckBox(10, hideFreeplayCheckbox.y + 30, null, null, 'Week starts Locked', 100);
 		lockedCheckbox.callback = () ->
 		{
 			weekDef.startUnlocked = !lockedCheckbox.checked;
@@ -404,10 +394,11 @@ class WeekEditorState extends MusicBeatState
 		tabGroup.add(difficultiesInputText);
 		tabGroup.add(hiddenUntilUnlockCheckbox);
 		tabGroup.add(lockedCheckbox);
+		tabGroup.add(hideFreeplayCheckbox);
 		UI_box.addGroup(tabGroup);
 	}
 
-	// Used on onCreate and when you load a week
+	// Used in onCreate and when you load a week
 	private function reloadAllShit():Void
 	{
 		var weekString:String = weekDef.songs[0];
@@ -551,394 +542,150 @@ class WeekEditorState extends MusicBeatState
 		lock.x = weekThing.width + 10 + weekThing.x;
 	}
 
-	private static var _file:FileReference;
-	public static var loadedWeek:WeekDef;
+	private var _file:FileReference;
 
-	public static function loadWeek():Void
+	private function fileBrowseDialog():Void
 	{
 		var jsonFilter:FileFilter = new FileFilter('JSON', Paths.JSON_EXT);
-		_file = new FileReference();
-		_file.addEventListener(Event.SELECT, onLoadComplete);
-		_file.addEventListener(Event.CANCEL, onLoadCancel);
-		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		addLoadListeners();
 		_file.browse([jsonFilter]);
 	}
 
-	private static function onLoadComplete(e:Event):Void
+	private function addLoadListeners():Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadSelect);
+		_file.addEventListener(Event.COMPLETE, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+	}
+
+	private function removeLoadListeners():Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadSelect);
+		_file.removeEventListener(Event.COMPLETE, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+	}
 
-		// TODO Use the "data" field in FileReference to get the file data instead of getting the path
-		var fullPath:Null<String> = null;
-		@:privateAccess
-		if (_file.__path != null)
-			fullPath = _file.__path;
-
-		if (fullPath != null)
+	/**
+	 * Called when a file has been selected.
+	 */
+	private function onLoadSelect(e:Event):Void
+	{
+		try
 		{
-			loadedWeek = Paths.getJsonDirect(fullPath);
+			_file.load();
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+		}
+	}
+
+	/**
+	 * Called when the file has finished loading.
+	 */
+	private function onLoadComplete(e:Event):Void
+	{
+		try
+		{
+			var jsonString:String = _file.data.toString();
+			var loadedWeek:WeekDef = Json.parse(jsonString);
 			if (loadedWeek != null)
 			{
 				if (loadedWeek.weekCharacters != null && loadedWeek.weekName != null) // Make sure it's really a week
 				{
 					var cutName:String = Path.withoutExtension(_file.name);
-					Debug.logTrace('Successfully loaded file: $cutName');
-
 					weekDefName = cutName;
-					_file = null;
+					reloadAllShit();
+					Debug.logTrace('Successfully loaded file: ${_file.name}');
+					removeLoadListeners();
 					return;
 				}
 			}
 		}
-		loadedWeek = null;
-		_file = null;
+		catch (e:Exception)
+		{
+			Debug.logError('Error loading file:\n${e.message}');
+			removeLoadListeners();
+			return;
+		}
+		Debug.logError('Could not load file');
+		removeLoadListeners();
 	}
 
 	/**
-	 * Called when the save file dialog is cancelled.
+	 * Called when the load file dialog is cancelled.
 	 */
-	private static function onLoadCancel(e:Event):Void
+	private function onLoadCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
+		removeLoadListeners();
 		Debug.logTrace('Cancelled file loading.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while loading the file.
 	 */
-	private static function onLoadError(e:IOErrorEvent):Void
+	private function onLoadError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
-		Debug.logError('Problem loading file');
+		removeLoadListeners();
+		Debug.logError('Error loading file: ${e.text}');
 	}
 
-	public static function saveWeek(weekDef:WeekDef):Void
+	private function fileSaveDialog():Void
 	{
 		var data:String = Json.stringify(weekDef, '\t');
 		if (data.length > 0)
 		{
-			_file = new FileReference();
-			_file.addEventListener(Event.COMPLETE, onSaveComplete);
-			_file.addEventListener(Event.CANCEL, onSaveCancel);
-			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+			data += '\n'; // I like newlines at the ends of files.
+			addSaveListeners();
 			_file.save(data, Path.withExtension(weekDefName, Paths.JSON_EXT));
 		}
 	}
 
-	private static function onSaveComplete(e:Event):Void
+	private function addSaveListeners():Void
+	{
+		_file = new FileReference();
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+	}
+
+	private function removeSaveListeners():Void
 	{
 		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
 		_file.removeEventListener(Event.CANCEL, onSaveCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 		_file = null;
-		Debug.logInfo('Successfully saved file.');
+	}
+
+	/**
+	 * Called when the file has finished saving.
+	 */
+	private function onSaveComplete(e:Event):Void
+	{
+		removeSaveListeners();
+		Debug.logTrace('Successfully saved file.');
 	}
 
 	/**
 	 * Called when the save file dialog is cancelled.
 	 */
-	private static function onSaveCancel(e:Event):Void
+	private function onSaveCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
+		removeSaveListeners();
+		Debug.logTrace('Cancelled file saving.');
 	}
 
 	/**
-	 * Called if there is an error while saving the gameplay recording.
+	 * Called if there is an error while saving the file.
 	 */
-	private static function onSaveError(e:IOErrorEvent):Void
+	private function onSaveError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
-		_file.removeEventListener(Event.CANCEL, onSaveCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
-		_file = null;
-		Debug.logError('Problem saving file');
-	}
-}
-
-class WeekEditorFreeplayState extends MusicBeatState
-{
-	private var weekDef:WeekDef;
-
-	public function new(?weekDef:WeekDef)
-	{
-		super();
-
-		this.weekDef = Week.createTemplateWeekDef();
-		if (weekDef != null)
-			this.weekDef = weekDef;
-	}
-
-	private var bg:FlxSprite;
-	private var grpSongs:FlxTypedGroup<Alphabet>;
-	private var iconArray:Array<HealthIcon> = [];
-
-	private var curSelected:Int = 0;
-
-	override public function create():Void
-	{
-		super.create();
-
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
-		bg.antialiasing = Options.save.data.globalAntialiasing;
-
-		bg.color = FlxColor.WHITE;
-		add(bg);
-
-		grpSongs = new FlxTypedGroup();
-		add(grpSongs);
-
-		for (i in 0...weekDef.songs.length)
-		{
-			var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(weekDef.songs[i]);
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songMetadataDef.name, true, false);
-			songText.isMenuItem = true;
-			songText.targetY = i;
-			grpSongs.add(songText);
-
-			var icon:HealthIcon = new HealthIcon(songMetadataDef.icon);
-			icon.sprTracker = songText;
-
-			// using a FlxGroup is too much fuss!
-			iconArray.push(icon);
-			add(icon);
-		}
-
-		addEditorBox();
-		changeSelection();
-	}
-
-	override public function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		if (WeekEditorState.loadedWeek != null)
-		{
-			FlxTransitionableState.skipNextTransIn = true;
-			FlxTransitionableState.skipNextTransOut = true;
-			FlxG.switchState(new WeekEditorFreeplayState(WeekEditorState.loadedWeek));
-			WeekEditorState.loadedWeek = null;
-			return;
-		}
-
-		if (iconInputText.hasFocus)
-		{
-			FlxG.sound.muteKeys = [];
-			FlxG.sound.volumeDownKeys = [];
-			FlxG.sound.volumeUpKeys = [];
-			if (FlxG.keys.justPressed.ENTER)
-			{
-				iconInputText.hasFocus = false;
-			}
-		}
-		else
-		{
-			FlxG.sound.muteKeys = InitState.muteKeys;
-			FlxG.sound.volumeDownKeys = InitState.volumeDownKeys;
-			FlxG.sound.volumeUpKeys = InitState.volumeUpKeys;
-			if (FlxG.keys.justPressed.ESCAPE)
-			{
-				FlxG.switchState(new MasterEditorMenu());
-			}
-
-			if (controls.UI_UP_P)
-				changeSelection(-1);
-			if (controls.UI_DOWN_P)
-				changeSelection(1);
-		}
-	}
-
-	override public function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>):Void
-	{
-		if (id == FlxUIInputText.CHANGE_EVENT && (sender is FlxUIInputText))
-		{
-			var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(weekDef.songs[curSelected]);
-			songMetadataDef.icon = iconInputText.text;
-			iconArray[curSelected].changeIcon(iconInputText.text);
-		}
-		else if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
-		{
-			if (sender == bgColorStepperR || sender == bgColorStepperG || sender == bgColorStepperB)
-			{
-				updateBG();
-			}
-		}
-	}
-
-	private var UI_box:FlxUITabMenu;
-	private var blockPressWhileTypingOn:Array<FlxUIInputText> = [];
-
-	private function addEditorBox():Void
-	{
-		var tabs:Array<{name:String, label:String}> = [{name: 'Freeplay', label: 'Freeplay'},];
-		UI_box = new FlxUITabMenu(null, tabs, true);
-		UI_box.resize(250, 200);
-		UI_box.x = FlxG.width - UI_box.width - 100;
-		UI_box.y = FlxG.height - UI_box.height - 60;
-		UI_box.scrollFactor.set();
-
-		UI_box.selected_tab_id = 'Week';
-		addFreeplayUI();
-		add(UI_box);
-
-		var blackBlack:FlxSprite = new FlxSprite(0, 670).makeGraphic(FlxG.width, 50, FlxColor.BLACK);
-		blackBlack.alpha = 0.6;
-		add(blackBlack);
-
-		var loadWeekButton:FlxButton = new FlxButton(0, 685, 'Load Week', () ->
-		{
-			WeekEditorState.loadWeek();
-		});
-		loadWeekButton.screenCenter(X);
-		loadWeekButton.x -= 120;
-		add(loadWeekButton);
-
-		var storyModeButton:FlxButton = new FlxButton(0, 685, 'Story Mode', () ->
-		{
-			FlxG.switchState(new WeekEditorState(weekDef));
-		});
-		storyModeButton.screenCenter(X);
-		add(storyModeButton);
-
-		var saveWeekButton:FlxButton = new FlxButton(0, 685, 'Save Week', () ->
-		{
-			WeekEditorState.saveWeek(weekDef);
-		});
-		saveWeekButton.screenCenter(X);
-		saveWeekButton.x += 120;
-		add(saveWeekButton);
-	}
-
-	private var bgColorStepperR:FlxUINumericStepper;
-	private var bgColorStepperG:FlxUINumericStepper;
-	private var bgColorStepperB:FlxUINumericStepper;
-	private var iconInputText:FlxUIInputText;
-
-	private function addFreeplayUI():Void
-	{
-		var tabGroup:FlxUI = new FlxUI(null, UI_box);
-		tabGroup.name = 'Freeplay';
-
-		bgColorStepperR = new FlxUINumericStepper(10, 40, 20, 255, 0, 255, 0);
-		bgColorStepperG = new FlxUINumericStepper(80, 40, 20, 255, 0, 255, 0);
-		bgColorStepperB = new FlxUINumericStepper(150, 40, 20, 255, 0, 255, 0);
-
-		var copyColor:FlxButton = new FlxButton(10, bgColorStepperR.y + 25, 'Copy Color', () ->
-		{
-			Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, '${bg.color.red},${bg.color.green},${bg.color.blue}');
-		});
-		var pasteColor:FlxButton = new FlxButton(140, copyColor.y, 'Paste Color', () ->
-		{
-			if (Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT) != null)
-			{
-				var colors:Array<Int> = [];
-				var splitStrings:Array<String> = Clipboard.generalClipboard.getData(ClipboardFormats.TEXT_FORMAT).trim().split(',');
-				for (splitString in splitStrings)
-				{
-					var toPush:Int = Std.parseInt(splitString);
-					if (!Math.isNaN(toPush))
-					{
-						if (toPush > 255)
-							toPush = 255;
-						else if (toPush < 0)
-							toPush *= -1;
-						colors.push(toPush);
-					}
-				}
-
-				if (colors.length > 2)
-				{
-					bgColorStepperR.value = colors[0];
-					bgColorStepperG.value = colors[1];
-					bgColorStepperB.value = colors[2];
-					updateBG();
-				}
-			}
-		});
-
-		iconInputText = new FlxUIInputText(10, bgColorStepperR.y + 70, 100, 8);
-
-		var hideFreeplayCheckbox:FlxUICheckBox = new FlxUICheckBox(10, iconInputText.y + 30, null, null, 'Hide Week from Freeplay?', 100);
-		hideFreeplayCheckbox.checked = weekDef.hideFreeplay;
-		hideFreeplayCheckbox.callback = () ->
-		{
-			weekDef.hideFreeplay = hideFreeplayCheckbox.checked;
-		};
-
-		tabGroup.add(new FlxText(10, bgColorStepperR.y - 18, 0, 'Selected background Color R/G/B:'));
-		tabGroup.add(new FlxText(10, iconInputText.y - 18, 0, 'Selected icon:'));
-		tabGroup.add(bgColorStepperR);
-		tabGroup.add(bgColorStepperG);
-		tabGroup.add(bgColorStepperB);
-		tabGroup.add(copyColor);
-		tabGroup.add(pasteColor);
-		tabGroup.add(iconInputText);
-		tabGroup.add(hideFreeplayCheckbox);
-		UI_box.addGroup(tabGroup);
-	}
-
-	private function updateBG():Void
-	{
-		var red:Int = Math.round(bgColorStepperR.value);
-		var green:Int = Math.round(bgColorStepperG.value);
-		var blue:Int = Math.round(bgColorStepperB.value);
-		var color:FlxColor = FlxColor.fromRGB(red, green, blue);
-		// TODO Note that this actually does nothing to the meta yet, so I need to make an editor for it
-		// TODO ... And now I need to rework the entire editor because of the new SongMetadata format
-		// var songMetadataDef:SongMetadataDef = Song.getSongMetadata(weekDef.songs[curSelected]);
-		// songMetadataDef.color[0] = red;
-		// songMetadataDef.color[1] = green;
-		// songMetadataDef.color[2] = blue;
-		// bg.color = color;
-	}
-
-	private function changeSelection(change:Int = 0):Void
-	{
-		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
-
-		curSelected += change;
-
-		if (curSelected < 0)
-			curSelected = weekDef.songs.length - 1;
-		if (curSelected >= weekDef.songs.length)
-			curSelected = 0;
-
-		for (icon in iconArray)
-		{
-			icon.alpha = 0.6;
-		}
-
-		iconArray[curSelected].alpha = 1;
-
-		for (i in 0...grpSongs.members.length)
-		{
-			var item:Alphabet = grpSongs.members[i];
-			item.targetY = i - curSelected;
-
-			item.alpha = 0.6;
-
-			if (item.targetY == 0)
-			{
-				item.alpha = 1;
-			}
-		}
-		Debug.logTrace(weekDef.songs[curSelected]);
-		// TODO Try to minimize the usage of this method for performance
-		var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(weekDef.songs[curSelected]);
-		iconInputText.text = songMetadataDef.icon;
-		// bgColorStepperR.value = Math.round(songMetadataDef.color[0]);
-		// bgColorStepperG.value = Math.round(songMetadataDef.color[1]);
-		// bgColorStepperB.value = Math.round(songMetadataDef.color[2]);
-		updateBG();
+		removeSaveListeners();
+		Debug.logError('Error saving file: ${e.text}');
 	}
 }

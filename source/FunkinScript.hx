@@ -174,7 +174,7 @@ class FunkinScript
 		set('botPlay', PlayStateChangeables.botPlay);
 		set('practiceMode', PlayStateChangeables.practiceMode);
 
-		for (i in 0...4)
+		for (i in 0...NoteKey.createAll().length)
 		{
 			set('defaultPlayerStrumX$i', 0);
 			set('defaultPlayerStrumY$i', 0);
@@ -399,55 +399,11 @@ class FunkinScript
 				{
 					object = Reflect.getProperty(object, qualifierArray[i]);
 				}
-				return Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+				Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+				return;
 			}
-			return Reflect.setProperty(Type.resolveClass(classVar), variable, value);
+			Reflect.setProperty(Type.resolveClass(classVar), variable, value);
 		});
-		/*
-			set('getPropertyAdvanced', function(varsStr:String):Any
-			{
-				var variables:Array<String> = varsStr.replace(' ', '').split(',');
-				var theClass:Class<Any> = Type.resolveClass(variables[0]);
-				if (variables.length > 2)
-				{
-					var curProp:Any = Reflect.getProperty(theClass, variables[1]);
-					if (variables.length > 3)
-					{
-						for (i in 2...variables.length - 1)
-						{
-							curProp = Reflect.getProperty(curProp, variables[i]);
-						}
-					}
-					return Reflect.getProperty(curProp, variables[variables.length - 1]);
-				}
-				else if (variables.length == 2)
-				{
-					return Reflect.getProperty(theClass, variables[variables.length - 1]);
-				}
-				return null;
-			});
-			set('setPropertyAdvanced', function(varsStr:String, value:Any):Void
-			{
-				var variables:Array<String> = varsStr.replace(' ', '').split(',');
-				var theClass:Class<Any> = Type.resolveClass(variables[0]);
-				if (variables.length > 2)
-				{
-					var curProp:Any = Reflect.getProperty(theClass, variables[1]);
-					if (variables.length > 3)
-					{
-						for (i in 2...variables.length - 1)
-						{
-							curProp = Reflect.getProperty(curProp, variables[i]);
-						}
-					}
-					Reflect.setProperty(curProp, variables[variables.length - 1], value);
-				}
-				else if (variables.length == 2)
-				{
-					Reflect.setProperty(theClass, variables[variables.length - 1], value);
-				}
-			});
-		 */
 
 		set('getObjectOrder', function(obj:String):Int
 		{
@@ -1260,7 +1216,7 @@ class FunkinScript
 		{
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				PlayState.instance.scriptSprites.get(obj).animation.play(name, forced, startFrame);
+				PlayState.instance.scriptSprites.get(obj).animation.play(name, forced, false, startFrame);
 				return;
 			}
 
@@ -1387,27 +1343,25 @@ class FunkinScript
 		});
 		set('removeLuaSprite', function(tag:String, destroy:Bool = true):Void
 		{
-			if (!PlayState.instance.scriptSprites.exists(tag))
+			if (PlayState.instance.scriptSprites.exists(tag))
 			{
-				return;
-			}
+				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
+				if (destroy)
+				{
+					sprite.kill();
+				}
 
-			var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
-			if (destroy)
-			{
-				sprite.kill();
-			}
+				if (sprite.wasAdded)
+				{
+					getInstance().remove(sprite, true);
+					sprite.wasAdded = false;
+				}
 
-			if (sprite.wasAdded)
-			{
-				getInstance().remove(sprite, true);
-				sprite.wasAdded = false;
-			}
-
-			if (destroy)
-			{
-				sprite.destroy();
-				PlayState.instance.scriptSprites.remove(tag);
+				if (destroy)
+				{
+					sprite.destroy();
+					PlayState.instance.scriptSprites.remove(tag);
+				}
 			}
 		});
 
@@ -1531,23 +1485,13 @@ class FunkinScript
 		});
 		set('getRandomInt', function(min:Int, max:Int = FlxMath.MAX_VALUE_INT, exclude:String = ''):Int
 		{
-			var excludeArray:Array<String> = exclude.split(',');
-			var toExclude:Array<Int> = [];
-			for (exclusion in excludeArray)
-			{
-				toExclude.push(Std.parseInt(exclusion.trim()));
-			}
-			return FlxG.random.int(min, max, toExclude);
+			var excludeArray:Array<Int> = exclude.split(',').map((f:String) -> Std.parseInt(f.trim()));
+			return FlxG.random.int(min, max, excludeArray);
 		});
 		set('getRandomFloat', function(min:Float, max:Float = 1, exclude:String = ''):Float
 		{
-			var excludeArray:Array<String> = exclude.split(',');
-			var toExclude:Array<Float> = [];
-			for (exclusion in excludeArray)
-			{
-				toExclude.push(Std.parseFloat(exclusion.trim()));
-			}
-			return FlxG.random.float(min, max, toExclude);
+			var excludeArray:Array<Float> = exclude.split(',').map((f:String) -> Std.parseFloat(f.trim()));
+			return FlxG.random.float(min, max, excludeArray);
 		});
 		set('getRandomBool', function(chance:Float = 50):Bool
 		{
@@ -1620,7 +1564,7 @@ class FunkinScript
 				{
 					PlayState.instance.scriptSounds.get(tag).stop();
 				}
-				PlayState.instance.scriptSounds.set(tag, FlxG.sound.play(Paths.getSound(sound), volume, false, () ->
+				PlayState.instance.scriptSounds.set(tag, FlxG.sound.play(Paths.getSound(sound), volume, false, true, () ->
 				{
 					PlayState.instance.scriptSounds.remove(tag);
 					PlayState.instance.callOnScripts('onSoundFinished', [tag]);
@@ -1904,27 +1848,25 @@ class FunkinScript
 		});
 		set('removeLuaText', function(tag:String, destroy:Bool = true):Void
 		{
-			if (!PlayState.instance.scriptTexts.exists(tag))
+			if (PlayState.instance.scriptTexts.exists(tag))
 			{
-				return;
-			}
+				var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
+				if (destroy)
+				{
+					text.kill();
+				}
 
-			var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
-			if (destroy)
-			{
-				text.kill();
-			}
+				if (text.wasAdded)
+				{
+					getInstance().remove(text, true);
+					text.wasAdded = false;
+				}
 
-			if (text.wasAdded)
-			{
-				getInstance().remove(text, true);
-				text.wasAdded = false;
-			}
-
-			if (destroy)
-			{
-				text.destroy();
-				PlayState.instance.scriptTexts.remove(tag);
+				if (destroy)
+				{
+					text.destroy();
+					PlayState.instance.scriptTexts.remove(tag);
+				}
 			}
 		});
 
@@ -2003,12 +1945,7 @@ class FunkinScript
 			scriptTrace('luaSpriteAddAnimationByIndices is deprecated! Use addAnimationByIndices instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
-				var strIndices:Array<String> = indices.trim().split(',');
-				var intIndices:Array<Int> = [];
-				for (index in strIndices)
-				{
-					intIndices.push(Std.parseInt(index));
-				}
+				var intIndices:Array<Int> = indices.trim().split(',').map((f:String) -> Std.parseInt(f));
 				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
 				sprite.animation.addByIndices(name, prefix, intIndices, '', frameRate, false);
 				if (sprite.animation.curAnim == null)
@@ -2086,9 +2023,11 @@ class FunkinScript
 					{
 						object = Reflect.getProperty(object, qualifierArray[i]);
 					}
-					return Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+					Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+					return;
 				}
-				return Reflect.setProperty(PlayState.instance.scriptSprites.get(tag), variable, value);
+				Reflect.setProperty(PlayState.instance.scriptSprites.get(tag), variable, value);
+				return;
 			}
 			scriptTrace('Lua sprite with tag: $tag doesn\'t exist!');
 		});
@@ -2120,79 +2059,89 @@ class FunkinScript
 	public function get(variable:String):Dynamic
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return false;
+			Lua.getglobal(lua, variable);
+			var result:Any = Convert.fromLua(lua, -1);
+			Lua.pop(lua, 1);
+
+			return result;
 		}
-
-		Lua.getglobal(lua, variable);
-		var result:Any = Convert.fromLua(lua, -1);
-		Lua.pop(lua, 1);
-
-		// Debug.logTrace('variable: $variable, result: $result, result type: ${Type.typeof(result)}');
-		return result;
 		#elseif hscript
-		return interp.variables.get(variable);
+		if (interp != null)
+		{
+			return interp.variables.get(variable);
+		}
 		#end
+		return null;
 	}
 
 	public function set(variable:String, data:Any):Void
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return;
-		}
-
-		if (Reflect.isFunction(data))
-		{
-			Lua_helper.add_callback(lua, variable, data);
-		}
-		else
-		{
-			Convert.toLua(lua, data);
-			Lua.setglobal(lua, variable);
+			if (Reflect.isFunction(data))
+			{
+				Lua_helper.add_callback(lua, variable, data);
+			}
+			else
+			{
+				Convert.toLua(lua, data);
+				Lua.setglobal(lua, variable);
+			}
 		}
 		#elseif hscript
-		interp.variables.set(variable, data);
+		if (interp != null)
+		{
+			interp.variables.set(variable, data);
+		}
 		#end
 	}
 
 	public function call(funcName:String, args:Array<Any>):Any
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return FUNCTION_CONTINUE;
-		}
+			Lua.getglobal(lua, funcName);
 
-		Lua.getglobal(lua, funcName);
+			for (arg in args)
+			{
+				Convert.toLua(lua, arg);
+			}
 
-		for (arg in args)
-		{
-			Convert.toLua(lua, arg);
-		}
+			var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
+			var error:String = getLuaErrorMessage(lua);
+			if (error != null)
+			{
+				if (error == 'attempt to call a nil value')
+				{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
+					return FUNCTION_CONTINUE;
+				}
+				else
+				{
+					Debug.logError(error);
+					scriptTrace(error);
+				}
+			}
 
-		var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
-		var error:String = getLuaErrorMessage(lua);
-
-		if (error != null)
-		{
-			if (error != 'attempt to call a nil value')
-			{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
-				scriptTrace(error);
+			if (result != null && resultIsAllowed(lua, result))
+			{
+				var converted:Any = Convert.fromLua(lua, result);
+				Lua.pop(lua, 1);
+				return converted;
 			}
 		}
-		if (result != null && resultIsAllowed(lua, result))
-		{
-			return Convert.fromLua(lua, result);
-		}
 		#elseif hscript
-		var possiblyFunc:Dynamic = get(funcName);
-		if (Reflect.isFunction(possiblyFunc))
+		if (interp != null)
 		{
-			var func:Function = cast possiblyFunc;
-			return Reflect.callMethod(null, func, args);
+			var possiblyFunc:Dynamic = get(funcName);
+			if (Reflect.isFunction(possiblyFunc))
+			{
+				var func:Function = cast possiblyFunc;
+				return Reflect.callMethod(null, func, args);
+			}
 		}
 		#end
 		return FUNCTION_CONTINUE;
@@ -2201,13 +2150,11 @@ class FunkinScript
 	public function stop():Void
 	{
 		#if FEATURE_LUA
-		if (lua == null)
+		if (lua != null)
 		{
-			return;
+			Lua.close(lua);
+			lua = null;
 		}
-
-		Lua.close(lua);
-		lua = null;
 		#elseif hscript
 		interp = null;
 		#end
@@ -2229,9 +2176,13 @@ class FunkinScript
 	#if FEATURE_LUA
 	private function getLuaErrorMessage(lua:State):String
 	{
-		var error:String = Lua.tostring(lua, -1);
-		Lua.pop(lua, 1);
-		return error;
+		if (Lua.type(lua, -1) == Lua.LUA_TSTRING)
+		{
+			var error:String = Lua.tostring(lua, -1);
+			Lua.pop(lua, 1);
+			return error;
+		}
+		return null;
 	}
 
 	private function resultIsAllowed(lua:State, ?result:Int):Bool
@@ -2250,7 +2201,7 @@ class FunkinScript
 		return PlayState.instance.scriptTexts.exists(name) ? PlayState.instance.scriptTexts.get(name) : Reflect.getProperty(PlayState.instance, name);
 	}
 
-	private function getGroupStuff(group:Any, variable:String):Any
+	private static function getGroupStuff(group:Any, variable:String):Any
 	{
 		var qualifierArray:Array<String> = variable.split('.');
 		if (qualifierArray.length > 1)
@@ -2265,7 +2216,7 @@ class FunkinScript
 		return Reflect.getProperty(group, variable);
 	}
 
-	private function setGroupStuff(group:Any, variable:String, value:Any):Void
+	private static function setGroupStuff(group:Any, variable:String, value:Any):Void
 	{
 		var qualifierArray:Array<String> = variable.split('.');
 		if (qualifierArray.length > 1)
@@ -2281,69 +2232,63 @@ class FunkinScript
 		Reflect.setProperty(group, variable, value);
 	}
 
-	private function loadFrames(spr:FlxSprite, image:String, spriteType:String):Void
+	private static function loadFrames(spr:FlxSprite, image:String, spriteType:String):Void
 	{
 		switch (spriteType.toLowerCase().trim())
 		{
 			case 'texture' | 'textureatlas' | 'tex':
 				spr.frames = AtlasFrameMaker.construct(image);
-
 			case 'texture_noaa' | 'textureatlas_noaa' | 'tex_noaa':
 				spr.frames = AtlasFrameMaker.construct(image, null, true);
-
 			case 'packer' | 'packeratlas' | 'pac':
 				spr.frames = Paths.getPackerAtlas(image);
-
 			default:
 				spr.frames = Paths.getSparrowAtlas(image);
 		}
 	}
 
-	private function resetTextTag(tag:String):Void
+	private static function resetTextTag(tag:String):Void
 	{
-		if (!PlayState.instance.scriptTexts.exists(tag))
+		if (PlayState.instance.scriptTexts.exists(tag))
 		{
-			return;
+			var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
+			text.kill();
+			if (text.wasAdded)
+			{
+				PlayState.instance.remove(text, true);
+			}
+			text.destroy();
+			PlayState.instance.scriptTexts.remove(tag);
 		}
-
-		var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
-		text.kill();
-		if (text.wasAdded)
-		{
-			PlayState.instance.remove(text, true);
-		}
-		text.destroy();
-		PlayState.instance.scriptTexts.remove(tag);
 	}
 
-	private function resetSpriteTag(tag:String):Void
+	private static function resetSpriteTag(tag:String):Void
 	{
-		if (!PlayState.instance.scriptSprites.exists(tag))
+		if (PlayState.instance.scriptSprites.exists(tag))
 		{
-			return;
+			var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
+			sprite.kill();
+			if (sprite.wasAdded)
+			{
+				PlayState.instance.remove(sprite, true);
+			}
+			sprite.destroy();
+			PlayState.instance.scriptSprites.remove(tag);
 		}
-
-		var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
-		sprite.kill();
-		if (sprite.wasAdded)
-		{
-			PlayState.instance.remove(sprite, true);
-		}
-		sprite.destroy();
-		PlayState.instance.scriptSprites.remove(tag);
 	}
 
-	private function cancelTween(tag:String):Void
+	private static function cancelTween(tag:String):Void
 	{
 		if (PlayState.instance.scriptTweens.exists(tag))
 		{
-			PlayState.instance.scriptTweens.get(tag).cancel();
-			PlayState.instance.scriptTweens.get(tag).destroy();
+			var tween:FlxTween = PlayState.instance.scriptTweens.get(tag);
+			tween.cancel();
+			tween.destroy();
 			PlayState.instance.scriptTweens.remove(tag);
 		}
 	}
 
-	private function tweenShit(tag:String, vars:String):Any
+	private static function tweenShit(tag:String, vars:String):Any
 	{
 		cancelTween(tag);
 		var variables:Array<String> = vars.replace(' ', '').split('.');
@@ -2364,7 +2309,7 @@ class FunkinScript
 		return object;
 	}
 
-	private function cancelTimer(tag:String):Void
+	private static function cancelTimer(tag:String):Void
 	{
 		if (PlayState.instance.scriptTimers.exists(tag))
 		{
@@ -2376,135 +2321,138 @@ class FunkinScript
 	}
 
 	// Better optimized than using some getProperty shit or idk
-	private function getFlxEaseByString(?ease:String = ''):(Float) -> Float
+	private static function getFlxEaseByString(?ease:String = ''):(Float) -> Float
 	{
-		switch (ease.toLowerCase().trim())
+		return switch (ease.toLowerCase().trim())
 		{
 			case 'backin':
-				return FlxEase.backIn;
+				FlxEase.backIn;
 			case 'backinout':
-				return FlxEase.backInOut;
+				FlxEase.backInOut;
 			case 'backout':
-				return FlxEase.backOut;
+				FlxEase.backOut;
 			case 'bouncein':
-				return FlxEase.bounceIn;
+				FlxEase.bounceIn;
 			case 'bounceinout':
-				return FlxEase.bounceInOut;
+				FlxEase.bounceInOut;
 			case 'bounceout':
-				return FlxEase.bounceOut;
+				FlxEase.bounceOut;
 			case 'circin':
-				return FlxEase.circIn;
+				FlxEase.circIn;
 			case 'circinout':
-				return FlxEase.circInOut;
+				FlxEase.circInOut;
 			case 'circout':
-				return FlxEase.circOut;
+				FlxEase.circOut;
 			case 'cubein':
-				return FlxEase.cubeIn;
+				FlxEase.cubeIn;
 			case 'cubeinout':
-				return FlxEase.cubeInOut;
+				FlxEase.cubeInOut;
 			case 'cubeout':
-				return FlxEase.cubeOut;
+				FlxEase.cubeOut;
 			case 'elasticin':
-				return FlxEase.elasticIn;
+				FlxEase.elasticIn;
 			case 'elasticinout':
-				return FlxEase.elasticInOut;
+				FlxEase.elasticInOut;
 			case 'elasticout':
-				return FlxEase.elasticOut;
+				FlxEase.elasticOut;
 			case 'expoin':
-				return FlxEase.expoIn;
+				FlxEase.expoIn;
 			case 'expoinout':
-				return FlxEase.expoInOut;
+				FlxEase.expoInOut;
 			case 'expoout':
-				return FlxEase.expoOut;
+				FlxEase.expoOut;
 			case 'quadin':
-				return FlxEase.quadIn;
+				FlxEase.quadIn;
 			case 'quadinout':
-				return FlxEase.quadInOut;
+				FlxEase.quadInOut;
 			case 'quadout':
-				return FlxEase.quadOut;
+				FlxEase.quadOut;
 			case 'quartin':
-				return FlxEase.quartIn;
+				FlxEase.quartIn;
 			case 'quartinout':
-				return FlxEase.quartInOut;
+				FlxEase.quartInOut;
 			case 'quartout':
-				return FlxEase.quartOut;
+				FlxEase.quartOut;
 			case 'quintin':
-				return FlxEase.quintIn;
+				FlxEase.quintIn;
 			case 'quintinout':
-				return FlxEase.quintInOut;
+				FlxEase.quintInOut;
 			case 'quintout':
-				return FlxEase.quintOut;
+				FlxEase.quintOut;
 			case 'sinein':
-				return FlxEase.sineIn;
+				FlxEase.sineIn;
 			case 'sineinout':
-				return FlxEase.sineInOut;
+				FlxEase.sineInOut;
 			case 'sineout':
-				return FlxEase.sineOut;
+				FlxEase.sineOut;
 			case 'smoothstepin':
-				return FlxEase.smoothStepIn;
+				FlxEase.smoothStepIn;
 			case 'smoothstepinout':
-				return FlxEase.smoothStepInOut;
+				FlxEase.smoothStepInOut;
 			case 'smoothstepout':
-				return FlxEase.smoothStepInOut;
+				FlxEase.smoothStepInOut;
 			case 'smootherstepin':
-				return FlxEase.smootherStepIn;
+				FlxEase.smootherStepIn;
 			case 'smootherstepinout':
-				return FlxEase.smootherStepInOut;
+				FlxEase.smootherStepInOut;
 			case 'smootherstepout':
-				return FlxEase.smootherStepOut;
+				FlxEase.smootherStepOut;
+			default:
+				FlxEase.linear;
 		}
-		return FlxEase.linear;
 	}
 
-	private function blendModeFromString(blend:String):BlendMode
+	private static function blendModeFromString(blend:String):BlendMode
 	{
-		switch (blend.toLowerCase().trim())
+		return switch (blend.toLowerCase().trim())
 		{
 			case 'add':
-				return ADD;
+				ADD;
 			case 'alpha':
-				return ALPHA;
+				ALPHA;
 			case 'darken':
-				return DARKEN;
+				DARKEN;
 			case 'difference':
-				return DIFFERENCE;
+				DIFFERENCE;
 			case 'erase':
-				return ERASE;
+				ERASE;
 			case 'hardlight':
-				return HARDLIGHT;
+				HARDLIGHT;
 			case 'invert':
-				return INVERT;
+				INVERT;
 			case 'layer':
-				return LAYER;
+				LAYER;
 			case 'lighten':
-				return LIGHTEN;
+				LIGHTEN;
 			case 'multiply':
-				return MULTIPLY;
+				MULTIPLY;
 			case 'overlay':
-				return OVERLAY;
+				OVERLAY;
 			case 'screen':
-				return SCREEN;
+				SCREEN;
 			case 'shader':
-				return SHADER;
+				SHADER;
 			case 'subtract':
-				return SUBTRACT;
+				SUBTRACT;
+			default:
+				NORMAL;
 		}
-		return NORMAL;
 	}
 
-	private function cameraFromString(cam:String):FlxCamera
+	private static function cameraFromString(cam:String):FlxCamera
 	{
-		switch (cam.toLowerCase())
+		return switch (cam.toLowerCase())
 		{
 			case 'camhud' | 'hud':
-				return PlayState.instance.camHUD;
+				PlayState.instance.camHUD;
 			case 'camother' | 'other':
-				return PlayState.instance.camOther;
+				PlayState.instance.camOther;
+			default:
+				PlayState.instance.camGame;
 		}
-		return PlayState.instance.camGame;
 	}
 
-	private function getPropertyLoopThingWhatever(qualifierArray:Array<String>, ?checkForTextsToo:Bool = true):Any
+	private static function getPropertyLoopThingWhatever(qualifierArray:Array<String>, ?checkForTextsToo:Bool = true):Any
 	{
 		var object:Any = getObjectDirectly(qualifierArray[0], checkForTextsToo);
 		for (i in 1...qualifierArray.length - 1)
@@ -2514,25 +2462,23 @@ class FunkinScript
 		return object;
 	}
 
-	private function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Any
+	private static function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Any
 	{
-		var object:Any;
 		if (PlayState.instance.scriptSprites.exists(objectName))
 		{
-			object = PlayState.instance.scriptSprites.get(objectName);
+			return PlayState.instance.scriptSprites.get(objectName);
 		}
 		else if (checkForTextsToo && PlayState.instance.scriptTexts.exists(objectName))
 		{
-			object = PlayState.instance.scriptTexts.get(objectName);
+			return PlayState.instance.scriptTexts.get(objectName);
 		}
 		else
 		{
-			object = Reflect.getProperty(getInstance(), objectName);
+			return Reflect.getProperty(getInstance(), objectName);
 		}
-		return object;
 	}
 
-	private inline function getInstance():FlxState
+	private static inline function getInstance():FlxState
 	{
 		return PlayState.instance.isDead ? GameOverSubState.instance : PlayState.instance;
 	}
@@ -2558,7 +2504,7 @@ class ScriptText extends FlxText
 	{
 		super(x, y, width, text, 16);
 
-		setFormat(Paths.font('vcr.ttf'), size, CENTER, OUTLINE, FlxColor.BLACK);
+		setFormat(Paths.font('vcr.ttf'), size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		cameras = [PlayState.instance.camHUD];
 		scrollFactor.set();
 		borderSize = 2;
@@ -2576,7 +2522,7 @@ class DebugScriptText extends FlxText
 		super(10, 10, 0, text, 20);
 
 		this.parentGroup = parentGroup;
-		setFormat(Paths.font('vcr.ttf'), size, LEFT, OUTLINE, FlxColor.BLACK);
+		setFormat(Paths.font('vcr.ttf'), size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		scrollFactor.set();
 		borderSize = 1;
 	}

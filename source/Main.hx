@@ -1,9 +1,5 @@
 package;
 
-#if USE_CUSTOM_CACHE
-import flixel.graphics.FlxGraphic;
-import openfl.Assets;
-#end
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -11,6 +7,10 @@ import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
+#if USE_CUSTOM_CACHE
+import flixel.graphics.FlxGraphic;
+import openfl.Assets;
+#end
 
 class Main extends Sprite
 {

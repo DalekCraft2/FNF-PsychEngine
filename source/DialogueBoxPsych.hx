@@ -278,6 +278,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 			if (box == null && bgFade == null)
 			{
+				// TODO Make this not have an unused for-loop variable
 				for (i in 0...arrayCharacters.length)
 				{
 					var char:DialogueCharacter = arrayCharacters[0];

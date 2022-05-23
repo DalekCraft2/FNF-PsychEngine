@@ -51,17 +51,14 @@ class FnfCache implements IAssetCache
 			}
 		}
 
-		for (key => value in fonts)
+		for (key in fonts.keys())
 		{
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
 			{
 				if (key.startsWith(prefix))
 				{
 					removeFont(key);
-					// if (value != null)
-					// {
-					// 	value.dispose();
-					// }
+					// Fonts don't have a method for disposing, so we can't do that with them
 				}
 			}
 		}

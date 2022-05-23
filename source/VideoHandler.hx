@@ -1,5 +1,6 @@
 package;
 
+#if FEATURE_VIDEOS
 import flixel.FlxG;
 import openfl.events.Event;
 
@@ -15,8 +16,6 @@ import openfl.net.NetStream;
 import vlc.VlcBitmap;
 #end
 
-// TODO Find a way to speed up the loading times for desktop video (Maybe use the WebmHandler from Kade Engine)
-#if FEATURE_VIDEOS
 class VideoHandler
 {
 	public static var instance:VideoHandler;
@@ -35,11 +34,11 @@ class VideoHandler
 		instance = this;
 
 		#if (js && html5)
-		FlxG.stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		player = new Video();
-		player.x = 0;
-		player.y = 0;
+		player.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+		player.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		FlxG.addChildBelowMouse(player);
+
 		var netConnect:NetConnection = new NetConnection();
 		netConnect.connect(null);
 		netStream = new NetStream(netConnect);
@@ -47,9 +46,11 @@ class VideoHandler
 			onMetaData: () ->
 			{
 				player.attachNetStream(netStream);
-				player.width = FlxG.width;
-				player.height = FlxG.height;
-			}
+				updateSize();
+			},
+			// Can't do this because it gets called when the video starts for some reason,
+			// rather than when it ends like the NetStream class suggests
+			// onPlayStatus: onComplete
 		};
 		netConnect.addEventListener(NetStatusEvent.NET_STATUS, (event:NetStatusEvent) ->
 		{
@@ -63,75 +64,81 @@ class VideoHandler
 		// by Polybius, check out PolyEngine! https://github.com/polybiusproxy/PolyEngine
 
 		vlcBitmap = new VlcBitmap();
-		vlcBitmap.height = FlxG.stage.stageHeight;
-		vlcBitmap.width = FlxG.stage.stageHeight * (16 / 9);
-
+		vlcBitmap.onVideoReady = updateSize;
 		vlcBitmap.onComplete = onComplete;
 		vlcBitmap.onError = onError;
-
-		FlxG.stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-		vlcBitmap.repeat = 0;
-		vlcBitmap.inWindow = false;
-		vlcBitmap.fullscreen = false;
-		onEnterFrame(null);
-
+		vlcBitmap.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+		vlcBitmap.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		FlxG.addChildBelowMouse(vlcBitmap);
-		vlcBitmap.play(checkFile(name));
+
+		vlcBitmap.play(name);
 		#end
 	}
 
 	public function onFocusLost():Void
 	{
 		#if (js && html5)
-		if (netStream != null)
-		{
-			if (FlxG.autoPause)
-			{
-				netStream.pause();
-			}
-		}
+		var playbackCtrl:NetStream = netStream;
 		#elseif cpp
-		if (vlcBitmap != null)
+		var playbackCtrl:VlcBitmap = vlcBitmap;
+		#else
+		var playbackCtrl:Dynamic = null;
+		#end
+
+		if (playbackCtrl != null)
 		{
 			if (FlxG.autoPause)
 			{
-				vlcBitmap.pause();
+				playbackCtrl.pause();
 			}
 		}
-		#end
 	}
 
 	public function onFocus():Void
 	{
 		#if (js && html5)
-		if (netStream != null)
+		var playbackCtrl:NetStream = netStream;
+		#elseif cpp
+		var playbackCtrl:VlcBitmap = vlcBitmap;
+		#else
+		var playbackCtrl:Dynamic = null;
+		#end
+
+		if (playbackCtrl != null)
 		{
 			if (FlxG.autoPause)
 			{
-				netStream.resume();
+				playbackCtrl.resume();
 			}
 		}
-		#elseif cpp
-		if (vlcBitmap != null)
-		{
-			if (FlxG.autoPause || !vlcBitmap.isPlaying)
-			{
-				vlcBitmap.resume();
-			}
-		}
-		#end
 	}
 
-	// This function also checks for whether the video should be skipped, and I would rename it to "update" if that wasn't taken by FlxBasic
-	private function onEnterFrame(event:Event):Void
+	private function onAddedToStage(e:Event):Void
 	{
 		#if (js && html5)
-		// Skip video if the accept keybind is pressed
+		var displayObj:Video = player;
+		#elseif cpp
+		var displayObj:VlcBitmap = vlcBitmap;
+		#else
+		var displayObj:Dynamic = null;
+		#end
+
+		if (displayObj != null)
+		{
+			displayObj.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+			displayObj.stage.addEventListener(Event.RESIZE, onResize);
+		}
+	}
+
+	private function onEnterFrame(event:Event):Void
+	{
+		// Skip video if the accept keybind  is pressed
 		if (PlayerSettings.player1.controls.ACCEPT)
 		{
 			onComplete();
 		}
 
+		#if (js && html5)
 		var soundTransform:SoundTransform = new SoundTransform(FlxG.sound.volume, netStream.soundTransform.pan);
 		if (FlxG.sound.muted)
 		{
@@ -139,45 +146,81 @@ class VideoHandler
 		}
 		netStream.soundTransform = soundTransform;
 		#elseif cpp
-		// Skip video if the accept keybind  is pressed
-		if (PlayerSettings.player1.controls.ACCEPT)
-		{
-			if (vlcBitmap.isPlaying)
-			{
-				onComplete();
-			}
-		}
-
+		// TODO There's probably a mathematical equation related to decibels which fixes this properly, so I should find that; maybe HaxeFlixel uses it
 		// shitty volume fix
 		vlcBitmap.volume = 0;
 		if (!FlxG.sound.muted && FlxG.sound.volume > 0.01)
-		{ // Kind of fixes the volume being too low when you decrease it
+		{
+			// Kind of fixes the volume being too low when you decrease it
 			vlcBitmap.volume = FlxG.sound.volume * 0.5 + 0.5;
 		}
+
+		// vlcBitmap.volume = FlxG.sound.muted ? 0 : FlxG.sound.volume;
 		#end
+	}
+
+	private function onResize(e:Event):Void
+	{
+		updateSize();
+	}
+
+	private function updateSize():Void
+	{
+		#if (js && html5)
+		var displayObj:Video = player;
+		#elseif cpp
+		var displayObj:VlcBitmap = vlcBitmap;
+		#else
+		var displayObj:Dynamic = null;
+		#end
+
+		if (displayObj != null && displayObj.stage != null)
+		{
+			var stageWidth:Int = displayObj.stage.stageWidth;
+			var stageHeight:Int = displayObj.stage.stageHeight;
+			var stageRatio:Float = stageWidth / stageHeight;
+
+			var ratio:Float = displayObj.videoWidth / displayObj.videoHeight;
+
+			if (stageRatio > ratio)
+			{
+				displayObj.width = stageHeight * ratio;
+				displayObj.height = stageHeight;
+			}
+			else
+			{
+				displayObj.width = stageWidth;
+				displayObj.height = stageWidth / ratio;
+			}
+		}
 	}
 
 	private function onComplete():Void
 	{
 		#if (js && html5)
-		netStream.close();
-
-		netStream.dispose();
-		if (FlxG.game.contains(player))
-		{
-			FlxG.game.removeChild(player);
-		}
+		var displayObj:Video = player;
 		#elseif cpp
-		vlcBitmap.stop();
-
-		// Clean player, just in case!
-		vlcBitmap.dispose();
-
-		if (FlxG.game.contains(vlcBitmap))
-		{
-			FlxG.game.removeChild(vlcBitmap);
-		}
+		var displayObj:VlcBitmap = vlcBitmap;
+		#else
+		var displayObj:Dynamic = null;
 		#end
+
+		if (displayObj != null)
+		{
+			if (FlxG.game.contains(displayObj))
+			{
+				FlxG.game.removeChild(displayObj);
+			}
+			displayObj.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			#if (js && html5)
+			netStream.dispose();
+			#elseif cpp
+			displayObj.stop();
+
+			// Clean player, just in case!
+			displayObj.dispose();
+			#end
+		}
 
 		if (finishCallback != null)
 		{
@@ -197,18 +240,5 @@ class VideoHandler
 
 		instance = null;
 	}
-
-	#if cpp
-	private function checkFile(fileName:String):String
-	{
-		var pDir:String = '';
-		var appDir:String = 'file:///${Sys.getCwd()}/';
-		if (!fileName.contains(':')) // Not a path
-			pDir = appDir;
-		else if (!fileName.contains('file://') || !fileName.contains('http')) // C:, D: etc? ..missing "file:///" ?
-			pDir = 'file:///';
-		return '$pDir$fileName';
-	}
-	#end
 }
 #end

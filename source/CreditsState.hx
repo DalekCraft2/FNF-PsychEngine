@@ -73,9 +73,9 @@ class CreditsState extends MusicBeatState
 			if (Paths.exists(creditsFile))
 			{
 				var firstarray:Array<String> = CoolUtil.listFromTextFile(creditsFile);
-				for (i in firstarray)
+				for (line in firstarray)
 				{
-					var arr:Array<String> = i.replace('\\n', '\n').split('::');
+					var arr:Array<String> = line.replace('\\n', '\n').split('::');
 					credits.push({
 						name: arr[0],
 						icon: arr[1],
@@ -130,7 +130,7 @@ class CreditsState extends MusicBeatState
 		descBox.alpha = 0.6;
 		add(descBox);
 		descText = new FlxText(50, FlxG.height + OFFSET - 25, 1180, 32);
-		descText.setFormat(Paths.font('vcr.ttf'), descText.size, CENTER);
+		descText.setFormat(Paths.font('vcr.ttf'), descText.size, FlxColor.WHITE, CENTER);
 		descText.scrollFactor.set();
 		descBox.sprTracker = descText;
 		add(descText);

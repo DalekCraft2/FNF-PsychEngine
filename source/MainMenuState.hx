@@ -1,8 +1,6 @@
 package;
 
-#if sys
-import editors.MasterEditorMenu;
-#end
+import editors.MasterEditorMenuState;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
@@ -131,9 +129,9 @@ class MainMenuState extends MusicBeatState
 		FlxG.camera.follow(camFollowPos, null, 1);
 
 		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0,
-			'Psych Engine v${EngineData.ENGINE_VERSION}\nFriday Night Funkin\' v${Lib.application.meta.get('version')}\n', 16);
+			'Psych Engine (Mock) v${EngineData.ENGINE_VERSION}\nFriday Night Funkin\' v${Lib.application.meta.get('version')}\n', 16);
 		versionShit.scrollFactor.set();
-		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, LEFT, OUTLINE, FlxColor.BLACK);
+		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
 		// TODO Maybe reimpliment NewgroundsIO?
@@ -247,14 +245,12 @@ class MainMenuState extends MusicBeatState
 					});
 				}
 			}
-			// TODO These editors actually work in HTML5, but they can't access our own JSON files without using ChartingState's approach, so I want to somehow make them all easy to use in HTML5
-			#if sys // Only allow editors if files can be written to, because they are useless otherwise
+			// TODO These editors actually work in HTML5, but they can't access our own JSON files without using ChartEditorState's approach, so I want to somehow make them all easy to use in HTML5
 			else if (FlxG.keys.anyJustPressed(debugKeys))
 			{
 				selectedSomethin = true;
-				FlxG.switchState(new MasterEditorMenu());
+				FlxG.switchState(new MasterEditorMenuState());
 			}
-			#end
 		}
 
 		menuItems.forEach((spr:FlxSprite) ->

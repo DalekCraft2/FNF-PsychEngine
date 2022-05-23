@@ -79,7 +79,7 @@ class AchievementsMenuState extends MusicBeatState
 		}
 
 		descText = new FlxText(150, 600, 980, 32);
-		descText.setFormat(Paths.font('vcr.ttf'), descText.size, CENTER, OUTLINE, FlxColor.BLACK);
+		descText.setFormat(Paths.font('vcr.ttf'), descText.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		add(descText);

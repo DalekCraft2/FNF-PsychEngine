@@ -7,12 +7,12 @@ import flixel.system.debug.watch.Tracker.TrackerProfile;
 import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
-import haxe.io.Path;
 import openfl.Lib;
 
 using StringTools;
 
 #if sys
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.FileOutput;
@@ -89,7 +89,7 @@ class Debug
 	 * @param input The message to display.
 	 * @param pos This magic type is auto-populated, and includes the line number and class it was called from.
 	 */
-	public static function logTrace(input:Any, ?pos:PosInfos):Void
+	public static inline function logTrace(input:Any, ?pos:PosInfos):Void
 	{
 		if (input == null)
 			return;
@@ -104,7 +104,7 @@ class Debug
 	 * @param title The title of the popup.
 	 * @param description The description of the popup.
 	 */
-	public static function displayAlert(title:String, description:String):Void
+	public static inline function displayAlert(title:String, description:String):Void
 	{
 		Lib.application.window.alert(description, title);
 	}

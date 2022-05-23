@@ -13,7 +13,6 @@ import flixel.util.FlxColor;
 import haxe.io.Path;
 import openfl.Assets;
 import openfl.display.BitmapData;
-import sys.FileSystem;
 import sys.thread.Thread;
 
 using StringTools;
@@ -71,34 +70,23 @@ class CachingState extends MusicBeatState
 
 		FlxGraphic.defaultPersist = Options.save.data.persistentImages;
 
-		#if sys
 		if (Options.save.data.cacheImages)
 		{
 			Debug.logTrace('Caching images...');
 
 			// TODO: Refactor this to use OpenFLAssets.
-			for (i in Paths.fileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/characters')))
+			for (file in Paths.fileSystem.readDirectoryRecursive('assets/shared/images'))
 			{
-				if (Path.extension(i) != Paths.IMAGE_EXT)
+				if (Path.extension(file) != Paths.IMAGE_EXT)
 					continue;
-				images.push(i);
+				images.push(file);
 			}
-
-			/*
-				for (i in Paths.fileSystem.readDirectory(FileSystem.absolutePath('assets/shared/images/noteskins')))
-				{
-					if (Path.extension(i) != Paths.IMAGE_EXT)
-						continue;
-					images.push(i);
-				}
-			 */
 		}
 
 		Debug.logTrace('Caching music...');
 
 		// TODO: Get the song list from OpenFLAssets.
 		music = Paths.listSongsToCache();
-		#end
 
 		toBeDone = Lambda.count(images) + Lambda.count(music);
 
@@ -142,12 +130,12 @@ class CachingState extends MusicBeatState
 		#if sys
 		Debug.logTrace('LOADING: $toBeDone OBJECTS.');
 
-		for (i in images)
+		for (imageFile in images)
 		{
-			var replaced:String = Path.withoutExtension(i);
+			var replaced:String = Path.withoutExtension(imageFile);
 
-			var imagePath:String = Paths.image(Path.join(['characters', i]), 'shared');
-			Debug.logTrace('Caching character graphic $i ($imagePath)...');
+			var imagePath:String = Paths.image(Path.join(['characters', imageFile]), 'shared');
+			Debug.logTrace('Caching character graphic $imageFile ($imagePath)...');
 			var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(imagePath);
 			var graphic:FlxGraphic = null;
 			if (graphicAsset is FlxGraphic)
@@ -165,15 +153,15 @@ class CachingState extends MusicBeatState
 			done++;
 		}
 
-		for (i in music)
+		for (musicFile in music)
 		{
-			var inst:String = Paths.inst(i);
+			var inst:String = Paths.inst(musicFile);
 			if (Paths.exists(inst, MUSIC))
 			{
 				FlxG.sound.cache(inst);
 			}
 
-			var voices:String = Paths.voices(i);
+			var voices:String = Paths.voices(musicFile);
 			if (Paths.exists(voices, MUSIC))
 			{
 				FlxG.sound.cache(voices);

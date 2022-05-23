@@ -10,10 +10,6 @@
     <!--Switch Export with Unique ApplicationID and Icon-->
     <set name="APP_ID" value="0x0100f6c013bbc000" />
 
-    <!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
-    <haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" />
-    <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
-
     <!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
     <!-- <app preloader="Preloader" resizable="true" /> -->
@@ -41,14 +37,15 @@
 
     <!-- _____________________________ Path Settings ____________________________ -->
 
-    <set name="BUILD_DIR" value="export/release" unless="debug || final" />
+    <!-- I sort of want to get rid of these and just use the default build directory -->
+    <!-- <set name="BUILD_DIR" value="export/release" if="release" />
     <set name="BUILD_DIR" value="export/debug" if="debug" />
-    <set name="BUILD_DIR" value="export/final" if="final" />
-    <set name="BUILD_DIR" value="export/32bit" if="32bits" />
+    <set name="BUILD_DIR" value="export/final" if="final" /> -->
 
+    <!-- and I want to change the source folder name to "src" -->
     <source path="source" />
 
-    <!-- PSYCH ENGINE CUSTOMIZATION -->
+    <!-- ENGINE CUSTOMIZATION -->
 
     <!-- Defines whether Achievements should be enabled. -->
     <define name="FEATURE_ACHIEVEMENTS" />
@@ -65,8 +62,8 @@
     <!-- Defines whether Mods should be enabled. -->
     <define name="FEATURE_MODS" if="desktop" />
 
-    <!-- Defines whether StepMania files can be loaded. -->
-    <define name="FEATURE_STEPMANIA" if="desktop" />
+    <!-- Defines whether StepMania files can be loaded. (I'm keeping this disabled until I ensure that it works.) -->
+    <!-- <define name="FEATURE_STEPMANIA" if="desktop" /> -->
 
     <!-- Defines whether videos should be enabled. Works with CPP (currently only on Windows) or with both JavaScript and HTML5. -->
     <define name="FEATURE_VIDEOS" if="web || cpp" />
@@ -74,12 +71,12 @@
     <!-- Defines whether watermarks should display on the title screen. -->
     <define name="PSYCH_WATERMARKS" />
 
-    <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
+    <!-- Delete the if="officialBuild" for enabling this on an unofficial build -->
     <define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild" />
 
     <!-- <define name="GITAROO_EASTER_EGG" /> -->
 
-    <!-- DON'T ENABLE THIS -->
+    <!-- Don't enable this on an unofficial build  -->
     <define name="CHECK_FOR_UPDATES" if="desktop officialBuild" />
 
     <!-- <define name="USE_CUSTOM_CACHE" /> -->
@@ -127,8 +124,6 @@
 
     <assets path='mods' embed="false" if="FEATURE_MODS" />
 
-    <!-- Using a path to a font asset is fine. Stop screaming. bruh -->
-
     <!-- _______________________________ Libraries ______________________________ -->
 
     <haxelib name="flixel" />
@@ -143,6 +138,7 @@
     <!-- <haxelib name="nape-haxe4" /> -->
 
     <haxelib name="linc_luajit" if="FEATURE_LUA" />
+    
     <!-- <haxelib name="newgrounds" /> -->
 
     <!-- Enable this if you want to use Polymod to manage assets (and mods, if enabled). (Requires that mods use Polymod folders such as _append for some assets) -->

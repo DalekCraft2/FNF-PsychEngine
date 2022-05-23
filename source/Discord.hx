@@ -3,7 +3,6 @@ package;
 #if FEATURE_DISCORD
 import discord_rpc.DiscordRpc;
 import openfl.Lib;
-import sys.thread.Thread;
 
 class DiscordClient
 {
@@ -22,20 +21,10 @@ class DiscordClient
 			});
 			Debug.logTrace('Discord Client started.');
 
-			Thread.create(() ->
+			Lib.application.onUpdate.add((code:Int) ->
 			{
-				while (true)
-				{
-					DiscordRpc.process();
-					// Debug.logTrace('Discord Client Update');
-					Sys.sleep(2);
-				}
+				DiscordRpc.process();
 			});
-
-			// Lib.application.onUpdate.add((code:Int) ->
-			// {
-			// 	DiscordRpc.process();
-			// });
 
 			Lib.application.onExit.add((exitCode:Int) ->
 			{

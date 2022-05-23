@@ -9,6 +9,7 @@ import openfl.geom.Rectangle;
 
 using StringTools;
 
+// TODO Finish this and add it to the chart editor
 class Waveform extends FlxSprite
 {
 	// referenced from https://github.com/gedehari/HaxeFlixel-Waveform-Rendering/blob/master/source/PlayState.hx

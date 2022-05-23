@@ -77,7 +77,7 @@ class StoryMenuState extends MusicBeatState
 		scoreText.setFormat(Paths.font('vcr.ttf'), scoreText.size);
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, 32);
-		txtWeekTitle.setFormat(Paths.font('vcr.ttf'), txtWeekTitle.size, RIGHT);
+		txtWeekTitle.setFormat(Paths.font('vcr.ttf'), txtWeekTitle.size, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
 
 		var rankText:FlxText = new FlxText(0, 10, 0, 'RANK: GREAT', scoreText.size);

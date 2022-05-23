@@ -1,9 +1,9 @@
 package;
 
-import flash.Lib;
-import flash.display.Bitmap;
-import flash.display.BitmapData;
 import flixel.system.FlxBasePreloader;
+import openfl.Lib;
+import openfl.display.Bitmap;
+import openfl.display.BitmapData;
 import openfl.display.Sprite;
 
 @:bitmap('art/preloaderArt.png') class LogoImage extends BitmapData

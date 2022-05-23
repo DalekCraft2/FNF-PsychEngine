@@ -8,21 +8,14 @@
         <compilervalue name="-I" value="${CPP_DIR}/src/" />
     </files>
 
-    <target id="haxe" tool="linker" toolid="exe">
-        <lib name="${CPP_DIR}/lib/libvlc.lib" if="windows" />
-        <lib name="${CPP_DIR}/lib/libvlccore.lib" if="windows" />
-    </target>
-
-    <target id="haxe" tool="linker" if="macos">
-        <flag value="-framework" />
-        <flag value="OpenGL" />
-        <flag value="-framework" />
-        <flag value="CoreVideo" />
-        <flag value="-framework" />
-        <flag value="IOKit" />
-        <flag value="-framework" />
-        <flag value="Cocoa" />
-        <flag value="-framework" />
-        <flag value="Glut" />
-    </target>
+    <target id="haxe">
+		<section if="windows">
+			<lib name='${CPP_DIR}/lib/Windows/libvlc.lib' />
+			<lib name='${CPP_DIR}/lib/Windows/libvlccore.lib' />
+		</section>
+		<section if="linux">
+			<lib name='${CPP_DIR}/lib/Linux/libvlc.so.5' />
+			<lib name='${CPP_DIR}/lib/Linux/libvlccore.so.9' />
+		</section>
+	</target>
 </xml>

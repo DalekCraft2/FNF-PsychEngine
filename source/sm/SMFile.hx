@@ -1,5 +1,7 @@
 package sm;
 
+#if FEATURE_STEPMANIA
+import Note.NoteDef;
 import Section.SectionDef;
 import Song.SongDef;
 import Song.SongWrapper;
@@ -12,7 +14,6 @@ using StringTools;
 import sys.io.File;
 #end
 
-#if FEATURE_STEPMANIA
 class SMFile
 {
 	public static function loadFile(path):SMFile
@@ -108,12 +109,21 @@ class SMFile
 	public function convertToFNF(saveTo:String):String
 	{
 		// array's for helds
-		var heldNotes:Array<Array<Any>>;
+		var heldNotes:Array<NoteDef>;
 
 		if (isDouble) // held storage lanes
-			heldNotes = [[], [], [], [], [], [], [], []];
+			heldNotes = [
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([]),
+				new NoteDef([])
+			];
 		else
-			heldNotes = [[], [], [], []];
+			heldNotes = [new NoteDef([]), new NoteDef([]), new NoteDef([]), new NoteDef([])];
 
 		// variables
 
@@ -148,7 +158,9 @@ class SMFile
 			};
 
 			var data:String = Json.stringify(json, '\t');
+			#if sys
 			File.saveContent(saveTo, data);
+			#end
 			return data;
 		}
 
@@ -240,16 +252,16 @@ class SMFile
 					switch (numba)
 					{
 						case 1: // normal
-							section.sectionNotes.push([rowTime, lane, 0, 0, currentBeat]);
+							section.sectionNotes.push(new NoteDef([rowTime, lane, 0, 0, currentBeat]));
 						case 2: // held head
-							heldNotes[lane] = [rowTime, lane, 0, 0, currentBeat];
+							heldNotes[lane] = new NoteDef([rowTime, lane, 0, 0, currentBeat]);
 						case 3: // held tail
-							var data:Array<Dynamic> = heldNotes[lane];
-							var timeDiff:Float = rowTime - data[0];
-							section.sectionNotes.push([data[0], lane, timeDiff, 0, data[4]]);
-							heldNotes[index] = [];
+							var data:NoteDef = heldNotes[lane];
+							var timeDiff:Float = rowTime - data.strumTime;
+							section.sectionNotes.push(new NoteDef([data.strumTime, lane, timeDiff, 0, data[4]]));
+							heldNotes[index] = new NoteDef([]);
 						case 4: // roll head
-							heldNotes[lane] = [rowTime, lane, 0, 0, currentBeat];
+							heldNotes[lane] = new NoteDef([rowTime, lane, 0, 0, currentBeat]);
 					}
 					index++;
 				}
@@ -327,7 +339,9 @@ class SMFile
 		};
 
 		var data:String = Json.stringify(json, '\t');
+		#if sys
 		File.saveContent(saveTo, data);
+		#end
 		return data;
 	}
 }

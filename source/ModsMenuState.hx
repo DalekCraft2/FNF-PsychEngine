@@ -1,12 +1,8 @@
 package;
 
 #if FEATURE_MODS
-#if FEATURE_DISCORD
-import Discord.DiscordClient;
-#end
 import Mod.ModEnableState;
 import Mod.ModMetadata;
-import flash.geom.Rectangle;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -17,8 +13,8 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import haxe.io.Path;
 import openfl.display.BitmapData;
+import openfl.geom.Rectangle;
 #if sys
-import flash.net.FileFilter;
 import haxe.Exception;
 import haxe.io.Bytes;
 import haxe.zip.Entry;
@@ -26,11 +22,15 @@ import haxe.zip.Reader;
 import haxe.zip.Uncompress;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
+import openfl.net.FileFilter;
 import openfl.net.FileReference;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.FileInput;
 import sys.io.FileOutput;
+#end
+#if FEATURE_DISCORD
+import Discord.DiscordClient;
 #end
 #if polymod
 import polymod.PolymodConfig;
@@ -94,7 +94,7 @@ class ModsMenuState extends MusicBeatState
 		noModsTxt = new FlxText(0, 0, FlxG.width, 'NO MODS INSTALLED\nPRESS BACK TO EXIT AND INSTALL A MOD', 32);
 		if (FlxG.random.bool(0.1))
 			noModsTxt.text += '\nBITCH.'; // meanie
-		noModsTxt.setFormat(Paths.font('vcr.ttf'), noModsTxt.size, CENTER, OUTLINE, FlxColor.BLACK);
+		noModsTxt.setFormat(Paths.font('vcr.ttf'), noModsTxt.size, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		noModsTxt.scrollFactor.set();
 		noModsTxt.borderSize = 2;
 		noModsTxt.screenCenter();
@@ -135,7 +135,7 @@ class ModsMenuState extends MusicBeatState
 		buttonsArray.push(buttonToggle);
 		visibleWhenHasMods.push(buttonToggle);
 
-		buttonToggle.label.setFormat(Paths.font('vcr.ttf'), 24, CENTER);
+		buttonToggle.label.setFormat(Paths.font('vcr.ttf'), 24, FlxColor.WHITE, CENTER);
 		setAllLabelsOffset(buttonToggle, -15, 10);
 		startX -= 70;
 
@@ -193,9 +193,9 @@ class ModsMenuState extends MusicBeatState
 		startX -= 190;
 		buttonDisableAll = new FlxButton(startX, 0, 'DISABLE ALL', () ->
 		{
-			for (i in modList)
+			for (modEnableState in modList)
 			{
-				i.enabled = false;
+				modEnableState.enabled = false;
 			}
 			for (mod in mods)
 			{
@@ -220,9 +220,9 @@ class ModsMenuState extends MusicBeatState
 		startX -= 190;
 		buttonEnableAll = new FlxButton(startX, 0, 'ENABLE ALL', () ->
 		{
-			for (i in modList)
+			for (modEnableState in modList)
 			{
-				i.enabled = true;
+				modEnableState.enabled = true;
 			}
 			for (mod in mods)
 			{
@@ -250,7 +250,7 @@ class ModsMenuState extends MusicBeatState
 		#if sys
 		installButton = new FlxButton(startX, 620, 'Install Mod', () ->
 		{
-			installMod();
+			fileBrowseDialog();
 		});
 		installButton.setGraphicSize(150, 70);
 		installButton.updateHitbox();
@@ -276,7 +276,7 @@ class ModsMenuState extends MusicBeatState
 		#end
 
 		descriptionTxt = new FlxText(148, 0, FlxG.width - 216, 32);
-		descriptionTxt.setFormat(Paths.font('vcr.ttf'), descriptionTxt.size, LEFT);
+		descriptionTxt.setFormat(Paths.font('vcr.ttf'), descriptionTxt.size, FlxColor.WHITE, LEFT);
 		descriptionTxt.scrollFactor.set();
 		add(descriptionTxt);
 		visibleWhenHasMods.push(descriptionTxt);
@@ -400,7 +400,6 @@ class ModsMenuState extends MusicBeatState
 		{
 			if (mod.title == newMod.title)
 			{
-				// Debug.logTrace('${mod[0]}, ${values[0]}');
 				return;
 			}
 		}
@@ -630,63 +629,91 @@ class ModsMenuState extends MusicBeatState
 	#if sys
 	private var _file:FileReference;
 
-	private function installMod():Void
+	private function fileBrowseDialog():Void
 	{
 		var zipFilter:FileFilter = new FileFilter('ZIP', 'zip');
-		_file = new FileReference();
-		_file.addEventListener(Event.SELECT, onLoadComplete);
-		_file.addEventListener(Event.CANCEL, onLoadCancel);
-		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		addLoadListeners();
 		_file.browse([zipFilter]);
-		canExit = false;
 	}
 
-	private function onLoadComplete(e:Event):Void
+	private function addLoadListeners():Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
+		_file = new FileReference();
+		_file.addEventListener(Event.SELECT, onLoadSelect);
+		_file.addEventListener(Event.COMPLETE, onLoadComplete);
+		_file.addEventListener(Event.CANCEL, onLoadCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+	}
+
+	private function removeLoadListeners():Void
+	{
+		_file.removeEventListener(Event.SELECT, onLoadSelect);
+		_file.removeEventListener(Event.COMPLETE, onLoadComplete);
 		_file.removeEventListener(Event.CANCEL, onLoadCancel);
 		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
+		_file = null;
+	}
 
+	/**
+	 * Called when a file has been selected.
+	 */
+	private function onLoadSelect(e:Event):Void
+	{
+		try
+		{
+			_file.load();
+		}
+		catch (e:Exception)
+		{
+			removeLoadListeners();
+			Debug.logError('Error loading file:\n${e.message}');
+		}
+	}
+
+	/**
+	 * Called when the file has finished loading.
+	 */
+	private function onLoadComplete(e:Event):Void
+	{
+		// TODO Load from the _file.data field instead of getting the private path field from it
+		// Do that with the editors, too, because some of them load from paths (like the chart editor) instead of from the file data
 		var fullPath:Null<String> = null;
 		@:privateAccess
 		if (_file.__path != null)
 			fullPath = _file.__path;
 
-		if (fullPath != null)
+		if (Paths.exists(fullPath))
 		{
-			if (Paths.exists(fullPath))
-			{
-				FlxG.resetState();
+			FlxG.resetState();
 
-				unzip(fullPath, Paths.mods());
-
-				_file = null;
-				return;
-			}
+			unzip(fullPath, Paths.mods());
+			Debug.logTrace('Successfully loaded file: ${_file.name}');
+			removeLoadListeners();
+			return;
 		}
-		_file = null;
+		removeLoadListeners();
 		canExit = true;
-		Debug.logError('File couldn\'t be loaded! Wtf?');
+		Debug.logError('Could not load file');
 	}
 
+	/**
+	 * Called when the load file dialog is cancelled.
+	 */
 	private function onLoadCancel(e:Event):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
+		removeLoadListeners();
 		canExit = true;
 		Debug.logTrace('Cancelled file loading.');
 	}
 
+	/**
+	 * Called if there is an error while loading the file.
+	 */
 	private function onLoadError(e:IOErrorEvent):Void
 	{
-		_file.removeEventListener(Event.SELECT, onLoadComplete);
-		_file.removeEventListener(Event.CANCEL, onLoadCancel);
-		_file.removeEventListener(IOErrorEvent.IO_ERROR, onLoadError);
-		_file = null;
+		removeLoadListeners();
 		canExit = true;
-		Debug.logError('Problem loading file');
+		Debug.logError('Error loading file: ${e.text}');
 	}
 
 	private function uninstallMod():Void

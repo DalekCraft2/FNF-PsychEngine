@@ -69,8 +69,8 @@ class StrumNote extends FlxSprite
 		if (PlayState.isPixelStage)
 		{
 			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'));
-			width = width / 4;
-			height = height / 5;
+			width /= 4;
+			height /= 5;
 			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'), true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
@@ -81,11 +81,16 @@ class StrumNote extends FlxSprite
 				animation.add(color.getName(), [4 + color.getIndex()]);
 			}
 
-			var color:NoteColor = NoteColor.createByIndex(noteData);
+			// TODO wait why did i do this; wouldn't it make more sense to just use the notedata instead of getting the index from the color
+			// var color:NoteColor = NoteColor.createByIndex(noteData);
 
-			animation.add('static', [color.getIndex()]);
-			animation.add('pressed', [color.getIndex() + 4, color.getIndex() + 8], 12, false);
-			animation.add('confirm', [color.getIndex() + 12, color.getIndex() + 16], 24, false);
+			// animation.add('static', [color.getIndex()]);
+			// animation.add('pressed', [color.getIndex() + 4, color.getIndex() + 8], 12, false);
+			// animation.add('confirm', [color.getIndex() + 12, color.getIndex() + 16], 24, false);
+
+			animation.add('static', [noteData]);
+			animation.add('pressed', [noteData + 4, noteData + 8], 12, false);
+			animation.add('confirm', [noteData + 12, noteData + 16], 24, false);
 		}
 		else
 		{
@@ -98,25 +103,11 @@ class StrumNote extends FlxSprite
 			antialiasing = Options.save.data.globalAntialiasing;
 			setGraphicSize(Std.int(width * 0.7));
 
-			switch (noteData)
-			{
-				case 0:
-					animation.addByPrefix('static', 'arrowLEFT');
-					animation.addByPrefix('pressed', 'left press', 24, false);
-					animation.addByPrefix('confirm', 'left confirm', 24, false);
-				case 1:
-					animation.addByPrefix('static', 'arrowDOWN');
-					animation.addByPrefix('pressed', 'down press', 24, false);
-					animation.addByPrefix('confirm', 'down confirm', 24, false);
-				case 2:
-					animation.addByPrefix('static', 'arrowUP');
-					animation.addByPrefix('pressed', 'up press', 24, false);
-					animation.addByPrefix('confirm', 'up confirm', 24, false);
-				case 3:
-					animation.addByPrefix('static', 'arrowRIGHT');
-					animation.addByPrefix('pressed', 'right press', 24, false);
-					animation.addByPrefix('confirm', 'right confirm', 24, false);
-			}
+			var noteKey:NoteKey = NoteKey.createByIndex(noteData);
+
+			animation.addByPrefix('static', 'arrow${noteKey.getName()}');
+			animation.addByPrefix('pressed', '${noteKey.getName().toLowerCase()} press', 24, false);
+			animation.addByPrefix('confirm', '${noteKey.getName().toLowerCase()} confirm', 24, false);
 		}
 		updateHitbox();
 

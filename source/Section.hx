@@ -1,8 +1,14 @@
 package;
 
+import EventNote.LegacyEventNoteDef;
+import Note.NoteDef;
+import flixel.util.typeLimit.OneOfTwo;
+
+typedef SectionEntry = OneOfTwo<NoteDef, LegacyEventNoteDef>;
+
 typedef SectionDef =
 {
-	var sectionNotes:Array<Array<Dynamic>>;
+	var sectionNotes:Array<SectionEntry>;
 	var lengthInSteps:Int;
 	var typeOfSection:Int;
 	var mustHitSection:Bool;
@@ -33,15 +39,21 @@ class Section
 	 */
 	public static final COPYCAT:Int = 0;
 
+	public static inline function isEvent(entry:SectionEntry):Bool
+	{
+		return cast(entry, Array<Dynamic>)[1] < 0;
+	}
+
 	public function new(sectionDef:SectionDef)
 	{
 		notes = [];
-		for (noteArray in sectionDef.sectionNotes)
+		for (noteDef in sectionDef.sectionNotes)
 		{
-			var strumTime:Float = noteArray[0];
-			var noteData:Int = noteArray[1];
-			var sustainLength:Float = noteArray[2];
-			var noteType:String = noteArray[3];
+			var noteDef:NoteDef = noteDef;
+			var strumTime:Float = noteDef.strumTime;
+			var noteData:Int = noteDef.noteData;
+			var sustainLength:Float = noteDef.sustainLength;
+			var noteType:String = noteDef.noteType;
 			var note:Note = new Note(strumTime, noteData);
 			note.sustainLength = sustainLength;
 			note.noteType = noteType;

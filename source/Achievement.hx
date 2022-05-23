@@ -169,11 +169,11 @@ class Achievement extends FlxSpriteGroup
 		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
 		var achievementName:FlxText = new FlxText(achievementIcon.x + achievementIcon.width + 20, achievementIcon.y + 16, 280, achievementDef.name, 16);
-		achievementName.setFormat(Paths.font('vcr.ttf'), achievementName.size, LEFT);
+		achievementName.setFormat(Paths.font('vcr.ttf'), achievementName.size, FlxColor.WHITE, LEFT);
 		achievementName.scrollFactor.set();
 
 		var achievementText:FlxText = new FlxText(achievementName.x, achievementName.y + 32, 280, achievementDef.description, 16);
-		achievementText.setFormat(Paths.font('vcr.ttf'), achievementText.size, LEFT);
+		achievementText.setFormat(Paths.font('vcr.ttf'), achievementText.size, FlxColor.WHITE, LEFT);
 		achievementText.scrollFactor.set();
 
 		add(achievementBG);
