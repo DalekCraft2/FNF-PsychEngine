@@ -9,6 +9,7 @@ import flixel.util.FlxColor;
 import haxe.Exception;
 import haxe.io.Path;
 import options.OptionsState;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -34,10 +35,9 @@ class LoadReplayState extends MusicBeatState
 	{
 		super.create();
 
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		// TODO: Refactor this to use OpenFlAssets.
 		controlsStrings = Paths.fileSystem.readDirectory('assets/replays/');
-		Debug.logTrace(controlsStrings);
 
 		controlsStrings.sort(sortByDate);
 
@@ -50,9 +50,8 @@ class LoadReplayState extends MusicBeatState
 
 		addWeek(['senpai', 'roses', 'thorns'], 6);
 
-		for (i in 0...controlsStrings.length)
+		for (i => string in controlsStrings)
 		{
-			var string:String = controlsStrings[i];
 			actualNames[i] = string;
 			var rep:Replay = Replay.loadReplay(string);
 			controlsStrings[i] = '${string.split('time')[0]} ${Difficulty.difficultyString(rep.replay.songDiff).toUpperCase()}';
@@ -71,9 +70,9 @@ class LoadReplayState extends MusicBeatState
 		grpControls = new FlxTypedGroup();
 		add(grpControls);
 
-		for (i in 0...controlsStrings.length)
+		for (i => string in controlsStrings)
 		{
-			var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, controlsStrings[i], true, false);
+			var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, string, true, false);
 			controlLabel.isMenuItem = true;
 			controlLabel.targetY = i;
 			grpControls.add(controlLabel);
@@ -192,8 +191,8 @@ class LoadReplayState extends MusicBeatState
 
 	private function sortByDate(a:String, b:String):Int
 	{
-		var aTime:Float = Std.parseFloat(a.split('time')[1]) / 1000;
-		var bTime:Float = Std.parseFloat(b.split('time')[1]) / 1000;
+		var aTime:Float = Std.parseFloat(a.split('time')[1]) / TimingConstants.MILLISECONDS_PER_SECOND;
+		var bTime:Float = Std.parseFloat(b.split('time')[1]) / TimingConstants.MILLISECONDS_PER_SECOND;
 
 		return Std.int(bTime - aTime); // Newest first
 	}
@@ -237,9 +236,8 @@ class LoadReplayState extends MusicBeatState
 
 		poggerDetails.text = 'Replay Details - \nDate Created: ${rep.replay.timestamp}\nSong: ${rep.replay.songName}\nReplay Version: ${rep.replay.replayGameVer} (${(rep.replay.replayGameVer != Replay.REPLAY_VERSION ? 'OUTDATED not useable!' : 'Latest')})\n';
 
-		for (i in 0...grpControls.members.length)
+		for (i => item in grpControls.members)
 		{
-			var item:Alphabet = grpControls.members[i];
 			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;

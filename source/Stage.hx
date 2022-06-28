@@ -1,6 +1,5 @@
 package;
 
-import Song.SongDef;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -125,11 +124,11 @@ class Stage
 		switch (id)
 		{
 			case 'stage':
-				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
+				var bg:BGSprite = new BGSprite('stages/stage/stageback', -600, -200, 0.9, 0.9);
 				layers['bg'] = bg;
 				backgrounds.push(bg);
 
-				var stageFront:BGSprite = new BGSprite('stagefront', -650, 600, 0.9, 0.9);
+				var stageFront:BGSprite = new BGSprite('stages/stage/stagefront', -650, 600, 0.9, 0.9);
 				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
 				stageFront.updateHitbox();
 				layers['stageFront'] = stageFront;
@@ -137,20 +136,20 @@ class Stage
 
 				if (!Options.save.data.lowQuality)
 				{
-					var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
+					var stageLight:BGSprite = new BGSprite('stages/stage/stage_light', -125, -100, 0.9, 0.9);
 					stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
 					stageLight.updateHitbox();
 					layers['stageLight'] = stageLight;
 					backgrounds.push(stageLight);
 
-					var stageLight2:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
+					var stageLight2:BGSprite = new BGSprite('stages/stage/stage_light', 1225, -100, 0.9, 0.9);
 					stageLight2.setGraphicSize(Std.int(stageLight2.width * 1.1));
 					stageLight2.updateHitbox();
 					stageLight2.flipX = true;
 					layers['stageLight2'] = stageLight2;
 					backgrounds.push(stageLight2);
 
-					var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
+					var stageCurtains:BGSprite = new BGSprite('stages/stage/stagecurtains', -500, -300, 1.3, 1.3);
 					stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
 					stageCurtains.updateHitbox();
 					layers['stageCurtains'] = stageCurtains;
@@ -161,16 +160,16 @@ class Stage
 				var halloweenBG:BGSprite;
 				if (!Options.save.data.lowQuality)
 				{
-					halloweenBG = new BGSprite('halloween_bg', -200, -100);
+					halloweenBG = new BGSprite('stages/halloween/halloween_bg', -200, -100);
 					halloweenBG.active = true;
-					halloweenBG.frames = Paths.getSparrowAtlas('halloween_bg');
+					halloweenBG.frames = Paths.getSparrowAtlas('stages/halloween/halloween_bg');
 					halloweenBG.animation.addByPrefix('idle', 'halloween bg0');
 					halloweenBG.animation.addByPrefix('lightning', 'halloween bg lightning strike', 24, false);
 					halloweenBG.animation.play('idle');
 				}
 				else
 				{
-					halloweenBG = new BGSprite('halloween_bg_low', -200, -100);
+					halloweenBG = new BGSprite('stages/halloween/halloween_bg_low', -200, -100);
 				}
 				layers['halloweenBG'] = halloweenBG;
 				backgrounds.push(halloweenBG);
@@ -182,19 +181,19 @@ class Stage
 			case 'philly':
 				if (!Options.save.data.lowQuality)
 				{
-					var bg:BGSprite = new BGSprite('philly/sky', -100, 0, 0.1, 0.1);
+					var bg:BGSprite = new BGSprite('stages/philly/sky', -100, 0, 0.1, 0.1);
 					layers['bg'] = bg;
 					backgrounds.push(bg);
 				}
 
-				var city:BGSprite = new BGSprite('philly/city', -10, 0, 0.3, 0.3);
+				var city:BGSprite = new BGSprite('stages/philly/city', -10, 0, 0.3, 0.3);
 				city.setGraphicSize(Std.int(city.width * 0.85));
 				city.updateHitbox();
 				layers['city'] = city;
 				backgrounds.push(city);
 
 				var phillyCityLights:FlxTypedGroup<BGSprite> = new FlxTypedGroup();
-				// if (Options.save.data.distractions)
+				if (Options.save.data.distractions)
 				{
 					groups['phillyCityLights'] = phillyCityLights;
 					backgrounds.push(phillyCityLights);
@@ -202,22 +201,22 @@ class Stage
 
 				for (i in 0...5)
 				{
-					var light:BGSprite = new BGSprite('philly/win$i', city.x, city.y, 0.3, 0.3);
+					var light:BGSprite = new BGSprite('stages/philly/win$i', city.x, city.y, 0.3, 0.3);
 					light.visible = false;
 					light.setGraphicSize(Std.int(light.width * 0.85));
 					light.updateHitbox();
 					phillyCityLights.add(light);
 				}
 
-				var streetBehind:BGSprite = new BGSprite('philly/behindTrain', -40, 50);
+				var streetBehind:BGSprite = new BGSprite('stages/philly/behindTrain', -40, 50);
 				if (!Options.save.data.lowQuality)
 				{
 					layers['streetBehind'] = streetBehind;
 					backgrounds.push(streetBehind);
 				}
 
-				var phillyTrain:BGSprite = new BGSprite('philly/train', 2000, 360);
-				// if (Options.save.data.distractions)
+				var phillyTrain:BGSprite = new BGSprite('stages/philly/train', 2000, 360);
+				if (Options.save.data.distractions)
 				{
 					layers['phillyTrain'] = phillyTrain;
 					backgrounds.push(phillyTrain);
@@ -227,30 +226,30 @@ class Stage
 				Paths.getSound('train_passes');
 				FlxG.sound.list.add(trainSound);
 
-				var street:BGSprite = new BGSprite('philly/street', -40, streetBehind.y);
+				var street:BGSprite = new BGSprite('stages/philly/street', -40, streetBehind.y);
 				layers['street'] = street;
 				backgrounds.push(street);
 
 			case 'limo':
-				var skyBG:BGSprite = new BGSprite('limo/limoSunset', -120, -50, 0.1, 0.1);
+				var skyBG:BGSprite = new BGSprite('stages/limo/limoSunset', -120, -50, 0.1, 0.1);
 				layers['skyBG'] = skyBG;
 				backgrounds.push(skyBG);
 
-				var bgLimo:BGSprite = new BGSprite('limo/bgLimo', -200, 480, 0.4, 0.4, ['background limo pink'], true);
+				var bgLimo:BGSprite = new BGSprite('stages/limo/bgLimo', -200, 480, 0.4, 0.4, ['background limo pink'], true);
 				if (!Options.save.data.lowQuality)
 				{
-					var limoMetalPole:BGSprite = new BGSprite('gore/metalPole', -500, 220, 0.4, 0.4);
+					var limoMetalPole:BGSprite = new BGSprite('stages/limo/gore/metalPole', -500, 220, 0.4, 0.4);
 					layers['limoMetalPole'] = limoMetalPole;
 					backgrounds.push(limoMetalPole);
 
 					layers['bgLimo'] = bgLimo;
 					backgrounds.push(bgLimo);
 
-					var limoCorpse:BGSprite = new BGSprite('gore/noooooo', -500, limoMetalPole.y - 130, 0.4, 0.4, ['Henchmen on rail'], true);
+					var limoCorpse:BGSprite = new BGSprite('stages/limo/gore/noooooo', -500, limoMetalPole.y - 130, 0.4, 0.4, ['Henchmen on rail'], true);
 					layers['limoCorpse'] = limoCorpse;
 					backgrounds.push(limoCorpse);
 
-					var limoCorpse2:BGSprite = new BGSprite('gore/noooooo', -500, limoMetalPole.y, 0.4, 0.4, ['henchmen death'], true);
+					var limoCorpse2:BGSprite = new BGSprite('stages/limo/gore/noooooo', -500, limoMetalPole.y, 0.4, 0.4, ['henchmen death'], true);
 					layers['limoCorpse2'] = limoCorpse2;
 					backgrounds.push(limoCorpse2);
 
@@ -265,7 +264,7 @@ class Stage
 					// 	grpLimoDancers.add(dancer);
 					// }
 
-					var limoLight:BGSprite = new BGSprite('gore/coldHeartKiller', limoMetalPole.x - 180, limoMetalPole.y - 80, 0.4, 0.4);
+					var limoLight:BGSprite = new BGSprite('stages/limo/gore/coldHeartKiller', limoMetalPole.x - 180, limoMetalPole.y - 80, 0.4, 0.4);
 					layers['limoLight'] = limoLight;
 					backgrounds.push(limoLight);
 
@@ -274,7 +273,7 @@ class Stage
 					backgrounds.push(grpLimoParticles);
 
 					// PRECACHE BLOOD
-					var particle:BGSprite = new BGSprite('gore/stupidBlood', -400, -400, 0.4, 0.4, ['blood'], false);
+					var particle:BGSprite = new BGSprite('stages/limo/gore/stupidBlood', -400, -400, 0.4, 0.4, ['blood'], false);
 					particle.alpha = 0.01;
 					grpLimoParticles.add(particle);
 					resetLimoKill();
@@ -283,12 +282,11 @@ class Stage
 					Paths.precacheSound('dancerdeath');
 				}
 
-				var fastCar:BGSprite = new BGSprite('limo/fastCarLol', -300, 160);
+				var fastCar:BGSprite = new BGSprite('stages/limo/fastCarLol', -300, 160);
 				fastCar.active = true;
 				fastCar.visible = false;
 
-				// TODO Implement this option
-				// if (Options.save.data.distractions)
+				if (Options.save.data.distractions)
 				{
 					var grpLimoDancers:FlxTypedGroup<BackgroundDancer> = new FlxTypedGroup();
 					groups['grpLimoDancers'] = grpLimoDancers;
@@ -307,21 +305,21 @@ class Stage
 					resetFastCar();
 				}
 
-				// var overlayShit:FlxSprite = new FlxSprite(-500, -600).loadGraphic(Paths.getGraphic('limo/limoOverlay'));
+				// var overlayShit:FlxSprite = new FlxSprite(-500, -600).loadGraphic(Paths.getGraphic('stages/limo/limoOverlay'));
 				// overlayShit.alpha = 0.5;
 				// add(overlayShit);
 				// var shaderBullshit = new BlendModeEffect(new OverlayShader(), FlxColor.RED);
 				// FlxG.camera.setFilters([new ShaderFilter(cast shaderBullshit.shader)]);
 				// overlayShit.shader = shaderBullshit;
 
-				var limo:BGSprite = new BGSprite('limo/limoDrive', -120, 550, ['Limo stage']);
+				var limo:BGSprite = new BGSprite('stages/limo/limoDrive', -120, 550, ['Limo stage']);
 				foregrounds[0].push(limo);
 				layers['limo'] = limo;
 
 			// limoKillingState = 0;
 
 			case 'mall':
-				var bg:BGSprite = new BGSprite('christmas/bgWalls', -1000, -500, 0.2, 0.2);
+				var bg:BGSprite = new BGSprite('stages/christmas/bgWalls', -1000, -500, 0.2, 0.2);
 				bg.setGraphicSize(Std.int(bg.width * 0.8));
 				bg.updateHitbox();
 				layers['bg'] = bg;
@@ -329,51 +327,51 @@ class Stage
 
 				if (!Options.save.data.lowQuality)
 				{
-					var upperBoppers:BGSprite = new BGSprite('christmas/upperBop', -240, -90, 0.33, 0.33);
+					var upperBoppers:BGSprite = new BGSprite('stages/christmas/upperBop', -240, -90, 0.33, 0.33);
 					upperBoppers.active = true;
-					upperBoppers.frames = Paths.getSparrowAtlas('christmas/upperBop');
+					upperBoppers.frames = Paths.getSparrowAtlas('stages/christmas/upperBop');
 					upperBoppers.animation.addByPrefix('idle', 'Upper Crowd Bob', 24, false);
 					upperBoppers.setGraphicSize(Std.int(upperBoppers.width * 0.85));
 					upperBoppers.updateHitbox();
-					// if (Options.save.data.distractions)
+					if (Options.save.data.distractions)
 					{
 						layers['upperBoppers'] = upperBoppers;
 						backgrounds.push(upperBoppers);
 						animatedLayers.push(upperBoppers);
 					}
 
-					var bgEscalator:BGSprite = new BGSprite('christmas/bgEscalator', -1100, -600, 0.3, 0.3);
+					var bgEscalator:BGSprite = new BGSprite('stages/christmas/bgEscalator', -1100, -600, 0.3, 0.3);
 					bgEscalator.setGraphicSize(Std.int(bgEscalator.width * 0.9));
 					bgEscalator.updateHitbox();
 					layers['bgEscalator'] = bgEscalator;
 					backgrounds.push(bgEscalator);
 				}
 
-				var tree:BGSprite = new BGSprite('christmas/christmasTree', 370, -250, 0.40, 0.40);
+				var tree:BGSprite = new BGSprite('stages/christmas/christmasTree', 370, -250, 0.40, 0.40);
 				layers['tree'] = tree;
 				backgrounds.push(tree);
 
-				var bottomBoppers:BGSprite = new BGSprite('christmas/bottomBop', -300, 140, 0.9, 0.9, ['Bottom Level Boppers Idle']);
+				var bottomBoppers:BGSprite = new BGSprite('stages/christmas/bottomBop', -300, 140, 0.9, 0.9, ['Bottom Level Boppers Idle']);
 				// bottomBoppers.active = true;
-				// bottomBoppers.frames = Paths.getSparrowAtlas('christmas/bottomBop');
+				// bottomBoppers.frames = Paths.getSparrowAtlas('stages/christmas/bottomBop');
 				// bottomBoppers.animation.addByPrefix('idle', 'Bottom Level Boppers Idle', 24, false);
 				bottomBoppers.animation.addByPrefix('hey', 'Bottom Level Boppers HEY', 24, false);
-				// if (Options.save.data.distractions)
+				if (Options.save.data.distractions)
 				{
 					layers['bottomBoppers'] = bottomBoppers;
 					backgrounds.push(bottomBoppers);
 					// animatedLayers.push(bottomBoppers);
 				}
 
-				var fgSnow:BGSprite = new BGSprite('christmas/fgSnow', -600, 700);
+				var fgSnow:BGSprite = new BGSprite('stages/christmas/fgSnow', -600, 700);
 				layers['fgSnow'] = fgSnow;
 				backgrounds.push(fgSnow);
 
-				var santa:BGSprite = new BGSprite('christmas/santa', -840, 150);
+				var santa:BGSprite = new BGSprite('stages/christmas/santa', -840, 150);
 				santa.active = true;
-				santa.frames = Paths.getSparrowAtlas('christmas/santa');
+				santa.frames = Paths.getSparrowAtlas('stages/christmas/santa');
 				santa.animation.addByPrefix('idle', 'santa idle in fear', 24, false);
-				// if (Options.save.data.distractions)
+				if (Options.save.data.distractions)
 				{
 					layers['santa'] = santa;
 					foregrounds[2].push(santa);
@@ -382,17 +380,17 @@ class Stage
 				Paths.getSound('Lights_Shut_Off');
 
 			case 'mallEvil':
-				var bg:BGSprite = new BGSprite('christmas/evilBG', -400, -500, 0.2, 0.2);
+				var bg:BGSprite = new BGSprite('stages/christmas/evilBG', -400, -500, 0.2, 0.2);
 				bg.setGraphicSize(Std.int(bg.width * 0.8));
 				bg.updateHitbox();
 				layers['bg'] = bg;
 				backgrounds.push(bg);
 
-				var evilTree:BGSprite = new BGSprite('christmas/evilTree', 300, -300, 0.2, 0.2);
+				var evilTree:BGSprite = new BGSprite('stages/christmas/evilTree', 300, -300, 0.2, 0.2);
 				layers['evilTree'] = evilTree;
 				backgrounds.push(evilTree);
 
-				var evilSnow:BGSprite = new BGSprite('christmas/evilSnow', -200, 700);
+				var evilSnow:BGSprite = new BGSprite('stages/christmas/evilSnow', -200, 700);
 				layers['evilSnow'] = evilSnow;
 				backgrounds.push(evilSnow);
 
@@ -402,26 +400,26 @@ class Stage
 				GameOverSubState.endSoundName = 'gameOverEnd-pixel';
 				GameOverSubState.characterName = 'bf-pixel-dead';
 
-				var bgSky:BGSprite = new BGSprite('weeb/weebSky', 0, 0, 0.1, 0.1);
+				var bgSky:BGSprite = new BGSprite('stages/weeb/weebSky', 0, 0, 0.1, 0.1);
 				bgSky.antialiasing = false;
 				layers['bgSky'] = bgSky;
 				backgrounds.push(bgSky);
 
 				var repositionShit:Float = -200;
 
-				var bgSchool:BGSprite = new BGSprite('weeb/weebSchool', repositionShit, 0, 0.6, 0.9);
+				var bgSchool:BGSprite = new BGSprite('stages/weeb/weebSchool', repositionShit, 0, 0.6, 0.9);
 				bgSchool.antialiasing = false;
 				layers['bgSchool'] = bgSchool;
 				backgrounds.push(bgSchool);
 
-				var bgStreet:BGSprite = new BGSprite('weeb/weebStreet', repositionShit, 0, 0.95, 0.95);
+				var bgStreet:BGSprite = new BGSprite('stages/weeb/weebStreet', repositionShit, 0, 0.95, 0.95);
 				bgStreet.antialiasing = false;
 				layers['bgStreet'] = bgStreet;
 				backgrounds.push(bgStreet);
 
 				var widShit:Int = Std.int(bgSky.width * 6);
 
-				var fgTrees:BGSprite = new BGSprite('weeb/weebTreesBack', repositionShit + 170, 130, 0.9, 0.9);
+				var fgTrees:BGSprite = new BGSprite('stages/weeb/weebTreesBack', repositionShit + 170, 130, 0.9, 0.9);
 				if (!Options.save.data.lowQuality)
 				{
 					fgTrees.antialiasing = false;
@@ -431,15 +429,15 @@ class Stage
 					backgrounds.push(fgTrees);
 				}
 
-				var bgTrees:BGSprite = new BGSprite('weeb/weebTrees', repositionShit - 380, -800, 0.85, 0.85);
+				var bgTrees:BGSprite = new BGSprite('stages/weeb/weebTrees', repositionShit - 380, -800, 0.85, 0.85);
 				bgTrees.antialiasing = false;
-				bgTrees.frames = Paths.getPackerAtlas('weeb/weebTrees');
+				bgTrees.frames = Paths.getPackerAtlas('stages/weeb/weebTrees');
 				bgTrees.animation.add('treeLoop', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 12);
 				bgTrees.animation.play('treeLoop');
 				layers['bgTrees'] = bgTrees;
 				backgrounds.push(bgTrees);
 
-				var treeLeaves:BGSprite = new BGSprite('weeb/petals', repositionShit, -40, 0.85, 0.85, ['PETALS ALL'], true);
+				var treeLeaves:BGSprite = new BGSprite('stages/weeb/petals', repositionShit, -40, 0.85, 0.85, ['PETALS ALL'], true);
 				if (!Options.save.data.lowQuality)
 				{
 					treeLeaves.antialiasing = false;
@@ -469,7 +467,7 @@ class Stage
 					bgGirls.scrollFactor.set(0.9, 0.9);
 					bgGirls.setGraphicSize(Std.int(bgGirls.width * PlayState.PIXEL_ZOOM));
 					bgGirls.updateHitbox();
-					// if (Options.save.data.distractions)
+					if (Options.save.data.distractions)
 					{
 						layers['bgGirls'] = bgGirls;
 						backgrounds.push(bgGirls);
@@ -487,13 +485,13 @@ class Stage
 
 				if (!Options.save.data.lowQuality)
 				{
-					var bg:BGSprite = new BGSprite('weeb/animatedEvilSchool', posX, posY, 0.8, 0.9, ['background 2'], true);
+					var bg:BGSprite = new BGSprite('stages/weeb/animatedEvilSchool', posX, posY, 0.8, 0.9, ['background 2'], true);
 					bg.antialiasing = false;
 					bg.scale.set(PlayState.PIXEL_ZOOM, PlayState.PIXEL_ZOOM);
 					layers['bg'] = bg;
 					backgrounds.push(bg);
 
-					var bgGhouls:BGSprite = new BGSprite('weeb/bgGhouls', -100, 190, 0.9, 0.9, ['BG freaks glitch instance'], false);
+					var bgGhouls:BGSprite = new BGSprite('stages/weeb/bgGhouls', -100, 190, 0.9, 0.9, ['BG freaks glitch instance'], false);
 					bgGhouls.antialiasing = false;
 					bgGhouls.setGraphicSize(Std.int(bgGhouls.width * PlayState.PIXEL_ZOOM));
 					bgGhouls.updateHitbox();
@@ -503,7 +501,7 @@ class Stage
 				}
 				else
 				{
-					var bg:BGSprite = new BGSprite('weeb/animatedEvilSchool_low', posX, posY, 0.8, 0.9);
+					var bg:BGSprite = new BGSprite('stages/weeb/animatedEvilSchool_low', posX, posY, 0.8, 0.9);
 					bg.antialiasing = false;
 					bg.setGraphicSize(Std.int(bg.width * PlayState.PIXEL_ZOOM));
 					bg.updateHitbox();
@@ -511,51 +509,51 @@ class Stage
 					backgrounds.push(bg);
 				}
 
-			case 'tank', 'pico-tank':
-				var tankSky:BGSprite = new BGSprite('tankSky', -400, -400, 0, 0);
+			case 'tank':
+				var tankSky:BGSprite = new BGSprite('stages/tank/tankSky', -400, -400, 0, 0);
 				layers['tankSky'] = tankSky;
 				backgrounds.push(tankSky);
 
-				var tankClouds:BGSprite = new BGSprite('tankClouds', FlxG.random.int(-700, -100), FlxG.random.int(-20, 20), 0.1, 0.1, null, false);
+				var tankClouds:BGSprite = new BGSprite('stages/tank/tankClouds', FlxG.random.int(-700, -100), FlxG.random.int(-20, 20), 0.1, 0.1, null, false);
 				tankClouds.active = true;
 				tankClouds.velocity.x = FlxG.random.float(5, 15);
 				layers['tankClouds'] = tankClouds;
 				backgrounds.push(tankClouds);
 
-				var tankMountains:BGSprite = new BGSprite('tankMountains', -300, -20, 0.2, 0.2);
+				var tankMountains:BGSprite = new BGSprite('stages/tank/tankMountains', -300, -20, 0.2, 0.2);
 				tankMountains.setGraphicSize(Std.int(1.2 * tankMountains.width));
 				tankMountains.updateHitbox();
 				layers['tankMountains'] = tankMountains;
 				backgrounds.push(tankMountains);
 
-				var tankBuildings:BGSprite = new BGSprite('tankBuildings', -200, 0, 0.3, 0.3, false);
+				var tankBuildings:BGSprite = new BGSprite('stages/tank/tankBuildings', -200, 0, 0.3, 0.3, false);
 				tankBuildings.setGraphicSize(Std.int(1.1 * tankBuildings.width));
 				tankBuildings.updateHitbox();
 				layers['tankBuildings'] = tankBuildings;
 				backgrounds.push(tankBuildings);
 
-				var tankRuins:BGSprite = new BGSprite('tankRuins', -200, 0, 0.35, 0.35, false);
+				var tankRuins:BGSprite = new BGSprite('stages/tank/tankRuins', -200, 0, 0.35, 0.35, false);
 				tankRuins.setGraphicSize(Std.int(1.1 * tankRuins.width));
 				tankRuins.updateHitbox();
 				layers['tankRuins'] = tankRuins;
 				backgrounds.push(tankRuins);
 
-				var smokeLeft:BGSprite = new BGSprite('smokeLeft', -200, -100, 0.4, 0.4, ['SmokeBlurLeft'], true);
+				var smokeLeft:BGSprite = new BGSprite('stages/tank/smokeLeft', -200, -100, 0.4, 0.4, ['SmokeBlurLeft'], true);
 				layers['smokeLeft'] = smokeLeft;
 				backgrounds.push(smokeLeft);
 
-				var smokeRight:BGSprite = new BGSprite('smokeRight', 1100, -100, 0.4, 0.4, ['SmokeRight'], true);
+				var smokeRight:BGSprite = new BGSprite('stages/tank/smokeRight', 1100, -100, 0.4, 0.4, ['SmokeRight'], true);
 				layers['smokeRight'] = smokeRight;
 				backgrounds.push(smokeRight);
 
-				var tankWatchtower:BGSprite = new BGSprite('tankWatchtower', 100, 50, 0.5, 0.5, ['watchtower gradient color']);
-				// if (Options.save.data.distractions)
+				var tankWatchtower:BGSprite = new BGSprite('stages/tank/tankWatchtower', 100, 50, 0.5, 0.5, ['watchtower gradient color']);
+				if (Options.save.data.distractions)
 				{
 					layers['tankWatchtower'] = tankWatchtower;
 					backgrounds.push(tankWatchtower);
 				}
 
-				var tankRolling:BGSprite = new BGSprite('tankRolling', 300, 300, 0.5, 0.5, ['BG tank w lighting'], true);
+				var tankRolling:BGSprite = new BGSprite('stages/tank/tankRolling', 300, 300, 0.5, 0.5, ['BG tank w lighting'], true);
 				layers['tankRolling'] = tankRolling;
 				backgrounds.push(tankRolling);
 
@@ -563,7 +561,7 @@ class Stage
 				groups['tankmanRun'] = tankmanRun;
 				backgrounds.push(tankmanRun);
 
-				var tankGround:BGSprite = new BGSprite('tankGround', -420, -150);
+				var tankGround:BGSprite = new BGSprite('stages/tank/tankGround', -420, -150);
 				tankGround.setGraphicSize(Std.int(1.15 * tankGround.width));
 				tankGround.updateHitbox();
 				layers['tankGround'] = tankGround;
@@ -573,32 +571,32 @@ class Stage
 
 				var tankheadGroup:FlxTypedGroup<BGSprite> = new FlxTypedGroup();
 
-				var tank0:BGSprite = new BGSprite('tank0', -500, 650, 1.7, 1.5, ['fg tankhead far right instance']);
+				var tank0:BGSprite = new BGSprite('stages/tank/tank0', -500, 650, 1.7, 1.5, ['fg tankhead far right instance']);
 				foregrounds[2].push(tank0);
 				tankheadGroup.add(tank0);
 
-				var tank1:BGSprite = new BGSprite('tank1', -300, 750, 2, 0.2, ['fg tankhead 5 instance']);
+				var tank1:BGSprite = new BGSprite('stages/tank/tank1', -300, 750, 2, 0.2, ['fg tankhead 5 instance']);
 				foregrounds[2].push(tank1);
 				tankheadGroup.add(tank1);
 
-				var tank2:BGSprite = new BGSprite('tank2', 450, 940, 1.5, 1.5, ['foreground man 3 instance']);
+				var tank2:BGSprite = new BGSprite('stages/tank/tank2', 450, 940, 1.5, 1.5, ['foreground man 3 instance']);
 				foregrounds[2].push(tank2);
 				tankheadGroup.add(tank2);
 
-				var tank4:BGSprite = new BGSprite('tank4', 1300, 900, 1.5, 1.5, ['fg tankman bobbin 3 instance']);
+				var tank4:BGSprite = new BGSprite('stages/tank/tank4', 1300, 900, 1.5, 1.5, ['fg tankman bobbin 3 instance']);
 				foregrounds[2].push(tank4);
 				tankheadGroup.add(tank4);
 
-				var tank5:BGSprite = new BGSprite('tank5', 1620, 700, 1.5, 1.5, ['fg tankhead far right instance']);
+				var tank5:BGSprite = new BGSprite('stages/tank/tank5', 1620, 700, 1.5, 1.5, ['fg tankhead far right instance']);
 				foregrounds[2].push(tank5);
 				tankheadGroup.add(tank5);
 
-				var tank3:BGSprite = new BGSprite('tank3', 1300, 1200, 3.5, 2.5, ['fg tankhead 4 instance']);
+				var tank3:BGSprite = new BGSprite('stages/tank/tank3', 1300, 1200, 3.5, 2.5, ['fg tankhead 4 instance']);
 				foregrounds[2].push(tank3);
 				tankheadGroup.add(tank3);
 
-				// if (Options.save.data.distractions)
-				groups['tankheadGroup'] = tankheadGroup;
+				if (Options.save.data.distractions)
+					groups['tankheadGroup'] = tankheadGroup;
 		}
 	}
 
@@ -623,7 +621,7 @@ class Stage
 						}
 					}
 				// var phillyCityLights:FlxTypedGroup<BGSprite> = cast groups['phillyCityLights'];
-				// phillyCityLights.members[curLight].alpha -= (Conductor.crochet / 1000) * FlxG.elapsed * 1.5;
+				// phillyCityLights.members[curLight].alpha -= (Conductor.crotchetLength / TimingConstants.MILLISECONDS_PER_SECOND) * elapsed * 1.5;
 				case 'limo':
 					if (!Options.save.data.lowQuality)
 					{
@@ -640,7 +638,7 @@ class Stage
 							if (spr.animation.curAnim.finished)
 							{
 								spr.kill();
-								grpLimoParticles.remove(spr, true);
+								grpLimoParticles.remove(spr /*, true*/); // This has to set to null instead of removing from the members entirely so it doesn't mess up the iterator
 								spr.destroy();
 							}
 						});
@@ -653,10 +651,9 @@ class Stage
 								limoCorpse.x = limoLight.x - 50;
 								limoCorpse2.x = limoLight.x + 35;
 
-								var dancers:Array<BackgroundDancer> = grpLimoDancers.members;
-								for (i in 0...dancers.length)
+								for (i => dancer in grpLimoDancers.members)
 								{
-									if (dancers[i].x < FlxG.width * 1.5 && limoLight.x > (370 * i) + 130)
+									if (dancer.x < FlxG.width * 1.5 && limoLight.x > (370 * i) + 130)
 									{
 										switch (i)
 										{
@@ -665,17 +662,17 @@ class Stage
 													FlxG.sound.play(Paths.getSound('dancerdeath'), 0.5);
 
 												var diffStr:String = i == 3 ? ' 2 ' : ' ';
-												var particle:BGSprite = new BGSprite('gore/noooooo', dancers[i].x + 200, dancers[i].y, 0.4, 0.4,
+												var particle:BGSprite = new BGSprite('stages/limo/gore/noooooo', dancer.x + 200, dancer.y, 0.4, 0.4,
 													['hench leg spin${diffStr}PINK'], false);
 												grpLimoParticles.add(particle);
-												var particle:BGSprite = new BGSprite('gore/noooooo', dancers[i].x + 160, dancers[i].y + 200, 0.4, 0.4,
+												var particle:BGSprite = new BGSprite('stages/limo/gore/noooooo', dancer.x + 160, dancer.y + 200, 0.4, 0.4,
 													['hench arm spin${diffStr}PINK'], false);
 												grpLimoParticles.add(particle);
-												var particle:BGSprite = new BGSprite('gore/noooooo', dancers[i].x, dancers[i].y + 50, 0.4, 0.4,
+												var particle:BGSprite = new BGSprite('stages/limo/gore/noooooo', dancer.x, dancer.y + 50, 0.4, 0.4,
 													['hench head spin${diffStr}PINK'], false);
 												grpLimoParticles.add(particle);
 
-												var particle:BGSprite = new BGSprite('gore/stupidBlood', dancers[i].x - 110, dancers[i].y + 20, 0.4, 0.4,
+												var particle:BGSprite = new BGSprite('stages/limo/gore/stupidBlood', dancer.x - 110, dancer.y + 20, 0.4, 0.4,
 													['blood'], false);
 												particle.flipX = true;
 												particle.angle = -57.5;
@@ -685,7 +682,7 @@ class Stage
 											case 2:
 												limoCorpse2.visible = true;
 										} // Note: Nobody cares about the fifth dancer because he is mostly hidden offscreen :(
-										dancers[i].x += FlxG.width * 2;
+										dancer.x += FlxG.width * 2;
 									}
 								}
 
@@ -728,10 +725,9 @@ class Stage
 
 						if (limoKillingState > 2)
 						{
-							var dancers:Array<BackgroundDancer> = grpLimoDancers.members;
-							for (i in 0...dancers.length)
+							for (i => dancer in grpLimoDancers.members)
 							{
-								dancers[i].x = (370 * i) + bgLimo.x + 280;
+								dancer.x = (370 * i) + bgLimo.x + 280;
 							}
 						}
 					}
@@ -752,7 +748,7 @@ class Stage
 					{
 						bgGhouls.visible = false;
 					}
-				case 'tank', 'pico-tank':
+				case 'tank':
 					moveTank();
 			}
 		}
@@ -796,7 +792,7 @@ class Stage
 
 	public function beatHit(beat:Int):Void
 	{
-		if (/*Options.save.data.distractions &&*/ animatedLayers.length > 0)
+		if (Options.save.data.distractions && animatedLayers.length > 0)
 		{
 			for (bg in animatedLayers)
 				bg.animation.play('idle', true);
@@ -807,21 +803,20 @@ class Stage
 			switch (id)
 			{
 				case 'halloween':
-					if (FlxG.random.bool(Conductor.bpm > 320 ? 100 : 10) && beat > lightningStrikeBeat + lightningOffset)
+					if (FlxG.random.bool(Conductor.tempo > 320 ? 100 : 10) && beat > lightningStrikeBeat + lightningOffset)
 					{
-						// if (Options.save.data.distractions)
+						if (Options.save.data.distractions)
 						{
 							lightningStrikeShit(beat);
-							// Debug.logTrace('spooky');
 						}
 					}
 				case 'school':
-					// if (Options.save.data.distractions)
+					if (Options.save.data.distractions)
 					{
 						layers['bgGirls'].dance();
 					}
 				case 'limo':
-					// if (Options.save.data.distractions)
+					if (Options.save.data.distractions)
 					{
 						groups['grpLimoDancers'].forEach((dancer:BackgroundDancer) ->
 						{
@@ -832,12 +827,12 @@ class Stage
 							fastCarDrive();
 					}
 				case 'philly':
-					// if (Options.save.data.distractions)
+					if (Options.save.data.distractions)
 					{
 						if (!trainMoving)
 							trainCooldown += 1;
 
-						if (beat % 4 == 0)
+						if (beat % Conductor.CROTCHETS_PER_MEASURE == 0)
 						{
 							var phillyCityLights:FlxTypedGroup<FlxSprite> = cast groups['phillyCityLights'];
 							phillyCityLights.forEach((light:FlxSprite) ->
@@ -851,20 +846,19 @@ class Stage
 						}
 					}
 
-					if (beat % 8 == 4 && FlxG.random.bool(Conductor.bpm > 320 ? 150 : 30) && !trainMoving && trainCooldown > 8)
+					if (beat % 8 == 4 && FlxG.random.bool(Conductor.tempo > 320 ? 150 : 30) && !trainMoving && trainCooldown > 8)
 					{
-						// if (Options.save.data.distractions)
+						if (Options.save.data.distractions)
 						{
 							trainCooldown = FlxG.random.int(-4, 0);
 							trainStart();
-							// Debug.logTrace('train');
 						}
 					}
 				case 'mall':
 					if (heyTimer <= 0)
 						layers['bottomBoppers'].dance(true);
-				case 'tank', 'pico-tank':
-					// if (Options.save.data.distractions)
+				case 'tank':
+					if (Options.save.data.distractions)
 					{
 						if (beat % 2 == 0)
 						{
@@ -928,7 +922,7 @@ class Stage
 
 	private function trainStart():Void
 	{
-		// if (Options.save.data.distractions)
+		if (Options.save.data.distractions)
 		{
 			trainMoving = true;
 			trainSound.play(true);
@@ -939,7 +933,7 @@ class Stage
 
 	private function updateTrainPos():Void
 	{
-		// if (Options.save.data.distractions)
+		if (Options.save.data.distractions)
 		{
 			if (trainSound.time >= 4700)
 			{
@@ -973,7 +967,7 @@ class Stage
 
 	private function trainReset():Void
 	{
-		// if (Options.save.data.distractions)
+		if (Options.save.data.distractions)
 		{
 			if (PlayState.instance.gf != null)
 				PlayState.instance.gf.playAnim('hairFall');
@@ -996,7 +990,7 @@ class Stage
 
 	private function resetFastCar():Void
 	{
-		// if (Options.save.data.distractions)
+		if (Options.save.data.distractions)
 		{
 			var fastCar:BGSprite = layers['fastCar'];
 			fastCar.x = -12600;
@@ -1009,7 +1003,7 @@ class Stage
 
 	private function fastCarDrive():Void
 	{
-		// if (Options.save.data.distractions)
+		if (Options.save.data.distractions)
 		{
 			FlxG.sound.play(Paths.getRandomSound('carPass', 0, 1), 0.7);
 
@@ -1059,7 +1053,6 @@ class Stage
 				{
 					EngineData.flushSave();
 				}
-				Debug.logTrace('Deaths: ${Achievement.henchmenDeath}');
 				#end
 			}
 		}
@@ -1097,31 +1090,6 @@ class Stage
 			tankRolling.angle = tankAngle - 90 + 15;
 			tankRolling.x = tankX + 1500 * Math.cos(Math.PI / 180 * (1 * tankAngle + 180));
 			tankRolling.y = 1300 + 1100 * Math.sin(Math.PI / 180 * (1 * tankAngle + 180));
-		}
-	}
-
-	public static var forceNextDirectory:String;
-
-	public static function loadDirectory(song:SongDef):Void
-	{
-		var stage:String = '';
-		if (song.stage != null)
-		{
-			stage = song.stage;
-		}
-		else
-		{
-			stage = 'stage';
-		}
-
-		var stageDef:StageDef = Paths.getJson(Path.join(['stages', stage]));
-		if (stageDef == null)
-		{ // preventing crashes
-			forceNextDirectory = '';
-		}
-		else
-		{
-			forceNextDirectory = stageDef.directory;
 		}
 	}
 }

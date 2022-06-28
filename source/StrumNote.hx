@@ -3,7 +3,9 @@ package;
 import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.io.Path;
+import shader.ColorSwap;
 
 class StrumNote extends FlxSprite
 {
@@ -12,6 +14,8 @@ class StrumNote extends FlxSprite
 	public var resetAnim:Float = 0;
 
 	private var noteData:Int = 0;
+
+	private var noteDataModulo(get, never):Int;
 
 	public var direction:Float = 90; // plan on doing scroll directions soon -bb
 	public var downScroll:Bool = false; // plan on doing scroll directions soon -bb
@@ -52,8 +56,8 @@ class StrumNote extends FlxSprite
 			}
 		}
 		// TODO This causes an NPE if, after playing a song with a custom noteskin, the chart editor is loaded with a mod directory other than the one containing that song
-		// if(animation.curAnim != null){ //my bad i was upset
-		if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+		// if(animation.curAnim != null){ // my bad i was upset
+		if (!PlayState.isPixelStage && animation.curAnim.name == 'confirm')
 		{
 			centerOrigin();
 		}
@@ -68,10 +72,16 @@ class StrumNote extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'));
+			var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel']));
+			if (!Paths.exists(path))
+			{
+				path = Paths.image('ui/notes/NOTE_assets-pixel');
+			}
+			var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
+			loadGraphic(graphic);
 			width /= 4;
 			height /= 5;
-			loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', texture]), 'week6'), true, Math.floor(width), Math.floor(height));
+			loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
@@ -81,20 +91,17 @@ class StrumNote extends FlxSprite
 				animation.add(color.getName(), [4 + color.getIndex()]);
 			}
 
-			// TODO wait why did i do this; wouldn't it make more sense to just use the notedata instead of getting the index from the color
-			// var color:NoteColor = NoteColor.createByIndex(noteData);
-
-			// animation.add('static', [color.getIndex()]);
-			// animation.add('pressed', [color.getIndex() + 4, color.getIndex() + 8], 12, false);
-			// animation.add('confirm', [color.getIndex() + 12, color.getIndex() + 16], 24, false);
-
 			animation.add('static', [noteData]);
 			animation.add('pressed', [noteData + 4, noteData + 8], 12, false);
 			animation.add('confirm', [noteData + 12, noteData + 16], 24, false);
 		}
 		else
 		{
-			frames = Paths.getSparrowAtlas(texture);
+			if (!Paths.exists(Paths.image(Path.join(['ui/notes', texture]))))
+			{
+				texture = 'NOTE_assets';
+			}
+			frames = Paths.getSparrowAtlas(Path.join(['ui/notes', texture]));
 			for (color in NoteColor.createAll())
 			{
 				animation.addByPrefix(color.getName(), 'arrow${NoteKey.createByIndex(color.getIndex())}');
@@ -126,7 +133,7 @@ class StrumNote extends FlxSprite
 		ID = noteData;
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false):Void
+	public function playAnim(anim:String, force:Bool = false):Void
 	{
 		animation.play(anim, force);
 		centerOffsets();
@@ -139,15 +146,20 @@ class StrumNote extends FlxSprite
 		}
 		else
 		{
-			colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
-			colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
-			colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
+			colorSwap.hue = Options.save.data.arrowHSV[noteDataModulo][0] / 360;
+			colorSwap.saturation = Options.save.data.arrowHSV[noteDataModulo][1] / 100;
+			colorSwap.brightness = Options.save.data.arrowHSV[noteDataModulo][2] / 100;
 
 			if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
 			{
 				centerOrigin();
 			}
 		}
+	}
+
+	private function get_noteDataModulo():Int
+	{
+		return noteData % NoteKey.createAll().length;
 	}
 
 	private function set_texture(value:String):String

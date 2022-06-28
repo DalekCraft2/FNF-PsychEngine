@@ -8,6 +8,7 @@ import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
 import openfl.Lib;
+import ui.HealthIcon;
 
 using StringTools;
 
@@ -270,7 +271,8 @@ class Debug
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(Character, ['id', 'isPlayer', 'barColor'], [FlxSprite]));
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(HealthIcon, ['char', 'isPlayer', 'isOldIcon'], [FlxSprite]));
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(Note, ['x', 'y', 'strumTime', 'mustPress', 'noteData', 'sustainLength'], []));
-		FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, ['songId', 'speed', 'player1', 'player2', 'gfVersion', 'arrowSkin', 'stage'], []));
+		// TODO Get this to work somehow
+		// FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, ['songId', 'speed', 'player1', 'player2', 'gfVersion', 'arrowSkin', 'stage'], []));
 	}
 
 	/**
@@ -311,13 +313,13 @@ class Debug
 		});
 
 		// Console commands let you do WHATEVER you want.
-		addConsoleCommand('playSong', (songName:String, ?difficulty:Int = 1) ->
+		addConsoleCommand('playSong', (songName:String, difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Free Play...');
 			// TODO Reimplement these commands (Note: This might be hard, because these relied on the fact that Kade Engine preloaded every song JSON, which would be really laggy)
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, false);
 		});
-		addConsoleCommand('chartSong', (songName:String, ?difficulty:Int = 1) ->
+		addConsoleCommand('chartSong', (songName:String, difficulty:Int = 1) ->
 		{
 			Debug.logInfo('CONSOLE: Opening song $songName ($difficulty) in Chart Editor...');
 			// FreeplayState.loadSongInFreePlay(songName, difficulty, true, true);

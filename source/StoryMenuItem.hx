@@ -15,8 +15,7 @@ class StoryMenuItem extends FlxSprite
 	{
 		super(x, y);
 
-		loadGraphic(Paths.getGraphic(Path.join(['storymenu', weekName])));
-		// Debug.logTrace('Test added: ${Week.getWeekNumber(weekNum)} ($weekNum)');
+		loadGraphic(Paths.getGraphic(Path.join(['ui/story/weeks', weekName])));
 		antialiasing = Options.save.data.globalAntialiasing;
 	}
 

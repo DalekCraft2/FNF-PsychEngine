@@ -442,7 +442,7 @@ class VlcBitmap extends Bitmap
 	private function set_fullscreen(value:Bool):Bool
 	{
 		libVlc.setFullscreen(value);
-		return fullscreen;
+		return value;
 	}
 
 	private function get_length():Float
@@ -478,7 +478,7 @@ class VlcBitmap extends Bitmap
 	private function set_volume(value:Float):Float
 	{
 		libVlc.setVolume(value * 100);
-		return volume;
+		return value;
 	}
 
 	private function get_time():Int
@@ -489,7 +489,7 @@ class VlcBitmap extends Bitmap
 	private function set_time(value:Int):Int
 	{
 		libVlc.setTime(value);
-		return time;
+		return value;
 	}
 
 	private function get_position():Float
@@ -500,7 +500,7 @@ class VlcBitmap extends Bitmap
 	private function set_position(value:Float):Float
 	{
 		libVlc.setPosition(value);
-		return position;
+		return value;
 	}
 
 	private function get_repeats():Int
@@ -511,7 +511,7 @@ class VlcBitmap extends Bitmap
 	private function set_repeats(value:Int):Int
 	{
 		libVlc.setRepeats(value);
-		return repeats;
+		return value;
 	}
 
 	private function get_pixelData():Pointer<UInt8>

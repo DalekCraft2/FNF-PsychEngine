@@ -1,5 +1,8 @@
 package;
 
+import ui.AttachedText;
+import ui.Checkbox;
+import ui.Alphabet;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -8,6 +11,7 @@ import flixel.util.FlxColor;
 
 using StringTools;
 
+// This functions more like a "Quick Options Menu" now.
 class GameplayChangersSubState extends MusicBeatSubState
 {
 	private var curOption:GameplayOption;
@@ -15,7 +19,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 	private var optionsArray:Array<GameplayOption> = [];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
+	private var checkboxGroup:FlxTypedGroup<Checkbox>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	override public function create():Void
@@ -38,18 +42,18 @@ class GameplayChangersSubState extends MusicBeatSubState
 
 		getOptions();
 
-		for (i in 0...optionsArray.length)
+		for (i => option in optionsArray)
 		{
-			var optionText:Alphabet = new Alphabet(0, 70 * i, optionsArray[i].name, true, false, 0.05, 0.8);
+			var optionText:Alphabet = new Alphabet(0, 70 * i, option.name, true, false, 0.05, 0.8);
 			optionText.isMenuItem = true;
 			optionText.x += 300;
 			optionText.xAdd = 120;
 			optionText.targetY = i;
 			grpOptions.add(optionText);
 
-			if (optionsArray[i].type == 'bool')
+			if (option.type == 'bool')
 			{
-				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, optionsArray[i].getValue());
+				var checkbox:Checkbox = new Checkbox(optionText.x - 105, optionText.y, option.getValue());
 				checkbox.sprTracker = optionText;
 				checkbox.offsetY = -60;
 				checkbox.ID = i;
@@ -58,14 +62,14 @@ class GameplayChangersSubState extends MusicBeatSubState
 			}
 			else
 			{
-				var valueText:AttachedText = new AttachedText(Std.string(optionsArray[i].getValue()), optionText.width + 80, 0, true, 0.8);
+				var valueText:AttachedText = new AttachedText(Std.string(option.getValue()), optionText.width + 80, 0, true, 0.8);
 				valueText.sprTracker = optionText;
 				valueText.copyAlpha = true;
 				valueText.ID = i;
 				grpTexts.add(valueText);
-				optionsArray[i].setChild(valueText);
+				option.setChild(valueText);
 			}
-			updateTextFrom(optionsArray[i]);
+			updateTextFrom(option);
 		}
 
 		changeSelection();
@@ -188,7 +192,6 @@ class GameplayChangersSubState extends MusicBeatSubState
 											updateTextFrom(oOption);
 										}
 									}
-									// Debug.logTrace(curOption.options[num]);
 							}
 							updateTextFrom(curOption);
 							curOption.change();
@@ -357,9 +360,8 @@ class GameplayChangersSubState extends MusicBeatSubState
 		if (curSelected >= optionsArray.length)
 			curSelected = 0;
 
-		for (i in 0...grpOptions.members.length)
+		for (i => item in grpOptions.members)
 		{
-			var item:Alphabet = grpOptions.members[i];
 			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
@@ -503,14 +505,13 @@ class GameplayOption
 		return null;
 	}
 
-	private function set_text(newValue:String = ''):String
+	private function set_text(value:String = ''):String
 	{
 		if (child != null)
 		{
-			child.changeText(newValue);
-			return child.text;
+			child.changeText(value);
 		}
-		return null;
+		return value;
 	}
 
 	private function get_type():String

@@ -1,19 +1,21 @@
 package;
 
-import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIState;
 
-abstract class MusicBeatState extends FlxUIState
+abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
+	private var curDecimalBeat:Float = 0;
 	private var controls(get, never):Controls;
 
 	override public function create():Void
 	{
 		Paths.clearUnusedMemory();
+
+		TimingStruct.clearTimings();
 
 		super.create();
 	}
@@ -22,13 +24,73 @@ abstract class MusicBeatState extends FlxUIState
 	{
 		super.update(elapsed);
 
-		var oldStep:Int = curStep;
+		if (Conductor.songPosition < 0)
+		{
+			curDecimalBeat = 0;
+		}
+		else
+		{
+			if (TimingStruct.allTimings.length > 1)
+			{
+				var data:TimingStruct = TimingStruct.getTimingAtTimestamp(Conductor.songPosition);
 
-		updateStep();
-		updateBeat();
+				Conductor.crotchetLength = Conductor.calculateCrotchetLength(data.bpm);
 
-		if (oldStep != curStep && curStep > 0)
-			stepHit(curStep);
+				var startInMS:Float = data.startTime * TimingConstants.MILLISECONDS_PER_SECOND;
+
+				curDecimalBeat = data.startBeat
+					+ (((Conductor.songPosition / TimingConstants.MILLISECONDS_PER_SECOND)
+						- data.startTime) * (data.bpm / TimingConstants.SECONDS_PER_MINUTE));
+				var nextStep:Int = Math.floor(data.startStep + (Conductor.songPosition - startInMS) / Conductor.semiquaverLength);
+				if (nextStep >= 0)
+				{
+					if (nextStep > curStep)
+					{
+						for (i in curStep...nextStep)
+						{
+							curStep++;
+							updateBeat();
+							stepHit(curStep);
+						}
+					}
+					else if (nextStep < curStep)
+					{
+						// Song reset?
+						Debug.logTrace('reset steps for some reason?? at ${Conductor.songPosition}');
+						curStep = nextStep;
+						updateBeat();
+						stepHit(curStep);
+					}
+				}
+			}
+			else
+			{
+				Conductor.crotchetLength = Conductor.calculateCrotchetLength(Conductor.tempo); // Reset crotchet length
+				curDecimalBeat = (Conductor.songPosition / TimingConstants.MILLISECONDS_PER_SECOND) * (Conductor.tempo / TimingConstants.SECONDS_PER_MINUTE);
+				var nextStep:Int = Math.floor(Conductor.songPosition / Conductor.semiquaverLength);
+				if (nextStep >= 0)
+				{
+					if (nextStep > curStep)
+					{
+						for (i in curStep...nextStep)
+						{
+							curStep++;
+							updateBeat();
+							stepHit(curStep);
+						}
+					}
+					else if (nextStep < curStep)
+					{
+						// Song reset?
+						Debug.logTrace('(no bpm change) reset steps for some reason?? at ${Conductor.songPosition}');
+						curStep = nextStep;
+						updateBeat();
+						stepHit(curStep);
+					}
+				}
+				// Conductor.crotchetLength = Conductor.calculateCrotchetLength(Conductor.tempo); // Reset crotchet length
+			}
+		}
 
 		if (EngineData.save.data != null)
 			EngineData.save.data.fullscreen = FlxG.fullscreen;
@@ -58,34 +120,17 @@ abstract class MusicBeatState extends FlxUIState
 
 	public function stepHit(step:Int):Void
 	{
-		if (step % 4 == 0)
+		if (step % Conductor.SEMIQUAVERS_PER_CROTCHET == 0)
 			beatHit(curBeat);
 	}
 
 	public function beatHit(beat:Int):Void
 	{
-		// Do nothing
-	}
-
-	private function updateStep():Void
-	{
-		var lastChange:BPMChangeEvent = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: 0
-		}
-		for (bpmChange in Conductor.bpmChangeMap)
-		{
-			if (Conductor.songPosition >= bpmChange.songTime)
-				lastChange = bpmChange;
-		}
-
-		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
 	private function updateBeat():Void
 	{
-		curBeat = Math.floor(curStep / 4);
+		curBeat = Math.floor(curStep / Conductor.SEMIQUAVERS_PER_CROTCHET);
 	}
 
 	private inline function get_controls():Controls

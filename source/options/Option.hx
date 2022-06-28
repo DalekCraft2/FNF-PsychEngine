@@ -3,6 +3,7 @@ package options;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
+import ui.Alphabet;
 
 abstract class Option extends FlxTypedGroup<FlxSprite>
 {
@@ -14,7 +15,7 @@ abstract class Option extends FlxTypedGroup<FlxSprite>
 	public var text:Alphabet;
 	public var isSelected:Bool = false;
 
-	public function new(?name:String = 'Option', ?description:String = '')
+	public function new(name:String = 'Option', description:String = '')
 	{
 		super();
 

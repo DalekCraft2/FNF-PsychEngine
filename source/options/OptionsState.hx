@@ -14,10 +14,10 @@ class OptionsState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		bg.color = 0xFFEA71FD;
 		bg.updateHitbox();
 		bg.screenCenter();

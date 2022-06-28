@@ -15,6 +15,7 @@ import flixel.addons.ui.FlxUITabMenu;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import haxe.Exception;
 import haxe.Json;
@@ -25,6 +26,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileFilter;
 import openfl.net.FileReference;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -180,9 +182,9 @@ class DialogueCharacterEditorState extends MusicBeatState
 		{
 			if (inputText.hasFocus)
 			{
-				FlxG.sound.muteKeys = [];
-				FlxG.sound.volumeDownKeys = [];
-				FlxG.sound.volumeUpKeys = [];
+				FlxG.sound.muteKeys = null;
+				FlxG.sound.volumeDownKeys = null;
+				FlxG.sound.volumeUpKeys = null;
 				blockInput = true;
 
 				if (FlxG.keys.pressed.CONTROL
@@ -636,7 +638,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 
 	private function reloadAnimationsDropDown():Void
 	{
-		animationArray = [];
+		FlxArrayUtil.clearArray(animationArray);
 		for (anim in character.jsonFile.animations)
 		{
 			animationArray.push(anim.anim);
@@ -739,7 +741,7 @@ class DialogueCharacterEditorState extends MusicBeatState
 		var charsArray:Array<DialogueCharacter> = [character, ghostLoop, ghostIdle];
 		for (char in charsArray)
 		{
-			char.frames = Paths.getSparrowAtlas(Path.join(['dialogue', character.jsonFile.image]));
+			char.frames = Paths.getSparrowAtlas(Path.join(['ui/dialogue/portraits', character.jsonFile.image]));
 			char.jsonFile = character.jsonFile;
 			char.reloadAnimations();
 			char.setGraphicSize(Std.int(char.width * DialogueCharacter.DEFAULT_SCALE * character.jsonFile.scale));
@@ -840,10 +842,10 @@ class DialogueCharacterEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -876,10 +878,10 @@ class DialogueCharacterEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			return;
 		}
 		removeLoadListeners();

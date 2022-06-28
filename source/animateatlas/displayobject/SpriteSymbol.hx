@@ -176,7 +176,7 @@ class SpriteSymbol extends Sprite
 
 	public function getFrameLabels():Array<String>
 	{
-		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
+		return _frameLabels.map((f:FrameLabel) -> f.name); // Inlining. I feel a js
 	}
 
 	public function getTexture():BitmapData
@@ -369,7 +369,6 @@ class SpriteSymbol extends Sprite
 			}
 			if (data.GlowFilter != null)
 			{
-				Debug.logTrace('GLOW${data.GlowFilter}');
 				glow = new GlowFilter();
 				glow.blurX = data.GlowFilter.blurX;
 				glow.blurY = data.GlowFilter.blurY;

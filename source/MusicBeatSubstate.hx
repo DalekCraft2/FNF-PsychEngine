@@ -1,9 +1,9 @@
 package;
 
-import Conductor.BPMChangeEvent;
+import Conductor.TempoChangeEvent;
 import flixel.FlxSubState;
 
-abstract class MusicBeatSubState extends FlxSubState
+abstract class MusicBeatSubState extends FlxSubState implements MusicBeatable
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
@@ -19,7 +19,7 @@ abstract class MusicBeatSubState extends FlxSubState
 		updateStep();
 		updateBeat();
 
-		curBeat = Math.floor(curStep / 4);
+		curBeat = Math.floor(curStep / Conductor.SEMIQUAVERS_PER_CROTCHET);
 
 		if (oldStep != curStep && curStep > 0)
 			stepHit(curStep);
@@ -27,7 +27,7 @@ abstract class MusicBeatSubState extends FlxSubState
 
 	public function stepHit(step:Int):Void
 	{
-		if (step % 4 == 0)
+		if (step % Conductor.SEMIQUAVERS_PER_CROTCHET == 0)
 			beatHit(curBeat);
 	}
 
@@ -38,23 +38,24 @@ abstract class MusicBeatSubState extends FlxSubState
 
 	private function updateStep():Void
 	{
-		var lastChange:BPMChangeEvent = {
+		var lastChange:TempoChangeEvent = {
 			stepTime: 0,
 			songTime: 0,
-			bpm: 0
+			tempo: 0
 		}
-		for (bpmChange in Conductor.bpmChangeMap)
+		for (tempoChange in Conductor.tempoChangeList)
 		{
-			if (Conductor.songPosition >= bpmChange.songTime)
-				lastChange = bpmChange;
+			if (Conductor.songPosition >= tempoChange.songTime)
+				lastChange = tempoChange;
 		}
 
-		curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.stepCrochet);
+		curStep = lastChange.stepTime
+			+ Math.floor(((Conductor.songPosition - Options.save.data.noteOffset) - lastChange.songTime) / Conductor.semiquaverLength);
 	}
 
 	private function updateBeat():Void
 	{
-		curBeat = Math.floor(curStep / 4);
+		curBeat = Math.floor(curStep / Conductor.SEMIQUAVERS_PER_CROTCHET);
 	}
 
 	private inline function get_controls():Controls

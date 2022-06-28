@@ -3,21 +3,20 @@ package sm;
 #if FEATURE_STEPMANIA
 class SMMeasure
 {
-	public var notes:Array<SMNote>;
+	public var notes:Array<SMNote> = [];
 
 	private var _measure:Array<String>;
 
 	public function new(measureData:Array<String>)
 	{
 		_measure = measureData;
-		notes = [];
 
 		// 0 = no note
 		// 1 = normal note
 		// 2 = head of sustain
 		// 3 = tail of sustain
 
-		for (i in measureData)
+		for (i in _measure)
 		{
 			for (ii in 0...i.length)
 			{

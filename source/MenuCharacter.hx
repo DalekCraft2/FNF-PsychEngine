@@ -62,40 +62,28 @@ class MenuCharacter extends FlxSprite
 			case '':
 				visible = false;
 			default:
-				var menuCharacterDef:MenuCharacterDef = Paths.getJson(Path.join(['menucharacters', id]));
+				var menuCharacterDef:MenuCharacterDef = Paths.getJson(Path.join(['menu_characters', id]));
 				if (menuCharacterDef == null)
 				{
 					Debug.logError('Could not find menu character data for menu character "$id"; using default');
-					menuCharacterDef = Paths.getJson(Path.join(['menucharacters', DEFAULT_MENU_CHARACTER]));
+					menuCharacterDef = Paths.getJson(Path.join(['menu_characters', DEFAULT_MENU_CHARACTER]));
 				}
 
-				frames = Paths.getSparrowAtlas(Path.join(['menucharacters', menuCharacterDef.image]));
+				frames = Paths.getSparrowAtlas(Path.join(['ui/story/menu_characters', menuCharacterDef.image]));
 
 				if (menuCharacterDef.idleAnim != null)
 				{
 					idleAnim = menuCharacterDef.idleAnim;
-				}
-				else
-				{
-					idleAnim = '';
 				}
 
 				if (menuCharacterDef.confirmAnim != null)
 				{
 					confirmAnim = menuCharacterDef.confirmAnim;
 				}
-				else
-				{
-					confirmAnim = '';
-				}
 
 				if (menuCharacterDef.flipX != null)
 				{
 					flipX = menuCharacterDef.flipX;
-				}
-				else
-				{
-					flipX = false;
 				}
 
 				if (menuCharacterDef.scale != null)
@@ -103,18 +91,10 @@ class MenuCharacter extends FlxSprite
 					scale.set(menuCharacterDef.scale, menuCharacterDef.scale);
 					updateHitbox();
 				}
-				else
-				{
-					scale.set(1, 1);
-				}
 
 				if (menuCharacterDef.position != null)
 				{
 					offset.set(menuCharacterDef.position[0], menuCharacterDef.position[1]);
-				}
-				else
-				{
-					offset.set();
 				}
 
 				if (menuCharacterDef.loopIdle != null)

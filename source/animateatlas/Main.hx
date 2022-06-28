@@ -16,15 +16,16 @@ import openfl.display.Sprite;
 import openfl.display.Tilemap;
 import openfl.events.Event;
 import openfl.events.MouseEvent;
+import ui.FPSMem;
 
 class Main extends Sprite
 {
 	private var aa:TileAnimationLibrary;
 	private var ss:SpriteAnimationLibrary;
 
-	private var tileSymbols:Array<TileContainerMovieClip>;
+	private var tileSymbols:Array<TileContainerMovieClip> = [];
 
-	private var spriteSymbols:Array<SpriteMovieClip>;
+	private var spriteSymbols:Array<SpriteMovieClip> = [];
 
 	private var renderer:Tilemap;
 
@@ -59,9 +60,6 @@ class Main extends Sprite
 
 		addChild(renderer);
 		addChild(new FPSMem(10, 10, 0xFFFFFF));
-
-		tileSymbols = [];
-		spriteSymbols = [];
 
 		addEventListener(Event.ENTER_FRAME, update);
 		// addEventListener(MouseEvent.CLICK, addSpriteGirl);
@@ -102,7 +100,6 @@ class Main extends Sprite
 
 			t.currentLabel = t.getFrameLabels()[Std.random(t.getFrameLabels().length)];
 			spriteSymbols.push(t);
-			Debug.logTrace(spriteSymbols.length);
 		}
 	}
 
@@ -119,8 +116,6 @@ class Main extends Sprite
 
 			t.currentLabel = t.getFrameLabels()[Std.random(t.getFrameLabels().length)];
 			tileSymbols.push(t);
-
-			Debug.logTrace(tileSymbols.length);
 		}
 	}
 }

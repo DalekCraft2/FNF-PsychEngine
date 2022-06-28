@@ -18,6 +18,9 @@
     <!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
     <set name="SWF_VERSION" value="11.8" />
 
+    <!-- Version of this FNF engine -->
+    <define name="FNF_ENGINE_VERSION" value="0.5.2h" />
+
     <!-- ____________________________ Window Settings ___________________________ -->
 
     <!--These window settings apply to all targets-->
@@ -63,7 +66,7 @@
     <define name="FEATURE_MODS" if="desktop" />
 
     <!-- Defines whether StepMania files can be loaded. (I'm keeping this disabled until I ensure that it works.) -->
-    <!-- <define name="FEATURE_STEPMANIA" if="desktop" /> -->
+    <define name="FEATURE_STEPMANIA" if="desktop" />
 
     <!-- Defines whether videos should be enabled. Works with CPP (currently only on Windows) or with both JavaScript and HTML5. -->
     <define name="FEATURE_VIDEOS" if="web || cpp" />
@@ -84,35 +87,9 @@
     <define name="PRELOAD_ALL" unless="web" />
     <!-- <define name="PRELOAD_ALL" /> -->
 
-    <section if="PRELOAD_ALL">
-        <library name="shared" preload="true" />
-        <library name="week2" preload="true" />
-        <library name="week3" preload="true" />
-        <library name="week4" preload="true" />
-        <library name="week5" preload="true" />
-        <library name="week6" preload="true" />
-        <library name="week7" preload="true" />
-    </section>
-    <section unless="PRELOAD_ALL">
-        <library name="shared" preload="false" />
-        <library name="week2" preload="false" />
-        <library name="week3" preload="false" />
-        <library name="week4" preload="false" />
-        <library name="week5" preload="false" />
-        <library name="week6" preload="false" />
-        <library name="week7" preload="false" />
-    </section>
-
     <!-- TODO Attempt to move everything into a single library like Myth does -->
     <assets path="assets/secrets" rename="assets" if="TITLE_SCREEN_EASTER_EGG" />
     <assets path="assets/preload" rename="assets" />
-    <assets path="assets/shared" library="shared" />
-    <assets path="assets/week2" library="week2" />
-    <assets path="assets/week3" library="week3" />
-    <assets path="assets/week4" library="week4" />
-    <assets path="assets/week5" library="week5" />
-    <assets path="assets/week6" library="week6" />
-    <assets path="assets/week7" library="week7" />
 
     <!-- TODO Figure out whether "32bits" is the correct Haxe compiler flag for 32 bits -->
     <assets path="lib/x64" rename='' if="FEATURE_VIDEOS cpp" unless="32bits" />
@@ -139,7 +116,7 @@
 
     <haxelib name="linc_luajit" if="FEATURE_LUA" />
     
-    <!-- <haxelib name="newgrounds" /> -->
+    <haxelib name="newgrounds" />
 
     <!-- Enable this if you want to use Polymod to manage assets (and mods, if enabled). (Requires that mods use Polymod folders such as _append for some assets) -->
     <!-- It also works well for finding things which need to be optimized, because it causes so much lag -->
@@ -184,6 +161,8 @@
     <haxedef name="POLYMOD_MOD_METADATA_FILE" value="/_meta.json" />
     <haxedef name="POLYMOD_MOD_ICON_FILE" value="/_icon.png" />
     <haxedef name="POLYMOD_MOD_PACK_FILE" value="/_pack.txt" />
+    
+    <!-- <haxedef name="hscriptPos" /> -->
 
     <!-- _________________________________ Custom _______________________________ -->
 

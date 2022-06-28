@@ -1,5 +1,6 @@
 package;
 
+import flixel.effects.FlxFlicker;
 import Song.SongMetadata;
 import editors.ChartEditorState;
 import flixel.FlxG;
@@ -17,6 +18,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.io.Path;
 import openfl.events.MouseEvent;
+import ui.Alphabet;
+import ui.HealthIcon;
 
 using StringTools;
 
@@ -58,21 +61,19 @@ class FreeplayState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('In the Menus', null);
+		DiscordClient.changePresence('In the Menus');
 		#end
 
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
 		PlayState.isStoryMode = false;
 		Week.reloadWeekData();
-		for (i in 0...Week.weekList.length)
+		for (i => weekId in Week.weekList)
 		{
-			var weekId:String = Week.weekList[i];
-
 			if (weekIsLocked(weekId))
 				continue;
 
@@ -86,7 +87,7 @@ class FreeplayState extends MusicBeatState
 		}
 		Week.loadTheFirstEnabledMod();
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
@@ -94,10 +95,8 @@ class FreeplayState extends MusicBeatState
 		grpSongs = new FlxTypedGroup();
 		add(grpSongs);
 
-		for (i in 0...songs.length)
+		for (i => song in songs)
 		{
-			var song:SongMetadata = songs[i];
-
 			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, song.name, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
@@ -115,7 +114,6 @@ class FreeplayState extends MusicBeatState
 							letter.offset.x *= textScale;
 						}
 						songText.updateHitbox();
-						// Debug.logTrace('${song.songName} new scale: $textScale');
 				}
 			 */
 
@@ -125,6 +123,7 @@ class FreeplayState extends MusicBeatState
 
 			// using a FlxGroup is too much fuss!
 			// TODO screw this, let's use an FlxGroup
+			// Actually, maybe it'd be smarter to make a separate class
 			iconArray.push(icon);
 			add(icon);
 		}
@@ -195,7 +194,7 @@ class FreeplayState extends MusicBeatState
 
 		if (FlxG.sound.music != null && FlxG.sound.music.volume < 0.7)
 		{
-			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, FlxMath.bound(elapsed * 24, 0, 1)));
@@ -302,7 +301,6 @@ class FreeplayState extends MusicBeatState
 					difficulty = '';
 					curDifficulty = 1;
 				}
-				Debug.logTrace(songPath);
 				PlayState.song = Song.getSongDef(songId, difficulty);
 				if (PlayState.song.needsVoices)
 					vocals = new FlxSound().loadEmbedded(Paths.getVoices(PlayState.song.songId));
@@ -349,19 +347,18 @@ class FreeplayState extends MusicBeatState
 	{
 		if (!selectedSong)
 		{
-			for (idx in 0...grpSongs.members.length)
+			for (i => obj in grpSongs.members)
 			{
-				var obj:Alphabet = grpSongs.members[idx];
-				var icon:HealthIcon = iconArray[idx];
+				var icon:HealthIcon = iconArray[i];
 				if (obj == object || icon == object)
 				{
-					if (idx == curSelected)
+					if (i == curSelected)
 					{
 						selectSong();
 					}
 					else
 					{
-						changeSelection(idx, false);
+						changeSelection(i, false);
 					}
 				}
 			}
@@ -433,11 +430,9 @@ class FreeplayState extends MusicBeatState
 					difficulty = '';
 					curDifficulty = 1;
 				}
-				Debug.logTrace(songPath);
 				PlayState.song = Song.loadSong(songId, difficulty);
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
-				Debug.logTrace('Current Week: ${Week.getCurrentWeekId()}');
 				if (colorTween != null)
 				{
 					colorTween.cancel();
@@ -455,7 +450,12 @@ class FreeplayState extends MusicBeatState
 					PlayState.chartingMode = false;
 				}
 
-				new FlxTimer().start(1, (tmr:FlxTimer) ->
+				final arbitraryDelayValue:Float = 1;
+				// final transitionDuration:Float = FlxTransitionableState.skipNextTransOut ? 0 : transOut.duration;
+				// final delayPlusTransition:Float = arbitraryDelayValue + transitionDuration;
+
+				FlxFlicker.flicker(grpSongs.members[curSelected], 1, 0.06);
+				new FlxTimer().start(arbitraryDelayValue, (tmr:FlxTimer) ->
 				{
 					LoadingState.loadAndSwitchState(nextState, true);
 				});
@@ -623,9 +623,8 @@ class FreeplayState extends MusicBeatState
 
 			iconArray[curSelected].alpha = 1;
 
-			for (i in 0...grpSongs.members.length)
+			for (i => item in grpSongs.members)
 			{
-				var item:Alphabet = grpSongs.members[i];
 				item.targetY = i - curSelected;
 
 				item.alpha = 0.6;
@@ -641,10 +640,11 @@ class FreeplayState extends MusicBeatState
 
 			Difficulty.difficulties = Difficulty.DEFAULT_DIFFICULTIES.copy();
 			var diffs:Array<String> = Week.getCurrentWeek().difficulties;
+			// var diffs:Array<DifficultyDef> = song.difficulties;
 			if (diffs != null && diffs.length > 0)
 			{
 				var i:Int = diffs.length - 1;
-				while (i > 0)
+				while (i >= 0)
 				{
 					if (diffs[i] != null)
 					{
@@ -652,7 +652,7 @@ class FreeplayState extends MusicBeatState
 						if (diffs[i].length < 1)
 							diffs.remove(diffs[i]);
 					}
-					--i;
+					i--;
 				}
 
 				if (diffs.length > 0 && diffs[0].length > 0)
@@ -671,7 +671,6 @@ class FreeplayState extends MusicBeatState
 			}
 
 			var newPos:Int = Difficulty.difficulties.indexOf(lastDifficultyName);
-			// Debug.logTrace('Position of $lastDifficultyName is $newPos');
 			if (newPos > -1)
 			{
 				curDifficulty = newPos;

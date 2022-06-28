@@ -12,6 +12,6 @@ class PlayStateChangeables
 	public static var practiceMode:Bool;
 	public static var botPlay:Bool;
 	public static var optimize:Bool;
-	// TODO Figure out what this was supposed to be used for
+	// This was used with Kade Engine's GameplayCustomizeState, but I don't know how easy it would be to reimpliment that
 	// public static var zoom:Float;
 }

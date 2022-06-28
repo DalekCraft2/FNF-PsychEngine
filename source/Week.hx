@@ -1,6 +1,8 @@
 package;
 
+import flixel.util.FlxArrayUtil;
 import haxe.io.Path;
+import util.CoolUtil;
 
 using StringTools;
 
@@ -86,7 +88,7 @@ class Week
 	{
 		// TODO This is very similar to the method for reloading Achievements, so I feel like there should instead be a common method
 
-		weekList = [];
+		FlxArrayUtil.clearArray(weekList);
 		weeksLoaded.clear();
 
 		var directories:Array<String> = Paths.getDirectoryLoadOrder();
@@ -104,7 +106,8 @@ class Week
 					var path:String = Path.join([weekDirectory, Path.withExtension(weekId, Paths.JSON_EXT)]);
 					if (Paths.exists(path))
 					{
-						addWeek(weekId, path, directory);
+						addWeek(weekId, path,
+							directory); // FIXME This will set the vanilla weeks' directory name to "assets" when it should be an empty string
 					}
 				}
 			}
@@ -134,7 +137,8 @@ class Week
 			{
 				var week:Week = new Week(def, id);
 				#if FEATURE_MODS
-				week.folder = directory.substring(Paths.mods().length, directory.length);
+				// week.folder = directory.substring(Paths.MOD_DIRECTORY.length, directory.length);
+				week.folder = Path.withoutDirectory(directory);
 				#end
 				if ((PlayState.isStoryMode && !week.hideStoryMode) || (!PlayState.isStoryMode && !week.hideFreeplay))
 				{
@@ -167,6 +171,7 @@ class Week
 		}
 	}
 
+	// TODO Shouldn't this be in a class related to Mods, like Mod.hx or ModCore.hx?
 	public static function loadTheFirstEnabledMod():Void
 	{
 		Paths.currentModDirectory = '';

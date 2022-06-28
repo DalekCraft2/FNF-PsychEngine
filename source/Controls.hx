@@ -478,7 +478,7 @@ class Controls extends FlxActionSet
 				copyKeys.remove(copyKey);
 		}
 
-		inline forEachBound(control, (action, state) -> addKeys(action, copyKeys, state));
+		inline forEachBound(control, (action:FlxActionDigital, state:FlxInputState) -> addKeys(action, copyKeys, state));
 	}
 
 	/**
@@ -494,7 +494,7 @@ class Controls extends FlxActionSet
 				copyKeys.remove(copyKey);
 		}
 
-		inline forEachBound(control, (action, _) -> removeKeys(action, copyKeys));
+		inline forEachBound(control, (action:FlxActionDigital, state:FlxInputState) -> removeKeys(action, copyKeys));
 	}
 
 	private static inline function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState):Void
@@ -506,12 +506,13 @@ class Controls extends FlxActionSet
 
 	private static function removeKeys(action:FlxActionDigital, keys:Array<FlxKey>):Void
 	{
-		var i:Int = action.inputs.length;
-		while (i-- > 0)
+		var i:Int = action.inputs.length - 1;
+		while (i >= 0)
 		{
 			var input:FlxActionInput = action.inputs[i];
 			if (input.device == KEYBOARD && keys.contains(input.inputID))
 				action.remove(input);
+			i--;
 		}
 	}
 
@@ -593,12 +594,13 @@ class Controls extends FlxActionSet
 	{
 		for (action in this.digitalActions)
 		{
-			var i:Int = action.inputs.length;
-			while (i-- > 0)
+			var i:Int = action.inputs.length - 1;
+			while (i >= 0)
 			{
 				var input:FlxActionInput = action.inputs[i];
 				if (input.device == KEYBOARD)
 					action.remove(input);
+				i--;
 			}
 		}
 	}
@@ -623,23 +625,24 @@ class Controls extends FlxActionSet
 	{
 		for (action in this.digitalActions)
 		{
-			var i:Int = action.inputs.length;
-			while (i-- > 0)
+			var i:Int = action.inputs.length - 1;
+			while (i >= 0)
 			{
 				var input:FlxActionInput = action.inputs[i];
 				if (input.device == GAMEPAD && (deviceID == FlxInputDeviceID.ALL || input.deviceID == deviceID))
 					action.remove(input);
+				i--;
 			}
 		}
 
 		gamepadsAdded.remove(deviceID);
 	}
 
-	public function addDefaultGamepad(id):Void
+	public function addDefaultGamepad(id:Int):Void
 	{
 		#if switch
 		addGamepadLiteral(id, [
-			// Swap A and B for switch
+			// Swap A and B for Switch
 			Control.ACCEPT => [B, START],
 			Control.BACK => [A],
 			Control.UI_UP => [DPAD_UP, LEFT_STICK_DIGITAL_UP, RIGHT_STICK_DIGITAL_UP],
@@ -675,18 +678,18 @@ class Controls extends FlxActionSet
 	 * Sets all actions that pertain to the binder to trigger when the supplied keys are used.
 	 * If binder is a literal you can inline this
 	 */
-	public function bindButtons(control:Control, id, buttons):Void
+	public function bindButtons(control:Control, id:Int, buttons:Array<FlxGamepadInputID>):Void
 	{
-		inline forEachBound(control, (action, state) -> addButtons(action, buttons, state, id));
+		inline forEachBound(control, (action:FlxActionDigital, state:FlxInputState) -> addButtons(action, buttons, state, id));
 	}
 
 	/**
 	 * Sets all actions that pertain to the binder to trigger when the supplied keys are used.
 	 * If binder is a literal you can inline this
 	 */
-	public function unbindButtons(control:Control, gamepadID:Int, buttons):Void
+	public function unbindButtons(control:Control, gamepadID:Int, buttons:Array<FlxGamepadInputID>):Void
 	{
-		inline forEachBound(control, (action, _) -> removeButtons(action, gamepadID, buttons));
+		inline forEachBound(control, (action:FlxActionDigital, state:FlxInputState) -> removeButtons(action, gamepadID, buttons));
 	}
 
 	private static inline function addButtons(action:FlxActionDigital, buttons:Array<FlxGamepadInputID>, state:FlxInputState, id:Int):Void
@@ -697,12 +700,13 @@ class Controls extends FlxActionSet
 
 	private static function removeButtons(action:FlxActionDigital, gamepadID:Int, buttons:Array<FlxGamepadInputID>):Void
 	{
-		var i:Int = action.inputs.length;
-		while (i-- > 0)
+		var i:Int = action.inputs.length - 1;
+		while (i >= 0)
 		{
 			var input:FlxActionInput = action.inputs[i];
 			if (isGamepad(input, gamepadID) && buttons.contains(input.inputID))
 				action.remove(input);
+			i--;
 		}
 	}
 

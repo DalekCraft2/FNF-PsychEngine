@@ -11,6 +11,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import ui.Alphabet;
 
 class NoteOffsetState extends MusicBeatState
 {
@@ -195,7 +196,7 @@ class NoteOffsetState extends MusicBeatState
 		add(changeModeText);
 		updateMode();
 
-		Conductor.changeBPM(128.0);
+		Conductor.tempo = 128;
 		FlxG.sound.playMusic(Paths.getMusic('offsetSong'), 1, true);
 	}
 
@@ -271,7 +272,6 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = true;
 					startComboOffset.x = Options.save.data.comboOffset[2];
 					startComboOffset.y = Options.save.data.comboOffset[3];
-					// Debug.logTrace('yo bro');
 				}
 				else if (startMousePos.x - rating.x >= 0
 					&& startMousePos.x - rating.x <= rating.width
@@ -281,13 +281,11 @@ class NoteOffsetState extends MusicBeatState
 					holdingObjectType = false;
 					startComboOffset.x = Options.save.data.comboOffset[0];
 					startComboOffset.y = Options.save.data.comboOffset[1];
-					// Debug.logTrace('heya');
 				}
 			}
 			if (FlxG.mouse.justReleased)
 			{
 				holdingObjectType = null;
-				// Debug.logTrace('dead');
 			}
 
 			if (holdingObjectType != null)
@@ -383,7 +381,7 @@ class NoteOffsetState extends MusicBeatState
 			gf.dance();
 		}
 
-		if (beat % 4 == 2)
+		if (beat % Conductor.CROTCHETS_PER_MEASURE == 2)
 		{
 			FlxG.camera.zoom = 1.15;
 
@@ -444,18 +442,18 @@ class NoteOffsetState extends MusicBeatState
 
 	private function reloadTexts():Void
 	{
-		for (i in 0...dumbTexts.length)
+		for (i => text in dumbTexts.members)
 		{
 			switch (i)
 			{
 				case 0:
-					dumbTexts.members[i].text = 'Rating Offset:';
+					text.text = 'Rating Offset:';
 				case 1:
-					dumbTexts.members[i].text = '[${Options.save.data.comboOffset[0]}, ${Options.save.data.comboOffset[1]}]';
+					text.text = '[${Options.save.data.comboOffset[0]}, ${Options.save.data.comboOffset[1]}]';
 				case 2:
-					dumbTexts.members[i].text = 'Numbers Offset:';
+					text.text = 'Numbers Offset:';
 				case 3:
-					dumbTexts.members[i].text = '[${Options.save.data.comboOffset[2]}, ${Options.save.data.comboOffset[3]}]';
+					text.text = '[${Options.save.data.comboOffset[2]}, ${Options.save.data.comboOffset[3]}]';
 			}
 		}
 	}

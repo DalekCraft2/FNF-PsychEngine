@@ -13,6 +13,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import haxe.io.Path;
 import openfl.Lib;
 import options.OptionsState;
 #if FEATURE_DISCORD
@@ -54,7 +55,7 @@ class MainMenuState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('In the Menus', null);
+		DiscordClient.changePresence('In the Menus');
 		#end
 
 		Week.loadTheFirstEnabledMod();
@@ -62,7 +63,7 @@ class MainMenuState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
 		debugKeys = Options.copyKey(Options.save.data.keyBinds.get('debug_1'));
@@ -75,9 +76,9 @@ class MainMenuState extends MusicBeatState
 		FlxG.cameras.add(camAchievement, false);
 
 		var yScroll:Float = Math.max(0.25 - (0.05 * (menuOptions.length - 4)), 0.1);
-		// var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuDesat'));
+		// var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		// bg.color = 0xFFFFEA72; // Tint used to get menuBG from menuDesat (or, at least, it is close to what the tint is)
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuBG'));
+		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuBG'));
 		bg.scrollFactor.set(0, yScroll);
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
@@ -90,7 +91,7 @@ class MainMenuState extends MusicBeatState
 		add(camFollow);
 		add(camFollowPos);
 
-		magenta = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuDesat'));
+		magenta = new FlxSprite(-80).loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		magenta.scrollFactor.set(0, yScroll);
 		magenta.setGraphicSize(Std.int(magenta.width * 1.175));
 		magenta.updateHitbox();
@@ -105,15 +106,15 @@ class MainMenuState extends MusicBeatState
 
 		var scale:Float = 1;
 
-		for (i in 0...menuOptions.length)
+		for (i => menuOption in menuOptions)
 		{
 			var offset:Float = 108 - (Math.max(menuOptions.length, 4) - 4) * 80;
 			var menuItem:FlxSprite = new FlxSprite(0, (i * 140) + offset);
 			menuItem.scale.x = scale;
 			menuItem.scale.y = scale;
-			menuItem.frames = Paths.getSparrowAtlas('mainmenu/menu_${menuOptions[i]}');
-			menuItem.animation.addByPrefix('idle', '${menuOptions[i]} basic', 24);
-			menuItem.animation.addByPrefix('selected', '${menuOptions[i]} white', 24);
+			menuItem.frames = Paths.getSparrowAtlas(Path.join(['ui/main/options', menuOption]));
+			menuItem.animation.addByPrefix('idle', '$menuOption basic', 24);
+			menuItem.animation.addByPrefix('selected', '$menuOption white', 24);
 			menuItem.animation.play('idle');
 			menuItem.ID = i;
 			menuItem.screenCenter(X);
@@ -133,9 +134,6 @@ class MainMenuState extends MusicBeatState
 		versionShit.scrollFactor.set();
 		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
-
-		// TODO Maybe reimpliment NewgroundsIO?
-		// NG.core.calls.event.logEvent('swag').send();
 
 		changeItem();
 
@@ -162,7 +160,7 @@ class MainMenuState extends MusicBeatState
 
 		if (FlxG.sound.music.volume < 0.8)
 		{
-			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
 		var lerpVal:Float = FlxMath.bound(elapsed * 7.5, 0, 1);
@@ -238,7 +236,7 @@ class MainMenuState extends MusicBeatState
 									case 'credits':
 										FlxG.switchState(new CreditsState());
 									case 'options':
-										LoadingState.loadAndSwitchState(new OptionsState());
+										FlxG.switchState(new OptionsState());
 								}
 							});
 						}

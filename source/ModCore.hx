@@ -92,9 +92,9 @@ class ModCore
 		#if FEATURE_MODS
 		// TODO Find a way to sort these based on the modList.txt file
 		Debug.logInfo('Scanning the mods folder...');
-		var modMetadata:Array<ModMetadata> = Polymod.scan(MOD_DIRECTORY);
-		Debug.logInfo('Found ${modMetadata.length} mods when scanning.');
-		var modIds:Array<String> = [for (i in modMetadata) i.id];
+		var modMetadataArray:Array<ModMetadata> = Polymod.scan(MOD_DIRECTORY);
+		Debug.logInfo('Found ${modMetadataArray.length} mods when scanning.');
+		var modIds:Array<String> = [for (modMetadata in modMetadataArray) modMetadata.id];
 		return modIds;
 		#else
 		return [];
@@ -115,19 +115,8 @@ class ModCore
 	private static inline function buildFrameworkParams():FrameworkParams
 	{
 		return {
-			assetLibraryPaths: [
-				'default' => './', // ./preload
-				'sm' => './sm',
-				'shared' => './',
-				'tutorial' => './',
-				'week1' => './',
-				'week2' => './',
-				'week3' => './',
-				'week4' => './',
-				'week5' => './',
-				'week6' => './',
-				'week7' => './'
-			]
+			assetLibraryPaths: ['default' => './', // ./preload
+				'sm' => './sm']
 		}
 	}
 
@@ -199,6 +188,7 @@ class ModCoreBackend extends OpenFLBackend
 		return super.getText(id);
 	}
 
+	// TODO Check whether this can be changed to "?type:PolymodAssetType"
 	override public function list(type:PolymodAssetType = null):Array<String>
 	{
 		Debug.logTrace('Listing assets in custom asset cache ($type).');

@@ -21,6 +21,8 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileFilter;
 import openfl.net.FileReference;
+import ui.Alphabet;
+import ui.HealthIcon;
 
 // TODO Finish converting the freeplay week editor to a song metadata editor
 class SongMetaEditorState extends MusicBeatState
@@ -46,7 +48,7 @@ class SongMetaEditorState extends MusicBeatState
 	{
 		super.create();
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 
 		bg.color = FlxColor.WHITE;
@@ -81,9 +83,9 @@ class SongMetaEditorState extends MusicBeatState
 
 		if (iconInputText.hasFocus)
 		{
-			FlxG.sound.muteKeys = [];
-			FlxG.sound.volumeDownKeys = [];
-			FlxG.sound.volumeUpKeys = [];
+			FlxG.sound.muteKeys = null;
+			FlxG.sound.volumeDownKeys = null;
+			FlxG.sound.volumeUpKeys = null;
 			if (FlxG.keys.justPressed.ENTER)
 			{
 				iconInputText.hasFocus = false;
@@ -253,9 +255,8 @@ class SongMetaEditorState extends MusicBeatState
 
 		iconArray[curSelected].alpha = 1;
 
-		for (i in 0...grpSongs.members.length)
+		for (i => item in grpSongs.members)
 		{
-			var item:Alphabet = grpSongs.members[i];
 			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;
@@ -265,7 +266,6 @@ class SongMetaEditorState extends MusicBeatState
 				item.alpha = 1;
 			}
 		}
-		Debug.logTrace(weekDef.songs[curSelected]);
 		// TODO Try to minimize the usage of this method for performance
 		var songMetadataDef:SongMetadataDef = SongMetadata.getSongMetadata(weekDef.songs[curSelected]);
 		iconInputText.text = songMetadataDef.icon;
@@ -311,10 +311,10 @@ class SongMetaEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -339,10 +339,10 @@ class SongMetaEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			return;
 		}
 		removeLoadListeners();

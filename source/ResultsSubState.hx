@@ -9,6 +9,8 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import ui.HitGraph;
+import ui.OFLSprite;
 
 using StringTools;
 
@@ -49,7 +51,7 @@ class ResultsSubState extends FlxSubState
 		text.scrollFactor.set();
 		add(text);
 
-		var score:Int = PlayState.instance.songScore;
+		var score:Int = PlayState.instance.score;
 		if (PlayState.isStoryMode)
 		{
 			score = PlayState.campaignScore;
@@ -62,7 +64,7 @@ class ResultsSubState extends FlxSubState
 		var shits:Int = PlayState.isStoryMode ? PlayState.campaignShits : PlayState.instance.shits;
 
 		comboText = new FlxText(20, -75, 0,
-			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.songScore}\nAccuracy: ${FlxMath.roundDecimal(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? '\nF1 - Replay Song' : ''}\n',
+			'Judgements:\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\nCombo Breaks: ${(PlayState.isStoryMode ? PlayState.campaignMisses : PlayState.instance.misses)}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: ${PlayState.instance.score}\nAccuracy: ${FlxMath.roundDecimal(PlayState.instance.ratingPercent, 2)}%\n\n${Ratings.generateComboLetterRank(PlayState.instance.ratingPercent)}\nRate: ${PlayState.songMultiplier}x\n\n${!PlayState.loadRep ? '\nF1 - Replay Song' : ''}\n',
 			28);
 		comboText.setBorderStyle(OUTLINE, FlxColor.BLACK, 4, 1);
 		comboText.color = FlxColor.WHITE;
@@ -114,7 +116,7 @@ class ResultsSubState extends FlxSubState
 			var length:Float = note[1];
 			var diff:Float = note[3];
 
-			if (diff != (166 * Math.floor((PlayState.rep.replay.sf / 60) * 1000) / 166))
+			if (diff != (166 * Math.floor((PlayState.rep.replay.sf / TimingConstants.SECONDS_PER_MINUTE) * TimingConstants.MILLISECONDS_PER_SECOND) / 166))
 				mean += diff;
 			if (length != -1)
 				graph.addToHistory(diff / PlayState.songMultiplier, judge, time / PlayState.songMultiplier);
@@ -149,8 +151,6 @@ class ResultsSubState extends FlxSubState
 				graphSprite.alpha = FlxMath.lerp(0, 1, tween.percent);
 			}
 		});
-
-		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 	}
 
 	override public function update(elapsed:Float):Void
@@ -173,7 +173,7 @@ class ResultsSubState extends FlxSubState
 			PlayState.rep = null;
 
 			#if !switch
-			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.songScore), PlayState.storyDifficulty);
+			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
 			Highscore.saveCombo(PlayState.song.songId, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
 			#end
 
@@ -194,7 +194,7 @@ class ResultsSubState extends FlxSubState
 			PlayState.stageTesting = false;
 
 			#if !switch
-			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.songScore), PlayState.storyDifficulty);
+			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
 			Highscore.saveCombo(PlayState.song.songId, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
 			#end
 

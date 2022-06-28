@@ -1,0 +1,96 @@
+package ui;
+
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.util.FlxColor;
+import haxe.io.Bytes;
+import lime.media.AudioBuffer;
+import openfl.geom.Rectangle;
+
+using StringTools;
+
+// TODO Finish this and add it to the chart editor
+class Waveform extends FlxSprite
+{
+	// referenced from https://github.com/gedehari/HaxeFlixel-Waveform-Rendering/blob/master/source/PlayState.hx
+	// by gedehari
+	public var buffer:AudioBuffer;
+	public var data:Bytes;
+
+	public var length:Int;
+
+	public function new(x:Int, y:Int, audioPath:String, height:Int)
+	{
+		super(x, y);
+
+		var path:String = audioPath.replace('songs:', '');
+
+		Debug.logTrace('Loading $path');
+
+		buffer = AudioBuffer.fromFile(path);
+
+		Debug.logTrace('BPS: ${buffer.bitsPerSample} - Channels: ${buffer.channels}');
+
+		data = buffer.data.toBytes();
+
+		var h:Int = 0;
+
+		var trackDurationSeconds:Float = (data.length / (buffer.bitsPerSample / 8) / buffer.channels) / buffer.sampleRate;
+
+		var pixelsPerCollumn:Int = Math.floor(1280 / (trackDurationSeconds / TimingConstants.MILLISECONDS_PER_SECOND));
+
+		var totalSamples:Float = (data.length / (buffer.bitsPerSample / 8) / buffer.channels);
+
+		h = Math.round(totalSamples / pixelsPerCollumn);
+
+		Debug.logTrace('$h - calculated height');
+
+		length = h;
+
+		makeGraphic(h, 720, FlxColor.TRANSPARENT);
+	}
+
+	public function drawWaveform():Void
+	{
+		var drawIndex:Int = 0;
+
+		var totalSamples:Float = (data.length / (buffer.bitsPerSample / 8) / buffer.channels);
+
+		var min:Float = 0;
+		var max:Float = 0;
+
+		for (index in 0...Math.round(totalSamples))
+		{
+			var byte:Int = data.getUInt16(index);
+
+			if (byte > 65535 / 2)
+				byte -= 65535;
+
+			var sample:Float = (byte / 65535);
+
+			if (sample > 0)
+			{
+				if (sample > max)
+					max = sample;
+			}
+			else if (sample < 0)
+			{
+				if (sample < min)
+					min = sample;
+			}
+
+			Debug.logTrace('Sample $index');
+
+			var pixelsMin:Float = Math.abs(min * 300);
+			var pixelsMax:Float = max * 300;
+
+			pixels.fillRect(new Rectangle(drawIndex, 0, 1, 720), 0xFF000000);
+			pixels.fillRect(new Rectangle(drawIndex, (FlxG.height / 2) - pixelsMin, 1, pixelsMin + pixelsMax), FlxColor.GRAY);
+			pixels.fillRect(new Rectangle(drawIndex, (FlxG.height / 2) - pixelsMin, 1, -(pixelsMin + pixelsMax)), FlxColor.GRAY);
+			drawIndex += 1;
+
+			min = 0;
+			max = 0;
+		}
+	}
+}

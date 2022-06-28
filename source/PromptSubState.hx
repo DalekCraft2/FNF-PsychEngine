@@ -52,7 +52,7 @@ class PromptSubState extends MusicBeatSubState
 		else
 		{
 			var panelbg:FlxSprite = new FlxSprite(0, 0);
-			panelbg.loadGraphic(Paths.getGraphic('ui/prompt_bg'));
+			panelbg.loadGraphic(Paths.getGraphic('ui/prompt/prompt_bg'));
 			panelbg.updateHitbox();
 			panelbg.screenCenter();
 			panelbg.scrollFactor.set();
@@ -96,7 +96,7 @@ class PromptSubState extends MusicBeatSubState
 
 			/*
 				buttons = new FlxSprite(0, 0);
-				buttons.frames = Paths.getSparrowAtlas('ui/prompt_buttons');
+				buttons.frames = Paths.getSparrowAtlas('ui/prompt/prompt_buttons');
 				buttons.animation.addByPrefix('button0', 'buttons0000');
 				buttons.animation.addByPrefix('button1', 'buttons0001');
 				buttons.animation.play('button0');

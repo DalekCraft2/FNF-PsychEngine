@@ -8,7 +8,11 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
+import flixel.util.typeLimit.OneOfTwo;
 import haxe.io.Path;
+import ui.Alphabet;
+import ui.AttachedSprite;
+import util.CoolUtil;
 
 using StringTools;
 
@@ -24,6 +28,33 @@ typedef CreditDef =
 	var link:String;
 	var color:String; // Will be changed to FlxColor
 	var modDirectory:String;
+}
+
+class Credit
+{
+	public var name:String;
+	public var icon:String;
+	public var description:String;
+	public var link:String;
+	public var color:FlxColor;
+	public var modDirectory:String;
+
+	public function new(name:String, icon:String, description:String, link:String, color:OneOfTwo<FlxColor, String>, modDirectory:String)
+	{
+		this.name = name;
+		this.icon = icon;
+		this.description = description;
+		this.link = link;
+		if (color is Int)
+		{
+			this.color = color;
+		}
+		else
+		{
+			this.color = FlxColor.fromString(color);
+		}
+		this.modDirectory = modDirectory;
+	}
 }
 
 class CreditsState extends MusicBeatState
@@ -50,10 +81,10 @@ class CreditsState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('In the Menus', null);
+		DiscordClient.changePresence('In the Menus');
 		#end
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		add(bg);
 		bg.screenCenter();
 
@@ -72,8 +103,8 @@ class CreditsState extends MusicBeatState
 
 			if (Paths.exists(creditsFile))
 			{
-				var firstarray:Array<String> = CoolUtil.listFromTextFile(creditsFile);
-				for (line in firstarray)
+				var firstArray:Array<String> = CoolUtil.listFromTextFile(creditsFile);
+				for (line in firstArray)
 				{
 					var arr:Array<String> = line.replace('\\n', '\n').split('::');
 					credits.push({
@@ -89,9 +120,8 @@ class CreditsState extends MusicBeatState
 			modsAdded.push(directory);
 		}
 
-		for (i in 0...credits.length)
+		for (i => credit in credits)
 		{
-			var credit:CreditDef = credits[i];
 			var isSelectable:Bool = !unselectableCheck(i);
 			var optionText:Alphabet = new Alphabet(0, 70 * i, credit.name, !isSelectable, false);
 
@@ -111,7 +141,7 @@ class CreditsState extends MusicBeatState
 				{
 					Paths.currentModDirectory = credit.modDirectory;
 				}
-				var icon:AttachedSprite = new AttachedSprite(Path.join(['credits', credit.icon]));
+				var icon:AttachedSprite = new AttachedSprite(Path.join(['ui/credits/icons', credit.icon]));
 				icon.xAdd = optionText.width + 10;
 				icon.sprTracker = optionText;
 				// using a FlxGroup is too much fuss!
@@ -149,7 +179,7 @@ class CreditsState extends MusicBeatState
 
 		if (FlxG.sound.music.volume < 0.7)
 		{
-			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+			FlxG.sound.music.volume += 0.5 * elapsed;
 		}
 
 		if (!quitting)
@@ -207,7 +237,7 @@ class CreditsState extends MusicBeatState
 			}
 		}
 
-		for (item in grpCredits.members)
+		for (item in grpCredits)
 		{
 			if (!item.isBold)
 			{
@@ -261,9 +291,8 @@ class CreditsState extends MusicBeatState
 				});
 			}
 
-			for (i in 0...grpCredits.members.length)
+			for (i => item in grpCredits.members)
 			{
-				var item:Alphabet = grpCredits.members[i];
 				item.targetY = i - curSelected;
 
 				if (!unselectableCheck(i - 1))

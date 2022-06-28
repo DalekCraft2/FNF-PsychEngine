@@ -1,5 +1,6 @@
 package animateatlas.displayobject;
 
+import flixel.util.FlxArrayUtil;
 import animateatlas.HelperEnums.LoopMode;
 import animateatlas.HelperEnums.SymbolType;
 import animateatlas.JSONData.AnimationData;
@@ -44,9 +45,9 @@ class SpriteAnimationLibrary
 	public var frameRate:Float;
 	public var smoothing:Bool = true;
 
-	private var _atlas:Map<String, SpriteData>;
-	private var _symbolData:Map<String, SymbolData>;
-	private var _symbolPool:Map<String, Array<SpriteSymbol>>;
+	private var _atlas:Map<String, SpriteData> = [];
+	private var _symbolData:Map<String, SymbolData> = [];
+	private var _symbolPool:Map<String, Array<SpriteSymbol>> = [];
 	private var _defaultSymbolName:String;
 	private var _texture:BitmapData;
 
@@ -55,7 +56,6 @@ class SpriteAnimationLibrary
 		parseAnimationData(data);
 		parseAtlasData(atlas);
 		_texture = texture;
-		_symbolPool = [];
 	}
 
 	public function hasAnimation(name:String):Bool
@@ -86,7 +86,7 @@ class SpriteAnimationLibrary
 			}
 		}
 
-		out.sort((a1, a2) ->
+		out.sort((a1:String, a2:String) ->
 		{
 			a1 = a1.toLowerCase();
 			a2 = a2.toLowerCase();
@@ -169,7 +169,7 @@ class SpriteAnimationLibrary
 			frameRate = 24;
 		}
 
-		_symbolData = [];
+		_symbolData.clear();
 
 		// the actual symbol dictionary
 		var symbols:Array<SymbolData> = data.SYMBOL_DICTIONARY.Symbols;
@@ -246,7 +246,7 @@ class SpriteAnimationLibrary
 
 	private function parseAtlasData(atlas:AtlasData):Void
 	{
-		_atlas = [];
+		_atlas.clear();
 		if (atlas.ATLAS != null && atlas.ATLAS.SPRITES != null)
 		{
 			for (s in atlas.ATLAS.SPRITES)

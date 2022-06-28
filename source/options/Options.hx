@@ -8,19 +8,40 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxMath;
 import flixel.util.FlxSave;
+import ui.Alphabet;
 
 class Options
 {
-	public static var noteSkins:Array<String> = [];
-
 	public static final UNBINDABLE_KEYS:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
 
 	public static var save(default, null):FlxSave = new FlxSave(); // Used only for options (at least, for now)
 
-	public static function bindSave(?name:String = 'mockEngineOptions', ?path:String):Void
+	// public static var noteSkins:Array<String> = [];
+
+	public static function bindSave(name:String = 'mockEngineOptions', ?path:String):Void
 	{
-		save.bind(name, path);
-		Debug.logTrace('Options loaded!');
+		var success:Bool = save.bind(name, path);
+		if (success)
+		{
+			Debug.logInfo('Options loaded!');
+		}
+		else
+		{
+			Debug.logError('Could not bind option data!');
+		}
+	}
+
+	public static function flushSave():Void
+	{
+		var success:Bool = save.flush();
+		if (success)
+		{
+			Debug.logInfo('Options saved!');
+		}
+		else
+		{
+			Debug.logError('Could not flush option data!');
+		}
 	}
 
 	public static function fillMissingOptionFields():Void
@@ -31,12 +52,6 @@ class Options
 			if (!Reflect.hasField(save.data, f) || Reflect.field(save.data, f) == null)
 				Reflect.setField(save.data, f, Reflect.field(OptionDefaults, f));
 		}
-	}
-
-	public static function flushSave():Void
-	{
-		save.flush();
-		Debug.logTrace('Options saved!');
 	}
 
 	public static function copyKey(arrayToCopy:Array<FlxKey>):Array<FlxKey>
@@ -103,6 +118,7 @@ class OptionDefaults
 	public static final showCounters:Bool = true;
 	public static final downScroll:Bool = false;
 	public static final middleScroll:Bool = false;
+	public static final distractions:Bool = true;
 	public static final allowNoteModifiers:Bool = true;
 	public static final bgAlpha:Float = 0;
 	public static final cameraFocus:String = 'Default';
@@ -222,8 +238,9 @@ class ValueOption<T> extends Option
 
 	private function set_value(value:T):T
 	{
-		Reflect.setField(Options.save.data, property, value);
-		return this.value;
+		if (this.value != value)
+			Reflect.setField(Options.save.data, property, value);
+		return value;
 	}
 
 	private function get_defaultValue():T
@@ -333,18 +350,17 @@ class ArrowOption<T> extends ValueOption<T>
 
 class OptionCheckbox extends FlxSprite
 {
-	public var tracker:FlxSprite;
+	public var value(default, set):Bool;
 
-	private var state:Bool;
-	private var copyAlpha:Bool = true;
-	private var offsetX:Float = 0;
-	private var offsetY:Float = 0;
+	public var sprTracker:FlxSprite;
+	public var copyAlpha:Bool = true;
+	public var offsetX:Float = 0;
+	public var offsetY:Float = 0;
 
-	public function new(state:Bool = false)
+	public function new(x:Float = 0, y:Float = 0, value:Bool = false)
 	{
-		super();
+		super(x, y);
 
-		this.state = state;
 		frames = Paths.getSparrowAtlas('checkbox');
 		animation.addByPrefix('unchecked', 'unchecked', 24, false);
 		animation.addByPrefix('unchecking', 'unchecking', 24, false);
@@ -355,38 +371,22 @@ class OptionCheckbox extends FlxSprite
 		setGraphicSize(Std.int(0.9 * width));
 		updateHitbox();
 
-		animationFinished(state ? 'checking' : 'unchecking');
+		animationFinished(value ? 'checking' : 'unchecking');
 		animation.finishCallback = animationFinished;
-	}
 
-	public function changeState(state:Bool):Void
-	{
-		this.state = state;
-		if (state)
-		{
-			if (animation.curAnim.name != 'checked' && animation.curAnim.name != 'checking')
-			{
-				animation.play('checking', true);
-				offset.set(34, 25);
-			}
-		}
-		else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
-		{
-			animation.play('unchecking', true);
-			offset.set(25, 28);
-		}
+		this.value = value;
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		if (tracker != null)
+		if (sprTracker != null)
 		{
-			setPosition(tracker.x - 130 + offsetX, tracker.y + offsetY);
+			setPosition(sprTracker.x - 130 + offsetX, sprTracker.y + offsetY);
 			if (copyAlpha)
 			{
-				alpha = tracker.alpha;
+				alpha = sprTracker.alpha;
 			}
 		}
 	}
@@ -404,11 +404,33 @@ class OptionCheckbox extends FlxSprite
 				offset.set(0, 2);
 		}
 	}
+
+	private function set_value(value:Bool):Bool
+	{
+		if (this.value != value)
+		{
+			this.value = value;
+			if (value)
+			{
+				if (animation.curAnim.name != 'checked' && animation.curAnim.name != 'checking')
+				{
+					animation.play('checking', true);
+					offset.set(34, 25);
+				}
+			}
+			else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
+			{
+				animation.play('unchecking', true);
+				offset.set(25, 28);
+			}
+		}
+		return value;
+	}
 }
 
 class BooleanOption extends ValueOption<Bool>
 {
-	private var callback:(Bool) -> Void;
+	private var callback:(value:Bool) -> Void;
 	private var checkbox:OptionCheckbox;
 
 	public function new(property:String, name:String, ?description:String, ?callback:(value:Bool) -> Void)
@@ -425,14 +447,14 @@ class BooleanOption extends ValueOption<Bool>
 		super.createOptionText(curSelected, optionText);
 
 		text.xAdd = 145;
-		checkbox.tracker = text;
+		checkbox.sprTracker = text;
 		return text;
 	}
 
 	override public function accept():Bool
 	{
 		value = !value;
-		checkbox.changeState(value);
+		checkbox.value = value;
 		if (callback != null)
 		{
 			callback(value);
@@ -449,10 +471,10 @@ class IntegerOption extends ArrowOption<Int>
 	// private var scrollSpeed:Int = 50;
 	private var suffix:String;
 	private var prefix:String;
-	private var callback:(Int, Int) -> Void;
+	private var callback:(value:Int, change:Int) -> Void;
 
-	public function new(property:String, name:String, ?description:String, ?step:Int = 1, ?min:Int = -1, ?max:Int = -1, ?suffix:String = '',
-			?prefix:String = '', ?callback:(value:Int, change:Int) -> Void)
+	public function new(property:String, name:String, ?description:String, step:Int = 1, min:Int = -1, max:Int = -1, suffix:String = '', prefix:String = '',
+			?callback:(value:Int, change:Int) -> Void)
 	{
 		super(property, name, description);
 
@@ -499,10 +521,10 @@ class FloatOption extends ArrowOption<Float>
 	private var suffix:String;
 	private var prefix:String;
 	private var truncateFloat:Bool;
-	private var callback:(Float, Float) -> Void;
+	private var callback:(value:Float, change:Float) -> Void;
 
-	public function new(property:String, name:String, ?description:String, ?step:Float = 1, ?min:Float = -1, ?max:Float = -1, ?suffix:String = '',
-			?prefix:String = '', ?truncateFloat = false, ?callback:(value:Float, change:Float) -> Void)
+	public function new(property:String, name:String, ?description:String, step:Float = 1, min:Float = -1, max:Float = -1, suffix:String = '',
+			prefix:String = '', truncateFloat = false, ?callback:(value:Float, change:Float) -> Void)
 	{
 		super(property, name, description);
 
@@ -550,12 +572,12 @@ class StringOption extends ArrowOption<String>
 	private var min:Int;
 	private var max:Int;
 	private var names:Array<String>;
-	private var callback:(Int, String, Int) -> Void;
+	private var callback:(index:Int, value:String, change:Int) -> Void;
 
 	// i wish there was a better way to do this ^
 	// if there is and you're reading this and know a better way, PR please!
 
-	public function new(property:String, name:String, ?description:String, ?min:Int = -1, ?max:Int = -1, ?names:Array<String>,
+	public function new(property:String, name:String, ?description:String, min:Int = -1, max:Int = -1, ?names:Array<String>,
 			?callback:(index:Int, value:String, change:Int) -> Void)
 	{
 		super(property, name, description);
@@ -713,7 +735,7 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 	public var forceUpdate:Bool = false;
 
 	private var controls:Controls;
-	private var callback:(Array<FlxKey>) -> Void;
+	private var callback:(keys:Array<FlxKey>) -> Void;
 
 	public function new(property:String, controls:Controls, ?callback:(keys:Array<FlxKey>) -> Void)
 	{
@@ -780,7 +802,7 @@ class ControlOption extends ValueOption<Array<FlxKey>>
 			Options.save.data.keyBinds = new Map<String, Array<FlxKey>>();
 
 		Reflect.setField(Options.save.data, property, value);
-		return this.value;
+		return value;
 	}
 
 	override private function get_defaultValue():Array<FlxKey>

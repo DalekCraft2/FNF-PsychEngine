@@ -3,7 +3,7 @@
         "player1": "bf-holding-gf",
         "player2": "tankman",
         "gfVersion": "pico-speaker",
-        "stage": "pico-tank",
+        "stage": "tank",
         "arrowSkin": null,
 		"splashSkin": null,
         "bpm": 178,

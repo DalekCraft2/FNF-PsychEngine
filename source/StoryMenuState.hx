@@ -58,7 +58,7 @@ class StoryMenuState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('In the Menus', null);
+		DiscordClient.changePresence('In the Menus');
 		#end
 
 		PlayState.isStoryMode = true;
@@ -67,7 +67,7 @@ class StoryMenuState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
 		if (curWeek >= Week.weekList.length)
@@ -84,7 +84,7 @@ class StoryMenuState extends MusicBeatState
 		rankText.setFormat(Paths.font('vcr.ttf'), rankText.size);
 		rankText.screenCenter(X);
 
-		var uiTexture:FlxAtlasFrames = Paths.getSparrowAtlas('campaign_menu_UI_assets');
+		var uiTexture:FlxAtlasFrames = Paths.getSparrowAtlas('ui/story/campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 		bgSprite = new FlxSprite(0, 56);
 		bgSprite.antialiasing = Options.save.data.globalAntialiasing;
@@ -157,7 +157,8 @@ class StoryMenuState extends MusicBeatState
 
 		if (weeks.length > 0)
 		{
-			leftArrow = new FlxSprite(grpWeekText.members[0].x + grpWeekText.members[0].width + 10, grpWeekText.members[0].y + 10);
+			var menuItem:StoryMenuItem = grpWeekText.members[0];
+			leftArrow = new FlxSprite(menuItem.x + menuItem.width + 10, menuItem.y + 10);
 		}
 		else
 		{
@@ -196,7 +197,7 @@ class StoryMenuState extends MusicBeatState
 		add(bgSprite);
 		add(grpWeekCharacters);
 
-		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.getGraphic('Menu_Tracks'));
+		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.getGraphic('ui/story/Menu_Tracks'));
 		tracksSprite.antialiasing = Options.save.data.globalAntialiasing;
 		add(tracksSprite);
 
@@ -224,9 +225,7 @@ class StoryMenuState extends MusicBeatState
 		if (Math.abs(intendedScore - lerpScore) < 10)
 			lerpScore = intendedScore;
 
-		scoreText.text = 'WEEK SCORE:$lerpScore';
-
-		// Debug.quickWatch('font', scoreText.font);
+		scoreText.text = 'WEEK SCORE: $lerpScore';
 
 		if (!movedBack && !selectedWeek)
 		{
@@ -285,11 +284,11 @@ class StoryMenuState extends MusicBeatState
 			FlxG.switchState(new MainMenuState());
 		}
 
-		grpLocks.forEach((lock:FlxSprite) ->
+		for (lock in grpLocks)
 		{
 			lock.y = grpWeekText.members[lock.ID].y;
 			lock.visible = (lock.y > FlxG.height / 2);
-		});
+		}
 	}
 
 	override public function closeSubState():Void
@@ -306,7 +305,10 @@ class StoryMenuState extends MusicBeatState
 
 		for (character in grpWeekCharacters)
 		{
-			character.bopHead();
+			if (character.dances || beat % 2 == 0)
+			{
+				character.bopHead();
+			}
 		}
 	}
 
@@ -378,7 +380,7 @@ class StoryMenuState extends MusicBeatState
 		Week.setDirectoryFromWeek(weeks[curWeek]);
 
 		var diff:String = Difficulty.difficulties[curDifficulty];
-		var newImage:FlxGraphicAsset = Paths.getGraphic(Path.join(['menudifficulties', Paths.formatToSongPath(diff)]));
+		var newImage:FlxGraphicAsset = Paths.getGraphic(Path.join(['ui/story/difficulties', Paths.formatToSongPath(diff)]));
 
 		if (sprDifficulty.graphic != newImage)
 		{
@@ -429,9 +431,8 @@ class StoryMenuState extends MusicBeatState
 			txtWeekTitle.x = FlxG.width - 10 - txtWeekTitle.width;
 
 			var unlocked:Bool = !weekIsLocked(week.id);
-			for (i in 0...grpWeekText.members.length)
+			for (i => item in grpWeekText.members)
 			{
-				var item:StoryMenuItem = grpWeekText.members[i];
 				item.targetY = i - curWeek;
 				if (item.targetY == 0 && unlocked)
 					item.alpha = 1;
@@ -447,13 +448,11 @@ class StoryMenuState extends MusicBeatState
 			}
 			else
 			{
-				var bgPath:String = Path.join(['menubackgrounds', assetName]);
-				if (!Paths.exists(Paths.image(bgPath), IMAGE))
-					bgPath = Path.join(['menubackgrounds', 'menu_$assetName']); // Legacy support
+				var bgPath:String = Path.join(['ui/story/backgrounds', assetName]);
 				if (!Paths.exists(Paths.image(bgPath), IMAGE))
 				{
 					Debug.logError('Could not find story menu background with ID "$assetName"; using default');
-					bgPath = Path.join(['menubackgrounds', 'blank']); // Prevents crash from missing background
+					bgPath = Path.join(['ui/story/backgrounds', 'blank']); // Prevents crash from missing background
 				}
 				var graphic:FlxGraphicAsset = Paths.getGraphic(bgPath);
 				bgSprite.loadGraphic(graphic);
@@ -467,7 +466,7 @@ class StoryMenuState extends MusicBeatState
 			if (diffs != null && diffs.length > 0)
 			{
 				var i:Int = diffs.length - 1;
-				while (i > 0)
+				while (i >= 0)
 				{
 					if (diffs[i] != null)
 					{
@@ -475,7 +474,7 @@ class StoryMenuState extends MusicBeatState
 						if (diffs[i].length < 1)
 							diffs.remove(diffs[i]);
 					}
-					--i;
+					i--;
 				}
 
 				if (diffs.length > 0 && diffs[0].length > 0)
@@ -494,7 +493,6 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			var newPos:Int = Difficulty.difficulties.indexOf(lastDifficultyName);
-			// Debug.logTrace('Position of $lastDifficultyName is $newPos');
 			if (newPos > -1)
 			{
 				curDifficulty = newPos;
@@ -514,9 +512,9 @@ class StoryMenuState extends MusicBeatState
 	private function updateText():Void
 	{
 		var weekArray:Array<String> = weeks[curWeek].weekCharacters;
-		for (i in 0...grpWeekCharacters.length)
+		for (i => char in grpWeekCharacters.members)
 		{
-			grpWeekCharacters.members[i].changeCharacter(weekArray[i]);
+			char.changeCharacter(weekArray[i]);
 		}
 
 		var week:Week = weeks[curWeek];

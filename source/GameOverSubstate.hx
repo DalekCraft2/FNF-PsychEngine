@@ -62,14 +62,14 @@ class GameOverSubState extends MusicBeatSubState
 		camFollow = new FlxPoint(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
 
 		FlxG.sound.play(Paths.getSound(deathSoundName));
-		Conductor.changeBPM(tempo);
-		FlxG.camera.scroll.set();
-		FlxG.camera.target = null;
+		Conductor.tempo = tempo;
+		camera.scroll.set();
+		camera.target = null;
 
 		boyfriend.playAnim('firstDeath');
 
 		camFollowPos = new FlxObject(0, 0, 1, 1);
-		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
+		camFollowPos.setPosition(camera.scroll.x + (camera.width / 2), camera.scroll.y + (camera.height / 2));
 		add(camFollowPos);
 
 		#if FEATURE_SCRIPTS
@@ -119,7 +119,7 @@ class GameOverSubState extends MusicBeatSubState
 		{
 			if (boyfriend.animation.curAnim.curFrame >= 12 && !isFollowingAlready)
 			{
-				FlxG.camera.follow(camFollowPos, LOCKON, 1);
+				camera.follow(camFollowPos, LOCKON, 1);
 				updateCamera = true;
 				isFollowingAlready = true;
 			}
@@ -166,7 +166,7 @@ class GameOverSubState extends MusicBeatSubState
 		if (PlayState.song.songId == 'ugh' || PlayState.song.songId == 'guns' || PlayState.song.songId == 'stress')
 		{
 			// Jeff death sounds
-			FlxG.sound.play(Paths.getRandomSound('jeffGameover/jeffGameover-', 0, 25, 'week7'));
+			FlxG.sound.play(Paths.getRandomSound('jeffGameover/jeffGameover-', 0, 25));
 		}
 	}
 
@@ -180,7 +180,7 @@ class GameOverSubState extends MusicBeatSubState
 			FlxG.sound.play(Paths.getMusic(endSoundName));
 			new FlxTimer().start(0.7, (tmr:FlxTimer) ->
 			{
-				FlxG.camera.fade(FlxColor.BLACK, 2, false, () ->
+				camera.fade(FlxColor.BLACK, 2, false, () ->
 				{
 					FlxG.resetState();
 					PlayState.stageTesting = false;

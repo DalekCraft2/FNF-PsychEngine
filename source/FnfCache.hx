@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxArrayUtil;
 import haxe.io.Path;
 import openfl.display.BitmapData;
 import openfl.media.Sound;
@@ -15,8 +16,8 @@ class FnfCache implements IAssetCache
 
 	public static var dumpExclusions:Array<String> = [
 		Path.withExtension('assets/music/freakyMenu', Paths.AUDIO_EXT),
-		Path.withExtension('shared:assets/shared/music/breakfast', Paths.AUDIO_EXT),
-		Path.withExtension('shared:assets/shared/music/tea-time', Paths.AUDIO_EXT),
+		Path.withExtension('assets/music/breakfast', Paths.AUDIO_EXT),
+		Path.withExtension('assets/music/tea-time', Paths.AUDIO_EXT),
 	];
 
 	public static function excludeAsset(key:String):Void
@@ -80,8 +81,7 @@ class FnfCache implements IAssetCache
 		}
 
 		// flags everything to be cleared out next unused memory clear
-		localTrackedAssets = [];
-		clear('shared:');
+		FlxArrayUtil.clearArray(localTrackedAssets);
 	}
 
 	public function getBitmapData(id:String):BitmapData

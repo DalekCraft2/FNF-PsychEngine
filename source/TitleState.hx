@@ -1,5 +1,6 @@
 package;
 
+import shader.ColorSwap;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.transition.FlxTransitionableState;
@@ -11,12 +12,10 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.io.Path;
+import ui.Alphabet;
+import util.CoolUtil;
 
 using StringTools;
-
-#if CHECK_FOR_UPDATES
-import haxe.Http;
-#end
 
 typedef TitleDef =
 {
@@ -27,10 +26,8 @@ typedef TitleDef =
 	var gfx:Float;
 	var gfy:Float;
 	var backgroundSprite:String;
-	var bpm:Int;
+	var bpm:Float;
 }
-
-// FIXME Null object reference if Enter is pressed too quickly when returning to title from main menu
 
 class TitleState extends MusicBeatState
 {
@@ -38,8 +35,6 @@ class TitleState extends MusicBeatState
 
 	private var blackScreen:FlxSprite;
 	private var credGroup:FlxGroup;
-	private var credTextShit:Alphabet;
-	private var textGroup:FlxGroup;
 	private var ngSpr:FlxSprite;
 
 	private var curWacky:Array<String> = [];
@@ -54,8 +49,6 @@ class TitleState extends MusicBeatState
 
 	public static var titleDef:TitleDef;
 
-	public static var updateVersion:String = '';
-
 	override public function create():Void
 	{
 		super.create();
@@ -66,33 +59,6 @@ class TitleState extends MusicBeatState
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		Week.loadTheFirstEnabledMod();
 
-		#if CHECK_FOR_UPDATES
-		if (!closedState)
-		{
-			Debug.logTrace('Checking for update');
-			var http:Http = new Http('https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt');
-
-			http.onData = (data:String) ->
-			{
-				updateVersion = data.split('\n')[0].trim();
-				var curVersion:String = EngineData.ENGINE_VERSION.trim();
-				Debug.logTrace('Version online: $updateVersion, Your version: $curVersion');
-				if (updateVersion != curVersion)
-				{
-					Debug.logTrace('Versions aren\'t matching!');
-					mustUpdate = true;
-				}
-			}
-
-			http.onError = (error) ->
-			{
-				Debug.logError('Error: $error');
-			}
-
-			http.request();
-		}
-		#end
-
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		// DEBUG BULLSHIT
@@ -100,7 +66,7 @@ class TitleState extends MusicBeatState
 		colorShader = new ColorSwap();
 
 		// IGNORE THIS!!!
-		titleDef = Paths.getJsonDirect(Paths.file(Path.withExtension('images/gfDanceTitle', Paths.JSON_EXT)));
+		titleDef = Paths.getJsonDirect(Paths.file(Path.withExtension('images/ui/title/gfDanceTitle', Paths.JSON_EXT)));
 
 		#if TITLE_SCREEN_EASTER_EGG
 		if (EngineData.save.data.psychDevsEasterEgg == null)
@@ -149,7 +115,6 @@ class TitleState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
-		// Debug.quickWatch('amp', FlxG.sound.music.amplitude);
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER || controls.ACCEPT;
 
@@ -190,6 +155,14 @@ class TitleState extends MusicBeatState
 
 				transitioning = true;
 
+				var mustUpdate:Bool = false;
+				#if CHECK_FOR_UPDATES
+				if (!closedState)
+				{
+					mustUpdate = EngineData.latestVersion != EngineData.ENGINE_VERSION;
+				}
+				#end
+
 				new FlxTimer().start(1, (tmr:FlxTimer) ->
 				{
 					if (mustUpdate)
@@ -213,14 +186,12 @@ class TitleState extends MusicBeatState
 					easterEggKeysBuffer += keyName;
 					if (easterEggKeysBuffer.length >= 32)
 						easterEggKeysBuffer = easterEggKeysBuffer.substring(1);
-					// Debug.logTrace('Test! Allowed Key pressed!!! Buffer: $easterEggKeysBuffer');
 
 					for (wordRaw in easterEggKeys)
 					{
 						var word:String = wordRaw.toUpperCase(); // just for being sure you're doing it right
 						if (easterEggKeysBuffer.contains(word))
 						{
-							// Debug.logTrace('YOOO! $word');
 							if (EngineData.save.data.psychDevsEasterEgg == word)
 								EngineData.save.data.psychDevsEasterEgg = '';
 							else
@@ -269,8 +240,8 @@ class TitleState extends MusicBeatState
 	}
 
 	// TODO Maybe just switch back to curBeat
-	private var sickBeats:Int = 0; // Basically curBeat but won't be skipped if you hold the tab or resize the screen
-
+	// Actually, we should implement a system to rewind the music to the point at which the screen was resized (lIkE mYtH eNgInE)
+	// private var sickBeats:Int = 0; // Basically curBeat but won't be skipped if you hold the tab or resize the screen
 	public static var closedState:Bool = false;
 
 	override public function beatHit(beat:Int):Void
@@ -291,8 +262,9 @@ class TitleState extends MusicBeatState
 
 		if (!closedState)
 		{
-			sickBeats++;
-			switch (sickBeats)
+			// sickBeats++;
+			// switch (sickBeats)
+			switch (curBeat)
 			{
 				case 1:
 					#if PSYCH_WATERMARKS
@@ -360,7 +332,7 @@ class TitleState extends MusicBeatState
 			}
 		}
 
-		Conductor.changeBPM(titleDef.bpm);
+		Conductor.tempo = titleDef.bpm;
 		persistentUpdate = true;
 
 		var bg:FlxSprite = new FlxSprite();
@@ -376,7 +348,7 @@ class TitleState extends MusicBeatState
 		add(bg);
 
 		logoBl = new FlxSprite(titleDef.titlex, titleDef.titley);
-		logoBl.frames = Paths.getSparrowAtlas('logoBumpin');
+		logoBl.frames = Paths.getSparrowAtlas('ui/title/logoBumpin');
 
 		logoBl.antialiasing = Options.save.data.globalAntialiasing;
 		logoBl.animation.addByPrefix('bump', 'logo bumpin', 24, false);
@@ -416,7 +388,7 @@ class TitleState extends MusicBeatState
 				// EDIT THIS ONE IF YOU'RE MAKING A SOURCE CODE MOD!!!!
 				// EDIT THIS ONE IF YOU'RE MAKING A SOURCE CODE MOD!!!!
 				// EDIT THIS ONE IF YOU'RE MAKING A SOURCE CODE MOD!!!!
-				gfDance.frames = Paths.getSparrowAtlas('gfDanceTitle');
+				gfDance.frames = Paths.getSparrowAtlas('ui/title/gfDanceTitle');
 				gfDance.animation.addByIndices('danceLeft', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], '', 24, false);
 				gfDance.animation.addByIndices('danceRight', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], '', 24, false);
 		}
@@ -428,7 +400,7 @@ class TitleState extends MusicBeatState
 		logoBl.shader = colorShader.shader;
 
 		titleText = new FlxSprite(titleDef.startx, titleDef.starty);
-		titleText.frames = Paths.getSparrowAtlas('titleEnter');
+		titleText.frames = Paths.getSparrowAtlas('ui/title/titleEnter');
 		titleText.animation.addByPrefix('idle', 'Press Enter to Begin', 24);
 		titleText.animation.addByPrefix('press', 'ENTER PRESSED', 24);
 		titleText.antialiasing = Options.save.data.globalAntialiasing;
@@ -436,26 +408,19 @@ class TitleState extends MusicBeatState
 		titleText.updateHitbox();
 		add(titleText);
 
+		blackScreen = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		add(blackScreen);
+
 		credGroup = new FlxGroup();
 		add(credGroup);
-		textGroup = new FlxGroup();
 
-		blackScreen = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
-		credGroup.add(blackScreen);
-
-		credTextShit = new Alphabet(0, 0, true);
-		credTextShit.screenCenter();
-		credTextShit.visible = false;
-
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.getGraphic('newgrounds_logo'));
+		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.getGraphic('ui/title/newgrounds_logo'));
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
 		ngSpr.updateHitbox();
 		ngSpr.screenCenter(X);
 		ngSpr.antialiasing = Options.save.data.globalAntialiasing;
 		add(ngSpr);
-
-		FlxTween.tween(credTextShit, {y: credTextShit.y + 20}, 2.9, {ease: FlxEase.quadInOut, type: PINGPONG});
 
 		if (initialized)
 			skipIntro();
@@ -470,40 +435,39 @@ class TitleState extends MusicBeatState
 		return [for (i in introTextLines) i.split('--')];
 	}
 
-	private function createCoolText(textArray:Array<String>, ?offset:Float = 0):Void
+	private function createCoolText(textArray:Array<String>, offset:Float = 0):Void
 	{
 		for (i in 0...textArray.length)
 		{
 			var money:Alphabet = new Alphabet(0, 0, textArray[i], true, false);
 			money.screenCenter(X);
 			money.y += (i * 60) + 200 + offset;
-			if (credGroup != null && textGroup != null)
+			if (credGroup != null)
 			{
 				credGroup.add(money);
-				textGroup.add(money);
 			}
 		}
 	}
 
-	private function addMoreText(text:String, ?offset:Float = 0):Void
+	private function addMoreText(text:String, offset:Float = 0):Void
 	{
-		if (textGroup != null && credGroup != null)
+		if (credGroup != null)
 		{
 			var coolText:Alphabet = new Alphabet(0, 0, text, true, false);
 			coolText.screenCenter(X);
-			coolText.y += (textGroup.length * 60) + 200 + offset;
+			coolText.y += (credGroup.length * 60) + 200 + offset;
 			credGroup.add(coolText);
-			textGroup.add(coolText);
 		}
 	}
 
 	private function deleteCoolText():Void
 	{
-		while (textGroup.members.length > 0)
+		for (item in credGroup)
 		{
-			credGroup.remove(textGroup.members[0], true);
-			textGroup.remove(textGroup.members[0], true);
+			item.kill();
+			item.destroy();
 		}
+		credGroup.clear();
 	}
 
 	private var skippedIntro:Bool = false;
@@ -547,6 +511,7 @@ class TitleState extends MusicBeatState
 					default: // Go back to normal ugly ass boring GF
 						remove(ngSpr);
 						remove(credGroup);
+						remove(blackScreen);
 						FlxG.camera.flash(FlxColor.WHITE, 2);
 						skippedIntro = true;
 						playJingle = false;
@@ -563,6 +528,7 @@ class TitleState extends MusicBeatState
 					{
 						remove(ngSpr);
 						remove(credGroup);
+						remove(blackScreen);
 						FlxG.camera.flash(FlxColor.WHITE, 0.6);
 						transitioning = false;
 					});
@@ -571,6 +537,7 @@ class TitleState extends MusicBeatState
 				{
 					remove(ngSpr);
 					remove(credGroup);
+					remove(blackScreen);
 					FlxG.camera.flash(FlxColor.WHITE, 3);
 					sound.onComplete = () ->
 					{
@@ -585,6 +552,7 @@ class TitleState extends MusicBeatState
 			{
 				remove(ngSpr);
 				remove(credGroup);
+				remove(blackScreen);
 				FlxG.camera.flash(FlxColor.WHITE, 4);
 
 				var easterEgg:String = EngineData.save.data.psychDevsEasterEgg;

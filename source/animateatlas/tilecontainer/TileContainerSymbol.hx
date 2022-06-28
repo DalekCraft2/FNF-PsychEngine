@@ -164,7 +164,7 @@ class TileContainerSymbol extends TileContainer
 
 	public function getFrameLabels():Array<String>
 	{
-		return _frameLabels.map(f -> f.name); // Inlining. I feel a js
+		return _frameLabels.map((f:FrameLabel) -> f.name); // Inlining. I feel a js
 	}
 
 	public function getNextLabel(?afterLabel:String):String
@@ -515,7 +515,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			update();
 		}
-		return currentFrame;
+		return value;
 	}
 
 	private function set_type(value:String):String
@@ -528,7 +528,7 @@ class TileContainerSymbol extends TileContainer
 		{
 			throw new ArgumentError('Invalid symbol type: $value');
 		}
-		return type;
+		return value;
 	}
 
 	private function set_loopMode(value:String):String
@@ -541,6 +541,6 @@ class TileContainerSymbol extends TileContainer
 		{
 			throw new ArgumentError('Invalid loop mode: $value');
 		}
-		return loopMode;
+		return value;
 	}
 }

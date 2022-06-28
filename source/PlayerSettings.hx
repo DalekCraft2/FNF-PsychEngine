@@ -1,5 +1,6 @@
 package;
 
+import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.input.gamepad.FlxGamepad;
 
@@ -13,13 +14,13 @@ class PlayerSettings
 
 	public final controls:Controls;
 
-	private function new(id, scheme)
+	private function new(id:Int, scheme:KeyboardScheme)
 	{
 		this.id = id;
 		this.controls = new Controls('player$id', scheme);
 	}
 
-	public function setKeyboardScheme(scheme):Void
+	public function setKeyboardScheme(scheme:KeyboardScheme):Void
 	{
 		controls.setKeyboardScheme(scheme);
 	}

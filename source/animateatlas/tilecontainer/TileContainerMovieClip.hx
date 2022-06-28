@@ -56,15 +56,10 @@ class TileContainerMovieClip extends TileContainer
 		return symbol.getFrame(label);
 	}
 
-	public function getFramesofAnim(label:String):Int
+	public function getFramesOfAnim(label:String):Int
 	{
-		var uncalculatedArray:Array<Int> = [];
+		var uncalculatedArray:Array<Int> = getFrameLabels().map((frameLabel:String) -> getFrame(frameLabel));
 		var uncalculatedFrames:Int = 0;
-
-		for (frameLabel in getFrameLabels())
-		{
-			uncalculatedArray.push(getFrame(frameLabel));
-		}
 
 		uncalculatedFrames = uncalculatedArray[0] + uncalculatedArray.length;
 
@@ -81,7 +76,7 @@ class TileContainerMovieClip extends TileContainer
 	private function set_currentLabel(value:String):String
 	{
 		symbol.currentFrame = symbol.getFrame(value);
-		return currentLabel;
+		return value;
 	}
 
 	private function get_currentFrame():Int
@@ -92,7 +87,7 @@ class TileContainerMovieClip extends TileContainer
 	private function set_currentFrame(value:Int):Int
 	{
 		symbol.currentFrame = value;
-		return currentFrame;
+		return value;
 	}
 
 	private function get_type():SymbolType
@@ -103,7 +98,7 @@ class TileContainerMovieClip extends TileContainer
 	private function set_type(value:SymbolType):SymbolType
 	{
 		symbol.type = value;
-		return type;
+		return value;
 	}
 
 	private function get_loopMode():LoopMode
@@ -114,7 +109,7 @@ class TileContainerMovieClip extends TileContainer
 	private function set_loopMode(value:LoopMode):LoopMode
 	{
 		symbol.loopMode = value;
-		return loopMode;
+		return value;
 	}
 
 	private function get_symbolName():String
@@ -145,7 +140,7 @@ class TileContainerMovieClip extends TileContainer
 	private function set_frameRate(value:Float):Float
 	{
 		_frameRate = value;
-		return frameRate;
+		return value;
 	}
 
 	// # end region

@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -41,18 +42,18 @@ class MasterEditorMenuState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('Editors Main Menu', null);
+		DiscordClient.changePresence('Editors Main Menu');
 		#end
 
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
 		FlxG.camera.bgColor = FlxColor.BLACK;
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		bg.scrollFactor.set();
 		bg.color = 0xFF353535;
 		add(bg);
@@ -146,9 +147,8 @@ class MasterEditorMenuState extends MusicBeatState
 			#end
 		}
 
-		for (i in 0...grpTexts.members.length)
+		for (i => item in grpTexts.members)
 		{
-			var item:Alphabet = grpTexts.members[i];
 			item.targetY = i - curSelected;
 
 			item.alpha = 0.6;

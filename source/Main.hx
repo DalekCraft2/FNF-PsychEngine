@@ -1,5 +1,6 @@
 package;
 
+import ui.FPSMem;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -92,20 +93,5 @@ class Main extends Sprite
 
 		// Finish up loading debug tools.
 		Debug.onGameStart();
-	}
-
-	public static function setFPSCap(cap:Float):Void
-	{
-		Lib.current.stage.frameRate = cap;
-	}
-
-	public static function getFPSCap():Float
-	{
-		return Lib.current.stage.frameRate;
-	}
-
-	public static function adjustFPS(num:Float):Float
-	{
-		return FlxG.elapsed / (1 / 60) * num;
 	}
 }

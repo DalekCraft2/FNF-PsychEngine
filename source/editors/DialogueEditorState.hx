@@ -1,5 +1,6 @@
 package editors;
 
+import ui.Alphabet;
 import DialogueBoxPsych.DialogueAnimationDef;
 import DialogueBoxPsych.DialogueCharacter;
 import DialogueBoxPsych.DialogueDef;
@@ -129,9 +130,9 @@ class DialogueEditorState extends MusicBeatState
 		{
 			if (inputText.hasFocus)
 			{
-				FlxG.sound.muteKeys = [];
-				FlxG.sound.volumeDownKeys = [];
-				FlxG.sound.volumeUpKeys = [];
+				FlxG.sound.muteKeys = null;
+				FlxG.sound.volumeDownKeys = null;
+				FlxG.sound.volumeUpKeys = null;
 				blockInput = true;
 
 				if (FlxG.keys.pressed.CONTROL
@@ -551,10 +552,10 @@ class DialogueEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -579,10 +580,10 @@ class DialogueEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			return;
 		}
 		removeLoadListeners();

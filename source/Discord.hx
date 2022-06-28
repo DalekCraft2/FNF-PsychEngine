@@ -12,14 +12,12 @@ class DiscordClient
 	{
 		if (!isInitialized)
 		{
-			Debug.logTrace('Discord Client starting...');
 			DiscordRpc.start({
 				clientID: '863222024192262205',
 				onReady: onReady,
 				onError: onError,
 				onDisconnected: onDisconnected
 			});
-			Debug.logTrace('Discord Client started.');
 
 			Lib.application.onUpdate.add((code:Int) ->
 			{
@@ -31,7 +29,8 @@ class DiscordClient
 				DiscordRpc.shutdown();
 			});
 
-			Debug.logTrace('Discord Client initialized');
+			Debug.logInfo('Started!');
+
 			isInitialized = true;
 		}
 	}
@@ -52,11 +51,9 @@ class DiscordClient
 			largeImageText: 'Engine Version: ${EngineData.ENGINE_VERSION}',
 			smallImageKey: smallImageKey,
 			// Obtained times are in milliseconds so they are divided so Discord can use it
-			startTimestamp: Std.int(startTimestamp / 1000),
-			endTimestamp: Std.int(endTimestamp / 1000)
+			startTimestamp: Std.int(startTimestamp / TimingConstants.SECONDS_PER_MINUTE),
+			endTimestamp: Std.int(endTimestamp / TimingConstants.MILLISECONDS_PER_SECOND)
 		});
-
-		// Debug.logTrace('Discord RPC Updated. Arguments: $details, $state, $smallImageKey, $hasStartTimestamp, $endTimestamp');
 	}
 
 	private static function onReady():Void
@@ -69,6 +66,7 @@ class DiscordClient
 		});
 	}
 
+	// FIXME Repeated errors if no internet access
 	private static function onError(code:Int, message:String):Void
 	{
 		Debug.logError('Error! $code : $message');

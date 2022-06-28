@@ -3,6 +3,7 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import options.OptionsState;
 #if FEATURE_DISCORD
@@ -10,6 +11,7 @@ import Discord.DiscordClient;
 #end
 
 // TODO: turn this into a chart thing
+// ^^^ WHAT DOES THIS MEAN?! ^^^
 class SoundOffsetState extends MusicBeatState
 {
 	public var playingAudio:Bool = false;
@@ -29,9 +31,9 @@ class SoundOffsetState extends MusicBeatState
 		DiscordClient.changePresence('Calibrating audio');
 		#end
 
-		// var menuBG:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuDesat'));
+		// var menuBG:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		// menuBG.color = 0xFFFFEA72; // Tint used to get menuBG from menuDesat (or, at least, it is close to what the tint is)
-		var menuBG:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('menuBG'));
+		var menuBG:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuBG'));
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
@@ -75,21 +77,21 @@ class SoundOffsetState extends MusicBeatState
 		{
 			if (FlxG.sound.music.volume > 0)
 			{
-				FlxG.sound.music.volume -= 0.5 * FlxG.elapsed;
+				FlxG.sound.music.volume -= 0.5 * elapsed;
 			}
-			beatCounter += elapsed * 1000;
+			beatCounter += elapsed * TimingConstants.MILLISECONDS_PER_SECOND;
 			status.text = 'Audio is playing';
-			Conductor.changeBPM(50);
-			Conductor.songPosition += FlxG.elapsed * 1000;
+			Conductor.tempo = 50;
+			Conductor.songPosition += elapsed * TimingConstants.MILLISECONDS_PER_SECOND;
 		}
 		else
 		{
 			if (FlxG.sound.music.volume < 0.7)
 			{
-				FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+				FlxG.sound.music.volume += 0.5 * elapsed;
 			}
 			status.text = 'Audio is paused';
-			Conductor.changeBPM(0);
+			Conductor.tempo = 0;
 			Conductor.songPosition = 0;
 			beatCounter = 0;
 		}
@@ -121,7 +123,7 @@ class SoundOffsetState extends MusicBeatState
 		}
 		if (FlxG.keys.justPressed.R)
 		{
-			beatCounts = [];
+			FlxArrayUtil.clearArray(beatCounts);
 			currOffset = 0;
 		}
 		if (FlxG.keys.justPressed.ESCAPE)

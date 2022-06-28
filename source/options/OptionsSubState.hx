@@ -6,7 +6,9 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.Lib;
 import options.Options;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -15,6 +17,7 @@ import Discord.DiscordClient;
 #end
 
 // TODO Test whether it's possible to use FlxG.switchState with a SubState, so the OptionsState code could be merged with this and fix the transition bug
+// Spoiler: It won't fix the bug. There is no FlxTransitionableSubState class.
 class OptionsSubState extends MusicBeatSubState
 {
 	public static var isInPause:Bool;
@@ -40,7 +43,7 @@ class OptionsSubState extends MusicBeatSubState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('Changing options', null);
+		DiscordClient.changePresence('Changing options');
 		#end
 
 		if (isInPause)
@@ -105,7 +108,6 @@ class OptionsSubState extends MusicBeatSubState
 			if (category == defCat)
 			{
 				close();
-				Debug.logTrace('Save options');
 				Options.flushSave();
 			}
 			else
@@ -277,6 +279,7 @@ class OptionsSubState extends MusicBeatSubState
 				new BooleanOption('showCounters', 'Show Judgement Counters', 'Toggle the judgement counters on the side of the screen.'),
 				new BooleanOption('downScroll', 'DownScroll', 'Arrows come from the top down instead of the bottom up.'),
 				new BooleanOption('middleScroll', 'MiddleScroll', 'Place your notes in the center of the screen and hides the opponent\'s.'),
+				new BooleanOption('distractions', 'Distractions', 'Toggle stage distractions that can hinder your gameplay.'),
 				new BooleanOption('allowNoteModifiers', 'Allow Note Modifiers', 'Toggle whether note modifiers (e.g pixel notes in week 6) get used.'),
 				new FloatOption('bgAlpha', 'BG Opacity', 'How opaque the background is.', 10, 0, 100, '%', '', true),
 				new StringOption('cameraFocus', 'Camera Focus', 'Who the camera should focus on.', 0, 3, ['Default', 'BF', 'Dad', 'Center']),
@@ -333,7 +336,7 @@ class OptionsSubState extends MusicBeatSubState
 			new OptionCategory('Performance', [
 				new IntegerOption('frameRate', 'FPS Cap', 'The FPS the game tries to run at.', 30, 30, 360, '', '', (value:Float, step:Float) ->
 				{
-					Main.setFPSCap(value);
+					Lib.current.stage.frameRate = value;
 				}),
 				new BooleanOption('recycleComboJudges', 'Recycling',
 					'Instead of making a new sprite for each judgement and combo number, objects are reused when possible.\nMay cause layering issues.'),
@@ -375,7 +378,7 @@ class OptionsSubState extends MusicBeatSubState
 		changeSelection(0);
 	}
 
-	private function changeSelection(?diff:Int = 0):Void
+	private function changeSelection(diff:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 		curSelected += diff;
@@ -385,9 +388,8 @@ class OptionsSubState extends MusicBeatSubState
 		if (curSelected >= category.options.length)
 			curSelected = 0;
 
-		for (i in 0...optionText.length)
+		for (i => item in optionText.members)
 		{
-			var item:Option = optionText.members[i];
 			item.text.targetY = i - curSelected;
 			item.text.alpha = 0.6;
 			var wasSelected:Bool = item.isSelected;

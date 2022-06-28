@@ -6,10 +6,10 @@ class SMNote
 	public var data:String;
 	public var lane:Int;
 
-	public function new(_data:String, _lane:Int)
+	public function new(data:String, lane:Int)
 	{
-		data = _data;
-		lane = _lane;
+		this.data = data;
+		this.lane = lane;
 	}
 }
 #end

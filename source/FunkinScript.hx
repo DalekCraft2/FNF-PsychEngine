@@ -120,11 +120,11 @@ class FunkinScript
 		set('inChartEditor', false);
 
 		// Song/Week variables
-		set('curBpm', Conductor.bpm);
+		set('curBpm', Conductor.tempo);
 		set('bpm', PlayState.song.bpm);
 		set('scrollSpeed', PlayState.song.speed);
-		set('crochet', Conductor.crochet);
-		set('stepCrochet', Conductor.stepCrochet);
+		set('crotchetLength', Conductor.crotchetLength);
+		set('stepCrotchet', Conductor.semiquaverLength);
 		set('songLength', FlxG.sound.music.length);
 		set('songId', PlayState.song.songId);
 		set('songName', PlayState.song.songName);
@@ -185,8 +185,8 @@ class FunkinScript
 		// Default character positions
 		set('defaultBoyfriendX', PlayState.instance.BF_X);
 		set('defaultBoyfriendY', PlayState.instance.BF_Y);
-		set('defaultOpponentX', PlayState.instance.DAD_X);
-		set('defaultOpponentY', PlayState.instance.DAD_Y);
+		set('defaultOpponentX', PlayState.instance.OPPONENT_X);
+		set('defaultOpponentY', PlayState.instance.OPPONENT_Y);
 		set('defaultGirlfriendX', PlayState.instance.GF_X);
 		set('defaultGirlfriendY', PlayState.instance.GF_Y);
 
@@ -224,7 +224,7 @@ class FunkinScript
 		set('buildTarget', 'unknown');
 		#end
 
-		set('addScript', function(key:String, ?ignoreAlreadyRunning:Bool = false):Void
+		set('addScript', function(key:String, ignoreAlreadyRunning:Bool = false):Void
 		{ // would be dope asf.
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -246,7 +246,7 @@ class FunkinScript
 
 			scriptTrace('The script "$path" doesn\'t exist!');
 		});
-		set('removeScript', function(key:String, ?ignoreAlreadyRunning:Bool = false):Void
+		set('removeScript', function(key:String, ignoreAlreadyRunning:Bool = false):Void
 		{ // would be dope asf.
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -257,8 +257,6 @@ class FunkinScript
 					{
 						if (script.scriptName == path)
 						{
-							scriptTrace('The script "$path" is already running!');
-
 							PlayState.instance.scriptArray.remove(script);
 							return;
 						}
@@ -270,7 +268,7 @@ class FunkinScript
 			scriptTrace('The script "$path" doesn\'t exist!');
 		});
 
-		set('loadSong', function(?name:String, ?difficultyNum:Int = -1):Void
+		set('loadSong', function(?name:String, difficultyNum:Int = -1):Void
 		{
 			if (name == null || name.length < 1)
 				name = PlayState.song.songId;
@@ -324,6 +322,7 @@ class FunkinScript
 			var group:Dynamic = Reflect.getProperty(getInstance(), obj);
 			if (Std.isOfType(group, FlxTypedGroup))
 			{
+				var group:FlxTypedGroup<Dynamic> = group;
 				return getGroupStuff(group.members[index], variable);
 			}
 
@@ -344,6 +343,7 @@ class FunkinScript
 			var group:Dynamic = Reflect.getProperty(getInstance(), obj);
 			if (Std.isOfType(group, FlxTypedGroup))
 			{
+				var group:FlxTypedGroup<Dynamic> = group;
 				setGroupStuff(group.members[index], variable, value);
 				return;
 			}
@@ -364,6 +364,7 @@ class FunkinScript
 			var group:Dynamic = Reflect.getProperty(getInstance(), obj);
 			if (Std.isOfType(group, FlxTypedGroup))
 			{
+				var group:FlxTypedGroup<Dynamic> = group;
 				var groupEntry:FlxTypedGroup<FlxBasic> = group.members[index];
 				if (!dontDestroy)
 					groupEntry.kill();
@@ -585,6 +586,7 @@ class FunkinScript
 			cancelTween(tag);
 			if (note < 0)
 				note = 0;
+			// TODO Should the index be modulo the length of NoteKey.createAll()?
 			var strum:StrumNote = PlayState.instance.strumLineNotes.members[note % PlayState.instance.strumLineNotes.length];
 
 			if (strum != null)
@@ -737,7 +739,7 @@ class FunkinScript
 		});
 		set('addScore', function(value:Int = 0):Void
 		{
-			PlayState.instance.songScore += value;
+			PlayState.instance.score += value;
 			PlayState.instance.recalculateRating();
 		});
 		set('addMisses', function(value:Int = 0):Void
@@ -747,12 +749,12 @@ class FunkinScript
 		});
 		set('addHits', function(value:Int = 0):Void
 		{
-			PlayState.instance.songHits += value;
+			PlayState.instance.hits += value;
 			PlayState.instance.recalculateRating();
 		});
 		set('setScore', function(value:Int = 0):Void
 		{
-			PlayState.instance.songScore = value;
+			PlayState.instance.score = value;
 			PlayState.instance.recalculateRating();
 		});
 		set('setMisses', function(value:Int = 0):Void
@@ -762,7 +764,7 @@ class FunkinScript
 		});
 		set('setHits', function(value:Int = 0):Void
 		{
-			PlayState.instance.songHits = value;
+			PlayState.instance.hits = value;
 			PlayState.instance.recalculateRating();
 		});
 
@@ -875,7 +877,7 @@ class FunkinScript
 		{
 			var value1:String = arg1;
 			var value2:String = arg2;
-			PlayState.instance.triggerEventNote(name, value1, value2);
+			PlayState.instance.triggerEvent(name, value1, value2);
 			scriptTrace('Triggered event: $name, $value1, $value2');
 		});
 
@@ -891,7 +893,7 @@ class FunkinScript
 		set('restartSong', function(skipTransition:Bool):Void
 		{
 			PlayState.instance.persistentUpdate = false;
-			PauseSubState.restartSong(skipTransition);
+			PlayState.instance.restartSong(skipTransition);
 		});
 		set('exitSong', function(skipTransition:Bool):Void
 		{
@@ -922,7 +924,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					return PlayState.instance.dadGroup.x;
+					return PlayState.instance.opponentGroup.x;
 				case 'gf' | 'girlfriend':
 					return PlayState.instance.gfGroup.x;
 				default:
@@ -934,7 +936,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					PlayState.instance.dadGroup.x = value;
+					PlayState.instance.opponentGroup.x = value;
 				case 'gf' | 'girlfriend':
 					PlayState.instance.gfGroup.x = value;
 				default:
@@ -946,7 +948,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					return PlayState.instance.dadGroup.y;
+					return PlayState.instance.opponentGroup.y;
 				case 'gf' | 'girlfriend':
 					return PlayState.instance.gfGroup.y;
 				default:
@@ -958,7 +960,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					PlayState.instance.dadGroup.y = value;
+					PlayState.instance.opponentGroup.y = value;
 				case 'gf' | 'girlfriend':
 					PlayState.instance.gfGroup.y = value;
 				default:
@@ -970,7 +972,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					return PlayState.instance.dadGroup.angle;
+					return PlayState.instance.opponentGroup.angle;
 				case 'gf' | 'girlfriend':
 					return PlayState.instance.gfGroup.angle;
 				default:
@@ -982,7 +984,7 @@ class FunkinScript
 			switch (type.toLowerCase())
 			{
 				case 'dad' | 'opponent':
-					PlayState.instance.dadGroup.angle = value;
+					PlayState.instance.opponentGroup.angle = value;
 				case 'gf' | 'girlfriend':
 					PlayState.instance.gfGroup.angle = value;
 				default:
@@ -992,7 +994,7 @@ class FunkinScript
 		set('cameraSetTarget', function(target:String):Void
 		{
 			var isDad:Bool = false;
-			if (target == 'dad')
+			if (target == 'dad' || target == 'opponent')
 			{
 				isDad = true;
 			}
@@ -1128,9 +1130,9 @@ class FunkinScript
 			}
 			sprite.antialiasing = Options.save.data.globalAntialiasing;
 			PlayState.instance.scriptSprites.set(tag, sprite);
-			sprite.active = true;
+			sprite.active = true; // TODO Is this supposed to be false?
 		});
-		set('makeAnimatedLuaSprite', function(tag:String, image:String, x:Float, y:Float, ?spriteType:String = 'sparrow'):Void
+		set('makeAnimatedLuaSprite', function(tag:String, image:String, x:Float, y:Float, spriteType:String = 'sparrow'):Void
 		{
 			tag = tag.replace('.', '');
 			resetSpriteTag(tag);
@@ -1185,11 +1187,7 @@ class FunkinScript
 		set('addAnimationByIndices', function(obj:String, name:String, prefix:String, indices:String, frameRate:Int = 24):Void
 		{
 			var strIndices:Array<String> = indices.trim().split(',');
-			var intIndices:Array<Int> = [];
-			for (index in strIndices)
-			{
-				intIndices.push(Std.parseInt(index));
-			}
+			var intIndices:Array<Int> = [for (index in strIndices) Std.parseInt(index)];
 
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
@@ -1212,7 +1210,7 @@ class FunkinScript
 				}
 			}
 		});
-		set('objectPlayAnimation', function(obj:String, name:String, forced:Bool = false, ?startFrame:Int = 0):Void
+		set('objectPlayAnimation', function(obj:String, name:String, forced:Bool = false, startFrame:Int = 0):Void
 		{
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
@@ -1265,9 +1263,9 @@ class FunkinScript
 							{
 								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
 							}
-							else if (PlayState.instance.members.indexOf(PlayState.instance.dadGroup) < position)
+							else if (PlayState.instance.members.indexOf(PlayState.instance.opponentGroup) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.dadGroup);
+								position = PlayState.instance.members.indexOf(PlayState.instance.opponentGroup);
 							}
 							PlayState.instance.insert(position, sprite);
 						}
@@ -1334,9 +1332,11 @@ class FunkinScript
 		});
 		set('updateHitboxFromGroup', function(group:String, index:Int):Void
 		{
-			if (Std.isOfType(Reflect.getProperty(getInstance(), group), FlxTypedGroup))
+			var groupObj:Dynamic = Reflect.getProperty(getInstance(), group);
+			if (Std.isOfType(groupObj, FlxTypedGroup))
 			{
-				Reflect.getProperty(getInstance(), group).members[index].updateHitbox();
+				var groupObj:FlxTypedGroup<FlxSprite> = groupObj;
+				groupObj.members[index].updateHitbox();
 				return;
 			}
 			Reflect.getProperty(getInstance(), group)[index].updateHitbox();
@@ -1870,7 +1870,7 @@ class FunkinScript
 			}
 		});
 
-		set('initSaveData', function(name:String, ?folder:String = 'psychenginemods'):Void
+		set('initSaveData', function(name:String, folder:String = 'psychenginemods'):Void
 		{
 			if (!PlayState.instance.scriptSaves.exists(name))
 			{
@@ -1909,7 +1909,7 @@ class FunkinScript
 			scriptTrace('Save file not initialized: $name');
 		});
 
-		set('getText', function(path:String, ?ignoreModFolders:Bool = false):String
+		set('getText', function(path:String, ignoreModFolders:Bool = false):String
 		{
 			return Paths.getText(path, ignoreModFolders);
 		});
@@ -2043,10 +2043,11 @@ class FunkinScript
 		});
 
 		#if FEATURE_DISCORD
-		set('changePresence', (details:String, ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) ->
-		{
-			DiscordClient.changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
-		});
+		// set('changePresence', (details:String, ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) ->
+		// {
+		// 	DiscordClient.changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
+		// });
+		set('changePresence', DiscordClient.changePresence);
 		#end
 
 		#if (!FEATURE_LUA && hscript)
@@ -2321,7 +2322,7 @@ class FunkinScript
 	}
 
 	// Better optimized than using some getProperty shit or idk
-	private static function getFlxEaseByString(?ease:String = ''):(Float) -> Float
+	private static function getFlxEaseByString(ease:String = ''):(t:Float) -> Float
 	{
 		return switch (ease.toLowerCase().trim())
 		{
@@ -2452,7 +2453,7 @@ class FunkinScript
 		}
 	}
 
-	private static function getPropertyLoopThingWhatever(qualifierArray:Array<String>, ?checkForTextsToo:Bool = true):Any
+	private static function getPropertyLoopThingWhatever(qualifierArray:Array<String>, checkForTextsToo:Bool = true):Any
 	{
 		var object:Any = getObjectDirectly(qualifierArray[0], checkForTextsToo);
 		for (i in 1...qualifierArray.length - 1)
@@ -2462,7 +2463,7 @@ class FunkinScript
 		return object;
 	}
 
-	private static function getObjectDirectly(objectName:String, ?checkForTextsToo:Bool = true):Any
+	private static function getObjectDirectly(objectName:String, checkForTextsToo:Bool = true):Any
 	{
 		if (PlayState.instance.scriptSprites.exists(objectName))
 		{
@@ -2488,7 +2489,7 @@ class ScriptSprite extends FlxSprite
 {
 	public var wasAdded:Bool = false;
 
-	public function new(?x:Float = 0, ?y:Float = 0)
+	public function new(x:Float = 0, y:Float = 0)
 	{
 		super(x, y);
 

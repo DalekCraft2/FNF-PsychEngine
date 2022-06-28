@@ -5,6 +5,8 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
+import shader.ColorSwap;
+import ui.Alphabet;
 
 class NoteColorState extends MusicBeatState
 {
@@ -42,7 +44,7 @@ class NoteColorState extends MusicBeatState
 		// TODO I want to make this a substate so I don't have to have this "else" statement
 		else
 		{
-			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+			var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 			bg.color = 0xFFEA71FD;
 			bg.updateHitbox();
 			bg.screenCenter();
@@ -73,7 +75,7 @@ class NoteColorState extends MusicBeatState
 			}
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
-			note.frames = Paths.getSparrowAtlas('NOTE_assets');
+			note.frames = Paths.getSparrowAtlas('ui/notes/NOTE_assets');
 			note.animation.addByPrefix('idle', '${NoteColor.createByIndex(i)} alone');
 			note.animation.play('idle');
 			note.antialiasing = Options.save.data.globalAntialiasing;
@@ -184,18 +186,16 @@ class NoteColorState extends MusicBeatState
 				FlxG.sound.play(Paths.getSound('scrollMenu'));
 				changingNote = true;
 				holdTime = 0;
-				for (i in 0...grpNumbers.length)
+				for (i => item in grpNumbers.members)
 				{
-					var item:Alphabet = grpNumbers.members[i];
 					item.alpha = 0;
 					if ((curSelected * 3) + typeSelected == i)
 					{
 						item.alpha = 1;
 					}
 				}
-				for (i in 0...grpNotes.length)
+				for (i => item in grpNotes.members)
 				{
-					var item:FlxSprite = grpNotes.members[i];
 					item.alpha = 0;
 					if (curSelected == i)
 					{
@@ -240,18 +240,16 @@ class NoteColorState extends MusicBeatState
 		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();
 
-		for (i in 0...grpNumbers.length)
+		for (i => item in grpNumbers.members)
 		{
-			var item:Alphabet = grpNumbers.members[i];
 			item.alpha = 0.6;
 			if ((curSelected * 3) + typeSelected == i)
 			{
 				item.alpha = 1;
 			}
 		}
-		for (i in 0...grpNotes.length)
+		for (i => item in grpNotes.members)
 		{
-			var item:FlxSprite = grpNotes.members[i];
 			item.alpha = 0.6;
 			item.scale.set(0.75, 0.75);
 			if (curSelected == i)
@@ -276,9 +274,8 @@ class NoteColorState extends MusicBeatState
 		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();
 
-		for (i in 0...grpNumbers.length)
+		for (i => item in grpNumbers.members)
 		{
-			var item:Alphabet = grpNumbers.members[i];
 			item.alpha = 0.6;
 			if ((curSelected * 3) + typeSelected == i)
 			{

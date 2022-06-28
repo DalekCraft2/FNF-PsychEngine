@@ -1,5 +1,6 @@
 package;
 
+import ui.Alphabet;
 #if FEATURE_ACHIEVEMENTS
 import Achievement.AchievementDef;
 import Achievement.AttachedAchievement;
@@ -36,9 +37,9 @@ class AchievementsMenuState extends MusicBeatState
 		DiscordClient.changePresence('Achievements Menu');
 		#end
 
-		// var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		// var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		// menuBG.color = 0xFF9372FF; // Tint used to get menuBGBlue from menuDesat (or, at least, it is close to what the tint is)
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('menuBGBlue'));
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuBGBlue'));
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
@@ -49,9 +50,8 @@ class AchievementsMenuState extends MusicBeatState
 		add(grpAchievements);
 
 		Achievement.loadAchievements();
-		for (i in 0...Achievement.achievementList.length)
+		for (i => achievementId in Achievement.achievementList)
 		{
-			var achievementId:String = Achievement.achievementList[i];
 			var achievementDef:AchievementDef = Achievement.achievementsLoaded.get(achievementId);
 			if (!achievementDef.hidden || Achievement.achievementMap.exists(achievementId))
 			{
@@ -124,21 +124,20 @@ class AchievementsMenuState extends MusicBeatState
 			if (curSelected >= achievements.length)
 				curSelected = 0;
 
-			for (i in 0...grpAchievements.members.length)
+			for (i => item in grpAchievements.members)
 			{
-				var item:Alphabet = grpAchievements.members[i];
 				item.targetY = i - curSelected;
 
 				item.alpha = 0.6;
-				if (item.targetY == 0)
+				// if (item.targetY == 0)
+				if (i == curSelected)
 				{
 					item.alpha = 1;
 				}
 			}
 
-			for (i in 0...achievementArray.length)
+			for (i => achievement in achievementArray)
 			{
-				var achievement:AttachedAchievement = achievementArray[i];
 				achievement.alpha = 0.6;
 				if (i == curSelected)
 				{

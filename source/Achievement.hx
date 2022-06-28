@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxArrayUtil;
 #if FEATURE_ACHIEVEMENTS
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -9,6 +10,7 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import haxe.io.Path;
+import util.CoolUtil;
 
 using StringTools;
 
@@ -63,7 +65,6 @@ class Achievement extends FlxSpriteGroup
 			}
 			if (EngineData.save.data.achievementsUnlocked != null)
 			{
-				Debug.logTrace('Trying to load achievements');
 				var achievementsUnlocked:Array<String> = EngineData.save.data.achievementsUnlocked;
 				for (achievementId in achievementsUnlocked)
 				{
@@ -98,7 +99,7 @@ class Achievement extends FlxSpriteGroup
 
 	public static function reloadAchievementDef():Void
 	{
-		achievementList = [];
+		FlxArrayUtil.clearArray(achievementList);
 		achievementsLoaded.clear();
 
 		var directories:Array<String> = Paths.getDirectoryLoadOrder();

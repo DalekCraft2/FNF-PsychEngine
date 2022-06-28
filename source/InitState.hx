@@ -10,6 +10,7 @@ import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
+import openfl.Lib;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
@@ -43,7 +44,6 @@ class InitState extends FlxUIState
 
 		if (EngineData.save.data.fullscreen != null)
 		{
-			// TODO I'm pretty sure this doesn't work
 			FlxG.fullscreen = EngineData.save.data.fullscreen;
 		}
 
@@ -57,7 +57,7 @@ class InitState extends FlxUIState
 			Options.save.data.frameRate = 120;
 		}
 
-		Main.setFPSCap(Options.save.data.frameRate);
+		Lib.current.stage.frameRate = Options.save.data.frameRate;
 
 		#if FEATURE_DISCORD
 		DiscordClient.initialize();
@@ -72,6 +72,9 @@ class InitState extends FlxUIState
 		FlxG.autoPause = true;
 		FlxG.mouse.visible = false;
 		#end
+
+		// Initialize the EngineData.latestVersion property
+		EngineData.fetchLatestVersion();
 
 		var canCache:Bool = false;
 		#if sys

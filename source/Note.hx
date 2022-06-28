@@ -2,8 +2,10 @@ package;
 
 import NoteKey.NoteColor;
 import flixel.FlxSprite;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.util.typeLimit.OneOfTwo;
 import haxe.io.Path;
+import shader.ColorSwap;
 
 // TODO Maybe I should take this "abstract" approach with some other objects what use JSON...
 abstract NoteDef(Array<Dynamic>) /*from Array<Dynamic> to Array<Dynamic>*/
@@ -12,15 +14,30 @@ abstract NoteDef(Array<Dynamic>) /*from Array<Dynamic> to Array<Dynamic>*/
 	public static inline final INDEX_NOTE_DATA:Int = 1;
 	public static inline final INDEX_SUSTAIN_LENGTH:Int = 2;
 	public static inline final INDEX_NOTE_TYPE:Int = 3;
+	public static inline final INDEX_BEAT:Int = 4;
 
 	public var strumTime(get, set):Float;
 	public var noteData(get, set):Int;
 	public var sustainLength(get, set):Null<Float>;
 	public var noteType(get, set):OneOfTwo<Null<Int>, String>;
+	public var beat(get, set):Null<Float>;
 
 	public inline function new(array:Array<Dynamic>)
 	{
 		this = array;
+
+		if (sustainLength == null)
+		{
+			sustainLength = null; // Ensure that these indexes are filled
+		}
+		if (noteType == null)
+		{
+			noteType == null;
+		}
+		if (beat == null)
+		{
+			beat = null;
+		}
 	}
 
 	private function get_strumTime():Float
@@ -62,6 +79,16 @@ abstract NoteDef(Array<Dynamic>) /*from Array<Dynamic> to Array<Dynamic>*/
 	{
 		return this[INDEX_NOTE_TYPE] = value;
 	}
+
+	private function get_beat():Null<Float>
+	{
+		return this[INDEX_BEAT];
+	}
+
+	private function set_beat(value:Null<Float>):Null<Float>
+	{
+		return this[INDEX_BEAT] = value;
+	}
 }
 
 class Note extends FlxSprite
@@ -69,9 +96,14 @@ class Note extends FlxSprite
 	public static final STRUM_WIDTH:Float = 160 * 0.7;
 
 	public var strumTime:Float = 0;
+	public var noteData:Int = 0;
+	public var sustainLength:Float = 0;
+	public var noteType(default, set):String;
+	public var beat:Float = 0;
+
+	public var noteDataModulo(get, never):Int;
 
 	public var mustPress:Bool = false;
-	public var noteData:Int = 0;
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
@@ -80,10 +112,16 @@ class Note extends FlxSprite
 	public var noteWasHit:Bool = false;
 	public var prevNote:Note;
 
-	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
-	public var noteType(default, set):String;
 
+	// TODO Implement Kade's sustain fix
+	public var isParent:Bool = false;
+	public var parent:Note = null;
+	public var spotInLine:Int = 0;
+	public var sustainActive:Bool = true;
+	public var children:Array<Note> = [];
+
+	// TODO Make the event note sprite a separate class
 	public var eventName:String = '';
 	public var eventLength:Int = 0;
 	public var eventVal1:String = '';
@@ -126,13 +164,14 @@ class Note extends FlxSprite
 
 	public var hitsoundDisabled:Bool = false;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?isSustainNote:Bool = false, ?inEditor:Bool = false)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, isSustainNote:Bool = false, inEditor:Bool = false, beat:Float = 0)
 	{
 		super();
 
 		this.prevNote = prevNote == null ? this : prevNote;
 		this.isSustainNote = isSustainNote;
 		this.inEditor = inEditor;
+		this.beat = beat;
 
 		x += (Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
@@ -149,10 +188,10 @@ class Note extends FlxSprite
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
 
-			x += STRUM_WIDTH * (this.noteData % 4);
+			x += STRUM_WIDTH * noteDataModulo;
 			if (!isSustainNote)
 			{ // Doing this 'if' check to fix the warnings on Senpai songs
-				var animToPlay:String = NoteColor.createByIndex(this.noteData % 4).getName();
+				var animToPlay:String = NoteColor.createByIndex(noteDataModulo).getName();
 				animation.play('${animToPlay}Scroll');
 			}
 		}
@@ -168,7 +207,7 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			var animToPlay:String = NoteColor.createByIndex(this.noteData % 4).getName();
+			var animToPlay:String = NoteColor.createByIndex(noteDataModulo).getName();
 			animation.play('${animToPlay}holdend');
 
 			updateHitbox();
@@ -180,10 +219,10 @@ class Note extends FlxSprite
 
 			if (prevNote.isSustainNote)
 			{
-				var animToPlay:String = NoteColor.createByIndex(prevNote.noteData % 4).getName();
+				var animToPlay:String = NoteColor.createByIndex(prevNote.noteDataModulo).getName();
 				prevNote.animation.play('${animToPlay}hold');
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
+				prevNote.scale.y *= Conductor.semiquaverLength / 100 * 1.05;
 				if (PlayState.instance != null)
 				{
 					prevNote.scale.y *= PlayState.instance.songSpeed;
@@ -244,22 +283,27 @@ class Note extends FlxSprite
 		}
 	}
 
+	// TODO Jesus, learn to use shorter variable names.
 	private var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
 	private var lastNoteScaleToo:Float = 1;
 
 	public var originalHeightForCalcs:Float = 6;
 
-	private function reloadNote(?prefix:String = '', ?texture:String = '', ?suffix:String = ''):Void
+	private function reloadNote(prefix:String = '', texture:String = '', suffix:String = ''):Void
 	{
-		var skin:String = texture;
 		if (texture.length < 1)
 		{
-			skin = PlayState.song.arrowSkin;
-			if (skin == null || skin.length < 1)
+			var songSkin:String = PlayState.song.arrowSkin;
+			if (songSkin == null || songSkin.length < 1)
 			{
-				skin = 'NOTE_assets';
+				texture = 'NOTE_assets';
+			}
+			else
+			{
+				texture = songSkin;
 			}
 		}
+		texture = Path.join([Path.directory(texture), prefix + Path.withoutDirectory(texture) + suffix]);
 
 		var animName:Null<String> = null;
 		if (animation.curAnim != null)
@@ -267,27 +311,36 @@ class Note extends FlxSprite
 			animName = animation.curAnim.name;
 		}
 
-		var arraySkin:Array<String> = skin.split('/');
-		arraySkin[arraySkin.length - 1] = prefix + arraySkin[arraySkin.length - 1] + suffix;
-
 		var lastScaleY:Float = scale.y;
-		var blahblah:String = arraySkin.join('/');
+
 		if (PlayState.isPixelStage)
 		{
 			if (isSustainNote)
 			{
-				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', '${blahblah}ENDS']), 'week6'));
+				var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel-ends']));
+				if (!Paths.exists(path))
+				{
+					path = Paths.image('ui/notes/NOTE_assets-pixel-ends');
+				}
+				var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
+				loadGraphic(graphic);
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', '${blahblah}ENDS']), 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
 			}
 			else
 			{
-				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', blahblah]), 'week6'));
+				var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel']));
+				if (!Paths.exists(path))
+				{
+					path = Paths.image('ui/notes/NOTE_assets-pixel');
+				}
+				var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
+				loadGraphic(graphic);
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.getGraphic(Path.join(['weeb/pixelUI', blahblah]), 'week6'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
 			}
 			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
 			loadPixelNoteAnims();
@@ -311,7 +364,11 @@ class Note extends FlxSprite
 		}
 		else
 		{
-			frames = Paths.getSparrowAtlas(blahblah);
+			if (!Paths.exists(Paths.image(Path.join(['ui/notes', texture]))))
+			{
+				texture = 'NOTE_assets';
+			}
+			frames = Paths.getSparrowAtlas(Path.join(['ui/notes', texture]));
 			loadNoteAnims();
 			antialiasing = Options.save.data.globalAntialiasing;
 		}
@@ -329,12 +386,14 @@ class Note extends FlxSprite
 	{
 		for (color in NoteColor.createAll())
 		{
-			animation.addByPrefix('${color}Scroll', '${color} alone'); // Normal notes
-
 			if (isSustainNote)
 			{
-				animation.addByPrefix('${color}hold', '${color} hold'); // Holds
 				animation.addByPrefix('${color}holdend', '${color} tail'); // Tails
+				animation.addByPrefix('${color}hold', '${color} hold'); // Holds
+			}
+			else
+			{
+				animation.addByPrefix('${color}Scroll', '${color} alone'); // Normal notes
 			}
 		}
 
@@ -358,53 +417,62 @@ class Note extends FlxSprite
 		}
 	}
 
+	private function set_noteType(value:String):String
+	{
+		if (noteType != value)
+		{
+			noteType = value;
+
+			noteSplashTexture = PlayState.song.splashSkin;
+			colorSwap.hue = Options.save.data.arrowHSV[noteDataModulo][0] / 360;
+			colorSwap.saturation = Options.save.data.arrowHSV[noteDataModulo][1] / 100;
+			colorSwap.brightness = Options.save.data.arrowHSV[noteDataModulo][2] / 100;
+
+			if (noteData > -1)
+			{
+				switch (value)
+				{
+					case 'Hurt Note':
+						ignoreNote = mustPress;
+						reloadNote('HURT');
+						noteSplashTexture = 'HURTnoteSplashes';
+						colorSwap.hue = 0;
+						colorSwap.saturation = 0;
+						colorSwap.brightness = 0;
+						if (isSustainNote)
+						{
+							missHealth = 0.1;
+						}
+						else
+						{
+							missHealth = 0.3;
+						}
+						hitCausesMiss = true;
+					case 'No Animation':
+						noAnimation = true;
+					case 'GF Sing':
+						gfNote = true;
+				}
+			}
+			noteSplashHue = colorSwap.hue;
+			noteSplashSat = colorSwap.saturation;
+			noteSplashBrt = colorSwap.brightness;
+		}
+		return value;
+	}
+
+	private function get_noteDataModulo():Int
+	{
+		return noteData % NoteKey.createAll().length;
+	}
+
 	private function set_texture(value:String):String
 	{
 		if (texture != value)
 		{
-			reloadNote('', value);
+			texture = value;
+			reloadNote(null, value);
 		}
-		texture = value;
-		return value;
-	}
-
-	private function set_noteType(value:String):String
-	{
-		noteSplashTexture = PlayState.song.splashSkin;
-		colorSwap.hue = Options.save.data.arrowHSV[noteData % 4][0] / 360;
-		colorSwap.saturation = Options.save.data.arrowHSV[noteData % 4][1] / 100;
-		colorSwap.brightness = Options.save.data.arrowHSV[noteData % 4][2] / 100;
-
-		if (noteData > -1 && noteType != value)
-		{
-			switch (value)
-			{
-				case 'Hurt Note':
-					ignoreNote = mustPress;
-					reloadNote('HURT');
-					noteSplashTexture = 'HURTnoteSplashes';
-					colorSwap.hue = 0;
-					colorSwap.saturation = 0;
-					colorSwap.brightness = 0;
-					if (isSustainNote)
-					{
-						missHealth = 0.1;
-					}
-					else
-					{
-						missHealth = 0.3;
-					}
-					hitCausesMiss = true;
-				case 'No Animation':
-					noAnimation = true;
-				case 'GF Sing':
-					gfNote = true;
-			}
-			noteType = value;
-		}
-		noteSplashHue = colorSwap.hue;
-		noteSplashSat = colorSwap.saturation;
-		noteSplashBrt = colorSwap.brightness;
 		return value;
 	}
 }

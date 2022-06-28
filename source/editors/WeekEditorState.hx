@@ -60,7 +60,7 @@ class WeekEditorState extends MusicBeatState
 		txtWeekTitle.setFormat(Paths.font('vcr.ttf'), txtWeekTitle.size, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
 
-		var uiTexture:FlxAtlasFrames = Paths.getSparrowAtlas('campaign_menu_UI_assets');
+		var uiTexture:FlxAtlasFrames = Paths.getSparrowAtlas('ui/story/campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 		bgSprite = new FlxSprite(0, 56);
 		bgSprite.antialiasing = Options.save.data.globalAntialiasing;
@@ -126,9 +126,9 @@ class WeekEditorState extends MusicBeatState
 		{
 			if (inputText.hasFocus)
 			{
-				FlxG.sound.muteKeys = [];
-				FlxG.sound.volumeDownKeys = [];
-				FlxG.sound.volumeUpKeys = [];
+				FlxG.sound.muteKeys = null;
+				FlxG.sound.volumeDownKeys = null;
+				FlxG.sound.volumeUpKeys = null;
 				blockInput = true;
 
 				if (FlxG.keys.justPressed.ENTER)
@@ -447,9 +447,9 @@ class WeekEditorState extends MusicBeatState
 
 	private function updateText():Void
 	{
-		for (i in 0...grpWeekCharacters.length)
+		for (i => char in grpWeekCharacters.members)
 		{
-			grpWeekCharacters.members[i].changeCharacter(weekDef.weekCharacters[i]);
+			char.changeCharacter(weekDef.weekCharacters[i]);
 		}
 
 		var stringThing:Array<String> = [];
@@ -482,18 +482,16 @@ class WeekEditorState extends MusicBeatState
 		var isMissing:Bool = true;
 		if (assetName != null && assetName.length > 0)
 		{
-			var bgPath:String = Path.join(['menubackgrounds', assetName]);
-			if (!Paths.exists(Paths.image(bgPath), IMAGE))
-				bgPath = Path.join(['menubackgrounds', 'menu_$assetName']); // Legacy support
+			var bgPath:String = Path.join(['ui/story/backgrounds', assetName]);
 			if (!Paths.exists(Paths.image(bgPath), IMAGE))
 			{
 				Debug.logError('Could not find story menu background with ID "$assetName"; using default');
-				bgPath = Path.join(['menubackgrounds', 'blank']); // Prevents crash from missing background
+				bgPath = Path.join(['ui/story/backgrounds', 'blank']); // Prevents crash from missing background
 				isMissing = true;
 			}
 			var graphic:FlxGraphicAsset = Paths.getGraphic(bgPath);
 			bgSprite.loadGraphic(graphic);
-			if (bgPath != Path.join(['menubackgrounds', 'blank']))
+			if (bgPath != Path.join(['ui/story/backgrounds', 'blank']))
 			{
 				isMissing = false;
 			}
@@ -578,10 +576,10 @@ class WeekEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -607,9 +605,9 @@ class WeekEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			removeLoadListeners();
 			return;
 		}

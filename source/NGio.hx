@@ -15,7 +15,7 @@ import openfl.Lib;
 
 using StringTools;
 
-// In case I want to reimplement this
+// TODO Maybe reimpliment NewgroundsIO? Or maybe use the Flixel GameJolt API?
 
 /**
  * MADE BY GEOKURELI THE LEGENED GOD HERO MVP
@@ -64,10 +64,8 @@ class NGio
 	{
 		if (isLoggedIn)
 		{
-			for (id in NG.core.scoreBoards.keys())
+			for (board in NG.core.scoreBoards)
 			{
-				var board:ScoreBoard = NG.core.scoreBoards.get(id);
-
 				if (song == board.name)
 				{
 					board.postScore(score, 'Uhh meow?');
@@ -145,9 +143,8 @@ class NGio
 	{
 		/*
 			// Reading medal info
-			for (id in NG.core.medals.keys())
+			for (id => medal in NG.core.medals)
 			{
-				var medal:Medal = NG.core.medals.get(id);
 				Debug.logTrace('loaded medal id:$id, name:${medal.name}, description:${medal.description}');
 			}
 
@@ -163,9 +160,8 @@ class NGio
 	{
 		/*
 			// Reading medal info
-			for (id in NG.core.scoreBoards.keys())
+			for (id => board in NG.core.scoreBoards)
 			{
-				var board:ScoreBoard = NG.core.scoreBoards.get(id);
 				Debug.logTrace('Loaded scoreboard ID:$id, name:${board.name}');
 			}
 		 */

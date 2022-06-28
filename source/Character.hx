@@ -1,8 +1,6 @@
 package;
 
 import Note.NoteDef;
-import Section.SectionDef;
-import Song.SongDef;
 import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -41,7 +39,7 @@ typedef AnimationDef =
 
 // TODO Automatically correct offsets when character is flipped (One way may be to insert the offsets directly into the XMLs)
 // Seriously, why haven't people been setting the offsets when creating the spritesheets? It would make things much easier.
-class Character extends FlxSprite
+class Character extends FlxSprite implements Danceable
 {
 	/**
 	 * The character ID used in case the requested character is missing.
@@ -53,7 +51,7 @@ class Character extends FlxSprite
 	 */
 	public var id:String;
 
-	public var animOffsets:Map<String, Array<Float>>;
+	public var animOffsets:Map<String, Array<Float>> = [];
 	public var debugMode:Bool = false;
 
 	public var isPlayer(default, set):Bool = false;
@@ -97,6 +95,8 @@ class Character extends FlxSprite
 	public var healthBarColors:Array<Int> = [255, 0, 0];
 	public var cameraMotionFactor:Float = 1;
 	public var initialAnimation:String;
+
+	public var danced:Bool = false;
 
 	public static function createTemplateCharacterDef():CharacterDef
 	{
@@ -157,11 +157,10 @@ class Character extends FlxSprite
 		return characterDef;
 	}
 
-	public function new(x:Float, y:Float, ?character:String = DEFAULT_CHARACTER, ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, character:String = DEFAULT_CHARACTER, isPlayer:Bool = false)
 	{
 		super(x, y);
 
-		animOffsets = [];
 		id = character;
 		antialiasing = Options.save.data.globalAntialiasing;
 		switch (id)
@@ -225,7 +224,7 @@ class Character extends FlxSprite
 					holdTimer += elapsed;
 				}
 
-				if (holdTimer >= Conductor.stepCrochet * 0.001 * singDuration)
+				if (holdTimer >= Conductor.semiquaverLength * 0.001 * singDuration)
 				{
 					dance();
 					holdTimer = 0;
@@ -253,6 +252,29 @@ class Character extends FlxSprite
 			if (animation.curAnim.finished && animation.exists('${animation.curAnim.name}-loop'))
 			{
 				playAnim('${animation.curAnim.name}-loop');
+			}
+		}
+	}
+
+	/**
+	 * FOR GF DANCING SHIT
+	 */
+	public function dance(force:Bool = false):Void
+	{
+		if (!debugMode && !specialAnim)
+		{
+			if (danceIdle)
+			{
+				danced = !danced;
+
+				if (danced)
+					playAnim('danceRight$idleSuffix', force);
+				else
+					playAnim('danceLeft$idleSuffix', force);
+			}
+			else if (animation.exists('idle$idleSuffix'))
+			{
+				playAnim('idle$idleSuffix', force);
 			}
 		}
 	}
@@ -397,33 +419,6 @@ class Character extends FlxSprite
 		{
 			leftToRight();
 		}
-
-		Debug.logTrace('Loaded character "$id"');
-	}
-
-	public var danced:Bool = false;
-
-	/**
-	 * FOR GF DANCING SHIT
-	 */
-	public function dance():Void
-	{
-		if (!debugMode && !specialAnim)
-		{
-			if (danceIdle)
-			{
-				danced = !danced;
-
-				if (danced)
-					playAnim('danceRight$idleSuffix');
-				else
-					playAnim('danceLeft$idleSuffix');
-			}
-			else if (animation.exists('idle$idleSuffix'))
-			{
-				playAnim('idle$idleSuffix');
-			}
-		}
 	}
 
 	public function playAnim(animName:String, force:Bool = false, reversed:Bool = false, frame:Int = 0):Void
@@ -461,9 +456,9 @@ class Character extends FlxSprite
 
 	public function loadMappedAnims(id:String, difficulty:String, ?folder:String):Void
 	{
-		var songDef:SongDef = Song.getSongDef(id, difficulty, folder);
+		var songDef:Song = Song.getSongDef(id, difficulty, folder);
 
-		var sections:Array<SectionDef> = songDef.notes;
+		var sections:Array<Section> = songDef.notes;
 
 		for (section in sections)
 		{
@@ -560,6 +555,6 @@ class Character extends FlxSprite
 			// }
 			updateHitbox();
 		}
-		return isPlayer;
+		return value;
 	}
 }

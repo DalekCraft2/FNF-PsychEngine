@@ -1,11 +1,13 @@
 package;
 
-// TODO If you're going to import this class from Kade, then you should use it as much as Kade Engine does, or we'll end up with dozens of classes which are barely integrated
+import flixel.util.FlxArrayUtil;
+
+// FIXME Sometimes, when a tempo change happens, the music does a sort of "hiccup" and gets off-beat
 class TimingStruct
 {
 	public static var allTimings:Array<TimingStruct> = [];
 
-	public var bpm:Float = 0; // idk what does  this do
+	public var bpm:Float = 0; // idk what does this do
 
 	public var startBeat:Float = 0; // BEATS
 	public var startStep:Int = 0; // BAD MEASUREMENTS
@@ -16,35 +18,54 @@ class TimingStruct
 
 	public static function clearTimings():Void
 	{
-		allTimings = [];
+		FlxArrayUtil.clearArray(allTimings);
 	}
 
-	public static function addTiming(startBeat, bpm, endBeat:Float, offset:Float):Void
+	public static function addTiming(startBeat:Float, bpm:Float, endBeat:Float, offset:Float):Void
 	{
-		var pog:TimingStruct = new TimingStruct(startBeat, bpm, endBeat, offset);
-		allTimings.push(pog);
+		var timing:TimingStruct = new TimingStruct(startBeat, bpm, endBeat, offset);
+		allTimings.push(timing);
 	}
 
 	public static function getBeatFromTime(time:Float):Float
 	{
-		var beat:Float = -1.0;
 		var seg:TimingStruct = TimingStruct.getTimingAtTimestamp(time);
 
 		if (seg != null)
-			beat = seg.startBeat + (((time / 1000) - seg.startTime) * (seg.bpm / 60));
+			return seg.startBeat + (((time / TimingConstants.MILLISECONDS_PER_SECOND) - seg.startTime) * (seg.bpm / TimingConstants.SECONDS_PER_MINUTE));
 
-		return beat;
+		return -1;
 	}
 
 	public static function getTimeFromBeat(beat:Float):Float
 	{
-		var time:Float = -1.0;
 		var seg:TimingStruct = TimingStruct.getTimingAtBeat(beat);
 
 		if (seg != null)
-			time = seg.startTime + ((beat - seg.startBeat) / (seg.bpm / 60));
+			return (seg.startTime + ((beat - seg.startBeat) / (seg.bpm / TimingConstants.SECONDS_PER_MINUTE))) * TimingConstants.MILLISECONDS_PER_SECOND;
 
-		return time * 1000;
+		return -1;
+	}
+
+	public static function getTimingAtTimestamp(msTime:Float):TimingStruct
+	{
+		for (timing in allTimings)
+		{
+			if (msTime >= timing.startTime * TimingConstants.MILLISECONDS_PER_SECOND
+				&& msTime < (timing.startTime + timing.length) * TimingConstants.MILLISECONDS_PER_SECOND)
+				return timing;
+		}
+		return null;
+	}
+
+	public static function getTimingAtBeat(beat:Float):TimingStruct
+	{
+		for (timing in allTimings)
+		{
+			if (timing.startBeat <= beat && timing.endBeat >= beat)
+				return timing;
+		}
+		return null;
 	}
 
 	public function new(startBeat:Float, bpm:Float, endBeat:Float, offset:Float)
@@ -54,25 +75,5 @@ class TimingStruct
 		if (endBeat != -1)
 			this.endBeat = endBeat;
 		startTime = offset;
-	}
-
-	public static function getTimingAtTimestamp(msTime:Float):TimingStruct
-	{
-		for (i in allTimings)
-		{
-			if (msTime >= i.startTime * 1000 && msTime < (i.startTime + i.length) * 1000)
-				return i;
-		}
-		return null;
-	}
-
-	public static function getTimingAtBeat(beat):TimingStruct
-	{
-		for (i in allTimings)
-		{
-			if (i.startBeat <= beat && i.endBeat >= beat)
-				return i;
-		}
-		return null;
 	}
 }

@@ -1,5 +1,7 @@
 package;
 
+import ui.Alphabet;
+import ui.AttachedSprite;
 #if FEATURE_MODS
 import Mod.ModEnableState;
 import Mod.ModMetadata;
@@ -75,7 +77,7 @@ class ModsMenuState extends MusicBeatState
 
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('In the Menus', null);
+		DiscordClient.changePresence('In the Menus');
 		#end
 
 		Week.setDirectoryFromWeek();
@@ -83,10 +85,10 @@ class ModsMenuState extends MusicBeatState
 		if (!FlxG.sound.music.playing)
 		{
 			FlxG.sound.playMusic(Paths.getMusic('freakyMenu'));
-			Conductor.changeBPM(TitleState.titleDef.bpm);
+			Conductor.tempo = TitleState.titleDef.bpm;
 		}
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('menuDesat'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/main/backgrounds/menuDesat'));
 		bg.antialiasing = Options.save.data.globalAntialiasing;
 		add(bg);
 		bg.screenCenter();
@@ -281,10 +283,9 @@ class ModsMenuState extends MusicBeatState
 		add(descriptionTxt);
 		visibleWhenHasMods.push(descriptionTxt);
 
-		for (i in 0...modList.length)
+		for (i => enableState in modList)
 		{
-			var enableState:ModEnableState = modList[i];
-			if (!Paths.fileSystem.exists(Paths.mods(enableState.title)))
+			if (!Paths.fileSystem.exists(Path.join([Paths.MOD_DIRECTORY, enableState.title])))
 			{
 				modList.remove(enableState);
 				continue;
@@ -302,9 +303,13 @@ class ModsMenuState extends MusicBeatState
 			// Don't ever cache the icons, it's a waste of loaded memory
 			var loadedIcon:Null<BitmapData> = null;
 			#if polymod
-			var iconToUse:String = Paths.mods(Path.join([enableState.title, PolymodConfig.modIconFile]));
+			var iconToUse:String = Path.join([Paths.MOD_DIRECTORY, enableState.title, PolymodConfig.modIconFile]);
 			#else
-			var iconToUse:String = Paths.mods(Path.join([enableState.title, Path.withExtension('_icon', Paths.IMAGE_EXT)]));
+			var iconToUse:String = Path.join([
+				Paths.MOD_DIRECTORY,
+				enableState.title,
+				Path.withExtension('_icon', Paths.IMAGE_EXT)
+			]);
 			#end
 			if (Paths.exists(iconToUse, IMAGE))
 			{
@@ -434,8 +439,8 @@ class ModsMenuState extends MusicBeatState
 			}
 			else if (newPos >= mods.length)
 			{
-				modList.insert(0, modList.pop());
-				mods.insert(0, mods.pop());
+				modList.unshift(modList.pop());
+				mods.unshift(mods.pop());
 			}
 			else
 			{
@@ -544,13 +549,13 @@ class ModsMenuState extends MusicBeatState
 				var stuffArray:Array<FlxSprite> = [uninstallButton, installButton, selector, descriptionTxt, mod.alphabet, mod.icon];
 				for (obj in stuffArray)
 				{
-					remove(obj);
-					insert(members.length, obj);
+					remove(obj, true);
+					add(obj);
 				}
 				for (obj in buttonsArray)
 				{
-					remove(obj);
-					insert(members.length, obj);
+					remove(obj, true);
+					add(obj);
 				}
 			}
 			i++;
@@ -663,10 +668,10 @@ class ModsMenuState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -686,7 +691,7 @@ class ModsMenuState extends MusicBeatState
 		{
 			FlxG.resetState();
 
-			unzip(fullPath, Paths.mods());
+			unzip(fullPath, Paths.MOD_DIRECTORY);
 			Debug.logTrace('Successfully loaded file: ${_file.name}');
 			removeLoadListeners();
 			return;
@@ -718,7 +723,7 @@ class ModsMenuState extends MusicBeatState
 
 	private function uninstallMod():Void
 	{
-		var path:String = Paths.mods(modList[curSelected].title);
+		var path:String = Path.join([Paths.MOD_DIRECTORY, modList[curSelected].title]);
 
 		if (Paths.fileSystem.exists(path) && Paths.fileSystem.isDirectory(path))
 		{
@@ -740,9 +745,9 @@ class ModsMenuState extends MusicBeatState
 				changeSelection();
 				Debug.logTrace('Successfully deleted directory $path');
 			}
-			catch (e:Exception)
+			catch (ex:Exception)
 			{
-				Debug.logError('Error deleting directory "$path": $e');
+				Debug.logError('Error deleting directory "$path": ${ex.message}');
 			}
 		}
 	}
@@ -813,6 +818,7 @@ class ModsMenuState extends MusicBeatState
 						// Reader.unzip() will cause an exception on anything other than Neko if the entry is compressed
 						// Because of that, I have to just copy the Neko segment of code from Reader.unzip() into my own custom method
 						// I should probably make an issue for that on the Haxe GitHub...
+						// Update: It's actually caused by Lime, which overrides the Reader class. I'll have to report it on that repository eventually.
 						// var data:Bytes = Reader.unzip(entry);
 						var data:Bytes = unzipWorkaround(entry);
 						var fileOutput:FileOutput = File.write(Path.join([dest, entryPath]));

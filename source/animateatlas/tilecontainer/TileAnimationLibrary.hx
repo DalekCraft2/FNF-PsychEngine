@@ -44,9 +44,9 @@ class TileAnimationLibrary
 
 	public var frameRate:Float;
 
-	private var _atlas:Map<String, SpriteData>;
-	private var _symbolData:Map<String, SymbolData>;
-	private var _symbolPool:Map<String, Array<TileContainerSymbol>>;
+	private var _atlas:Map<String, SpriteData> = [];
+	private var _symbolData:Map<String, SymbolData> = [];
+	private var _symbolPool:Map<String, Array<TileContainerSymbol>> = [];
 	private var _defaultSymbolName:String;
 	private var _texture:Tileset;
 
@@ -55,7 +55,6 @@ class TileAnimationLibrary
 		parseAnimationData(data);
 		parseAtlasData(atlas);
 		_texture = new Tileset(texture);
-		_symbolPool = [];
 	}
 
 	public function hasAnimation(name:String):Bool
@@ -85,7 +84,7 @@ class TileAnimationLibrary
 			}
 		}
 
-		out.sort((a1, a2) ->
+		out.sort((a1:String, a2:String) ->
 		{
 			a1 = a1.toLowerCase();
 			a2 = a2.toLowerCase();
@@ -166,7 +165,7 @@ class TileAnimationLibrary
 			frameRate = 24;
 		}
 
-		_symbolData = [];
+		_symbolData.clear();
 
 		// the actual symbol dictionary
 		var symbols:Array<SymbolData> = data.SYMBOL_DICTIONARY.Symbols;
@@ -243,7 +242,7 @@ class TileAnimationLibrary
 
 	private function parseAtlasData(atlas:AtlasData):Void
 	{
-		_atlas = [];
+		_atlas.clear();
 		if (atlas.ATLAS != null && atlas.ATLAS.SPRITES != null)
 		{
 			for (s in atlas.ATLAS.SPRITES)

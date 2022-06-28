@@ -27,7 +27,7 @@ class CachingState extends MusicBeatState
 	private var text:FlxText;
 	private var kadeLogo:FlxSprite;
 
-	public static var bitmapData:Map<String, FlxGraphicAsset>;
+	public static var bitmapData:Map<String, FlxGraphicAsset> = [];
 
 	private var images:Array<String> = [];
 	private var music:Array<String> = [];
@@ -49,7 +49,7 @@ class CachingState extends MusicBeatState
 		// It doesn't reupdate the list before u restart rn lmao
 		// NoteskinHelpers.updateNoteskins();
 
-		bitmapData = [];
+		bitmapData.clear();
 
 		text = new FlxText(FlxG.width / 2, FlxG.height / 2 + 300, 0, 'Loading...', 34);
 		text.alignment = CENTER;
@@ -75,7 +75,7 @@ class CachingState extends MusicBeatState
 			Debug.logTrace('Caching images...');
 
 			// TODO: Refactor this to use OpenFLAssets.
-			for (file in Paths.fileSystem.readDirectoryRecursive('assets/shared/images'))
+			for (file in Paths.fileSystem.readDirectoryRecursive('assets/images'))
 			{
 				if (Path.extension(file) != Paths.IMAGE_EXT)
 					continue;
@@ -134,7 +134,7 @@ class CachingState extends MusicBeatState
 		{
 			var replaced:String = Path.withoutExtension(imageFile);
 
-			var imagePath:String = Paths.image(Path.join(['characters', imageFile]), 'shared');
+			var imagePath:String = Paths.image(Path.join(['characters', imageFile]));
 			Debug.logTrace('Caching character graphic $imageFile ($imagePath)...');
 			var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(imagePath);
 			var graphic:FlxGraphic = null;
@@ -173,8 +173,6 @@ class CachingState extends MusicBeatState
 		Debug.logTrace('Finished caching.');
 
 		loaded = true;
-
-		Debug.logTrace(Assets.cache.hasBitmapData('GF_assets'));
 		#end
 
 		InitState.initTransition();

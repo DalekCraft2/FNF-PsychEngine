@@ -3,6 +3,8 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.util.FlxColor;
+import ui.Alphabet;
+import ui.HealthIcon;
 
 class ResetScoreSubState extends MusicBeatSubState
 {

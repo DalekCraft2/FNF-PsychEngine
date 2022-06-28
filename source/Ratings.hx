@@ -5,26 +5,27 @@ import options.Options.OptionDefaults;
 
 class Ratings
 {
-	public static function generateComboRank():String // generate a combo ranking
+	public static function generateComboRank():ComboRank // generate a combo ranking
 	{
-		var ranking:String = 'N/A';
+		var ranking:ComboRank = 'N/A';
 
 		if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods == 0) // Marvelous (SICK) Full Combo
-			ranking = 'MFC';
+			ranking = ComboRank.MFC;
 		else
 			if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
-			ranking = 'GF';
+			ranking = ComboRank.GFC;
 		else if (PlayState.instance.misses == 0) // Regular FC
-			ranking = 'FC';
-		else if (PlayState.instance.misses < 10) // Single Digit Combo Breaks
-			ranking = 'SDCB';
+			ranking = ComboRank.FC;
+		else if (PlayState.instance.misses < 10) // Single Digit Combo Break
+			ranking = ComboRank.SDCB;
 		else
-			ranking = 'Clear';
+			ranking = ComboRank.CLEAR;
 
 		return ranking;
 	}
 
-	public static function generateLetterRank(accuracy:Float):String
+	// TODO Is there any way to simplify this code?
+	public static function generateGrade(accuracy:Float):String
 	{
 		var ranking:String = '';
 
@@ -49,9 +50,8 @@ class Ratings
 			accuracy < 60 // D
 		];
 
-		for (i in 0...wifeConditions.length)
+		for (i => b in wifeConditions)
 		{
-			var b:Bool = wifeConditions[i];
 			if (b)
 			{
 				switch (i)
@@ -100,7 +100,7 @@ class Ratings
 	{
 		var ranking:String = 'N/A';
 
-		ranking = '(${generateComboRank()}) ${generateLetterRank(accuracy)}';
+		ranking = '(${generateComboRank()}) ${generateGrade(accuracy)}';
 
 		if (accuracy == 0)
 			ranking = 'N/A';
@@ -110,34 +110,30 @@ class Ratings
 
 	public static var timingWindows:Array<Float> = [];
 
-	public static function judgeNote(noteDiff:Float):String
+	public static function judgeNote(noteDiff:Float):Judgement
 	{
 		// tryna do MS based judgment due to popular demand
-		var timingWindows:Array<Int> = [
+		// TODO Make these options Floats?
+		// TODO Also, do what Kade Engine does and make this only update the timingWindows field in the Options menu.
+		timingWindows = [
 			Options.save.data.sickWindow,
 			Options.save.data.goodWindow,
 			Options.save.data.badWindow
 		];
-		var windowNames:Array<String> = ['sick', 'good', 'bad'];
+		var windowNames:Array<String> = [Judgement.SICK, Judgement.GOOD, Judgement.BAD];
 
 		var diff:Float = Math.abs(noteDiff);
-		// for (index in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
-		// {
-		// 	var time:Float = timingWindows[index];
-		// 	var nextTime:Float = index + 1 > timingWindows.length - 1 ? 0 : timingWindows[index + 1];
-		// 	if (diff < time && diff >= nextTime)
-		// 	{
-		// 		return windowNames[index];
-		// 	}
-		// }
 		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
+			// var time:Float = timingWindows[i];
+			// var nextTime:Float = i + 1 > timingWindows.length - 1 ? 0 : timingWindows[i + 1];
+			// if (diff < time && diff >= nextTime)
 			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
 			{
 				return windowNames[i];
 			}
 		}
-		return 'shit';
+		return Judgement.SHIT;
 	}
 
 	public static function calculateRanking(score:Int, scoreDefault:Int, nps:Int, maxNPS:Int, accuracy:Float):String
@@ -154,4 +150,46 @@ class Ratings
 
 		return '$npsString${(showAll ? '$scoreString$fullAccuracyString' : '')}';
 	}
+}
+
+enum abstract ComboRank(String) from String to String
+{
+	/**
+	 * Marvelous Full Combo; gotten by hitting only Sicks on every note
+	 */
+	public static final MFC:ComboRank = 'MFC';
+
+	/**
+	 * Great Full Combo; gotten by hitting only Sicks or Goods on every note
+	 */
+	public static final GFC:ComboRank = 'GFC';
+
+	/**
+	 * Full Combo; gotten by hitting every note, regardless of judgement
+	 */
+	public static final FC:ComboRank = 'FC';
+
+	/**
+	 * Single-Digit Combo Break; gotten by missing between 1 and 9 notes, inclusive
+	 */
+	public static final SDCB:ComboRank = 'SDCB';
+
+	/**
+	 * Clear; gotten by missing 10 or more notes
+	 */
+	public static final CLEAR:ComboRank = 'Clear';
+
+	// /**
+	//  * N/A; the combo rank at the beginning of the song before the player has hit/missed any note
+	//  */
+	// public static final NA:ComboRank = 'N/A';
+}
+
+enum abstract Judgement(String) from String to String
+{
+	public static final SICK:Judgement = 'sick';
+	public static final GOOD:Judgement = 'good';
+	public static final BAD:Judgement = 'bad';
+	public static final SHIT:Judgement = 'shit';
+	public static final MISS:Judgement = 'miss';
 }

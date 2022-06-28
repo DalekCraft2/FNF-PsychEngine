@@ -20,6 +20,7 @@ import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import haxe.Exception;
 import haxe.Json;
@@ -30,6 +31,8 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileFilter;
 import openfl.net.FileReference;
+import ui.HealthIcon;
+import util.CoolUtil;
 
 using StringTools;
 
@@ -42,7 +45,7 @@ import Discord.DiscordClient;
  */
 class CharacterEditorState extends MusicBeatState
 {
-	private static final TIP_TEXT:String = 'E/Q - Camera Zoom In/Out\nR - Reset Camera Zoom\nJKLI - Move Camera\nW/S - Previous/Next Animation\nSpace - Play Animation\nArrow Keys - Move Character OffsetnT - Reset Current Offset\nHold Shift to Move 10x faster';
+	private static final TIP_TEXT:String = 'E/Q - Camera Zoom In/Out\nR - Reset Camera Zoom\nJKLI - Move Camera\nW/S - Previous/Next Animation\nSpace - Play Animation\nArrow Keys - Move Character Offset\nT - Reset Current Offset\nHold Shift to Move 10x faster';
 
 	private static final OFFSET_X:Float = 300;
 
@@ -229,9 +232,9 @@ class CharacterEditorState extends MusicBeatState
 				{
 					inputText.hasFocus = false;
 				}
-				FlxG.sound.muteKeys = [];
-				FlxG.sound.volumeDownKeys = [];
-				FlxG.sound.volumeUpKeys = [];
+				FlxG.sound.muteKeys = null;
+				FlxG.sound.volumeDownKeys = null;
+				FlxG.sound.volumeUpKeys = null;
 				return;
 			}
 		}
@@ -447,19 +450,13 @@ class CharacterEditorState extends MusicBeatState
 
 	private function reloadBGs():Void
 	{
-		var i:Int = bgLayer.members.length - 1;
-		while (i >= 0)
+		for (memb in bgLayer)
 		{
-			var memb:FlxSprite = bgLayer.members[i];
-			if (memb != null)
-			{
-				memb.kill();
-				bgLayer.remove(memb);
-				memb.destroy();
-			}
-			--i;
+			memb.kill();
+			memb.destroy();
 		}
 		bgLayer.clear();
+
 		var playerXDifference:Float = 0;
 		if (char.isPlayer)
 			playerXDifference = 670;
@@ -473,23 +470,23 @@ class CharacterEditorState extends MusicBeatState
 				playerYDifference = 220;
 			}
 
-			var bgSky:BGSprite = new BGSprite('weeb/weebSky', 'week6', OFFSET_X - (playerXDifference / 2), -playerYDifference, 0.1, 0.1);
+			var bgSky:BGSprite = new BGSprite('stages/weeb/weebSky', OFFSET_X - (playerXDifference / 2), -playerYDifference, 0.1, 0.1);
 			bgLayer.add(bgSky);
 			bgSky.antialiasing = false;
 
 			var repositionShit:Float = -200 + OFFSET_X - playerXDifference;
 
-			var bgSchool:BGSprite = new BGSprite('weeb/weebSchool', 'week6', repositionShit, -playerYDifference, 0.6, 0.90);
+			var bgSchool:BGSprite = new BGSprite('stages/weeb/weebSchool', repositionShit, -playerYDifference, 0.6, 0.90);
 			bgLayer.add(bgSchool);
 			bgSchool.antialiasing = false;
 
-			var bgStreet:BGSprite = new BGSprite('weeb/weebStreet', 'week6', repositionShit, -playerYDifference, 0.95, 0.95);
+			var bgStreet:BGSprite = new BGSprite('stages/weeb/weebStreet', repositionShit, -playerYDifference, 0.95, 0.95);
 			bgLayer.add(bgStreet);
 			bgStreet.antialiasing = false;
 
 			var widShit:Int = Std.int(bgSky.width * 6);
 			var bgTrees:FlxSprite = new FlxSprite(repositionShit - 380, -800 - playerYDifference);
-			bgTrees.frames = Paths.getPackerAtlas('weeb/weebTrees', 'week6');
+			bgTrees.frames = Paths.getPackerAtlas('stages/weeb/weebTrees');
 			bgTrees.animation.add('treeLoop', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 12);
 			bgTrees.animation.play('treeLoop');
 			bgTrees.scrollFactor.set(0.85, 0.85);
@@ -606,7 +603,7 @@ class CharacterEditorState extends MusicBeatState
 			ghostChar.flipX = char.flipX;
 		};
 
-		// TODO Maybe replace this with a file chooser, like the other editors
+		// TODO Maybe replace this with a file chooser, like the other editors (just for consistency and almost nothing else)
 		charDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), (character:String) ->
 		{
 			charId = characterList[Std.parseInt(character)];
@@ -719,7 +716,7 @@ class CharacterEditorState extends MusicBeatState
 			getEvent(FlxUINumericStepper.CHANGE_EVENT, healthColorStepperB, null);
 		});
 
-		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, healthIcon.getCharacter(), 8);
+		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, healthIcon.char, 8);
 
 		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 45, 0.1, 4, 0, 999, 1);
 
@@ -1037,22 +1034,14 @@ class CharacterEditorState extends MusicBeatState
 
 	private function genBoyOffsets():Void
 	{
-		var loopsDone:Int = 0;
-
-		var i:Int = dumbTexts.members.length - 1;
-		while (i >= 0)
+		for (memb in dumbTexts)
 		{
-			var memb:FlxText = dumbTexts.members[i];
-			if (memb != null)
-			{
-				memb.kill();
-				dumbTexts.remove(memb);
-				memb.destroy();
-			}
-			--i;
+			memb.kill();
+			memb.destroy();
 		}
 		dumbTexts.clear();
 
+		var loopsDone:Int = 0;
 		for (anim => offsets in char.animOffsets)
 		{
 			var text:FlxText = new FlxText(10, 20 + (18 * loopsDone), 0, '$anim: $offsets', 16);
@@ -1078,19 +1067,13 @@ class CharacterEditorState extends MusicBeatState
 
 	private function loadChar(isPlayer:Bool, blahBlahBlah:Bool = true):Void
 	{
-		var i:Int = charLayer.members.length - 1;
-		while (i >= 0)
+		for (memb in charLayer)
 		{
-			var memb:Character = charLayer.members[i];
-			if (memb != null)
-			{
-				memb.kill();
-				charLayer.remove(memb);
-				memb.destroy();
-			}
-			--i;
+			memb.kill();
+			memb.destroy();
 		}
 		charLayer.clear();
+
 		ghostChar = new Character(0, 0, charId, isPlayer);
 		ghostChar.debugMode = true;
 		ghostChar.alpha = 0.6;
@@ -1238,7 +1221,7 @@ class CharacterEditorState extends MusicBeatState
 
 	private function reloadCharacterDropDown():Void
 	{
-		characterList = [];
+		FlxArrayUtil.clearArray(characterList);
 		var charsLoaded:Map<String, Bool> = [];
 
 		var directories:Array<String> = Paths.getDirectoryLoadOrder(true);
@@ -1300,7 +1283,7 @@ class CharacterEditorState extends MusicBeatState
 	{
 		#if FEATURE_DISCORD
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence('Character Editor', 'Character: $charId', healthIcon.getCharacter());
+		DiscordClient.changePresence('Character Editor', 'Character: $charId', healthIcon.char);
 		#end
 	}
 
@@ -1350,10 +1333,10 @@ class CharacterEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -1381,10 +1364,10 @@ class CharacterEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			return;
 		}
 		removeLoadListeners();

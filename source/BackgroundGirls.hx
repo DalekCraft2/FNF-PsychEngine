@@ -1,9 +1,11 @@
 package;
 
 import flixel.FlxSprite;
+import util.CoolUtil;
 
-class BackgroundGirls extends FlxSprite
+class BackgroundGirls extends FlxSprite implements Danceable
 {
+	private var danceDir:Bool = false;
 	private var isPissed:Bool = true;
 
 	public function new(x:Float, y:Float)
@@ -11,14 +13,22 @@ class BackgroundGirls extends FlxSprite
 		super(x, y);
 
 		// BG fangirls dissuaded
-		frames = Paths.getSparrowAtlas('weeb/bgFreaks');
+		frames = Paths.getSparrowAtlas('stages/weeb/bgFreaks');
 
 		swapDanceType();
 
 		animation.play('danceLeft');
 	}
 
-	private var danceDir:Bool = false;
+	public function dance(force:Bool = true):Void
+	{
+		danceDir = !danceDir;
+
+		if (danceDir)
+			animation.play('danceRight', force);
+		else
+			animation.play('danceLeft', force);
+	}
 
 	public function swapDanceType():Void
 	{
@@ -36,15 +46,5 @@ class BackgroundGirls extends FlxSprite
 			animation.addByIndices('danceRight', 'BG girls group', CoolUtil.numberArray(30, 15), '', 24, false);
 		}
 		dance();
-	}
-
-	public function dance():Void
-	{
-		danceDir = !danceDir;
-
-		if (danceDir)
-			animation.play('danceRight', true);
-		else
-			animation.play('danceLeft', true);
 	}
 }

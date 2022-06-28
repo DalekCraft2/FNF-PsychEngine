@@ -1,5 +1,7 @@
 package;
 
+import Ratings.ComboRank;
+
 using StringTools;
 
 class Highscore
@@ -22,7 +24,7 @@ class Highscore
 		setWeekScore(formattedWeek, 0);
 	}
 
-	public static function saveScore(song:String, score:Int = 0, ?diff:Int = 0, ?rating:Float = -1):Void
+	public static function saveScore(song:String, score:Int = 0, diff:Int = 0, rating:Float = -1):Void
 	{
 		var formattedSong:String = formatSong(song, diff);
 
@@ -43,7 +45,7 @@ class Highscore
 		}
 	}
 
-	public static function saveCombo(song:String, combo:String, ?diff:Int = 0):Void
+	public static function saveCombo(song:String, combo:String, diff:Int = 0):Void
 	{
 		var formattedSong:String = formatSong(song, diff);
 		var finalCombo:String = combo.split(')')[0].replace('(', '');
@@ -60,7 +62,7 @@ class Highscore
 		}
 	}
 
-	public static function saveWeekScore(week:String, score:Int = 0, ?diff:Int = 0):Void
+	public static function saveWeekScore(week:String, score:Int = 0, diff:Int = 0):Void
 	{
 		var formattedWeek:String = formatSong(week, diff);
 
@@ -113,18 +115,18 @@ class Highscore
 		return Paths.formatToSongPath(song) + Difficulty.getDifficultyFilePath(diff);
 	}
 
-	private static function getComboInt(combo:String):Int
+	private static function getComboInt(combo:ComboRank):Int
 	{
 		switch (combo)
 		{
-			case 'SDCB':
-				return 1;
-			case 'FC':
-				return 2;
-			case 'GFC':
-				return 3;
-			case 'MFC':
+			case ComboRank.MFC:
 				return 4;
+			case ComboRank.GFC:
+				return 3;
+			case ComboRank.FC:
+				return 2;
+			case ComboRank.SDCB:
+				return 1;
 			default:
 				return 0;
 		}

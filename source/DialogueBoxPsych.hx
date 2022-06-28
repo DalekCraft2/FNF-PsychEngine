@@ -1,10 +1,12 @@
 package;
 
+import flixel.util.FlxArrayUtil;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxColor;
 import haxe.io.Path;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -69,7 +71,7 @@ class DialogueCharacter extends FlxSprite
 		this.id = id;
 
 		reloadCharacterJson(id);
-		frames = Paths.getSparrowAtlas(Path.join(['dialogue', jsonFile.image]));
+		frames = Paths.getSparrowAtlas(Path.join(['dialogue_portraits', jsonFile.image]));
 		reloadAnimations();
 
 		antialiasing = Options.save.data.globalAntialiasing;
@@ -79,11 +81,11 @@ class DialogueCharacter extends FlxSprite
 
 	public function reloadCharacterJson(character:String):Void
 	{
-		var dialogueCharacterDef:DialogueCharacterDef = Paths.getJson(Path.join(['dialogue', character]));
+		var dialogueCharacterDef:DialogueCharacterDef = Paths.getJson(Path.join(['dialogue_portraits', character]));
 		if (dialogueCharacterDef == null)
 		{
 			Debug.logError('Could not find dialogue character data for character "$character"; using default');
-			dialogueCharacterDef = Paths.getJson(Path.join(['dialogue', DEFAULT_CHARACTER]));
+			dialogueCharacterDef = Paths.getJson(Path.join(['dialogue_portraits', DEFAULT_CHARACTER]));
 		}
 
 		jsonFile = dialogueCharacterDef;
@@ -108,11 +110,10 @@ class DialogueCharacter extends FlxSprite
 		var animToPlay:String = animName;
 		if (animName == null || !dialogueAnimations.exists(animName))
 		{ // Anim is null, get a random animation
-			var arrayAnims:Array<String> = [];
-			for (anim in dialogueAnimations)
-			{
-				arrayAnims.push(anim.anim);
-			}
+			var arrayAnims:Array<String> = [
+				for (anim in dialogueAnimations)
+					anim.anim
+			];
 			if (arrayAnims.length > 0)
 			{
 				animToPlay = arrayAnims[FlxG.random.int(0, arrayAnims.length - 1)];
@@ -134,12 +135,10 @@ class DialogueCharacter extends FlxSprite
 			if (playIdle)
 			{
 				offset.set(anim.idleOffsets[0], anim.idleOffsets[1]);
-				Debug.logTrace('Setting idle offsets: ${anim.idleOffsets}');
 			}
 			else
 			{
 				offset.set(anim.loopOffsets[0], anim.loopOffsets[1]);
-				Debug.logTrace('Setting loop offsets: ${anim.loopOffsets}');
 			}
 		}
 		else
@@ -157,7 +156,7 @@ class DialogueCharacter extends FlxSprite
 	}
 }
 
-// TODO: Clean code? Maybe? idk
+// TODO Clean code? Maybe? idk // way ahead of you -dalek
 class DialogueBoxPsych extends FlxSpriteGroup
 {
 	private static final OFFSET:Float = -600;
@@ -199,7 +198,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		spawnCharacters();
 
 		box = new FlxSprite(70, 370);
-		box.frames = Paths.getSparrowAtlas('speech_bubble');
+		box.frames = Paths.getSparrowAtlas('dialogue/boxes/speech_bubble');
 		box.scrollFactor.set();
 		box.antialiasing = Options.save.data.globalAntialiasing;
 		box.animation.addByPrefix('normal', 'speech bubble normal', 24);
@@ -278,18 +277,17 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 			if (box == null && bgFade == null)
 			{
-				// TODO Make this not have an unused for-loop variable
-				for (i in 0...arrayCharacters.length)
+				for (char in arrayCharacters)
 				{
-					var char:DialogueCharacter = arrayCharacters[0];
 					if (char != null)
 					{
-						arrayCharacters.remove(char);
 						char.kill();
 						remove(char);
 						char.destroy();
 					}
 				}
+				FlxArrayUtil.clearArray(arrayCharacters);
+
 				finishThing();
 				kill();
 			}
@@ -299,7 +297,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			bgFade.alpha += 0.5 * elapsed;
 			if (bgFade.alpha > 0.5)
 				bgFade.alpha = 0.5;
-
 			if (PlayerSettings.player1.controls.ACCEPT)
 			{
 				if (!text.finishedText)
@@ -313,7 +310,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					}
 					text = new Alphabet(DEFAULT_TEXT_X, DEFAULT_TEXT_Y, textToType, false, true, 0.0, 0.7);
 					add(text);
-
 					if (skipDialogueThing != null)
 					{
 						skipDialogueThing();
@@ -326,6 +322,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					{
 						var checkArray:Array<String> = ['', 'center-'];
 						var animName:String = box.animation.curAnim.name;
+
 						for (prefix in checkArray)
 						{
 							if (animName == prefix + textBoxType || animName == '$prefix${textBoxType}Open')
@@ -334,7 +331,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 							}
 						}
 					}
-
 					box.animation.curAnim.curFrame = box.animation.curAnim.frames.length - 1;
 					box.animation.curAnim.reverse();
 					text.kill();
@@ -361,12 +357,12 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			else
 			{
 				var char:DialogueCharacter = arrayCharacters[lastCharacter];
+
 				if (char != null && char.animation.curAnim != null && char.animation.finished)
 				{
 					char.animation.curAnim.restart();
 				}
 			}
-
 			if (box.animation.curAnim.finished)
 			{
 				for (textBoxType in textBoxTypes)
@@ -383,12 +379,10 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				}
 				updateBoxOffsets(box);
 			}
-
 			if (lastCharacter != -1 && arrayCharacters.length > 0)
 			{
-				for (i in 0...arrayCharacters.length)
+				for (i => char in arrayCharacters)
 				{
-					var char:DialogueCharacter = arrayCharacters[i];
 					if (char != null)
 					{
 						if (i != lastCharacter)
@@ -525,9 +519,8 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 		var character:Int = 0;
 		box.visible = true;
-		for (i in 0...arrayCharacters.length)
+		for (i => char in arrayCharacters)
 		{
-			var char:DialogueCharacter = arrayCharacters[i];
 			if (char.id == curDialogue.portrait)
 			{
 				character = i;

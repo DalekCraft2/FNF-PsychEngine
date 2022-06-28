@@ -119,7 +119,7 @@ class FlxUIDropDownMenu extends FlxUIGroup implements IFlxUIWidget implements IF
 
 	public var dropDirection(default, set):FlxUIDropDownMenuDropDirection = Down;
 
-	private function set_dropDirection(dropDirection):FlxUIDropDownMenuDropDirection
+	private function set_dropDirection(dropDirection:FlxUIDropDownMenuDropDirection):FlxUIDropDownMenuDropDirection
 	{
 		this.dropDirection = dropDirection;
 		updateButtonPositions();

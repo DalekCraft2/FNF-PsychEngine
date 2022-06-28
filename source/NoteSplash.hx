@@ -3,12 +3,14 @@ package;
 import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import haxe.io.Path;
+import shader.ColorSwap;
 
 class NoteSplash extends FlxSprite
 {
 	public var colorSwap:ColorSwap;
 
-	public function new(x:Float = 0, y:Float = 0, ?note:Int = 0)
+	public function new(x:Float = 0, y:Float = 0, note:Int = 0)
 	{
 		super(x, y);
 
@@ -46,7 +48,34 @@ class NoteSplash extends FlxSprite
 				texture = PlayState.song.splashSkin;
 		}
 
+		// if (PlayState.isPixelStage)
+		// {
+		// 		var path:String = Paths.image(Path.join(['pixelUI', texture]));
+		// 		if (!Paths.exists(path))
+		// 		{
+		// 			path = Paths.image('pixelUI/noteSplashes');
+		// 		}
+		// 		var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
+		// 		loadGraphic(graphic);
+		// 		width = width / 4;
+		// 		height = height / 5;
+		// 		loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
+		// 	setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
+		// 	loadPixelAnims();
+		// 	antialiasing = false;
+		// }
+		// else
+		// {
+		// 	if (!Paths.exists(Paths.image(texture)))
+		// 	{
+		// 		texture = 'noteSplashes';
+		// 	}
+		// 	frames = Paths.getSparrowAtlas(texture);
+		// 	loadNoteAnims();
+		// 	antialiasing = Options.save.data.globalAntialiasing;
+		// }
 		loadAnims(texture);
+
 		colorSwap.hue = hueColor;
 		colorSwap.saturation = satColor;
 		colorSwap.brightness = brtColor;
@@ -60,7 +89,7 @@ class NoteSplash extends FlxSprite
 
 	private function loadAnims(skin:String):Void
 	{
-		frames = Paths.getSparrowAtlas(skin);
+		frames = Paths.getSparrowAtlas(Path.join(['particles/splashes', skin]));
 		for (i in 1...3)
 		{
 			for (color in NoteColor.createAll())

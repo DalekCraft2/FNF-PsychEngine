@@ -1,8 +1,8 @@
 package sm;
 
+#if FEATURE_STEPMANIA
 using StringTools;
 
-#if FEATURE_STEPMANIA
 class SMHeader
 {
 	private var _header:Array<String>;
@@ -19,8 +19,7 @@ class SMHeader
 	public var OFFSET:String = '';
 	public var BPMS:String = ''; // time=bpm
 
-	// public var changeEvents:Array<Song.Event>;
-	public var changeEvents:Array<Array<Any>>;
+	public var changeEvents:Array<Event> = [];
 
 	public function new(headerData:Array<String>)
 	{
@@ -31,16 +30,12 @@ class SMHeader
 			readHeaderLine(i);
 		}
 
-		Debug.logTrace(BPMS);
-
 		MUSIC = MUSIC.replace(' ', '_');
-
-		changeEvents = [];
 
 		getBPM(0, true);
 	}
 
-	public function getBeatFromBPMIndex(index):Float
+	public function getBeatFromBPMIndex(index:Int):Float
 	{
 		var bpmSplit:Array<String> = BPMS.split(',');
 		for (ii in 0...bpmSplit.length)
@@ -61,31 +56,34 @@ class SMHeader
 			for (i in bpmSplit)
 			{
 				var bpm:Float = Std.parseFloat(i.split('=')[1]);
-				var beat:Float = Std.parseFloat(i.split('=')[0].replace(',', ''));
+				var startBeat:Float = Std.parseFloat(i.split('=')[0].replace(',', ''));
 
 				var endBeat:Float = Math.POSITIVE_INFINITY;
 
-				TimingStruct.addTiming(beat, bpm, endBeat, -Std.parseFloat(OFFSET));
+				TimingStruct.addTiming(startBeat, bpm, endBeat, -Std.parseFloat(OFFSET));
 
 				if (changeEvents.length != 0)
 				{
 					var data:TimingStruct = TimingStruct.allTimings[currentIndex - 1];
-					data.endBeat = beat;
-					data.length = (data.endBeat - data.startBeat) / (data.bpm / 60);
-					var step:Float = ((60 / data.bpm) * 1000) / 4;
-					TimingStruct.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.bpm / 60)) * 1000) / step);
+					data.endBeat = startBeat;
+					data.length = (data.endBeat - data.startBeat) / (data.bpm / TimingConstants.SECONDS_PER_MINUTE);
+					var step:Float = Conductor.calculateSemiquaverLength(data.bpm);
+					TimingStruct.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.bpm / TimingConstants.SECONDS_PER_MINUTE)) * TimingConstants.MILLISECONDS_PER_SECOND) / step);
 					TimingStruct.allTimings[currentIndex].startTime = data.startTime + data.length;
 				}
 
-				// TODO Maybe make an Event object so it's easier to do stuff like this
-				// changeEvents.push(new Song.Event('${FlxMath.roundDecimal(beat, 0)}SM', beat, bpm, 'BPM Change'));
+				changeEvents.push(new Event(0, beat, 'Change BPM', bpm));
 
 				if (bpmSplit.length == 1)
 					break;
 				currentIndex++;
 			}
 
-			Debug.logTrace('${changeEvents.length} - BPM CHANGES');
+			for (event in changeEvents)
+			{
+				event.strumTime = TimingStruct.getTimeFromBeat(event.beat);
+			}
+
 			return 0.0;
 		}
 		var returningBPM:Float = Std.parseFloat(bpmSplit[0].split('=')[1]);

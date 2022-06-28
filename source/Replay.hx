@@ -1,5 +1,7 @@
 package;
 
+import Note.NoteDef;
+import Ratings.Judgement;
 import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
@@ -8,15 +10,16 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 
-class Ana
+// This probably isn't the correct word for it but I will leave it for now until I find another because this has a nice ring to it
+class Analytic
 {
 	public var hitTime:Float;
-	public var nearestNote:Array<Any>;
+	public var nearestNote:NoteDef;
 	public var hit:Bool;
-	public var hitJudge:String;
+	public var hitJudge:Judgement;
 	public var key:Int;
 
-	public function new(_hitTime:Float, _nearestNote:Array<Any>, _hit:Bool, _hitJudge:String, _key:Int)
+	public function new(_hitTime:Float, _nearestNote:NoteDef, _hit:Bool, _hitJudge:Judgement, _key:Int)
 	{
 		hitTime = _hitTime;
 		nearestNote = _nearestNote;
@@ -28,11 +31,10 @@ class Ana
 
 class Analysis
 {
-	public var anaArray:Array<Ana>;
+	public var anaArray:Array<Analytic> = [];
 
 	public function new()
 	{
-		anaArray = [];
 	}
 }
 

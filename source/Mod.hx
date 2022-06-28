@@ -3,6 +3,8 @@ package;
 #if FEATURE_MODS
 import flixel.util.FlxColor;
 import haxe.io.Path;
+import ui.Alphabet;
+import ui.AttachedSprite;
 #if polymod
 import polymod.PolymodConfig;
 #end
@@ -41,9 +43,9 @@ class ModMetadata
 
 		// Try loading json
 		#if polymod
-		var path:String = Paths.mods(Path.join([folder, PolymodConfig.modMetadataFile]));
+		var path:String = Path.join([Paths.MOD_DIRECTORY, folder, PolymodConfig.modMetadataFile]);
 		#else
-		var path:String = Paths.mods(Path.join([folder, Path.withExtension('_meta', Paths.JSON_EXT)]));
+		var path:String = Path.join([Paths.MOD_DIRECTORY, folder, Path.withExtension('_meta', Paths.JSON_EXT)]);
 		#end
 		if (Paths.exists(path))
 		{

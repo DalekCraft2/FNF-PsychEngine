@@ -13,7 +13,7 @@ class Difficulty
 	public static final DEFAULT_DIFFICULTIES:Array<String> = ['Easy', 'Normal', 'Hard'];
 
 	/**
-	 * The chart that has no suffix and starting difficulty on Freeplay/Story Mode
+	 * The difficulty with no suffix, and the initial difficulty on Freeplay/Story Mode
 	 */
 	public static final DEFAULT_DIFFICULTY:String = 'Normal';
 

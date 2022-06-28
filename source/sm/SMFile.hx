@@ -2,8 +2,6 @@ package sm;
 
 #if FEATURE_STEPMANIA
 import Note.NoteDef;
-import Section.SectionDef;
-import Song.SongDef;
 import Song.SongWrapper;
 import haxe.Exception;
 import haxe.Json;
@@ -16,7 +14,7 @@ import sys.io.File;
 
 class SMFile
 {
-	public static function loadFile(path):SMFile
+	public static function loadFile(path:String):SMFile
 	{
 		return new SMFile(Paths.getTextDirect(path).split('\n'));
 	}
@@ -30,7 +28,7 @@ class SMFile
 	public var _readTime:Float = 0;
 
 	public var header:SMHeader;
-	public var measures:Array<SMMeasure>;
+	public var measures:Array<SMMeasure> = [];
 
 	public function new(data:Array<String>)
 	{
@@ -45,7 +43,6 @@ class SMFile
 			{
 				headerData += data[inc];
 				inc++;
-				// Debug.logTrace(data[inc]);
 			}
 
 			header = new SMHeader(headerData.split(';'));
@@ -80,11 +77,7 @@ class SMFile
 
 			inc += 5; // skip 5 down to where da notes @
 
-			measures = [];
-
 			var measure:String = '';
-
-			Debug.logTrace(data[inc - 1]);
 
 			for (ii in inc...data.length)
 			{
@@ -92,17 +85,15 @@ class SMFile
 				if (i.contains(',') || i.contains(';'))
 				{
 					measures.push(new SMMeasure(measure.split('\n')));
-					// Debug.logTrace(measures.length);
 					measure = '';
 					continue;
 				}
 				measure += '$i\n';
 			}
-			Debug.logTrace('${measures.length} Measures');
 		}
 		catch (e:Exception)
 		{
-			Debug.displayAlert('Failure to load file.\n$e', 'SM File loading');
+			Debug.displayAlert('Failure to load file:\n$e', 'SM File loading');
 		}
 	}
 
@@ -132,7 +123,7 @@ class SMFile
 
 		// init a fnf song
 
-		var song:SongDef = {
+		var song:Song = {
 			songId: Paths.formatToSongPath(header.TITLE),
 			songName: header.TITLE,
 			player1: 'bf',
@@ -146,7 +137,8 @@ class SMFile
 			splashSkin: 'noteSplashes',
 			validScore: false,
 			notes: [],
-			events: []
+			events: [],
+			chartVersion: Song.LATEST_CHART
 		};
 
 		// lets check if the sm loading was valid
@@ -178,10 +170,11 @@ class SMFile
 
 			// section declaration
 
-			var section:SectionDef = {
+			var section:Section = {
+				startTime: 0,
+				endTime: Math.POSITIVE_INFINITY,
 				sectionNotes: [],
-				lengthInSteps: 16,
-				typeOfSection: 0,
+				lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
 				mustHitSection: false,
 				gfSection: false,
 				bpm: header.getBPM(0),
@@ -208,14 +201,15 @@ class SMFile
 
 				currentBeat = noteRow / 48;
 
-				if (currentBeat % 4 == 0)
+				if (currentBeat % Conductor.CROTCHETS_PER_MEASURE == 0)
 				{
 					// ok new section time
 					song.notes.push(section);
 					section = {
+						startTime: 0,
+						endTime: Math.POSITIVE_INFINITY,
 						sectionNotes: [],
-						lengthInSteps: 16,
-						typeOfSection: 0,
+						lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
 						mustHitSection: false,
 						gfSection: false,
 						bpm: header.getBPM(0),
@@ -228,9 +222,9 @@ class SMFile
 
 				var seg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
 
-				var timeInSec:Float = (seg.startTime + ((currentBeat - seg.startBeat) / (seg.bpm / 60)));
+				var timeInSec:Float = (seg.startTime + ((currentBeat - seg.startBeat) / (seg.bpm / TimingConstants.SECONDS_PER_MINUTE)));
 
-				var rowTime:Float = timeInSec * 1000;
+				var rowTime:Float = timeInSec * TimingConstants.MILLISECONDS_PER_SECOND;
 
 				var index:Int = 0;
 
@@ -258,7 +252,7 @@ class SMFile
 						case 3: // held tail
 							var data:NoteDef = heldNotes[lane];
 							var timeDiff:Float = rowTime - data.strumTime;
-							section.sectionNotes.push(new NoteDef([data.strumTime, lane, timeDiff, 0, data[4]]));
+							section.sectionNotes.push(new NoteDef([data.strumTime, lane, timeDiff, 0 /*, data[4]*/]));
 							heldNotes[index] = new NoteDef([]);
 						case 4: // roll head
 							heldNotes[lane] = new NoteDef([rowTime, lane, 0, 0, currentBeat]);
@@ -276,42 +270,38 @@ class SMFile
 			measureIndex++;
 		}
 
-		for (i in 0...song.notes.length) // loops through sections
-		{
-			// TODO Figure out how to do this in Psych, or adapt Psych to be more like Kade (yet again)
-			// var section:SectionDef = song.notes[i];
-
-			// var currentBeat:Int = 4 * i;
-
-			// var currentSeg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
-
-			// var start:Float = (currentBeat - currentSeg.startBeat) / (currentSeg.bpm / 60);
-
-			// section.startTime = (currentSeg.startTime + start) * 1000;
-
-			// if (i != 0)
-			// 	song.notes[i - 1].endTime = section.startTime;
-			// section.endTime = Math.POSITIVE_INFINITY;
-		}
+		Song.recalculateAllSectionTimes(song);
 
 		if (header.changeEvents.length != 0)
 		{
-			song.events = header.changeEvents;
+			for (headerEvent in header.changeEvents)
+			{
+				song.events.push({
+					strumTime: headerEvent.strumTime,
+					beat: headerEvent.beat,
+					events: [
+						{
+							type: headerEvent.type,
+							value1: headerEvent.value1,
+							value2: headerEvent.value2
+						}
+					]
+				});
+			}
 		}
 		/*
-			var newSections:Array<SectionDef> = [];
+			var newSections:Array<Section> = [];
 
 			for (s in 0...song.notes.length) // lets go ahead and make sure each note is actually in their own section haha
 			{
-				var sec:SectionDef = {
+				var sec:Section = {
 					startTime: song.notes[s].startTime,
 					endTime: song.notes[s].endTime,
-					lengthInSteps: 16,
+					lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
 					bpm: song.bpm,
 					changeBPM: false,
 					mustHitSection: song.notes[s].mustHitSection,
 					sectionNotes: [],
-					typeOfSection: 0,
 					altAnim: song.notes[s].altAnim
 				};
 				for (i in song.notes)

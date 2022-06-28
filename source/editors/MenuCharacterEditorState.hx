@@ -88,9 +88,9 @@ class MenuCharacterEditorState extends MusicBeatState
 		{
 			if (inputText.hasFocus)
 			{
-				FlxG.sound.muteKeys = [];
-				FlxG.sound.volumeDownKeys = [];
-				FlxG.sound.volumeUpKeys = [];
+				FlxG.sound.muteKeys = null;
+				FlxG.sound.volumeDownKeys = null;
+				FlxG.sound.volumeUpKeys = null;
 				blockInput = true;
 
 				if (FlxG.keys.justPressed.ENTER)
@@ -320,9 +320,8 @@ class MenuCharacterEditorState extends MusicBeatState
 
 	private function updateCharacters():Void
 	{
-		for (i in 0...grpWeekCharacters.length)
+		for (i => char in grpWeekCharacters.members)
 		{
-			var char:MenuCharacter = grpWeekCharacters.members[i];
 			char.alpha = 0.2;
 			char.id = '';
 			char.changeCharacter(defaultCharacters[i]);
@@ -398,10 +397,10 @@ class MenuCharacterEditorState extends MusicBeatState
 		{
 			_file.load();
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 		}
 	}
 
@@ -431,10 +430,10 @@ class MenuCharacterEditorState extends MusicBeatState
 				}
 			}
 		}
-		catch (e:Exception)
+		catch (ex:Exception)
 		{
 			removeLoadListeners();
-			Debug.logError('Error loading file:\n${e.message}');
+			Debug.logError('Error loading file: ${ex.message}');
 			return;
 		}
 		removeLoadListeners();

@@ -56,7 +56,7 @@ class LoadingState extends MusicBeatState
 
 		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xFFCAFF4D);
 		add(bg);
-		funkay = new FlxSprite(0, 0).loadGraphic(Paths.getGraphic('funkay'));
+		funkay = new FlxSprite(0, 0).loadGraphic(Paths.getGraphic('ui/loading/funkay'));
 		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
 		funkay.antialiasing = Options.save.data.globalAntialiasing;
@@ -78,9 +78,8 @@ class LoadingState extends MusicBeatState
 		add(loadText);
 
 		promise = new Promise();
-		var future:Future<AssetLibrary> = Assets.loadLibrary('shared')
-			.onProgress(updateProgress)
-			.then((library:AssetLibrary) -> Assets.loadLibrary(directory));
+		// TODO Figure out what to do with this class now that I've merged every library.
+		var future:Future<AssetLibrary> = Assets.loadLibrary(directory).onProgress(updateProgress);
 		promise.completeWith(future);
 	}
 
@@ -112,26 +111,16 @@ class LoadingState extends MusicBeatState
 
 	private function onLoad():Void
 	{
-		Debug.logTrace('Finished loading!');
 		FlxG.switchState(target);
 	}
 
-	public static inline function loadAndSwitchState(target:FlxState, stopMusic = false):Void
+	public static inline function loadAndSwitchState(target:FlxState, stopMusic:Bool = false):Void
 	{
 		FlxG.switchState(getNextState(target, stopMusic));
 	}
 
-	private static function getNextState(target:FlxState, stopMusic = false):FlxState
+	private static function getNextState(target:FlxState, stopMusic:Bool = false):FlxState
 	{
-		var directory:String = 'shared';
-		var weekDir:String = Stage.forceNextDirectory;
-		Stage.forceNextDirectory = null;
-
-		if (weekDir != null && weekDir.length > 0 && weekDir != '')
-			directory = weekDir;
-
-		Paths.currentLevel = directory;
-
 		if (stopMusic && FlxG.sound.music != null)
 		{
 			if (FlxTransitionableState.skipNextTransOut)
@@ -149,16 +138,25 @@ class LoadingState extends MusicBeatState
 			}
 		}
 
-		var loaded:Bool = false;
-		if (PlayState.song != null)
-		{
-			loaded = Assets.hasLibrary('shared') && Assets.hasLibrary(directory);
-		}
+		// var directory:String = '';
+		// var weekDir:String = Stage.forceNextDirectory;
+		// Stage.forceNextDirectory = null;
 
-		if (!loaded)
-		{
-			return new LoadingState(target, stopMusic, directory);
-		}
+		// if (weekDir != null && weekDir.length > 0 && weekDir != '')
+		// 	directory = weekDir;
+
+		// Paths.currentLevel = directory;
+
+		// var loaded:Bool = false;
+		// if (directory != '' && PlayState.song != null)
+		// {
+		// 	loaded = Assets.hasLibrary(directory);
+		// }
+
+		// if (!loaded)
+		// {
+		// 	return new LoadingState(target, stopMusic, directory);
+		// }
 
 		return target;
 	}

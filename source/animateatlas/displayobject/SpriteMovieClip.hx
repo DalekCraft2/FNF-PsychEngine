@@ -66,7 +66,7 @@ class SpriteMovieClip extends Sprite
 	private function set_currentLabel(value:String):String
 	{
 		symbol.currentFrame = symbol.getFrame(value);
-		return currentLabel;
+		return value;
 	}
 
 	private function get_currentFrame():Int
@@ -77,7 +77,7 @@ class SpriteMovieClip extends Sprite
 	private function set_currentFrame(value:Int):Int
 	{
 		symbol.currentFrame = value;
-		return currentFrame;
+		return value;
 	}
 
 	private function get_type():SymbolType
@@ -88,7 +88,7 @@ class SpriteMovieClip extends Sprite
 	private function set_type(value:SymbolType):SymbolType
 	{
 		symbol.type = value;
-		return type;
+		return value;
 	}
 
 	private function get_loopMode():LoopMode
@@ -99,7 +99,7 @@ class SpriteMovieClip extends Sprite
 	private function set_loopMode(value:LoopMode):LoopMode
 	{
 		symbol.loopMode = value;
-		return loopMode;
+		return value;
 	}
 
 	private function get_symbolName():String
@@ -130,7 +130,7 @@ class SpriteMovieClip extends Sprite
 	private function set_frameRate(value:Float):Float
 	{
 		_frameRate = value;
-		return frameRate;
+		return value;
 	}
 
 	// # end region

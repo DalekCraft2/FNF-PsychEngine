@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxSprite;
 
-class BGSprite extends FlxSprite
+class BGSprite extends FlxSprite implements Danceable
 {
 	private var idleAnim:String;
 
@@ -36,11 +36,11 @@ class BGSprite extends FlxSprite
 		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
-	public function dance(?forceplay:Bool = false):Void
+	public function dance(force:Bool = false):Void
 	{
 		if (idleAnim != null)
 		{
-			animation.play(idleAnim, forceplay);
+			animation.play(idleAnim, force);
 		}
 	}
 }
