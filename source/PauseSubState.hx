@@ -1,9 +1,10 @@
 package;
 
+import chart.container.Song;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
@@ -93,7 +94,7 @@ class PauseSubState extends MusicBeatSubState
 		bg.scrollFactor.set();
 		add(bg);
 
-		var levelInfo:FlxText = new FlxText(20, 15, 0, PlayState.song.songName, 32);
+		var levelInfo:FlxText = new FlxText(20, 15, 0, PlayState.song.name, 32);
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font('vcr.ttf'), levelInfo.size, FlxColor.WHITE, RIGHT);
 		levelInfo.updateHitbox();
@@ -212,7 +213,7 @@ class PauseSubState extends MusicBeatSubState
 			{
 				if (menuItems.length - 1 != curSelected && difficultyChoices.contains(selectedOption))
 				{
-					var name:String = PlayState.song.songId;
+					var name:String = PlayState.song.id;
 					var difficulty:String = Difficulty.getDifficultyFilePath(curSelected);
 					PlayState.song = Song.loadSong(name, difficulty);
 					PlayState.storyDifficulty = curSelected;
@@ -320,14 +321,9 @@ class PauseSubState extends MusicBeatSubState
 
 	private function changeSelection(change:Int = 0):Void
 	{
-		curSelected += change;
+		curSelected = FlxMath.wrap(curSelected + change, 0, menuItems.length - 1);
 
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
-
-		if (curSelected < 0)
-			curSelected = menuItems.length - 1;
-		if (curSelected >= menuItems.length)
-			curSelected = 0;
 
 		for (i => item in grpMenuShit.members)
 		{

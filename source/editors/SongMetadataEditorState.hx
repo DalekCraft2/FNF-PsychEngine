@@ -9,6 +9,7 @@ import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUINumericStepper;
 import flixel.addons.ui.FlxUITabMenu;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
@@ -241,12 +242,7 @@ class SongMetaEditorState extends MusicBeatState
 	{
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 
-		curSelected += change;
-
-		if (curSelected < 0)
-			curSelected = weekDef.songs.length - 1;
-		if (curSelected >= weekDef.songs.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, weekDef.songs.length - 1);
 
 		for (icon in iconArray)
 		{

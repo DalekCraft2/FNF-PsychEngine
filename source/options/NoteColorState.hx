@@ -4,6 +4,7 @@ import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import shader.ColorSwap;
 import ui.Alphabet;
@@ -231,11 +232,7 @@ class NoteColorState extends MusicBeatState
 
 	private function changeSelection(change:Int = 0):Void
 	{
-		curSelected += change;
-		if (curSelected < 0)
-			curSelected = Std.int(Options.save.data.arrowHSV.length) - 1;
-		if (curSelected >= Options.save.data.arrowHSV.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, Std.int(Options.save.data.arrowHSV.length) - 1);
 
 		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();
@@ -265,11 +262,7 @@ class NoteColorState extends MusicBeatState
 
 	private function changeType(change:Int = 0):Void
 	{
-		typeSelected += change;
-		if (typeSelected < 0)
-			typeSelected = 2;
-		if (typeSelected > 2)
-			typeSelected = 0;
+		typeSelected = FlxMath.wrap(typeSelected + change, 0, 2);
 
 		curValue = Options.save.data.arrowHSV[curSelected][typeSelected];
 		updateValue();

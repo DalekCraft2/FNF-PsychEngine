@@ -1,7 +1,8 @@
 package;
 
-import Song.SongMetadata;
-import Song.SongMetadataDef;
+import chart.container.Song.SongMetadata;
+import chart.container.Song.SongMetadataDef;
+import chart.container.Song;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -370,12 +371,7 @@ class StoryMenuState extends MusicBeatState
 
 	private function changeDifficulty(change:Int = 0):Void
 	{
-		curDifficulty += change;
-
-		if (curDifficulty < 0)
-			curDifficulty = Difficulty.difficulties.length - 1;
-		if (curDifficulty >= Difficulty.difficulties.length)
-			curDifficulty = 0;
+		curDifficulty = FlxMath.wrap(curDifficulty + change, 0, Difficulty.difficulties.length - 1);
 
 		Week.setDirectoryFromWeek(weeks[curWeek]);
 
@@ -416,12 +412,7 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (weeks.length > 0)
 		{
-			curWeek += change;
-
-			if (curWeek >= weeks.length)
-				curWeek = 0;
-			if (curWeek < 0)
-				curWeek = weeks.length - 1;
+			curWeek = FlxMath.wrap(curWeek + change, 0, weeks.length - 1);
 
 			var week:Week = weeks[curWeek];
 			Week.setDirectoryFromWeek(week);

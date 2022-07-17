@@ -37,8 +37,8 @@ class VlcBitmap extends Bitmap
 	public var pixelData(get, never):Pointer<UInt8>;
 	public var fps(get, never):Float;
 
-	public var inWindow:Bool;
-	public var initComplete:Bool;
+	public var inWindow:Bool = false;
+	public var initComplete:Bool = false;
 
 	public var onVideoReady:() -> Void;
 	public var onPlay:() -> Void;
@@ -78,14 +78,14 @@ class VlcBitmap extends Bitmap
 
 	public function play(?source:String):Void
 	{
-		if (inWindow)
-		{
-			if (source != null)
-				libVlc.playInWindow(source);
-			else
-				libVlc.playInWindow();
-		}
-		else
+		// if (inWindow)
+		// {
+		// 	if (source != null)
+		// 		libVlc.playInWindow(source);
+		// 	else
+		// 		libVlc.playInWindow();
+		// }
+		// else
 		{
 			if (source != null)
 				libVlc.play(source);

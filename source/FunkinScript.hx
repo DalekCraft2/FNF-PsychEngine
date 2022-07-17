@@ -1,8 +1,11 @@
 package;
 
+import haxe.exceptions.PosException;
+import haxe.Exception;
 #if FEATURE_SCRIPTS
 import DialogueBoxPsych.DialogueDef;
 import animateatlas.AtlasFrameMaker;
+import chart.container.Song;
 import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -78,16 +81,16 @@ class FunkinScript
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
 
-		Debug.logTrace('Lua version: ${Lua.version()}');
-		Debug.logTrace('LuaJIT version: ${Lua.versionJIT()}');
+		// Debug.logTrace('Lua version: ${Lua.version()}');
+		// Debug.logTrace('LuaJIT version: ${Lua.versionJIT()}');
 
-		LuaL.dostring(lua, CLENSE);
+		// LuaL.dostring(lua, CLENSE);
 		var result:Int = LuaL.dostring(lua, script);
 		var resultStr:String = Lua.tostring(lua, result);
 		if (resultStr != null && result != 0)
 		{
 			Debug.logError('Error loading script "$path": $resultStr');
-			scriptTrace('Error loading script: "$path"\n$resultStr', true, false);
+			scriptWarn('Error loading script: "$path"\n$resultStr', true, false);
 			Debug.displayAlert('Error loading script', resultStr);
 			lua = null;
 			return;
@@ -98,7 +101,7 @@ class FunkinScript
 		if (program == null)
 		{
 			Debug.logError('Error loading script "$path"');
-			scriptTrace('Error loading script: "$path"', true, false);
+			scriptWarn('Error loading script: "$path"', true, false);
 			// Debug.displayAlert('Error loading script');
 			interp = null;
 			return;
@@ -124,11 +127,11 @@ class FunkinScript
 		set('bpm', PlayState.song.bpm);
 		set('scrollSpeed', PlayState.song.speed);
 		set('crotchetLength', Conductor.crotchetLength);
-		set('stepCrotchet', Conductor.semiquaverLength);
-		set('songLength', FlxG.sound.music.length);
-		set('songId', PlayState.song.songId);
-		set('songName', PlayState.song.songName);
-		set('song', PlayState.song.songId);
+		set('semiquaverLength', Conductor.semiquaverLength);
+		set('songLength', PlayState.song.inst.length);
+		set('songId', PlayState.song.id);
+		set('songName', PlayState.song.name);
+		set('song', PlayState.song.id);
 		set('startedCountdown', false);
 
 		set('isStoryMode', PlayState.isStoryMode);
@@ -224,8 +227,343 @@ class FunkinScript
 		set('buildTarget', 'unknown');
 		#end
 
+		// set("getRunningScripts", function()
+		// {
+		// 	var runningScripts:Array<String> = [];
+		// 	for (idx in 0...PlayState.instance.scriptArray.length)
+		// 		runningScripts.push(PlayState.instance.scriptArray[idx].scriptName);
+
+		// 	return runningScripts;
+		// });
+
+		// set("callOnScripts", function(?funcName:String, ?args:Array<Dynamic>, ignoreStops = false, ignoreSelf = true, ?exclusions:Array<String>)
+		// {
+		// 	if (funcName == null)
+		// 	{
+		// 		#if (linc_luajit >= "0.0.6")
+		// 		LuaL.error(lua, "bad argument #1 to 'callOnScripts' (string expected, got nil)");
+		// 		#end
+		// 		return;
+		// 	}
+		// 	if (args == null)
+		// 		args = [];
+
+		// 	if (exclusions == null)
+		// 		exclusions = [];
+
+		// 	Lua.getglobal(lua, 'scriptName');
+		// 	var daScriptName = Lua.tostring(lua, -1);
+		// 	Lua.pop(lua, 1);
+		// 	if (ignoreSelf && !exclusions.contains(daScriptName))
+		// 		exclusions.push(daScriptName);
+		// 	PlayState.instance.callOnScripts(funcName, args, ignoreStops, exclusions);
+		// });
+
+		// set("callScript", function(?luaFile:String, ?funcName:String, ?args:Array<Dynamic>)
+		// {
+		// 	if (luaFile == null)
+		// 	{
+		// 		#if (linc_luajit >= "0.0.6")
+		// 		LuaL.error(lua, "bad argument #1 to 'callScript' (string expected, got nil)");
+		// 		#end
+		// 		return;
+		// 	}
+		// 	if (funcName == null)
+		// 	{
+		// 		#if (linc_luajit >= "0.0.6")
+		// 		LuaL.error(lua, "bad argument #2 to 'callScript' (string expected, got nil)");
+		// 		#end
+		// 		return;
+		// 	}
+		// 	if (args == null)
+		// 	{
+		// 		args = [];
+		// 	}
+		// 	var cervix = luaFile + ".lua";
+		// 	if (luaFile.endsWith(".lua"))
+		// 		cervix = luaFile;
+		// 	var doPush = false;
+		// 	#if MODS_ALLOWED
+		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
+		// 	{
+		// 		cervix = Paths.modFolders(cervix);
+		// 		doPush = true;
+		// 	}
+		// 	else if (FileSystem.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	else
+		// 	{
+		// 		cervix = Paths.getPreloadPath(cervix);
+		// 		if (FileSystem.exists(cervix))
+		// 		{
+		// 			doPush = true;
+		// 		}
+		// 	}
+		// 	#else
+		// 	cervix = Paths.getPreloadPath(cervix);
+		// 	if (Assets.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	#end
+		// 	if (doPush)
+		// 	{
+		// 		for (luaInstance in PlayState.instance.luaArray)
+		// 		{
+		// 			if (luaInstance.scriptName == cervix)
+		// 			{
+		// 				luaInstance.call(funcName, args);
+
+		// 				return;
+		// 			}
+		// 		}
+		// 	}
+		// 	Lua.pushnil(lua);
+		// });
+
+		// set("getGlobalFromScript", function(?luaFile:String, ?global:String)
+		// { // returns the global from a script
+		// 	if (luaFile == null)
+		// 	{
+		// 		#if (linc_luajit >= "0.0.6")
+		// 		LuaL.error(lua, "bad argument #1 to 'getGlobalFromScript' (string expected, got nil)");
+		// 		#end
+		// 		return;
+		// 	}
+		// 	if (global == null)
+		// 	{
+		// 		#if (linc_luajit >= "0.0.6")
+		// 		LuaL.error(lua, "bad argument #2 to 'getGlobalFromScript' (string expected, got nil)");
+		// 		#end
+		// 		return;
+		// 	}
+		// 	var cervix = luaFile + ".lua";
+		// 	if (luaFile.endsWith(".lua"))
+		// 		cervix = luaFile;
+		// 	var doPush = false;
+		// 	#if MODS_ALLOWED
+		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
+		// 	{
+		// 		cervix = Paths.modFolders(cervix);
+		// 		doPush = true;
+		// 	}
+		// 	else if (FileSystem.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	else
+		// 	{
+		// 		cervix = Paths.getPreloadPath(cervix);
+		// 		if (FileSystem.exists(cervix))
+		// 		{
+		// 			doPush = true;
+		// 		}
+		// 	}
+		// 	#else
+		// 	cervix = Paths.getPreloadPath(cervix);
+		// 	if (Assets.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	#end
+		// 	if (doPush)
+		// 	{
+		// 		for (luaInstance in PlayState.instance.luaArray)
+		// 		{
+		// 			if (luaInstance.scriptName == cervix)
+		// 			{
+		// 				Lua.getglobal(luaInstance.lua, global);
+		// 				if (Lua.isnumber(luaInstance.lua, -1))
+		// 				{
+		// 					Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -1));
+		// 				}
+		// 				else if (Lua.isstring(luaInstance.lua, -1))
+		// 				{
+		// 					Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -1));
+		// 				}
+		// 				else if (Lua.isboolean(luaInstance.lua, -1))
+		// 				{
+		// 					Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -1));
+		// 				}
+		// 				else
+		// 				{
+		// 					Lua.pushnil(lua);
+		// 				}
+		// 				// TODO: table
+
+		// 				Lua.pop(luaInstance.lua, 1); // remove the global
+
+		// 				return;
+		// 			}
+		// 		}
+		// 	}
+		// 	Lua.pushnil(lua);
+		// });
+		// set("setGlobalFromScript", function(luaFile:String, global:String, val:Dynamic)
+		// { // returns the global from a script
+		// 	var cervix = luaFile + ".lua";
+		// 	if (luaFile.endsWith(".lua"))
+		// 		cervix = luaFile;
+		// 	var doPush = false;
+		// 	#if MODS_ALLOWED
+		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
+		// 	{
+		// 		cervix = Paths.modFolders(cervix);
+		// 		doPush = true;
+		// 	}
+		// 	else if (FileSystem.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	else
+		// 	{
+		// 		cervix = Paths.getPreloadPath(cervix);
+		// 		if (FileSystem.exists(cervix))
+		// 		{
+		// 			doPush = true;
+		// 		}
+		// 	}
+		// 	#else
+		// 	cervix = Paths.getPreloadPath(cervix);
+		// 	if (Assets.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	#end
+		// 	if (doPush)
+		// 	{
+		// 		for (luaInstance in PlayState.instance.luaArray)
+		// 		{
+		// 			if (luaInstance.scriptName == cervix)
+		// 			{
+		// 				luaInstance.set(global, val);
+		// 			}
+		// 		}
+		// 	}
+		// 	Lua.pushnil(lua);
+		// });
+		// /*Lua_helper.add_callback(lua, "getGlobals", function(luaFile:String){ // returns a copy of the specified file's globals
+		// 	var cervix = luaFile + ".lua";
+		// 	if(luaFile.endsWith(".lua"))cervix=luaFile;
+		// 	var doPush = false;
+		// 	#if MODS_ALLOWED
+		// 	if(FileSystem.exists(Paths.modFolders(cervix)))
+		// 	{
+		// 		cervix = Paths.modFolders(cervix);
+		// 		doPush = true;
+		// 	}
+		// 	else if(FileSystem.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	else {
+		// 		cervix = Paths.getPreloadPath(cervix);
+		// 		if(FileSystem.exists(cervix)) {
+		// 			doPush = true;
+		// 		}
+		// 	}
+		// 	#else
+		// 	cervix = Paths.getPreloadPath(cervix);
+		// 	if(Assets.exists(cervix)) {
+		// 		doPush = true;
+		// 	}
+		// 	#end
+		// 	if(doPush)
+		// 	{
+		// 		for (luaInstance in PlayState.instance.luaArray)
+		// 		{
+		// 			if(luaInstance.scriptName == cervix)
+		// 			{
+		// 				Lua.newtable(lua);
+		// 				var tableIdx = Lua.gettop(lua);
+		// 				Lua.pushvalue(luaInstance.lua, Lua.LUA_GLOBALSINDEX);
+		// 				Lua.pushnil(luaInstance.lua);
+		// 				while(Lua.next(luaInstance.lua, -2) != 0) {
+		// 					// key = -2
+		// 					// value = -1
+		// 					var pop:Int = 0;
+		// 					// Manual conversion
+		// 					// first we convert the key
+		// 					if(Lua.isnumber(luaInstance.lua,-2)){
+		// 						Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -2));
+		// 						pop++;
+		// 					}else if(Lua.isstring(luaInstance.lua,-2)){
+		// 						Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -2));
+		// 						pop++;
+		// 					}else if(Lua.isboolean(luaInstance.lua,-2)){
+		// 						Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -2));
+		// 						pop++;
+		// 					}
+		// 					// TODO: table
+		// 					// then the value
+		// 					if(Lua.isnumber(luaInstance.lua,-1)){
+		// 						Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -1));
+		// 						pop++;
+		// 					}else if(Lua.isstring(luaInstance.lua,-1)){
+		// 						Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -1));
+		// 						pop++;
+		// 					}else if(Lua.isboolean(luaInstance.lua,-1)){
+		// 						Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -1));
+		// 						pop++;
+		// 					}
+		// 					// TODO: table
+		// 					if(pop==2)Lua.rawset(lua, tableIdx); // then set it
+		// 					Lua.pop(luaInstance.lua, 1); // for the loop
+		// 				}
+		// 				Lua.pop(luaInstance.lua,1); // end the loop entirely
+		// 				Lua.pushvalue(lua, tableIdx); // push the table onto the stack so it gets returned
+		// 				return;
+		// 			}
+		// 		}
+		// 	}
+		// 	Lua.pushnil(lua);
+		// });*/
+		// set("isRunning", function(luaFile:String)
+		// {
+		// 	var cervix = luaFile + ".lua";
+		// 	if (luaFile.endsWith(".lua"))
+		// 		cervix = luaFile;
+		// 	var doPush = false;
+		// 	#if MODS_ALLOWED
+		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
+		// 	{
+		// 		cervix = Paths.modFolders(cervix);
+		// 		doPush = true;
+		// 	}
+		// 	else if (FileSystem.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	else
+		// 	{
+		// 		cervix = Paths.getPreloadPath(cervix);
+		// 		if (FileSystem.exists(cervix))
+		// 		{
+		// 			doPush = true;
+		// 		}
+		// 	}
+		// 	#else
+		// 	cervix = Paths.getPreloadPath(cervix);
+		// 	if (Assets.exists(cervix))
+		// 	{
+		// 		doPush = true;
+		// 	}
+		// 	#end
+
+		// 	if (doPush)
+		// 	{
+		// 		for (luaInstance in PlayState.instance.luaArray)
+		// 		{
+		// 			if (luaInstance.scriptName == cervix)
+		// 				return true;
+		// 		}
+		// 	}
+		// 	return false;
+		// });
 		set('addScript', function(key:String, ignoreAlreadyRunning:Bool = false):Void
-		{ // would be dope asf.
+		{
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
 			{
@@ -235,7 +573,7 @@ class FunkinScript
 					{
 						if (script.scriptName == path)
 						{
-							scriptTrace('The script "$path" is already running!');
+							scriptWarn('The script "$path" is already running!');
 							return;
 						}
 					}
@@ -244,10 +582,10 @@ class FunkinScript
 				return;
 			}
 
-			scriptTrace('The script "$path" doesn\'t exist!');
+			scriptWarn('The script "$path" doesn\'t exist!');
 		});
 		set('removeScript', function(key:String, ignoreAlreadyRunning:Bool = false):Void
-		{ // would be dope asf.
+		{
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
 			{
@@ -258,6 +596,7 @@ class FunkinScript
 						if (script.scriptName == path)
 						{
 							PlayState.instance.scriptArray.remove(script);
+							// stop();
 							return;
 						}
 					}
@@ -265,13 +604,13 @@ class FunkinScript
 				return;
 			}
 
-			scriptTrace('The script "$path" doesn\'t exist!');
+			scriptWarn('The script "$path" doesn\'t exist!');
 		});
 
 		set('loadSong', function(?name:String, difficultyNum:Int = -1):Void
 		{
 			if (name == null || name.length < 1)
-				name = PlayState.song.songId;
+				name = PlayState.song.id;
 			if (difficultyNum == -1)
 				difficultyNum = PlayState.storyDifficulty;
 
@@ -335,7 +674,7 @@ class FunkinScript
 				}
 				return getGroupStuff(groupEntry, variable);
 			}
-			scriptTrace('Object #$index from group: $obj doesn\'t exist!');
+			scriptWarn('Object #$index from group: $obj doesn\'t exist!');
 			return null;
 		});
 		set('setPropertyFromGroup', function(obj:String, index:Int, variable:Dynamic, value:Dynamic):Void
@@ -422,7 +761,7 @@ class FunkinScript
 			{
 				return getInstance().members.indexOf(object);
 			}
-			scriptTrace('Object $obj doesn\'t exist!');
+			scriptWarn('Object $obj doesn\'t exist!');
 			return -1;
 		});
 		set('setObjectOrder', function(obj:String, position:Int):Void
@@ -455,7 +794,7 @@ class FunkinScript
 				getInstance().insert(position, object);
 				return;
 			}
-			scriptTrace('Object $obj doesn\'t exist!');
+			scriptWarn('Object $obj doesn\'t exist!');
 		});
 
 		// tweens
@@ -475,7 +814,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 		set('doTweenY', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
@@ -494,7 +833,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 		set('doTweenAngle', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
@@ -513,7 +852,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 		set('doTweenAlpha', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
@@ -532,7 +871,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 		set('doTweenZoom', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
@@ -551,7 +890,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 		set('doTweenColor', function(tag:String, vars:String, targetColor:String, duration:Float, ease:String):Void
@@ -576,7 +915,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Couldn\'t find object: $vars');
+				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
 
@@ -1292,7 +1631,7 @@ class FunkinScript
 				sprite.updateHitbox();
 				return;
 			}
-			scriptTrace('Couldn\'t find object: $obj');
+			scriptWarn('Couldn\'t find object: $obj');
 		});
 		set('scaleObject', function(obj:String, x:Float, y:Float):Void
 		{
@@ -1311,7 +1650,7 @@ class FunkinScript
 				sprite.updateHitbox();
 				return;
 			}
-			scriptTrace('Couldn\'t find object: $obj');
+			scriptWarn('Couldn\'t find object: $obj');
 		});
 		set('updateHitbox', function(obj:String):Void
 		{
@@ -1328,7 +1667,7 @@ class FunkinScript
 				sprite.updateHitbox();
 				return;
 			}
-			scriptTrace('Couldn\'t find object: $obj');
+			scriptWarn('Couldn\'t find object: $obj');
 		});
 		set('updateHitboxFromGroup', function(group:String, index:Int):Void
 		{
@@ -1384,7 +1723,7 @@ class FunkinScript
 				object.cameras = [cameraFromString(camera)];
 				return true;
 			}
-			scriptTrace('Object $obj doesn\'t exist!');
+			scriptWarn('Object $obj doesn\'t exist!');
 			return false;
 		});
 		set('setBlendMode', function(obj:String, blend:String = ''):Bool
@@ -1401,7 +1740,7 @@ class FunkinScript
 				spr.blend = blendModeFromString(blend);
 				return true;
 			}
-			scriptTrace('Object $obj doesn\'t exist!');
+			scriptWarn('Object $obj doesn\'t exist!');
 			return false;
 		});
 		set('screenCenter', function(obj:String, pos:String = 'xy'):Void
@@ -1435,7 +1774,7 @@ class FunkinScript
 						return;
 				}
 			}
-			scriptTrace('Object $obj doesn\'t exist!');
+			scriptWarn('Object $obj doesn\'t exist!');
 		});
 		set('objectsOverlap', function(obj1:String, obj2:String):Bool
 		{
@@ -1499,7 +1838,7 @@ class FunkinScript
 		});
 		set('startDialogue', function(dialogueFile:String, ?music:String):Void
 		{
-			var path:String = Paths.json(Path.join(['songs', PlayState.song.songId, dialogueFile]));
+			var path:String = Paths.json(Path.join(['songs', PlayState.song.id, dialogueFile]));
 			scriptTrace('Trying to load dialogue from: $path');
 
 			if (Paths.exists(path))
@@ -1512,7 +1851,7 @@ class FunkinScript
 				}
 				else
 				{
-					scriptTrace('Your dialogue file is badly formatted!');
+					scriptWarn('Your dialogue file is badly formatted!');
 				}
 			}
 			else
@@ -1537,7 +1876,7 @@ class FunkinScript
 			}
 			else
 			{
-				scriptTrace('Video file not found: $videoFile');
+				scriptWarn('Video file not found: $videoFile');
 			}
 			#else
 			if (PlayState.instance.endingSong)
@@ -1879,7 +2218,7 @@ class FunkinScript
 				PlayState.instance.scriptSaves.set(name, save);
 				return;
 			}
-			scriptTrace('Save file already initialized: $name');
+			scriptWarn('Save file already initialized: $name');
 		});
 		set('flushSaveData', function(name:String):Void
 		{
@@ -1888,7 +2227,7 @@ class FunkinScript
 				PlayState.instance.scriptSaves.get(name).flush();
 				return;
 			}
-			scriptTrace('Save file not initialized: $name');
+			scriptWarn('Save file not initialized: $name');
 		});
 		set('getDataFromSave', function(name:String, field:String):Any
 		{
@@ -1896,7 +2235,7 @@ class FunkinScript
 			{
 				return Reflect.field(PlayState.instance.scriptSaves.get(name).data, field);
 			}
-			scriptTrace('Save file not initialized: $name');
+			scriptWarn('Save file not initialized: $name');
 			return null;
 		});
 		set('setDataFromSave', function(name:String, field:String, value:Any):Void
@@ -1906,7 +2245,7 @@ class FunkinScript
 				Reflect.setField(PlayState.instance.scriptSaves.get(name).data, field, value);
 				return;
 			}
-			scriptTrace('Save file not initialized: $name');
+			scriptWarn('Save file not initialized: $name');
 		});
 
 		set('getText', function(path:String, ignoreModFolders:Bool = false):String
@@ -1917,7 +2256,7 @@ class FunkinScript
 		// DEPRECATED, DONT MESS WITH THESE SHITS, ITS JUST THERE FOR BACKWARD COMPATIBILITY
 		set('luaSpriteMakeGraphic', function(tag:String, width:Int, height:Int, color:String):Void
 		{
-			scriptTrace('luaSpriteMakeGraphic is deprecated! Use makeGraphic instead', false, true);
+			scriptWarn('luaSpriteMakeGraphic is deprecated! Use makeGraphic instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var colorNum:Int = Std.parseInt(color);
@@ -1929,7 +2268,7 @@ class FunkinScript
 		});
 		set('luaSpriteAddAnimationByPrefix', function(tag:String, name:String, prefix:String, frameRate:Int = 24, loop:Bool = true):Void
 		{
-			scriptTrace('luaSpriteAddAnimationByPrefix is deprecated! Use addAnimationByPrefix instead', false, true);
+			scriptWarn('luaSpriteAddAnimationByPrefix is deprecated! Use addAnimationByPrefix instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
@@ -1942,7 +2281,7 @@ class FunkinScript
 		});
 		set('luaSpriteAddAnimationByIndices', function(tag:String, name:String, prefix:String, indices:String, frameRate:Int = 24):Void
 		{
-			scriptTrace('luaSpriteAddAnimationByIndices is deprecated! Use addAnimationByIndices instead', false, true);
+			scriptWarn('luaSpriteAddAnimationByIndices is deprecated! Use addAnimationByIndices instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var intIndices:Array<Int> = indices.trim().split(',').map((f:String) -> Std.parseInt(f));
@@ -1956,7 +2295,7 @@ class FunkinScript
 		});
 		set('luaSpritePlayAnimation', function(tag:String, name:String, forced:Bool = false):Void
 		{
-			scriptTrace('luaSpritePlayAnimation is deprecated! Use objectPlayAnimation instead', false, true);
+			scriptWarn('luaSpritePlayAnimation is deprecated! Use objectPlayAnimation instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				PlayState.instance.scriptSprites.get(tag).animation.play(name, forced);
@@ -1964,18 +2303,18 @@ class FunkinScript
 		});
 		set('setLuaSpriteCamera', function(tag:String, camera:String = ''):Bool
 		{
-			scriptTrace('setLuaSpriteCamera is deprecated! Use setObjectCamera instead', false, true);
+			scriptWarn('setLuaSpriteCamera is deprecated! Use setObjectCamera instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				PlayState.instance.scriptSprites.get(tag).cameras = [cameraFromString(camera)];
 				return true;
 			}
-			scriptTrace('Lua sprite with tag: $tag doesn\'t exist!');
+			scriptWarn('Lua sprite with tag: $tag doesn\'t exist!');
 			return false;
 		});
 		set('setLuaSpriteScrollFactor', function(tag:String, scrollX:Float, scrollY:Float):Void
 		{
-			scriptTrace('setLuaSpriteScrollFactor is deprecated! Use setScrollFactor instead', false, true);
+			scriptWarn('setLuaSpriteScrollFactor is deprecated! Use setScrollFactor instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				PlayState.instance.scriptSprites.get(tag).scrollFactor.set(scrollX, scrollY);
@@ -1983,7 +2322,7 @@ class FunkinScript
 		});
 		set('scaleLuaSprite', function(tag:String, x:Float, y:Float):Void
 		{
-			scriptTrace('scaleLuaSprite is deprecated! Use scaleObject instead', false, true);
+			scriptWarn('scaleLuaSprite is deprecated! Use scaleObject instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
@@ -1993,7 +2332,7 @@ class FunkinScript
 		});
 		set('getPropertyLuaSprite', function(tag:String, variable:String):Any
 		{
-			scriptTrace('getPropertyLuaSprite is deprecated! Use getProperty instead', false, true);
+			scriptWarn('getPropertyLuaSprite is deprecated! Use getProperty instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var qualifierArray:Array<String> = variable.split('.');
@@ -2012,7 +2351,7 @@ class FunkinScript
 		});
 		set('setPropertyLuaSprite', function(tag:String, variable:String, value:Any):Void
 		{
-			scriptTrace('setPropertyLuaSprite is deprecated! Use setProperty instead', false, true);
+			scriptWarn('setPropertyLuaSprite is deprecated! Use setProperty instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var qualifierArray:Array<String> = variable.split('.');
@@ -2029,17 +2368,17 @@ class FunkinScript
 				Reflect.setProperty(PlayState.instance.scriptSprites.get(tag), variable, value);
 				return;
 			}
-			scriptTrace('Lua sprite with tag: $tag doesn\'t exist!');
+			scriptWarn('Lua sprite with tag: $tag doesn\'t exist!');
 		});
 		set('musicFadeIn', function(duration:Float, fromValue:Float = 0, toValue:Float = 1):Void
 		{
+			scriptWarn('musicFadeIn is deprecated! Use soundFadeIn instead.', false, true);
 			FlxG.sound.music.fadeIn(duration, fromValue, toValue);
-			scriptTrace('musicFadeIn is deprecated! Use soundFadeIn instead.', false, true);
 		});
 		set('musicFadeOut', function(duration:Float, toValue:Float = 0):Void
 		{
+			scriptWarn('musicFadeOut is deprecated! Use soundFadeOut instead.', false, true);
 			FlxG.sound.music.fadeOut(duration, toValue);
-			scriptTrace('musicFadeOut is deprecated! Use soundFadeOut instead.', false, true);
 		});
 
 		#if FEATURE_DISCORD
@@ -2102,6 +2441,8 @@ class FunkinScript
 
 	public function call(funcName:String, args:Array<Any>):Any
 	{
+		// Debug.logTrace('$scriptName: Called $funcName with args $args');
+
 		#if FEATURE_LUA
 		if (lua != null)
 		{
@@ -2123,7 +2464,7 @@ class FunkinScript
 				else
 				{
 					Debug.logError(error);
-					scriptTrace(error);
+					scriptWarn(error);
 				}
 			}
 
@@ -2170,7 +2511,20 @@ class FunkinScript
 				return;
 			}
 			PlayState.instance.addTextToDebug(text);
-			Debug.logTrace(text);
+			Debug.logTrace('$scriptName: text');
+		}
+	}
+
+	public function scriptWarn(text:String, ignoreCheck:Bool = false, deprecated:Bool = false):Void
+	{
+		if (ignoreCheck || get('luaDebugMode'))
+		{
+			if (deprecated && !get('luaDeprecatedWarnings'))
+			{
+				return;
+			}
+			PlayState.instance.addTextToDebug(text);
+			Debug.logWarn('$scriptName: text');
 		}
 	}
 
@@ -2453,6 +2807,7 @@ class FunkinScript
 		}
 	}
 
+	// TODO Check whether the object has the fields before trying to get them
 	private static function getPropertyLoopThingWhatever(qualifierArray:Array<String>, checkForTextsToo:Bool = true):Any
 	{
 		var object:Any = getObjectDirectly(qualifierArray[0], checkForTextsToo);

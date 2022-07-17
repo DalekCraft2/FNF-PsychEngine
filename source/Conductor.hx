@@ -1,5 +1,6 @@
 package;
 
+import chart.container.Song;
 import flixel.util.FlxArrayUtil;
 
 // TODO Time signatures would be pretty cool.
@@ -54,28 +55,30 @@ class Conductor
 
 	public static function mapTempoChanges(song:Song):Void
 	{
-		FlxArrayUtil.clearArray(tempoChangeList);
+		/*
+			FlxArrayUtil.clearArray(tempoChangeList);
 
-		var curTempo:Float = song.bpm;
-		var totalSteps:Int = 0;
-		var totalPos:Float = 0;
-		for (section in song.notes)
-		{
-			if (section.changeBPM && section.bpm != curTempo)
+			var curTempo:Float = song.bpm;
+			var totalSteps:Int = 0;
+			var totalPos:Float = 0;
+			for (section in song.notes)
 			{
-				curTempo = section.bpm;
-				var event:TempoChangeEvent = {
-					stepTime: totalSteps,
-					songTime: totalPos,
-					tempo: curTempo
-				};
-				tempoChangeList.push(event);
-			}
+				if (section.changeBPM && section.bpm != curTempo)
+				{
+					curTempo = section.bpm;
+					var event:TempoChangeEvent = {
+						stepTime: totalSteps,
+						songTime: totalPos,
+						tempo: curTempo
+					};
+					tempoChangeList.push(event);
+				}
 
-			var deltaSteps:Int = section.lengthInSteps;
-			totalSteps += deltaSteps;
-			totalPos += calculateSemiquaverLength(curTempo) * deltaSteps;
-		}
+				var deltaSteps:Int = section.lengthInSteps;
+				totalSteps += deltaSteps;
+				totalPos += calculateSemiquaverLength(curTempo) * deltaSteps;
+			}
+		 */
 	}
 
 	/**

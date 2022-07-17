@@ -173,8 +173,8 @@ class ResultsSubState extends FlxSubState
 			PlayState.rep = null;
 
 			#if !switch
-			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
-			Highscore.saveCombo(PlayState.song.songId, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
+			Highscore.saveScore(PlayState.song.id, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
+			Highscore.saveCombo(PlayState.song.id, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
 			#end
 
 			if (PlayState.isStoryMode)
@@ -194,8 +194,8 @@ class ResultsSubState extends FlxSubState
 			PlayState.stageTesting = false;
 
 			#if !switch
-			Highscore.saveScore(PlayState.song.songId, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
-			Highscore.saveCombo(PlayState.song.songId, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
+			Highscore.saveScore(PlayState.song.id, Math.round(PlayState.instance.score), PlayState.storyDifficulty);
+			Highscore.saveCombo(PlayState.song.id, Ratings.generateComboLetterRank(PlayState.instance.ratingPercent), PlayState.storyDifficulty);
 			#end
 
 			if (music != null)

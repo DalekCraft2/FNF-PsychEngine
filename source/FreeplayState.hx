@@ -1,13 +1,13 @@
 package;
 
-import flixel.effects.FlxFlicker;
-import Song.SongMetadata;
+import chart.container.Song;
 import editors.ChartEditorState;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.addons.transition.FlxTransitionableState;
+import flixel.effects.FlxFlicker;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.mouse.FlxMouseEventManager;
 import flixel.math.FlxMath;
@@ -277,7 +277,7 @@ class FreeplayState extends MusicBeatState
 			FlxG.switchState(new MainMenuState());
 		}
 
-		if (ctrl)
+		if (ctrl && !selectedSong)
 		{
 			persistentUpdate = false;
 			openSubState(new GameplayChangersSubState());
@@ -301,14 +301,13 @@ class FreeplayState extends MusicBeatState
 					difficulty = '';
 					curDifficulty = 1;
 				}
-				PlayState.song = Song.getSongDef(songId, difficulty);
 				if (PlayState.song.needsVoices)
-					vocals = new FlxSound().loadEmbedded(Paths.getVoices(PlayState.song.songId));
+					vocals = new FlxSound().loadEmbedded(Paths.getVoices(songId));
 				else
 					vocals = new FlxSound();
 
 				FlxG.sound.list.add(vocals);
-				FlxG.sound.playMusic(Paths.getInst(PlayState.song.songId), 0.7);
+				FlxG.sound.playMusic(Paths.getInst(songId), 0.7);
 				FlxG.sound.music.onComplete = () ->
 				{
 					vocals.stop();
@@ -556,12 +555,7 @@ class FreeplayState extends MusicBeatState
 
 	private function changeDiff(change:Int = 0):Void
 	{
-		curDifficulty += change;
-
-		if (curDifficulty < 0)
-			curDifficulty = Difficulty.difficulties.length - 1;
-		if (curDifficulty >= Difficulty.difficulties.length)
-			curDifficulty = 0;
+		curDifficulty = FlxMath.wrap(curDifficulty + change, 0, Difficulty.difficulties.length - 1);
 
 		lastDifficultyName = Difficulty.difficulties[curDifficulty];
 
@@ -584,12 +578,7 @@ class FreeplayState extends MusicBeatState
 	{
 		if (songs.length > 0)
 		{
-			curSelected += change;
-
-			if (curSelected < 0)
-				curSelected = songs.length - 1;
-			if (curSelected >= songs.length)
-				curSelected = 0;
+			curSelected = FlxMath.wrap(curSelected + change, 0, songs.length - 1);
 
 			var song:SongMetadata = songs[curSelected];
 

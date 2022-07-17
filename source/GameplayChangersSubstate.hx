@@ -156,18 +156,9 @@ class GameplayChangersSubState extends MusicBeatSubState
 								case 'string':
 									var num:Int = curOption.curOption; // lol
 									if (controls.UI_LEFT_P)
-										--num;
+										num = FlxMath.wrap(curSelected - 1, 0, curOption.options.length - 1);
 									else
-										num++;
-
-									if (num < 0)
-									{
-										num = curOption.options.length - 1;
-									}
-									else if (num >= curOption.options.length)
-									{
-										num = 0;
-									}
+										num = FlxMath.wrap(curSelected + 1, 0, curOption.options.length - 1);
 
 									curOption.curOption = num;
 									curOption.setValue(curOption.options[num]); // lol
@@ -354,11 +345,7 @@ class GameplayChangersSubState extends MusicBeatSubState
 
 	private function changeSelection(change:Int = 0):Void
 	{
-		curSelected += change;
-		if (curSelected < 0)
-			curSelected = optionsArray.length - 1;
-		if (curSelected >= optionsArray.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, optionsArray.length - 1);
 
 		for (i => item in grpOptions.members)
 		{

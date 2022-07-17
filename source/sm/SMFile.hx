@@ -1,8 +1,10 @@
 package sm;
 
+import chart.container.Section;
+import chart.container.Song;
 #if FEATURE_STEPMANIA
 import Note.NoteDef;
-import Song.SongWrapper;
+import chart.container.Song.SongWrapper;
 import haxe.Exception;
 import haxe.Json;
 
@@ -123,30 +125,20 @@ class SMFile
 
 		// init a fnf song
 
-		var song:Song = {
-			songId: Paths.formatToSongPath(header.TITLE),
-			songName: header.TITLE,
-			player1: 'bf',
-			player2: 'gf',
-			gfVersion: 'gf',
-			stage: 'stage',
-			bpm: header.getBPM(0),
-			speed: 1.0,
-			needsVoices: true,
-			arrowSkin: '',
-			splashSkin: 'noteSplashes',
-			validScore: false,
-			notes: [],
-			events: [],
-			chartVersion: Song.LATEST_CHART
-		};
+		var song:Song = new Song();
+		song.id = Paths.formatToSongPath(header.TITLE);
+		song.name = header.TITLE;
+		song.player2 = 'gf';
+		song.bpm = header.getBPM(0);
+		song.validScore = false;
+		song.chartVersion = Song.LATEST_CHART;
 
 		// lets check if the sm loading was valid
 
 		if (!isValid)
 		{
 			var json:SongWrapper = {
-				song: song
+				song: Song.toSongDef(song)
 			};
 
 			var data:String = Json.stringify(json, '\t');
@@ -170,17 +162,8 @@ class SMFile
 
 			// section declaration
 
-			var section:Section = {
-				startTime: 0,
-				endTime: Math.POSITIVE_INFINITY,
-				sectionNotes: [],
-				lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
-				mustHitSection: false,
-				gfSection: false,
-				bpm: header.getBPM(0),
-				changeBPM: false,
-				altAnim: false
-			};
+			var section:Section = new Section();
+			section.bpm = header.getBPM(0);
 
 			// if it's not a double always set this to true
 
@@ -205,17 +188,8 @@ class SMFile
 				{
 					// ok new section time
 					song.notes.push(section);
-					section = {
-						startTime: 0,
-						endTime: Math.POSITIVE_INFINITY,
-						sectionNotes: [],
-						lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
-						mustHitSection: false,
-						gfSection: false,
-						bpm: header.getBPM(0),
-						changeBPM: false,
-						altAnim: false
-					};
+					section = new Section();
+					section.bpm = header.getBPM(0);
 					if (!isDouble)
 						section.mustHitSection = true;
 				}
@@ -270,7 +244,7 @@ class SMFile
 			measureIndex++;
 		}
 
-		Song.recalculateAllSectionTimes(song);
+		song.recalculateAllSectionTimes();
 
 		if (header.changeEvents.length != 0)
 		{
@@ -325,7 +299,7 @@ class SMFile
 		// song.chartVersion = Song.latestChart;
 
 		var json:SongWrapper = {
-			song: song
+			song: Song.toSongDef(song)
 		};
 
 		var data:String = Json.stringify(json, '\t');

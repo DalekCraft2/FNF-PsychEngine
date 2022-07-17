@@ -508,6 +508,11 @@ class Paths
 		return path.toLowerCase().replace(' ', '-'); // TODO Replace a bunch of usages of dashes with underscores because reasons
 	}
 
+	public static inline function formatFromSongPath(path:String):String
+	{
+		return path.replace('-', ' ');
+	}
+
 	#if FEATURE_MODS
 	public static function modFolders(key:String):String
 	{

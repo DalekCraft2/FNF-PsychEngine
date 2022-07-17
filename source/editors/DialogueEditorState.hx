@@ -1,6 +1,5 @@
 package editors;
 
-import ui.Alphabet;
 import DialogueBoxPsych.DialogueAnimationDef;
 import DialogueBoxPsych.DialogueCharacter;
 import DialogueBoxPsych.DialogueDef;
@@ -12,6 +11,7 @@ import flixel.addons.ui.FlxUICheckBox;
 import flixel.addons.ui.FlxUIInputText;
 import flixel.addons.ui.FlxUINumericStepper;
 import flixel.addons.ui.FlxUITabMenu;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
@@ -24,6 +24,7 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.net.FileFilter;
 import openfl.net.FileReference;
+import ui.Alphabet;
 
 using StringTools;
 
@@ -180,11 +181,7 @@ class DialogueEditorState extends MusicBeatState
 			{
 				if (controlAnim[i] && character.jsonFile.animations.length > 0)
 				{
-					curAnim -= negaMult[i];
-					if (curAnim < 0)
-						curAnim = character.jsonFile.animations.length - 1;
-					else if (curAnim >= character.jsonFile.animations.length)
-						curAnim = 0;
+					curAnim = FlxMath.wrap(curAnim - negaMult[i], 0, character.jsonFile.animations.length - 1);
 
 					var animToPlay:String = character.jsonFile.animations[curAnim].anim;
 					if (character.dialogueAnimations.exists(animToPlay))
@@ -448,13 +445,9 @@ class DialogueEditorState extends MusicBeatState
 		#end
 	}
 
-	private function changeText(add:Int = 0):Void
+	private function changeText(change:Int = 0):Void
 	{
-		curSelected += add;
-		if (curSelected < 0)
-			curSelected = dialogueFile.dialogue.length - 1;
-		else if (curSelected >= dialogueFile.dialogue.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, dialogueFile.dialogue.length - 1);
 
 		var curDialogue:DialogueLineDef = dialogueFile.dialogue[curSelected];
 		characterInputText.text = curDialogue.portrait;

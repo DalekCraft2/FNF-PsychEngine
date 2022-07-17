@@ -31,13 +31,15 @@ class MainMenuState extends MusicBeatState
 	private var menuOptions:Array<String> = [
 		'story_mode',
 		'freeplay',
-		#if FEATURE_MODS 'mods',
+		#if FEATURE_MODS
+		'mods',
 		#end
 		#if FEATURE_ACHIEVEMENTS
 		'awards',
 		#end
 		'credits',
-		#if !switch 'donate',
+		#if !switch
+		'donate',
 		#end
 		'options'
 	];
@@ -135,7 +137,7 @@ class MainMenuState extends MusicBeatState
 		versionShit.setFormat(Paths.font('vcr.ttf'), versionShit.size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
-		changeItem();
+		changeSelection();
 
 		#if FEATURE_ACHIEVEMENTS
 		Achievement.loadAchievements();
@@ -171,13 +173,13 @@ class MainMenuState extends MusicBeatState
 			if (controls.UI_UP_P)
 			{
 				FlxG.sound.play(Paths.getSound('scrollMenu'));
-				changeItem(-1);
+				changeSelection(-1);
 			}
 
 			if (controls.UI_DOWN_P)
 			{
 				FlxG.sound.play(Paths.getSound('scrollMenu'));
-				changeItem(1);
+				changeSelection(1);
 			}
 
 			if (controls.BACK)
@@ -267,14 +269,9 @@ class MainMenuState extends MusicBeatState
 	}
 	#end
 
-	private function changeItem(huh:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
-		curSelected += huh;
-
-		if (curSelected >= menuItems.length)
-			curSelected = 0;
-		if (curSelected < 0)
-			curSelected = menuItems.length - 1;
+		curSelected = FlxMath.wrap(curSelected + change, 0, menuItems.length - 1);
 
 		menuItems.forEach((spr:FlxSprite) ->
 		{

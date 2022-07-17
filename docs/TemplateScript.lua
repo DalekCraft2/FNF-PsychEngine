@@ -88,6 +88,11 @@ function onGameOver()
     return FUNCTION_CONTINUE
 end
 
+--- Called when the GameOverSubState is created
+--- @return any
+function onGameOverStart()
+end
+
 --- Called when you Press Enter/Esc on Game Over
 --- @param retry boolean @True if player pressed "confirm"; false if the player pressed "back"
 --- @return any
@@ -216,5 +221,3 @@ function onCheckForAchievement(name)
     end
     ]] --
 end
-
-

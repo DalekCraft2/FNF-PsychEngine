@@ -267,11 +267,7 @@ class CreditsState extends MusicBeatState
 			FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 			do
 			{
-				curSelected += change;
-				if (curSelected < 0)
-					curSelected = credits.length - 1;
-				if (curSelected >= credits.length)
-					curSelected = 0;
+				curSelected = FlxMath.wrap(curSelected + change, 0, credits.length - 1);
 			}
 			while (unselectableCheck(curSelected));
 

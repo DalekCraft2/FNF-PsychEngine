@@ -4,6 +4,7 @@ import Song.SongMetadata;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import haxe.Exception;
@@ -225,12 +226,7 @@ class LoadReplayState extends MusicBeatState
 	{
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 
-		curSelected += change;
-
-		if (curSelected < 0)
-			curSelected = grpControls.length - 1;
-		if (curSelected >= grpControls.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, grpControls.length - 1);
 
 		var rep:Replay = Replay.loadReplay(actualNames[curSelected]);
 

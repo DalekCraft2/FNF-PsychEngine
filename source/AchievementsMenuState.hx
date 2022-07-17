@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxMath;
 import ui.Alphabet;
 #if FEATURE_ACHIEVEMENTS
 import Achievement.AchievementDef;
@@ -118,11 +119,7 @@ class AchievementsMenuState extends MusicBeatState
 	{
 		if (achievements.length > 0)
 		{
-			curSelected += change;
-			if (curSelected < 0)
-				curSelected = achievements.length - 1;
-			if (curSelected >= achievements.length)
-				curSelected = 0;
+			curSelected = FlxMath.wrap(curSelected + change, 0, achievements.length - 1);
 
 			for (i => item in grpAchievements.members)
 			{

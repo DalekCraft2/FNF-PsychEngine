@@ -15,8 +15,6 @@ abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 	{
 		Paths.clearUnusedMemory();
 
-		TimingStruct.clearTimings();
-
 		super.create();
 	}
 
@@ -34,13 +32,13 @@ abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 			{
 				var data:TimingStruct = TimingStruct.getTimingAtTimestamp(Conductor.songPosition);
 
-				Conductor.crotchetLength = Conductor.calculateCrotchetLength(data.bpm);
+				Conductor.crotchetLength = Conductor.calculateCrotchetLength(data.tempo);
 
 				var startInMS:Float = data.startTime * TimingConstants.MILLISECONDS_PER_SECOND;
 
 				curDecimalBeat = data.startBeat
 					+ (((Conductor.songPosition / TimingConstants.MILLISECONDS_PER_SECOND)
-						- data.startTime) * (data.bpm / TimingConstants.SECONDS_PER_MINUTE));
+						- data.startTime) * (data.tempo / TimingConstants.SECONDS_PER_MINUTE));
 				var nextStep:Int = Math.floor(data.startStep + (Conductor.songPosition - startInMS) / Conductor.semiquaverLength);
 				if (nextStep >= 0)
 				{
@@ -65,7 +63,6 @@ abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 			}
 			else
 			{
-				Conductor.crotchetLength = Conductor.calculateCrotchetLength(Conductor.tempo); // Reset crotchet length
 				curDecimalBeat = (Conductor.songPosition / TimingConstants.MILLISECONDS_PER_SECOND) * (Conductor.tempo / TimingConstants.SECONDS_PER_MINUTE);
 				var nextStep:Int = Math.floor(Conductor.songPosition / Conductor.semiquaverLength);
 				if (nextStep >= 0)
@@ -88,7 +85,6 @@ abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 						stepHit(curStep);
 					}
 				}
-				// Conductor.crotchetLength = Conductor.calculateCrotchetLength(Conductor.tempo); // Reset crotchet length
 			}
 		}
 

@@ -1,7 +1,7 @@
 package;
 
-import Note.NoteDef;
 import Ratings.Judgement;
+import chart.container.BasicNote;
 import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
@@ -14,12 +14,12 @@ import sys.io.File;
 class Analytic
 {
 	public var hitTime:Float;
-	public var nearestNote:NoteDef;
+	public var nearestNote:BasicNote;
 	public var hit:Bool;
 	public var hitJudge:Judgement;
 	public var key:Int;
 
-	public function new(_hitTime:Float, _nearestNote:NoteDef, _hit:Bool, _hitJudge:Judgement, _key:Int)
+	public function new(_hitTime:Float, _nearestNote:BasicNote, _hit:Bool, _hitJudge:Judgement, _key:Int)
 	{
 		hitTime = _hitTime;
 		nearestNote = _nearestNote;
@@ -99,8 +99,8 @@ class Replay
 		'';
 
 		var json:ReplayDef = {
-			songId: PlayState.song.songId,
-			songName: PlayState.song.songName,
+			songId: PlayState.song.id,
+			songName: PlayState.song.name,
 			songDiff: PlayState.storyDifficulty,
 			chartPath: chartPath,
 			sm: PlayState.isSM,
@@ -118,7 +118,7 @@ class Replay
 
 		var time:Float = Date.now().getTime();
 
-		path = Path.withExtension('replay-${PlayState.song.songId}-time$time', 'kadeReplay'); // for score screen shit
+		path = Path.withExtension('replay-${PlayState.song.id}-time$time', 'kadeReplay'); // for score screen shit
 
 		#if sys
 		if (!Paths.fileSystem.exists('assets/replays'))

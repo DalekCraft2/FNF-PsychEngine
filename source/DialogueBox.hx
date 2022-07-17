@@ -38,7 +38,7 @@ class DialogueBox extends FlxSpriteGroup
 
 		this.dialogueList = dialogueList;
 
-		switch (PlayState.song.songId)
+		switch (PlayState.song.id)
 		{
 			case 'senpai':
 				FlxG.sound.playMusic(Paths.getMusic('Lunchbox'), 0);
@@ -63,7 +63,7 @@ class DialogueBox extends FlxSpriteGroup
 		box = new FlxSprite(-20, 45);
 
 		var hasDialog:Bool = false;
-		switch (PlayState.song.songId)
+		switch (PlayState.song.id)
 		{
 			case 'senpai':
 				hasDialog = true;
@@ -87,7 +87,7 @@ class DialogueBox extends FlxSpriteGroup
 		if (!hasDialog)
 			return;
 
-		if (PlayState.song.songId == 'thorns')
+		if (PlayState.song.id == 'thorns')
 		{
 			portraitLeft = new FlxSprite(200, -90).loadGraphic(Paths.getGraphic('stages/weeb/spiritFaceForward'));
 			portraitLeft.setGraphicSize(Std.int(portraitLeft.width * PlayState.PIXEL_ZOOM));
@@ -137,9 +137,9 @@ class DialogueBox extends FlxSpriteGroup
 		dialogue.sounds = [FlxG.sound.load(Paths.getSound('pixelText'), 0.6)];
 		add(dialogue);
 
-		if (PlayState.song.songId == 'roses')
+		if (PlayState.song.id == 'roses')
 			portraitLeft.visible = false;
-		else if (PlayState.song.songId == 'thorns')
+		else if (PlayState.song.id == 'thorns')
 		{
 			dialogue.color = FlxColor.WHITE;
 			dropText.color = FlxColor.BLACK;
@@ -182,7 +182,7 @@ class DialogueBox extends FlxSpriteGroup
 						isEnding = true;
 						FlxG.sound.play(Paths.getSound('clickText'), 0.8);
 
-						if (PlayState.song.songId == 'senpai' || PlayState.song.songId == 'thorns')
+						if (PlayState.song.id == 'senpai' || PlayState.song.id == 'thorns')
 							FlxG.sound.music.fadeOut(1.5, 0);
 
 						new FlxTimer().start(0.2, (tmr:FlxTimer) ->
@@ -246,10 +246,10 @@ class DialogueBox extends FlxSpriteGroup
 				portraitRight.visible = false;
 				if (!portraitLeft.visible)
 				{
-					if (PlayState.song.songId == 'senpai' || PlayState.song.songId == 'thorns')
+					if (PlayState.song.id == 'senpai' || PlayState.song.id == 'thorns')
 					{
 						portraitLeft.visible = true;
-						if (PlayState.song.songId == 'senpai')
+						if (PlayState.song.id == 'senpai')
 							portraitLeft.animation.play('enter');
 					}
 				}

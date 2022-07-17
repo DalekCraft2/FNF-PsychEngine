@@ -163,7 +163,7 @@ class GameOverSubState extends MusicBeatSubState
 	{
 		FlxG.sound.playMusic(Paths.getMusic(loopSoundName), volume);
 
-		if (PlayState.song.songId == 'ugh' || PlayState.song.songId == 'guns' || PlayState.song.songId == 'stress')
+		if (PlayState.song.id == 'ugh' || PlayState.song.id == 'guns' || PlayState.song.id == 'stress')
 		{
 			// Jeff death sounds
 			FlxG.sound.play(Paths.getRandomSound('jeffGameover/jeffGameover-', 0, 25));

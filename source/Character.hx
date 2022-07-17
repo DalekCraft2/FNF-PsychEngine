@@ -1,7 +1,9 @@
 package;
 
-import Note.NoteDef;
 import animateatlas.AtlasFrameMaker;
+import chart.container.BasicNote;
+import chart.container.Section;
+import chart.container.Song;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.tweens.FlxTween;
@@ -63,7 +65,7 @@ class Character extends FlxSprite implements Danceable
 	/**
 	 * This is used for Pico's animations in Stress; the TankmenBG class functions similarly
 	 */
-	public var animationNotes:Array<NoteDef> = [];
+	public var animationNotes:Array<BasicNote> = [];
 
 	public var stunned:Bool = false;
 
@@ -235,11 +237,11 @@ class Character extends FlxSprite implements Danceable
 			{
 				// TODO Add configuration in order to avoid hardcoding Pico things in Week 7
 				case 'pico-speaker':
-					if (animationNotes.length > 0 && Conductor.songPosition > animationNotes[0].strumTime)
+					if (animationNotes.length > 0 && Conductor.songPosition > TimingStruct.getTimeFromBeat(animationNotes[0].beat))
 					{
 						var shootAnim:Int = 1;
 
-						if (animationNotes[0].noteData >= 2)
+						if (animationNotes[0].data >= 2)
 							shootAnim = 3;
 
 						shootAnim += FlxG.random.int(0, 1);
@@ -456,7 +458,7 @@ class Character extends FlxSprite implements Danceable
 
 	public function loadMappedAnims(id:String, difficulty:String, ?folder:String):Void
 	{
-		var songDef:Song = Song.getSongDef(id, difficulty, folder);
+		var songDef:Song = Song.loadSong(id, difficulty, folder);
 
 		var sections:Array<Section> = songDef.notes;
 
@@ -470,9 +472,9 @@ class Character extends FlxSprite implements Danceable
 		animationNotes.sort(sortAnims);
 	}
 
-	private function sortAnims(val1:NoteDef, val2:NoteDef):Int
+	private function sortAnims(val1:BasicNote, val2:BasicNote):Int
 	{
-		return FlxSort.byValues(FlxSort.ASCENDING, val1.strumTime, val2.strumTime);
+		return FlxSort.byValues(FlxSort.ASCENDING, val1.beat, val2.beat);
 	}
 
 	public var danceEveryNumBeats:Int = 2;

@@ -16,6 +16,7 @@ import flixel.addons.ui.FlxUITabMenu;
 import flixel.animation.FlxAnimation;
 import flixel.graphics.FlxGraphic;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.debug.interaction.tools.Pointer.GraphicCursorCross;
 import flixel.text.FlxText;
@@ -297,19 +298,13 @@ class CharacterEditorState extends MusicBeatState
 			{
 				if (FlxG.keys.justPressed.W)
 				{
-					curAnim -= 1;
+					curAnim = FlxMath.wrap(curAnim - 1, 0, char.animationsArray.length - 1);
 				}
 
 				if (FlxG.keys.justPressed.S)
 				{
-					curAnim += 1;
+					curAnim = FlxMath.wrap(curAnim + 1, 0, char.animationsArray.length - 1);
 				}
-
-				if (curAnim < 0)
-					curAnim = char.animationsArray.length - 1;
-
-				if (curAnim >= char.animationsArray.length)
-					curAnim = 0;
 
 				if (FlxG.keys.justPressed.S || FlxG.keys.justPressed.W || FlxG.keys.justPressed.SPACE)
 				{

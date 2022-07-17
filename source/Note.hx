@@ -3,94 +3,10 @@ package;
 import NoteKey.NoteColor;
 import flixel.FlxSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.util.typeLimit.OneOfTwo;
 import haxe.io.Path;
 import shader.ColorSwap;
 
-// TODO Maybe I should take this "abstract" approach with some other objects what use JSON...
-abstract NoteDef(Array<Dynamic>) /*from Array<Dynamic> to Array<Dynamic>*/
-{
-	public static inline final INDEX_STRUM_TIME:Int = 0;
-	public static inline final INDEX_NOTE_DATA:Int = 1;
-	public static inline final INDEX_SUSTAIN_LENGTH:Int = 2;
-	public static inline final INDEX_NOTE_TYPE:Int = 3;
-	public static inline final INDEX_BEAT:Int = 4;
-
-	public var strumTime(get, set):Float;
-	public var noteData(get, set):Int;
-	public var sustainLength(get, set):Null<Float>;
-	public var noteType(get, set):OneOfTwo<Null<Int>, String>;
-	public var beat(get, set):Null<Float>;
-
-	public inline function new(array:Array<Dynamic>)
-	{
-		this = array;
-
-		if (sustainLength == null)
-		{
-			sustainLength = null; // Ensure that these indexes are filled
-		}
-		if (noteType == null)
-		{
-			noteType == null;
-		}
-		if (beat == null)
-		{
-			beat = null;
-		}
-	}
-
-	private function get_strumTime():Float
-	{
-		return this[INDEX_STRUM_TIME];
-	}
-
-	private function set_strumTime(value:Float):Float
-	{
-		return this[INDEX_STRUM_TIME] = value;
-	}
-
-	private function get_noteData():Int
-	{
-		return this[INDEX_NOTE_DATA];
-	}
-
-	private function set_noteData(value:Int):Int
-	{
-		return this[INDEX_NOTE_DATA] = value;
-	}
-
-	private function get_sustainLength():Null<Float>
-	{
-		return this[INDEX_SUSTAIN_LENGTH];
-	}
-
-	private function set_sustainLength(value:Null<Float>):Null<Float>
-	{
-		return this[INDEX_SUSTAIN_LENGTH] = value;
-	}
-
-	private function get_noteType():OneOfTwo<Null<Int>, String>
-	{
-		return this[INDEX_NOTE_TYPE];
-	}
-
-	private function set_noteType(value:OneOfTwo<Null<Int>, String>):OneOfTwo<Null<Int>, String>
-	{
-		return this[INDEX_NOTE_TYPE] = value;
-	}
-
-	private function get_beat():Null<Float>
-	{
-		return this[INDEX_BEAT];
-	}
-
-	private function set_beat(value:Null<Float>):Null<Float>
-	{
-		return this[INDEX_BEAT] = value;
-	}
-}
-
+// TODO Note type JSON files for some minor configuration?
 class Note extends FlxSprite
 {
 	public static final STRUM_WIDTH:Float = 160 * 0.7;
@@ -164,7 +80,7 @@ class Note extends FlxSprite
 
 	public var hitsoundDisabled:Bool = false;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, isSustainNote:Bool = false, inEditor:Bool = false, beat:Float = 0)
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, isSustainNote:Bool = false, inEditor:Bool = false, beat:Float)
 	{
 		super();
 
@@ -293,7 +209,7 @@ class Note extends FlxSprite
 	{
 		if (texture.length < 1)
 		{
-			var songSkin:String = PlayState.song.arrowSkin;
+			var songSkin:String = PlayState.song.noteSkin;
 			if (songSkin == null || songSkin.length < 1)
 			{
 				texture = 'NOTE_assets';

@@ -431,6 +431,7 @@ class ModsMenuState extends MusicBeatState
 		{
 			var doRestart:Bool = (mods[0].restart);
 
+			// TODO Check whether FlxMath.wrap can be used here
 			var newPos:Int = curSelected + change;
 			if (newPos < 0)
 			{
@@ -509,11 +510,7 @@ class ModsMenuState extends MusicBeatState
 			obj.visible = false;
 		}
 
-		curSelected += change;
-		if (curSelected < 0)
-			curSelected = mods.length - 1;
-		else if (curSelected >= mods.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, mods.length - 1);
 
 		var newColor:Int = mods[curSelected].color;
 		if (newColor != intendedColor)

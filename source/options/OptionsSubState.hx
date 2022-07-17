@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.input.keyboard.FlxKey;
+import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import openfl.Lib;
@@ -243,7 +244,8 @@ class OptionsSubState extends MusicBeatSubState
 					]),
 				new BooleanOption('controllerMode', 'Controller Mode', 'Toggle playing with a controller instead of a keyboard.'),
 				new BooleanOption('resetKey', 'Reset Key', 'Toggle pressing the Reset keybind to game-over.'),
-				#if FEATURE_SCRIPTS new BooleanOption('loadScripts', 'Load Scripts', 'Toggle scripts.'),
+				#if FEATURE_SCRIPTS
+				new BooleanOption('loadScripts', 'Load Scripts', 'Toggle scripts.'),
 				#end
 				new BooleanOption('ghostTapping', 'Ghost-Tapping', 'Toggle being able to pressing keys while no notes are able to be hit.'),
 				// TODO Finish the descriptions of these
@@ -378,15 +380,11 @@ class OptionsSubState extends MusicBeatSubState
 		changeSelection(0);
 	}
 
-	private function changeSelection(diff:Int = 0):Void
+	private function changeSelection(change:Int = 0):Void
 	{
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
-		curSelected += diff;
 
-		if (curSelected < 0)
-			curSelected = category.options.length - 1;
-		if (curSelected >= category.options.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, category.options.length - 1);
 
 		for (i => item in optionText.members)
 		{

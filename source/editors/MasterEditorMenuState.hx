@@ -3,6 +3,7 @@ package editors;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
 import flixel.util.FlxColor;
 import ui.Alphabet;
 
@@ -164,23 +165,13 @@ class MasterEditorMenuState extends MusicBeatState
 	{
 		FlxG.sound.play(Paths.getSound('scrollMenu'), 0.4);
 
-		curSelected += change;
-
-		if (curSelected < 0)
-			curSelected = options.length - 1;
-		if (curSelected >= options.length)
-			curSelected = 0;
+		curSelected = FlxMath.wrap(curSelected + change, 0, options.length - 1);
 	}
 
 	#if FEATURE_MODS
 	private function changeDirectory(change:Int = 0):Void
 	{
-		curDirectory += change;
-
-		if (curDirectory < 0)
-			curDirectory = directories.length - 1;
-		if (curDirectory >= directories.length)
-			curDirectory = 0;
+		curDirectory = FlxMath.wrap(curDirectory + change, 0, directories.length - 1);
 
 		Week.setDirectoryFromWeek();
 		if (directories[curDirectory] == null || directories[curDirectory].length < 1)

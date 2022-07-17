@@ -1,8 +1,8 @@
 package editors;
 
-import Song.SongMetadata;
-import Song.SongMetadataDef;
 import Week.WeekDef;
+import chart.container.Song.SongMetadata;
+import chart.container.Song.SongMetadataDef;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxUI;

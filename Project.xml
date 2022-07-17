@@ -66,7 +66,7 @@
     <define name="FEATURE_MODS" if="desktop" />
 
     <!-- Defines whether StepMania files can be loaded. (I'm keeping this disabled until I ensure that it works.) -->
-    <define name="FEATURE_STEPMANIA" if="desktop" />
+    <!-- <define name="FEATURE_STEPMANIA" if="desktop" /> -->
 
     <!-- Defines whether videos should be enabled. Works with CPP (currently only on Windows) or with both JavaScript and HTML5. -->
     <define name="FEATURE_VIDEOS" if="web || cpp" />
@@ -87,7 +87,6 @@
     <define name="PRELOAD_ALL" unless="web" />
     <!-- <define name="PRELOAD_ALL" /> -->
 
-    <!-- TODO Attempt to move everything into a single library like Myth does -->
     <assets path="assets/secrets" rename="assets" if="TITLE_SCREEN_EASTER_EGG" />
     <assets path="assets/preload" rename="assets" />
 
