@@ -185,6 +185,7 @@ function eventEarlyTrigger(name)
     ]] --
 
     -- This makes the "Kill Henchmen" event be triggered 280 miliseconds earlier so that the kill sound is perfectly timed with the song
+    return 0
 end
 
 -- Tween/Timer hooks

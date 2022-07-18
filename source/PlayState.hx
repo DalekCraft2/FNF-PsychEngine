@@ -1,9 +1,14 @@
 package;
 
+import haxe.CallStack;
+import haxe.Exception;
+import Character.CharacterRole;
+import Character.CharacterRoleTools;
 import DialogueBoxPsych.DialogueDef;
 import Ratings.Judgement;
 import Replay.Analysis;
 import Replay.Analytic;
+import animateatlas.AtlasFrameMaker;
 import chart.container.Event;
 import chart.container.Section;
 import chart.container.Song;
@@ -58,7 +63,6 @@ import sm.SMFile;
 // TODO Make the input system much less pathetically easy and cheesable
 // (An example of it is being able to hit any incoming hold notes by just pressing the keys early, missing the first note, and getting the rest of the hold anyway)
 // TODO Abuse the fuck out of multithreading to make the game run faster
-// TODO Man, this list keeps growing. Anyway, find a simple way to use camHUD as the default camera so substates and such don't need to be manually set to it
 class PlayState extends MusicBeatState
 {
 	// Constants
@@ -169,6 +173,11 @@ class PlayState extends MusicBeatState
 
 	private var camFollow:FlxPoint;
 	private var camFollowPos:FlxObject;
+
+	/**
+	 * Used to reset the camera position for the directional camera.
+	 */
+	private var camFollowNoDirectional:FlxPoint;
 
 	private static var prevCamFollow:FlxPoint;
 	private static var prevCamFollowPos:FlxObject;
@@ -311,7 +320,6 @@ class PlayState extends MusicBeatState
 	#if FEATURE_SCRIPTS
 	// Script API variables
 	public var scriptArray:Array<FunkinScript> = [];
-	public var scriptsToClose:Array<FunkinScript> = [];
 
 	public var scriptTweens:Map<String, FlxTween> = [];
 	public var scriptSprites:Map<String, ScriptSprite> = [];
@@ -320,7 +328,6 @@ class PlayState extends MusicBeatState
 	public var scriptTexts:Map<String, ScriptText> = [];
 	public var scriptSaves:Map<String, FlxSave> = [];
 
-	private var preventScriptRemove:Bool = false;
 	private var scriptDebugGroup:FlxTypedGroup<DebugScriptText>;
 	#end
 
@@ -791,10 +798,12 @@ class PlayState extends MusicBeatState
 		// After all characters being loaded, it makes them invisible 0.01s later so that the player won't freeze when you change characters
 		camFollow = new FlxPoint();
 		camFollowPos = new FlxObject(0, 0, 1, 1);
+		camFollowNoDirectional = new FlxPoint();
 		snapCamFollowToPos(camPos.x, camPos.y);
 		if (prevCamFollow != null)
 		{
 			camFollow = prevCamFollow;
+			camFollowNoDirectional.set(camFollow.x, camFollow.y);
 			prevCamFollow = null;
 		}
 		if (prevCamFollowPos != null)
@@ -1327,6 +1336,14 @@ class PlayState extends MusicBeatState
 								note.clipRect = clipRect;
 							}
 						}
+
+						// if (note.isParent)
+						// {
+						// 	for (childNote in note.children)
+						// 	{
+						// 		childNote.y = note.y - childNote.height;
+						// 	}
+						// }
 					}
 
 					// Kill extremely late notes and cause misses
@@ -1456,8 +1473,6 @@ class PlayState extends MusicBeatState
 		super.destroy();
 
 		#if FEATURE_SCRIPTS
-		preventScriptRemove = true;
-
 		for (script in scriptArray)
 		{
 			script.call('onDestroy', []);
@@ -1589,7 +1604,7 @@ class PlayState extends MusicBeatState
 	}
 
 	#if FEATURE_SCRIPTS
-	public function addTextToDebug(text:String):Void
+	public function addTextToDebug(text:String, color:FlxColor = FlxColor.WHITE):Void
 	{
 		scriptDebugGroup.forEachAlive((spr:DebugScriptText) ->
 		{
@@ -1603,7 +1618,7 @@ class PlayState extends MusicBeatState
 			blah.destroy();
 			scriptDebugGroup.remove(blah, true);
 		}
-		scriptDebugGroup.add(new DebugScriptText(text, scriptDebugGroup));
+		scriptDebugGroup.add(new DebugScriptText(text, scriptDebugGroup, color));
 	}
 	#end
 
@@ -1613,11 +1628,11 @@ class PlayState extends MusicBeatState
 			FlxColor.fromRGB(boyfriend.healthBarColors[0], boyfriend.healthBarColors[1], boyfriend.healthBarColors[2]));
 	}
 
-	public function addCharacterToList(newCharacter:String, type:Int):Void
+	public function addCharacterToList(newCharacter:String, role:CharacterRole):Void
 	{
-		switch (type)
+		switch (role)
 		{
-			case 0:
+			case PLAYER:
 				if (!boyfriendMap.exists(newCharacter))
 				{
 					var newBoyfriend:Boyfriend = new Boyfriend(0, 0, newCharacter);
@@ -1630,7 +1645,7 @@ class PlayState extends MusicBeatState
 					#end
 				}
 
-			case 1:
+			case OPPONENT:
 				if (!opponentMap.exists(newCharacter))
 				{
 					var newDad:Character = new Character(0, 0, newCharacter);
@@ -1643,7 +1658,7 @@ class PlayState extends MusicBeatState
 					#end
 				}
 
-			case 2:
+			case GIRLFRIEND:
 				if (gf != null && !gfMap.exists(newCharacter))
 				{
 					var newGf:Character = new Character(0, 0, newCharacter);
@@ -1728,7 +1743,7 @@ class PlayState extends MusicBeatState
 	// You don't have to add a song, just saying. You can just do "startDialogue(dialogueJson);" and it should work
 	public function startDialogue(dialogueFile:DialogueDef, ?song:String):Void
 	{
-		// TODO: Make this more flexible, maybe?
+		// TODO: Make this more flexible, maybe? (In what way, previous todo-commenter?)
 		if (psychDialogue != null)
 			return;
 
@@ -1861,6 +1876,300 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	// TODO This
+
+	/*
+		private function tankIntro():Void
+		{
+			var cutsceneHandler:CutsceneHandler = new CutsceneHandler();
+
+			opponentGroup.alpha = 0.00001;
+			camHUD.visible = false;
+			// inCutscene = true; //this would stop the camera movement, oops
+
+			var tankman:FlxSprite = new FlxSprite(-20, 320);
+			tankman.frames = Paths.getSparrowAtlas('cutscenes/' + song.id);
+			tankman.antialiasing = Options.save.data.globalAntialiasing;
+			addBehindDad(tankman);
+			cutsceneHandler.push(tankman);
+
+			var tankman2:FlxSprite = new FlxSprite(16, 312);
+			tankman2.antialiasing = Options.save.data.globalAntialiasing;
+			tankman2.alpha = 0.000001;
+			cutsceneHandler.push(tankman2);
+			var gfDance:FlxSprite = new FlxSprite(gf.x - 107, gf.y + 140);
+			gfDance.antialiasing = Options.save.data.globalAntialiasing;
+			cutsceneHandler.push(gfDance);
+			var gfCutscene:FlxSprite = new FlxSprite(gf.x - 104, gf.y + 122);
+			gfCutscene.antialiasing = Options.save.data.globalAntialiasing;
+			cutsceneHandler.push(gfCutscene);
+			var picoCutscene:FlxSprite = new FlxSprite(gf.x - 849, gf.y - 264);
+			picoCutscene.antialiasing = Options.save.data.globalAntialiasing;
+			cutsceneHandler.push(picoCutscene);
+			var boyfriendCutscene:FlxSprite = new FlxSprite(boyfriend.x + 5, boyfriend.y + 20);
+			boyfriendCutscene.antialiasing = Options.save.data.globalAntialiasing;
+			cutsceneHandler.push(boyfriendCutscene);
+
+			cutsceneHandler.finishCallback = function()
+			{
+				var timeForStuff:Float = Conductor.crotchetLength / TimingConstants.MILLISECONDS_PER_SECOND * 4.5;
+				FlxG.sound.music.fadeOut(timeForStuff);
+				FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, timeForStuff, {ease: FlxEase.quadInOut});
+				moveCamera(true);
+				startCountdown();
+
+				opponentGroup.alpha = 1;
+				camHUD.visible = true;
+				boyfriend.animation.finishCallback = null;
+				gf.animation.finishCallback = null;
+				gf.dance();
+			};
+
+			camFollow.set(opponent.x + 280, opponent.y + 170);
+			switch (song.id)
+			{
+				case 'ugh':
+					cutsceneHandler.endTime = 12;
+					cutsceneHandler.music = 'DISTORTO';
+					precacheList.set('wellWellWell', 'sound');
+					precacheList.set('killYou', 'sound');
+					precacheList.set('bfBeep', 'sound');
+
+					var wellWellWell:FlxSound = new FlxSound().loadEmbedded(Paths.sound('wellWellWell'));
+					FlxG.sound.list.add(wellWellWell);
+
+					tankman.animation.addByPrefix('wellWell', 'TANK TALK 1 P1', 24, false);
+					tankman.animation.addByPrefix('killYou', 'TANK TALK 1 P2', 24, false);
+					tankman.animation.play('wellWell', true);
+					FlxG.camera.zoom *= 1.2;
+
+					// Well well well, what do we got here?
+					cutsceneHandler.timer(0.1, function()
+					{
+						wellWellWell.play(true);
+					});
+
+					// Move camera to BF
+					cutsceneHandler.timer(3, function()
+					{
+						camFollow.x += 750;
+						camFollow.y += 100;
+					});
+
+					// Beep!
+					cutsceneHandler.timer(4.5, function()
+					{
+						boyfriend.playAnim('singUP', true);
+						boyfriend.specialAnim = true;
+						FlxG.sound.play(Paths.sound('bfBeep'));
+					});
+
+					// Move camera to Tankman
+					cutsceneHandler.timer(6, function()
+					{
+						camFollow.x -= 750;
+						camFollow.y -= 100;
+
+						// We should just kill you but... what the hell, it's been a boring day... let's see what you've got!
+						tankman.animation.play('killYou', true);
+						FlxG.sound.play(Paths.sound('killYou'));
+					});
+
+				case 'guns':
+					cutsceneHandler.endTime = 11.5;
+					cutsceneHandler.music = 'DISTORTO';
+					tankman.x += 40;
+					tankman.y += 10;
+					precacheList.set('tankSong2', 'sound');
+
+					var tightBars:FlxSound = new FlxSound().loadEmbedded(Paths.getSound('tankSong2'));
+					FlxG.sound.list.add(tightBars);
+
+					tankman.animation.addByPrefix('tightBars', 'TANK TALK 2', 24, false);
+					tankman.animation.play('tightBars', true);
+					boyfriend.animation.curAnim.finish();
+
+					cutsceneHandler.onStart = function()
+					{
+						tightBars.play(true);
+						FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 4, {ease: FlxEase.quadInOut});
+						FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2 * 1.2}, 0.5, {ease: FlxEase.quadInOut, startDelay: 4});
+						FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom * 1.2}, 1, {ease: FlxEase.quadInOut, startDelay: 4.5});
+					};
+
+					cutsceneHandler.timer(4, function()
+					{
+						gf.playAnim('sad', true);
+						gf.animation.finishCallback = function(name:String)
+						{
+							gf.playAnim('sad', true);
+						};
+					});
+
+				case 'stress':
+					cutsceneHandler.endTime = 35.5;
+					tankman.x -= 54;
+					tankman.y -= 14;
+					gfGroup.alpha = 0.00001;
+					boyfriendGroup.alpha = 0.00001;
+					camFollow.set(opponent.x + 400, opponent.y + 170);
+					FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2}, 1, {ease: FlxEase.quadInOut});
+					foregroundSprites.forEach(function(spr:BGSprite)
+					{
+						spr.y += 100;
+					});
+					precacheList.set('stressCutscene', 'sound');
+
+					tankman2.frames = Paths.getSparrowAtlas('cutscenes/stress2');
+					addBehindDad(tankman2);
+
+					if (!Options.save.data.lowQuality)
+					{
+						gfDance.frames = Paths.getSparrowAtlas('characters/gfTankmen');
+						gfDance.animation.addByPrefix('dance', 'GF Dancing at Gunpoint', 24, true);
+						gfDance.animation.play('dance', true);
+						addBehindGF(gfDance);
+					}
+
+					gfCutscene.frames = Paths.getSparrowAtlas('cutscenes/stressGF');
+					gfCutscene.animation.addByPrefix('dieBitch', 'GF STARTS TO TURN PART 1', 24, false);
+					gfCutscene.animation.addByPrefix('getRektLmao', 'GF STARTS TO TURN PART 2', 24, false);
+					gfCutscene.animation.play('dieBitch', true);
+					gfCutscene.animation.pause();
+					addBehindGF(gfCutscene);
+					if (!Options.save.data.lowQuality)
+					{
+						gfCutscene.alpha = 0.00001;
+					}
+
+					picoCutscene.frames = AtlasFrameMaker.construct('cutscenes/stressPico');
+					picoCutscene.animation.addByPrefix('anim', 'Pico Badass', 24, false);
+					addBehindGF(picoCutscene);
+					picoCutscene.alpha = 0.00001;
+
+					boyfriendCutscene.frames = Paths.getSparrowAtlas('characters/BOYFRIEND');
+					boyfriendCutscene.animation.addByPrefix('idle', 'BF idle dance', 24, false);
+					boyfriendCutscene.animation.play('idle', true);
+					boyfriendCutscene.animation.curAnim.finish();
+					addBehindBF(boyfriendCutscene);
+
+					var cutsceneSnd:FlxSound = new FlxSound().loadEmbedded(Paths.sound('stressCutscene'));
+					FlxG.sound.list.add(cutsceneSnd);
+
+					tankman.animation.addByPrefix('godEffingDamnIt', 'TANK TALK 3', 24, false);
+					tankman.animation.play('godEffingDamnIt', true);
+
+					var calledTimes:Int = 0;
+					var zoomBack:Void->Void = function()
+					{
+						var camPosX:Float = 630;
+						var camPosY:Float = 425;
+						camFollow.set(camPosX, camPosY);
+						camFollowPos.setPosition(camPosX, camPosY);
+						FlxG.camera.zoom = 0.8;
+						cameraSpeed = 1;
+
+						calledTimes++;
+						if (calledTimes > 1)
+						{
+							foregroundSprites.forEach(function(spr:BGSprite)
+							{
+								spr.y -= 100;
+							});
+						}
+					}
+
+					cutsceneHandler.onStart = function()
+					{
+						cutsceneSnd.play(true);
+					};
+
+					cutsceneHandler.timer(15.2, function()
+					{
+						FlxTween.tween(camFollow, {x: 650, y: 300}, 1, {ease: FlxEase.sineOut});
+						FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2 * 1.2}, 2.25, {ease: FlxEase.quadInOut});
+
+						gfDance.visible = false;
+						gfCutscene.alpha = 1;
+						gfCutscene.animation.play('dieBitch', true);
+						gfCutscene.animation.finishCallback = function(name:String)
+						{
+							if (name == 'dieBitch') // Next part
+							{
+								gfCutscene.animation.play('getRektLmao', true);
+								gfCutscene.offset.set(224, 445);
+							}
+							else
+							{
+								gfCutscene.visible = false;
+								picoCutscene.alpha = 1;
+								picoCutscene.animation.play('anim', true);
+
+								boyfriendGroup.alpha = 1;
+								boyfriendCutscene.visible = false;
+								boyfriend.playAnim('bfCatch', true);
+								boyfriend.animation.finishCallback = function(name:String)
+								{
+									if (name != 'idle')
+									{
+										boyfriend.playAnim('idle', true);
+										boyfriend.animation.curAnim.finish(); // Instantly goes to last frame
+									}
+								};
+
+								picoCutscene.animation.finishCallback = function(name:String)
+								{
+									picoCutscene.visible = false;
+									gfGroup.alpha = 1;
+									picoCutscene.animation.finishCallback = null;
+								};
+								gfCutscene.animation.finishCallback = null;
+							}
+						};
+					});
+
+					cutsceneHandler.timer(17.5, function()
+					{
+						zoomBack();
+					});
+
+					cutsceneHandler.timer(19.5, function()
+					{
+						tankman2.animation.addByPrefix('lookWhoItIs', 'TANK TALK 3', 24, false);
+						tankman2.animation.play('lookWhoItIs', true);
+						tankman2.alpha = 1;
+						tankman.visible = false;
+					});
+
+					cutsceneHandler.timer(20, function()
+					{
+						camFollow.set(opponent.x + 500, opponent.y + 170);
+					});
+
+					cutsceneHandler.timer(31.2, function()
+					{
+						boyfriend.playAnim('singUPmiss', true);
+						boyfriend.animation.finishCallback = function(name:String)
+						{
+							if (name == 'singUPmiss')
+							{
+								boyfriend.playAnim('idle', true);
+								boyfriend.animation.curAnim.finish(); // Instantly goes to last frame
+							}
+						};
+
+						camFollow.set(boyfriend.x + 280, boyfriend.y + 200);
+						cameraSpeed = 12;
+						FlxTween.tween(FlxG.camera, {zoom: 0.9 * 1.2 * 1.2}, 0.25, {ease: FlxEase.elasticOut});
+					});
+
+					cutsceneHandler.timer(32.2, function()
+					{
+						zoomBack();
+					});
+			}
+		}
+	 */
 	public function startCountdown():Void
 	{
 		if (startedCountdown)
@@ -1872,9 +2181,8 @@ class PlayState extends MusicBeatState
 		}
 
 		inCutscene = false;
-		// FIXME Some scripts crash the game upon reaching this function call
 		#if FEATURE_SCRIPTS
-		var ret:Any = callOnScripts('onStartCountdown', []);
+		var ret:Any = callOnScripts('onStartCountdown', [], false);
 		if (ret != FunkinScript.FUNCTION_STOP)
 		#end
 		{
@@ -2042,6 +2350,21 @@ class PlayState extends MusicBeatState
 				#end
 			}, 5);
 		}
+	}
+
+	public function addBehindBF(obj:FlxObject):Void
+	{
+		insert(members.indexOf(boyfriendGroup), obj);
+	}
+
+	public function addBehindDad(obj:FlxObject):Void
+	{
+		insert(members.indexOf(opponentGroup), obj);
+	}
+
+	public function addBehindGF(obj:FlxObject):Void
+	{
+		insert(members.indexOf(gfGroup), obj);
 	}
 
 	// TODO Make these loops tidier
@@ -2237,10 +2560,12 @@ class PlayState extends MusicBeatState
 			{
 				for (eventEntry in eventGroup.events)
 				{
-					// TODO Event Strum thing
-					var event:Event = new Event(/*eventGroup.strumTime + Std.parseInt(Options.save.data.noteOffset)*/ 0, eventGroup.beat, eventEntry.type,
-						eventEntry.value1, eventEntry.value2);
-					// event.strumTime -= eventEarlyTrigger(event);
+					var event:Event = new Event(0, eventGroup.beat, eventEntry.type, eventEntry.value1, eventEntry.value2);
+					var strumTime:Float = TimingStruct.getTimeFromBeat(event.beat);
+					strumTime += Std.parseInt(Options.save.data.noteOffset);
+					strumTime -= eventEarlyTrigger(event);
+					event.beat = TimingStruct.getBeatFromTime(strumTime);
+
 					events.push(event);
 					eventPushed(event);
 				}
@@ -2336,10 +2661,12 @@ class PlayState extends MusicBeatState
 		{
 			for (eventEntry in eventGroup.events)
 			{
-				// TODO Event Strum thing
-				var event:Event = new Event(/*eventGroup.strumTime + Std.parseInt(Options.save.data.noteOffset)*/ 0, eventGroup.beat, eventEntry.type,
-					eventEntry.value1, eventEntry.value2);
-				// event.strumTime -= eventEarlyTrigger(event);
+				var event:Event = new Event(0, eventGroup.beat, eventEntry.type, eventEntry.value1, eventEntry.value2);
+				var strumTime:Float = TimingStruct.getTimeFromBeat(event.beat);
+				strumTime += Std.parseInt(Options.save.data.noteOffset);
+				strumTime -= eventEarlyTrigger(event);
+				event.beat = TimingStruct.getBeatFromTime(strumTime);
+
 				events.push(event);
 				eventPushed(event);
 			}
@@ -2359,20 +2686,9 @@ class PlayState extends MusicBeatState
 		switch (event.type)
 		{
 			case 'Change Character':
-				var charType:Int = 0;
-				switch (event.value1.toLowerCase())
-				{
-					case 'gf' | 'girlfriend' | '2':
-						charType = 2;
-					case 'dad' | 'opponent' | '1':
-						charType = 1;
-					default:
-						charType = Std.parseInt(event.value1);
-						if (Math.isNaN(charType)) charType = 0;
-				}
-
+				var role:CharacterRole = CharacterRoleTools.createByString(event.value1.toLowerCase());
 				var newCharacter:String = event.value2;
-				addCharacterToList(newCharacter, charType);
+				addCharacterToList(newCharacter, role);
 		}
 
 		if (!eventPushedMap.exists(event.type))
@@ -2457,7 +2773,7 @@ class PlayState extends MusicBeatState
 		if (!paused && !inCutscene && !inResults)
 		{
 			#if FEATURE_SCRIPTS
-			var ret:Any = callOnScripts('onPause', []);
+			var ret:Any = callOnScripts('onPause', [], false);
 			if (ret != FunkinScript.FUNCTION_STOP)
 			#end
 			{
@@ -2586,7 +2902,7 @@ class PlayState extends MusicBeatState
 		if (((skipHealthCheck && PlayStateChangeables.instakillOnMiss) || health <= 0) && !PlayStateChangeables.practiceMode && !isDead)
 		{
 			#if FEATURE_SCRIPTS
-			var ret:Any = callOnScripts('onGameOver', []);
+			var ret:Any = callOnScripts('onGameOver', [], false);
 			if (ret != FunkinScript.FUNCTION_STOP)
 			#end
 			{
@@ -2938,6 +3254,9 @@ class PlayState extends MusicBeatState
 				{
 					camFollow.x = val1;
 					camFollow.y = val2;
+
+					camFollowNoDirectional.set(camFollow.x, camFollow.y);
+
 					isCameraOnForcedPos = true;
 				}
 
@@ -2991,26 +3310,15 @@ class PlayState extends MusicBeatState
 				}
 
 			case 'Change Character':
-				var charType:Int = 0;
-				switch (value1)
+				var role:CharacterRole = CharacterRoleTools.createByString(value1.toLowerCase());
+				switch (role)
 				{
-					case 'gf' | 'girlfriend':
-						charType = 2;
-					case 'dad' | 'opponent':
-						charType = 1;
-					default:
-						charType = Std.parseInt(value1);
-						if (Math.isNaN(charType)) charType = 0;
-				}
-
-				switch (charType)
-				{
-					case 0:
+					case PLAYER:
 						if (boyfriend.id != value2)
 						{
 							if (!boyfriendMap.exists(value2))
 							{
-								addCharacterToList(value2, charType);
+								addCharacterToList(value2, role);
 							}
 
 							var lastAlpha:Float = boyfriend.alpha;
@@ -3023,12 +3331,12 @@ class PlayState extends MusicBeatState
 						setOnScripts('boyfriendName', boyfriend.id);
 						#end
 
-					case 1:
+					case OPPONENT:
 						if (opponent.id != value2)
 						{
 							if (!opponentMap.exists(value2))
 							{
-								addCharacterToList(value2, charType);
+								addCharacterToList(value2, role);
 							}
 
 							var wasGf:Bool = opponent.id.startsWith('gf');
@@ -3053,14 +3361,14 @@ class PlayState extends MusicBeatState
 						setOnScripts('dadName', opponent.id);
 						#end
 
-					case 2:
+					case GIRLFRIEND:
 						if (gf != null)
 						{
 							if (gf.id != value2)
 							{
 								if (!gfMap.exists(value2))
 								{
-									addCharacterToList(value2, charType);
+									addCharacterToList(value2, role);
 								}
 
 								var lastAlpha:Float = gf.alpha;
@@ -3144,6 +3452,9 @@ class PlayState extends MusicBeatState
 			camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
 			camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
 			camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
+
+			camFollowNoDirectional.set(camFollow.x, camFollow.y);
+
 			tweenCamIn();
 			#if FEATURE_SCRIPTS
 			callOnScripts('onMoveCamera', ['gf']);
@@ -3174,6 +3485,9 @@ class PlayState extends MusicBeatState
 			camFollow.set(opponent.getMidpoint().x + 150, opponent.getMidpoint().y - 100);
 			camFollow.x += opponent.cameraPosition[0] + opponentCameraOffset[0];
 			camFollow.y += opponent.cameraPosition[1] + opponentCameraOffset[1];
+
+			camFollowNoDirectional.set(camFollow.x, camFollow.y);
+
 			tweenCamIn();
 		}
 		else
@@ -3181,6 +3495,8 @@ class PlayState extends MusicBeatState
 			camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 			camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
 			camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
+
+			camFollowNoDirectional.set(camFollow.x, camFollow.y);
 
 			if (song.id == 'tutorial' && cameraTwn == null && FlxG.camera.zoom != 1)
 			{
@@ -3213,6 +3529,7 @@ class PlayState extends MusicBeatState
 	{
 		camFollow.set(x, y);
 		camFollowPos.setPosition(x, y);
+		camFollowNoDirectional.set(x, y);
 	}
 
 	public function finishSong(ignoreNoteOffset:Bool = false):Void
@@ -3305,7 +3622,7 @@ class PlayState extends MusicBeatState
 		#end
 
 		#if FEATURE_SCRIPTS
-		var ret:Any = callOnScripts('onEndSong', []);
+		var ret:Any = callOnScripts('onEndSong', [], false);
 		#end
 		if (#if FEATURE_SCRIPTS ret != FunkinScript.FUNCTION_STOP && #end!transitioning)
 		{
@@ -4069,25 +4386,24 @@ class PlayState extends MusicBeatState
 
 			if (!note.noAnimation)
 			{
-				// TODO Make an "animSuffix" variable for notes so this doesn't have to be hard-coded
-				var altSuffix:String = '';
-				if (note.noteType == 'Alt Animation')
-					altSuffix = '-alt';
-
 				var animToPlay:String = 'sing${NoteKey.createByIndex(note.noteData)}';
+				if (note.animSuffix != null && note.animSuffix.length > 0)
+				{
+					animToPlay += note.animSuffix;
+				}
 
 				if (note.gfNote)
 				{
 					if (gf != null)
 					{
-						gf.playAnim(animToPlay + altSuffix, true);
+						gf.playAnim(animToPlay, true);
 						gf.holdTimer = 0;
 						updateDirectionalCamera();
 					}
 				}
 				else
 				{
-					boyfriend.playAnim(animToPlay + altSuffix, true);
+					boyfriend.playAnim(animToPlay, true);
 					boyfriend.holdTimer = 0;
 					updateDirectionalCamera();
 				}
@@ -4198,11 +4514,11 @@ class PlayState extends MusicBeatState
 
 		if (char != null && char.hasMissAnimations)
 		{
-			var altSuffix:String = '';
-			if (missedNote.noteType == 'Alt Animation')
-				altSuffix = '-alt';
-
-			var animToPlay:String = 'sing${NoteKey.createByIndex(missedNote.noteData)}miss$altSuffix';
+			var animToPlay:String = 'sing${NoteKey.createByIndex(missedNote.noteData)}miss';
+			if (missedNote.animSuffix != null && missedNote.animSuffix.length > 0)
+			{
+				animToPlay += missedNote.animSuffix;
+			}
 			char.playAnim(animToPlay, true);
 			updateDirectionalCamera();
 		}
@@ -4274,18 +4590,21 @@ class PlayState extends MusicBeatState
 		}
 		else if (!note.noAnimation)
 		{
-			var altAnim:String = '';
-
 			if (currentSection != null)
 			{
-				if (currentSection.altAnim || note.noteType == 'Alt Animation')
+				if (currentSection.altAnim && (note.animSuffix == null || note.animSuffix.length <= 0))
 				{
-					altAnim = '-alt';
+					note.animSuffix = '-alt';
 				}
 			}
 
 			var char:Character = opponent;
-			var animToPlay:String = 'sing${NoteKey.createByIndex(note.noteData)}$altAnim';
+			var animToPlay:String = 'sing${NoteKey.createByIndex(note.noteData)}';
+			if (note.animSuffix != null && note.animSuffix.length > 0)
+			{
+				animToPlay += note.animSuffix;
+			}
+
 			if (note.gfNote)
 			{
 				char = gf;
@@ -4381,8 +4700,8 @@ class PlayState extends MusicBeatState
 	{
 		if (Options.save.data.camFollowsAnims)
 		{
-			// FIXME Stuff like the ChallengEdd port's camera during the Eduardo bit doesn't work properly when this function is resetting the camera position constantly
-			moveCameraSection(currentSection); // Reset the directional camera to be in the middle
+			// Reset the directional camera
+			camFollow.set(camFollowNoDirectional.x, camFollowNoDirectional.y);
 
 			var focusedChar:Null<Character> = null;
 			switch (focus)
@@ -4417,31 +4736,28 @@ class PlayState extends MusicBeatState
 	}
 
 	#if FEATURE_SCRIPTS
-	public function removeScript(script:FunkinScript):Void
-	{
-		if (scriptArray != null && !preventScriptRemove)
-		{
-			scriptArray.remove(script);
-		}
-	}
-
-	public function callOnScripts(event:String, args:Array<Any>):Any
+	public function callOnScripts(event:String, args:Array<Any>, ignoreStops:Bool = true, ?exclusions:Array<String>):Any
 	{
 		var returnVal:Any = FunkinScript.FUNCTION_CONTINUE;
 		for (script in scriptArray)
 		{
+			if (exclusions != null && exclusions.contains(script.scriptName))
+			{
+				continue;
+			}
+
 			var ret:Any = script.call(event, args);
+			if (ret == FunkinScript.FUNCTION_STOP_LUA && !ignoreStops)
+			{
+				break;
+			}
+
 			if (ret != FunkinScript.FUNCTION_CONTINUE)
 			{
 				returnVal = ret;
 			}
 		}
 
-		for (script in scriptsToClose)
-		{
-			script.stop();
-			scriptArray.remove(script);
-		}
 		return returnVal;
 	}
 
@@ -4480,7 +4796,7 @@ class PlayState extends MusicBeatState
 		setOnScripts('misses', misses);
 		setOnScripts('hits', hits);
 
-		var ret:Any = callOnScripts('onRecalculateRating', []);
+		var ret:Any = callOnScripts('onRecalculateRating', [], false);
 		if (ret != FunkinScript.FUNCTION_STOP)
 		#end
 		{

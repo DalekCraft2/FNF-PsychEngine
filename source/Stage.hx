@@ -13,10 +13,8 @@ using StringTools;
 
 typedef StageDef =
 {
-	var directory:String;
 	var defaultZoom:Float;
 	var isPixelStage:Bool;
-
 	var boyfriend:Array<Float>;
 	var girlfriend:Array<Float>;
 	var opponent:Array<Float>;
@@ -25,6 +23,21 @@ typedef StageDef =
 	var cameraOpponent:Array<Float>;
 	var cameraGirlfriend:Array<Float>;
 	var ?cameraSpeed:Float;
+	// var background:Array<Dynamic>;
+	// var groups:Array<Dynamic>;
+	// var foreground:Array<Dynamic>;
+	// var objectOrder:Array<Dynamic>;
+	// var playerPosition:CoordStruct;
+	// var gfPosition:CoordStruct;
+	// var opponentPosition:CoordStruct;
+	// var playerCameraPos:CoordStruct;
+	// var gfCameraPos:CoordStruct;
+	// var opponentCameraPos:CoordStruct;
+	// var ?hideGirlfriend:Bool;
+	// var ?cameraZoom:Float;
+	// var ?cameraSpeed:Float;
+	// var ?hasLightning:Bool;
+	// var ?isPixelStage:Bool;
 }
 
 // TODO Add layers to Stage JSON file, like Myth?
@@ -101,7 +114,6 @@ class Stage
 			Debug.logError('Could not find stage data for stage "$id"; using default');
 			// Stage couldn't be found, create a dummy stage for preventing a crash
 			stageDef = {
-				directory: '',
 				defaultZoom: 0.9,
 				isPixelStage: false,
 
@@ -875,7 +887,6 @@ class Stage
 
 	private function copyDataFields(stageDef:StageDef):Void
 	{
-		directory = stageDef.directory;
 		defaultZoom = stageDef.defaultZoom;
 		isPixelStage = stageDef.isPixelStage;
 		boyfriend = stageDef.boyfriend;

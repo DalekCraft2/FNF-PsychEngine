@@ -6,7 +6,6 @@ class ChartUtils
 {
 	public static function read(song:Dynamic):Song
 	{
-		// TODO Make chart readers for each format
 		var chartFormat:ChartFormat = getChartFormat(song);
 		Debug.logTrace('Format: $chartFormat');
 		switch (chartFormat)

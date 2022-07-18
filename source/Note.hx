@@ -80,6 +80,8 @@ class Note extends FlxSprite
 
 	public var hitsoundDisabled:Bool = false;
 
+	public var animSuffix:String = '';
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, isSustainNote:Bool = false, inEditor:Bool = false, beat:Float)
 	{
 		super();
@@ -368,6 +370,8 @@ class Note extends FlxSprite
 						noAnimation = true;
 					case 'GF Sing':
 						gfNote = true;
+					case 'Alt Animation':
+						animSuffix = '-alt';
 				}
 			}
 			noteSplashHue = colorSwap.hue;

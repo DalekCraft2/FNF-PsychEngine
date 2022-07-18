@@ -1,8 +1,8 @@
 package;
 
-import haxe.exceptions.PosException;
-import haxe.Exception;
 #if FEATURE_SCRIPTS
+import Character.CharacterRole;
+import Character.CharacterRoleTools;
 import DialogueBoxPsych.DialogueDef;
 import animateatlas.AtlasFrameMaker;
 import chart.container.Song;
@@ -22,6 +22,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
+import haxe.Exception;
 import haxe.io.Path;
 import openfl.display.BlendMode;
 
@@ -45,8 +46,9 @@ import Discord.DiscordClient;
 // TODO Possibly switch to hscript
 class FunkinScript
 {
-	public static inline final FUNCTION_STOP:Int = 1;
-	public static inline final FUNCTION_CONTINUE:Int = 0;
+	public static final FUNCTION_CONTINUE:Any = 0;
+	public static final FUNCTION_STOP:Any = 1;
+	public static final FUNCTION_STOP_LUA:Any = 2;
 
 	#if FEATURE_LUA
 	// Fuck this, I can't figure out linc_lua, so I'mma set everything in Lua itself - Super
@@ -65,7 +67,7 @@ class FunkinScript
 	#end
 	public var scriptName:String = '';
 
-	private var gonnaClose:Bool = false;
+	private var closed:Bool = false;
 
 	public function new(path:String)
 	{
@@ -89,8 +91,7 @@ class FunkinScript
 		var resultStr:String = Lua.tostring(lua, result);
 		if (resultStr != null && result != 0)
 		{
-			Debug.logError('Error loading script "$path": $resultStr');
-			scriptWarn('Error loading script: "$path"\n$resultStr', true, false);
+			scriptError('Error loading script "$path": $resultStr', true, false);
 			Debug.displayAlert('Error loading script', resultStr);
 			lua = null;
 			return;
@@ -100,8 +101,7 @@ class FunkinScript
 		var program:Expr = parser.parseString(script);
 		if (program == null)
 		{
-			Debug.logError('Error loading script "$path"');
-			scriptWarn('Error loading script: "$path"', true, false);
+			scriptError('Error loading script "$path"', true, false);
 			// Debug.displayAlert('Error loading script');
 			interp = null;
 			return;
@@ -111,12 +111,14 @@ class FunkinScript
 		Debug.logTrace('Script loaded succesfully: $path');
 
 		// Script variables
-		set('FUNCTION_STOP', FUNCTION_STOP);
 		set('FUNCTION_CONTINUE', FUNCTION_CONTINUE);
+		set('FUNCTION_STOP', FUNCTION_STOP);
+		set('FUNCTION_STOP_LUA', FUNCTION_STOP_LUA);
 
 		// These two are for legacy support
-		set('Function_Stop', FUNCTION_STOP);
 		set('Function_Continue', FUNCTION_CONTINUE);
+		set('Function_Stop', FUNCTION_STOP);
+		set('Function_StopLua', FUNCTION_STOP_LUA);
 
 		set('luaDebugMode', false);
 		set('luaDeprecatedWarnings', true);
@@ -213,355 +215,206 @@ class FunkinScript
 		set('resetButton', Options.save.data.resetKey);
 		set('lowQuality', Options.save.data.lowQuality);
 
-		#if windows
-		set('buildTarget', 'windows');
-		#elseif linux
-		set('buildTarget', 'linux');
-		#elseif mac
-		set('buildTarget', 'mac');
-		#elseif html5
-		set('buildTarget', 'html5');
-		#elseif android
-		set('buildTarget', 'android');
-		#else
-		set('buildTarget', 'unknown');
-		#end
+		set('buildTarget', haxe.macro.Compiler.getDefine('target'));
 
-		// set("getRunningScripts", function()
-		// {
-		// 	var runningScripts:Array<String> = [];
-		// 	for (idx in 0...PlayState.instance.scriptArray.length)
-		// 		runningScripts.push(PlayState.instance.scriptArray[idx].scriptName);
+		set("getRunningScripts", function():Array<String>
+		{
+			var runningScripts:Array<String> = [];
+			for (script in PlayState.instance.scriptArray)
+				runningScripts.push(script.scriptName);
+			return runningScripts;
+		});
 
-		// 	return runningScripts;
-		// });
+		set("callOnScripts", function(?funcName:String, ?args:Array<Dynamic>, ignoreStops = false, ignoreSelf = true, ?exclusions:Array<String>):Void
+		{
+			if (funcName == null)
+			{
+				#if (linc_luajit >= "0.0.6")
+				LuaL.error(lua, "bad argument #1 to 'callOnScripts' (string expected, got nil)");
+				#end
+				return;
+			}
+			if (args == null)
+				args = [];
 
-		// set("callOnScripts", function(?funcName:String, ?args:Array<Dynamic>, ignoreStops = false, ignoreSelf = true, ?exclusions:Array<String>)
-		// {
-		// 	if (funcName == null)
-		// 	{
-		// 		#if (linc_luajit >= "0.0.6")
-		// 		LuaL.error(lua, "bad argument #1 to 'callOnScripts' (string expected, got nil)");
-		// 		#end
-		// 		return;
-		// 	}
-		// 	if (args == null)
-		// 		args = [];
+			if (exclusions == null)
+				exclusions = [];
 
-		// 	if (exclusions == null)
-		// 		exclusions = [];
+			Lua.getglobal(lua, 'scriptName');
+			var daScriptName = Lua.tostring(lua, -1);
+			Lua.pop(lua, 1);
+			if (ignoreSelf && !exclusions.contains(daScriptName))
+				exclusions.push(daScriptName);
+			PlayState.instance.callOnScripts(funcName, args, ignoreStops, exclusions);
+		});
 
-		// 	Lua.getglobal(lua, 'scriptName');
-		// 	var daScriptName = Lua.tostring(lua, -1);
-		// 	Lua.pop(lua, 1);
-		// 	if (ignoreSelf && !exclusions.contains(daScriptName))
-		// 		exclusions.push(daScriptName);
-		// 	PlayState.instance.callOnScripts(funcName, args, ignoreStops, exclusions);
-		// });
+		set("callScript", function(?key:String, ?funcName:String, ?args:Array<Dynamic>):Void
+		{
+			if (key == null)
+			{
+				#if (linc_luajit >= "0.0.6")
+				LuaL.error(lua, "bad argument #1 to 'callScript' (string expected, got nil)");
+				#end
+				return;
+			}
+			if (funcName == null)
+			{
+				#if (linc_luajit >= "0.0.6")
+				LuaL.error(lua, "bad argument #2 to 'callScript' (string expected, got nil)");
+				#end
+				return;
+			}
+			if (args == null)
+			{
+				args = [];
+			}
+			var path:String = Paths.script(key);
+			if (Paths.exists(path))
+			{
+				for (script in PlayState.instance.scriptArray)
+				{
+					if (script.scriptName == path)
+					{
+						script.call(funcName, args);
 
-		// set("callScript", function(?luaFile:String, ?funcName:String, ?args:Array<Dynamic>)
-		// {
-		// 	if (luaFile == null)
-		// 	{
-		// 		#if (linc_luajit >= "0.0.6")
-		// 		LuaL.error(lua, "bad argument #1 to 'callScript' (string expected, got nil)");
-		// 		#end
-		// 		return;
-		// 	}
-		// 	if (funcName == null)
-		// 	{
-		// 		#if (linc_luajit >= "0.0.6")
-		// 		LuaL.error(lua, "bad argument #2 to 'callScript' (string expected, got nil)");
-		// 		#end
-		// 		return;
-		// 	}
-		// 	if (args == null)
-		// 	{
-		// 		args = [];
-		// 	}
-		// 	var cervix = luaFile + ".lua";
-		// 	if (luaFile.endsWith(".lua"))
-		// 		cervix = luaFile;
-		// 	var doPush = false;
-		// 	#if MODS_ALLOWED
-		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
-		// 	{
-		// 		cervix = Paths.modFolders(cervix);
-		// 		doPush = true;
-		// 	}
-		// 	else if (FileSystem.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	else
-		// 	{
-		// 		cervix = Paths.getPreloadPath(cervix);
-		// 		if (FileSystem.exists(cervix))
-		// 		{
-		// 			doPush = true;
-		// 		}
-		// 	}
-		// 	#else
-		// 	cervix = Paths.getPreloadPath(cervix);
-		// 	if (Assets.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	#end
-		// 	if (doPush)
-		// 	{
-		// 		for (luaInstance in PlayState.instance.luaArray)
-		// 		{
-		// 			if (luaInstance.scriptName == cervix)
-		// 			{
-		// 				luaInstance.call(funcName, args);
+						return;
+					}
+				}
+			}
+			Lua.pushnil(lua);
+		});
 
-		// 				return;
-		// 			}
-		// 		}
-		// 	}
-		// 	Lua.pushnil(lua);
-		// });
+		set("getGlobalFromScript", function(?key:String, ?global:String):Void // TODO Make this actually return something
+		{ // returns the global from a script
+			var path:String = Paths.script(key);
+			if (Paths.exists(path))
+			{
+				for (script in PlayState.instance.scriptArray)
+				{
+					if (script.scriptName == path)
+					{
+						Lua.getglobal(script.lua, global);
+						if (Lua.isnumber(script.lua, -1))
+						{
+							Lua.pushnumber(lua, Lua.tonumber(script.lua, -1));
+						}
+						else if (Lua.isstring(script.lua, -1))
+						{
+							Lua.pushstring(lua, Lua.tostring(script.lua, -1));
+						}
+						else if (Lua.isboolean(script.lua, -1) == 1)
+						{
+							Lua.pushboolean(lua, Lua.toboolean(script.lua, -1));
+						}
+						else
+						{
+							Lua.pushnil(lua);
+						}
+						// TODO: table
 
-		// set("getGlobalFromScript", function(?luaFile:String, ?global:String)
-		// { // returns the global from a script
-		// 	if (luaFile == null)
-		// 	{
-		// 		#if (linc_luajit >= "0.0.6")
-		// 		LuaL.error(lua, "bad argument #1 to 'getGlobalFromScript' (string expected, got nil)");
-		// 		#end
-		// 		return;
-		// 	}
-		// 	if (global == null)
-		// 	{
-		// 		#if (linc_luajit >= "0.0.6")
-		// 		LuaL.error(lua, "bad argument #2 to 'getGlobalFromScript' (string expected, got nil)");
-		// 		#end
-		// 		return;
-		// 	}
-		// 	var cervix = luaFile + ".lua";
-		// 	if (luaFile.endsWith(".lua"))
-		// 		cervix = luaFile;
-		// 	var doPush = false;
-		// 	#if MODS_ALLOWED
-		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
-		// 	{
-		// 		cervix = Paths.modFolders(cervix);
-		// 		doPush = true;
-		// 	}
-		// 	else if (FileSystem.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	else
-		// 	{
-		// 		cervix = Paths.getPreloadPath(cervix);
-		// 		if (FileSystem.exists(cervix))
-		// 		{
-		// 			doPush = true;
-		// 		}
-		// 	}
-		// 	#else
-		// 	cervix = Paths.getPreloadPath(cervix);
-		// 	if (Assets.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	#end
-		// 	if (doPush)
-		// 	{
-		// 		for (luaInstance in PlayState.instance.luaArray)
-		// 		{
-		// 			if (luaInstance.scriptName == cervix)
-		// 			{
-		// 				Lua.getglobal(luaInstance.lua, global);
-		// 				if (Lua.isnumber(luaInstance.lua, -1))
-		// 				{
-		// 					Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -1));
-		// 				}
-		// 				else if (Lua.isstring(luaInstance.lua, -1))
-		// 				{
-		// 					Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -1));
-		// 				}
-		// 				else if (Lua.isboolean(luaInstance.lua, -1))
-		// 				{
-		// 					Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -1));
-		// 				}
-		// 				else
-		// 				{
-		// 					Lua.pushnil(lua);
-		// 				}
-		// 				// TODO: table
+						Lua.pop(script.lua, 1); // remove the global
 
-		// 				Lua.pop(luaInstance.lua, 1); // remove the global
-
-		// 				return;
-		// 			}
-		// 		}
-		// 	}
-		// 	Lua.pushnil(lua);
-		// });
-		// set("setGlobalFromScript", function(luaFile:String, global:String, val:Dynamic)
-		// { // returns the global from a script
-		// 	var cervix = luaFile + ".lua";
-		// 	if (luaFile.endsWith(".lua"))
-		// 		cervix = luaFile;
-		// 	var doPush = false;
-		// 	#if MODS_ALLOWED
-		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
-		// 	{
-		// 		cervix = Paths.modFolders(cervix);
-		// 		doPush = true;
-		// 	}
-		// 	else if (FileSystem.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	else
-		// 	{
-		// 		cervix = Paths.getPreloadPath(cervix);
-		// 		if (FileSystem.exists(cervix))
-		// 		{
-		// 			doPush = true;
-		// 		}
-		// 	}
-		// 	#else
-		// 	cervix = Paths.getPreloadPath(cervix);
-		// 	if (Assets.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	#end
-		// 	if (doPush)
-		// 	{
-		// 		for (luaInstance in PlayState.instance.luaArray)
-		// 		{
-		// 			if (luaInstance.scriptName == cervix)
-		// 			{
-		// 				luaInstance.set(global, val);
-		// 			}
-		// 		}
-		// 	}
-		// 	Lua.pushnil(lua);
-		// });
-		// /*Lua_helper.add_callback(lua, "getGlobals", function(luaFile:String){ // returns a copy of the specified file's globals
-		// 	var cervix = luaFile + ".lua";
-		// 	if(luaFile.endsWith(".lua"))cervix=luaFile;
-		// 	var doPush = false;
-		// 	#if MODS_ALLOWED
-		// 	if(FileSystem.exists(Paths.modFolders(cervix)))
-		// 	{
-		// 		cervix = Paths.modFolders(cervix);
-		// 		doPush = true;
-		// 	}
-		// 	else if(FileSystem.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	else {
-		// 		cervix = Paths.getPreloadPath(cervix);
-		// 		if(FileSystem.exists(cervix)) {
-		// 			doPush = true;
-		// 		}
-		// 	}
-		// 	#else
-		// 	cervix = Paths.getPreloadPath(cervix);
-		// 	if(Assets.exists(cervix)) {
-		// 		doPush = true;
-		// 	}
-		// 	#end
-		// 	if(doPush)
-		// 	{
-		// 		for (luaInstance in PlayState.instance.luaArray)
-		// 		{
-		// 			if(luaInstance.scriptName == cervix)
-		// 			{
-		// 				Lua.newtable(lua);
-		// 				var tableIdx = Lua.gettop(lua);
-		// 				Lua.pushvalue(luaInstance.lua, Lua.LUA_GLOBALSINDEX);
-		// 				Lua.pushnil(luaInstance.lua);
-		// 				while(Lua.next(luaInstance.lua, -2) != 0) {
-		// 					// key = -2
-		// 					// value = -1
-		// 					var pop:Int = 0;
-		// 					// Manual conversion
-		// 					// first we convert the key
-		// 					if(Lua.isnumber(luaInstance.lua,-2)){
-		// 						Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -2));
-		// 						pop++;
-		// 					}else if(Lua.isstring(luaInstance.lua,-2)){
-		// 						Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -2));
-		// 						pop++;
-		// 					}else if(Lua.isboolean(luaInstance.lua,-2)){
-		// 						Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -2));
-		// 						pop++;
-		// 					}
-		// 					// TODO: table
-		// 					// then the value
-		// 					if(Lua.isnumber(luaInstance.lua,-1)){
-		// 						Lua.pushnumber(lua, Lua.tonumber(luaInstance.lua, -1));
-		// 						pop++;
-		// 					}else if(Lua.isstring(luaInstance.lua,-1)){
-		// 						Lua.pushstring(lua, Lua.tostring(luaInstance.lua, -1));
-		// 						pop++;
-		// 					}else if(Lua.isboolean(luaInstance.lua,-1)){
-		// 						Lua.pushboolean(lua, Lua.toboolean(luaInstance.lua, -1));
-		// 						pop++;
-		// 					}
-		// 					// TODO: table
-		// 					if(pop==2)Lua.rawset(lua, tableIdx); // then set it
-		// 					Lua.pop(luaInstance.lua, 1); // for the loop
-		// 				}
-		// 				Lua.pop(luaInstance.lua,1); // end the loop entirely
-		// 				Lua.pushvalue(lua, tableIdx); // push the table onto the stack so it gets returned
-		// 				return;
-		// 			}
-		// 		}
-		// 	}
-		// 	Lua.pushnil(lua);
-		// });*/
-		// set("isRunning", function(luaFile:String)
-		// {
-		// 	var cervix = luaFile + ".lua";
-		// 	if (luaFile.endsWith(".lua"))
-		// 		cervix = luaFile;
-		// 	var doPush = false;
-		// 	#if MODS_ALLOWED
-		// 	if (FileSystem.exists(Paths.modFolders(cervix)))
-		// 	{
-		// 		cervix = Paths.modFolders(cervix);
-		// 		doPush = true;
-		// 	}
-		// 	else if (FileSystem.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	else
-		// 	{
-		// 		cervix = Paths.getPreloadPath(cervix);
-		// 		if (FileSystem.exists(cervix))
-		// 		{
-		// 			doPush = true;
-		// 		}
-		// 	}
-		// 	#else
-		// 	cervix = Paths.getPreloadPath(cervix);
-		// 	if (Assets.exists(cervix))
-		// 	{
-		// 		doPush = true;
-		// 	}
-		// 	#end
-
-		// 	if (doPush)
-		// 	{
-		// 		for (luaInstance in PlayState.instance.luaArray)
-		// 		{
-		// 			if (luaInstance.scriptName == cervix)
-		// 				return true;
-		// 		}
-		// 	}
-		// 	return false;
-		// });
+						return;
+					}
+				}
+			}
+			Lua.pushnil(lua);
+		});
+		set("setGlobalFromScript", function(key:String, global:String, val:Dynamic):Void
+		{ // returns the global from a script
+			var path:String = Paths.script(key);
+			if (Paths.exists(path))
+			{
+				for (script in PlayState.instance.scriptArray)
+				{
+					if (script.scriptName == path)
+					{
+						script.set(global, val);
+					}
+				}
+			}
+			Lua.pushnil(lua);
+		});
+		// /*
+		set("getGlobals", function(key:String)
+		{ // returns a copy of the specified file's globals
+			var path:String = Paths.script(key);
+			if (Paths.exists(path))
+			{
+				for (script in PlayState.instance.scriptArray)
+				{
+					if (script.scriptName == path)
+					{
+						Lua.newtable(lua);
+						var tableIdx = Lua.gettop(lua);
+						Lua.pushvalue(script.lua, Lua.LUA_GLOBALSINDEX);
+						Lua.pushnil(script.lua);
+						while (Lua.next(script.lua, -2) != 0)
+						{
+							// key = -2
+							// value = -1
+							var pop:Int = 0;
+							// Manual conversion
+							// first we convert the key
+							if (Lua.isnumber(script.lua, -2))
+							{
+								Lua.pushnumber(lua, Lua.tonumber(script.lua, -2));
+								pop++;
+							}
+							else if (Lua.isstring(script.lua, -2))
+							{
+								Lua.pushstring(lua, Lua.tostring(script.lua, -2));
+								pop++;
+							}
+							else if (Lua.isboolean(script.lua, -2) == 1)
+							{
+								Lua.pushboolean(lua, Lua.toboolean(script.lua, -2));
+								pop++;
+							}
+							// TODO: table
+							// then the value
+							if (Lua.isnumber(script.lua, -1))
+							{
+								Lua.pushnumber(lua, Lua.tonumber(script.lua, -1));
+								pop++;
+							}
+							else if (Lua.isstring(script.lua, -1))
+							{
+								Lua.pushstring(lua, Lua.tostring(script.lua, -1));
+								pop++;
+							}
+							else if (Lua.isboolean(script.lua, -1) == 1)
+							{
+								Lua.pushboolean(lua, Lua.toboolean(script.lua, -1));
+								pop++;
+							}
+							// TODO: table
+							if (pop == 2)
+								Lua.rawset(lua, tableIdx); // then set it
+							Lua.pop(script.lua, 1); // for the loop
+						}
+						Lua.pop(script.lua, 1); // end the loop entirely
+						Lua.pushvalue(lua, tableIdx); // push the table onto the stack so it gets returned
+						return;
+					}
+				}
+			}
+			Lua.pushnil(lua);
+		});
+		// */
+		set("isRunning", function(key:String)
+		{
+			var path:String = Paths.script(key);
+			if (Paths.exists(path))
+			{
+				for (script in PlayState.instance.scriptArray)
+				{
+					if (script.scriptName == path)
+						return true;
+				}
+			}
+			return false;
+		});
 		set('addScript', function(key:String, ignoreAlreadyRunning:Bool = false):Void
 		{
 			var path:String = Paths.script(key);
@@ -596,7 +449,6 @@ class FunkinScript
 						if (script.scriptName == path)
 						{
 							PlayState.instance.scriptArray.remove(script);
-							// stop();
 							return;
 						}
 					}
@@ -1188,17 +1040,10 @@ class FunkinScript
 			}
 			return key;
 		});
-		set('addCharacterToList', function(name:String, type:String):Void
+		set('addCharacterToList', function(name:String, roleName:String):Void
 		{
-			var charType:Int = 0;
-			switch (type.toLowerCase())
-			{
-				case 'dad' | 'opponent':
-					charType = 1;
-				case 'gf' | 'girlfriend':
-					charType = 2;
-			}
-			PlayState.instance.addCharacterToList(name, charType);
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			PlayState.instance.addCharacterToList(name, role);
 		});
 		set('precacheImage', function(name:String):Void
 		{
@@ -1220,7 +1065,7 @@ class FunkinScript
 			scriptTrace('Triggered event: $name, $value1, $value2');
 		});
 
-		set('startCountdown', function(variable:String):Void
+		set('startCountdown', function():Void
 		{
 			PlayState.instance.startCountdown();
 		});
@@ -1258,73 +1103,79 @@ class FunkinScript
 			return Conductor.songPosition;
 		});
 
-		set('getCharacterX', function(type:String):Float
+		set('getCharacterX', function(roleName:String):Float
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					return PlayState.instance.opponentGroup.x;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					return PlayState.instance.gfGroup.x;
 				default:
 					return PlayState.instance.boyfriendGroup.x;
 			}
 		});
-		set('setCharacterX', function(type:String, value:Float):Void
+		set('setCharacterX', function(roleName:String, value:Float):Void
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					PlayState.instance.opponentGroup.x = value;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					PlayState.instance.gfGroup.x = value;
 				default:
 					PlayState.instance.boyfriendGroup.x = value;
 			}
 		});
-		set('getCharacterY', function(type:String):Float
+		set('getCharacterY', function(roleName:String):Float
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					return PlayState.instance.opponentGroup.y;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					return PlayState.instance.gfGroup.y;
 				default:
 					return PlayState.instance.boyfriendGroup.y;
 			}
 		});
-		set('setCharacterY', function(type:String, value:Float):Void
+		set('setCharacterY', function(roleName:String, value:Float):Void
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					PlayState.instance.opponentGroup.y = value;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					PlayState.instance.gfGroup.y = value;
 				default:
 					PlayState.instance.boyfriendGroup.y = value;
 			}
 		});
-		set('getCharacterAngle', function(type:String):Float
+		set('getCharacterAngle', function(roleName:String):Float
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					return PlayState.instance.opponentGroup.angle;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					return PlayState.instance.gfGroup.angle;
 				default:
 					return PlayState.instance.boyfriendGroup.angle;
 			}
 		});
-		set('setCharacterAngle', function(type:String, value:Float):Void
+		set('setCharacterAngle', function(roleName:String, value:Float):Void
 		{
-			switch (type.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					PlayState.instance.opponentGroup.angle = value;
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					PlayState.instance.gfGroup.angle = value;
 				default:
 					PlayState.instance.boyfriendGroup.angle = value;
@@ -1429,14 +1280,15 @@ class FunkinScript
 
 			return 0;
 		});
-		set('characterPlayAnim', function(character:String, anim:String, forced:Bool = false, reversed:Bool = false, frame:Int = 0):Void
+		set('characterPlayAnim', function(roleName:String, anim:String, forced:Bool = false, reversed:Bool = false, frame:Int = 0):Void
 		{
-			switch (character.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					if (PlayState.instance.opponent.animOffsets.exists(anim))
 						PlayState.instance.opponent.playAnim(anim, forced, reversed, frame);
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					if (PlayState.instance.gf != null && PlayState.instance.gf.animOffsets.exists(anim))
 						PlayState.instance.gf.playAnim(anim, forced, reversed, frame);
 				default:
@@ -1444,13 +1296,14 @@ class FunkinScript
 						PlayState.instance.boyfriend.playAnim(anim, forced, reversed, frame);
 			}
 		});
-		set('characterDance', function(character:String):Void
+		set('characterDance', function(roleName:String):Void
 		{
-			switch (character.toLowerCase())
+			var role:CharacterRole = CharacterRoleTools.createByString(roleName.toLowerCase());
+			switch (role)
 			{
-				case 'dad' | 'opponent':
+				case OPPONENT:
 					PlayState.instance.opponent.dance();
-				case 'gf' | 'girlfriend':
+				case GIRLFRIEND:
 					if (PlayState.instance.gf != null)
 						PlayState.instance.gf.dance();
 				default:
@@ -2032,17 +1885,11 @@ class FunkinScript
 		{
 			scriptTrace('$text1$text2$text3$text4$text5', true, false);
 		});
-		set('close', function(printMessage:Bool):Void
+		set('close', function():Bool
 		{
-			if (!gonnaClose)
-			{
-				if (printMessage)
-				{
-					scriptTrace('Stopping script: $scriptName');
-				}
-				PlayState.instance.scriptsToClose.push(this);
-			}
-			gonnaClose = true;
+			closed = true;
+			// stop();
+			return closed;
 		});
 
 		// SCRIPT TEXTS
@@ -2398,6 +2245,11 @@ class FunkinScript
 
 	public function get(variable:String):Dynamic
 	{
+		if (closed)
+		{
+			return null;
+		}
+
 		#if FEATURE_LUA
 		if (lua != null)
 		{
@@ -2418,6 +2270,13 @@ class FunkinScript
 
 	public function set(variable:String, data:Any):Void
 	{
+		if (closed)
+		{
+			return;
+		}
+
+		// Debug.logTrace('Setting $variable to $data');
+
 		#if FEATURE_LUA
 		if (lua != null)
 		{
@@ -2441,7 +2300,10 @@ class FunkinScript
 
 	public function call(funcName:String, args:Array<Any>):Any
 	{
-		// Debug.logTrace('$scriptName: Called $funcName with args $args');
+		if (closed)
+		{
+			return FUNCTION_CONTINUE;
+		}
 
 		#if FEATURE_LUA
 		if (lua != null)
@@ -2453,26 +2315,21 @@ class FunkinScript
 				Convert.toLua(lua, arg);
 			}
 
-			var result:Null<Int> = Lua.pcall(lua, args.length, 1, 0);
+			var result:Int = Lua.pcall(lua, args.length, 1, 0);
 			var error:String = getLuaErrorMessage(lua);
-			if (error != null)
-			{
-				if (error == 'attempt to call a nil value')
-				{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
-					return FUNCTION_CONTINUE;
-				}
-				else
-				{
-					Debug.logError(error);
-					scriptWarn(error);
-				}
-			}
 
-			if (result != null && resultIsAllowed(lua, result))
+			if (resultIsAllowed(lua, result))
 			{
 				var converted:Any = Convert.fromLua(lua, result);
 				Lua.pop(lua, 1);
+				if (converted == null)
+					converted = FUNCTION_CONTINUE;
 				return converted;
+			}
+			else if (isErrorAllowed(error))
+			{
+				Lua.pop(lua, 1);
+				scriptError('ERROR: $funcName($args): $error');
 			}
 		}
 		#elseif hscript
@@ -2491,6 +2348,7 @@ class FunkinScript
 
 	public function stop():Void
 	{
+		closed = true;
 		#if FEATURE_LUA
 		if (lua != null)
 		{
@@ -2510,8 +2368,8 @@ class FunkinScript
 			{
 				return;
 			}
-			PlayState.instance.addTextToDebug(text);
-			Debug.logTrace('$scriptName: text');
+			PlayState.instance.addTextToDebug(text, FlxColor.WHITE);
+			Debug.logTrace('$scriptName: $text');
 		}
 	}
 
@@ -2523,8 +2381,21 @@ class FunkinScript
 			{
 				return;
 			}
-			PlayState.instance.addTextToDebug(text);
-			Debug.logWarn('$scriptName: text');
+			PlayState.instance.addTextToDebug(text, FlxColor.YELLOW);
+			Debug.logWarn('$scriptName: $text');
+		}
+	}
+
+	public function scriptError(text:String, ignoreCheck:Bool = false, deprecated:Bool = false):Void
+	{
+		if (ignoreCheck || get('luaDebugMode'))
+		{
+			if (deprecated && !get('luaDeprecatedWarnings'))
+			{
+				return;
+			}
+			PlayState.instance.addTextToDebug(text, FlxColor.RED);
+			Debug.logError('$scriptName: $text');
 		}
 	}
 
@@ -2534,7 +2405,6 @@ class FunkinScript
 		if (Lua.type(lua, -1) == Lua.LUA_TSTRING)
 		{
 			var error:String = Lua.tostring(lua, -1);
-			Lua.pop(lua, 1);
 			return error;
 		}
 		return null;
@@ -2542,12 +2412,17 @@ class FunkinScript
 
 	private function resultIsAllowed(lua:State, ?result:Int):Bool
 	{ // Makes it ignore warnings
-		switch (Lua.type(lua, result))
+		return Lua.type(lua, result) > Lua.LUA_TNONE;
+	}
+
+	private function isErrorAllowed(error:String):Bool
+	{ // Makes it ignore warnings and not break stuff if you didn't put the functions in your script
+		return switch (error)
 		{
-			case Lua.LUA_TNIL | Lua.LUA_TBOOLEAN | Lua.LUA_TNUMBER | Lua.LUA_TSTRING | Lua.LUA_TTABLE:
-				return true;
+			case null | 'attempt to call a nil value' /*| 'C++ exception'*/:
+				false;
+			default: true;
 		}
-		return false;
 	}
 	#end
 
@@ -2873,12 +2748,12 @@ class DebugScriptText extends FlxText
 
 	public var parentGroup:FlxTypedGroup<DebugScriptText>;
 
-	public function new(text:String, parentGroup:FlxTypedGroup<DebugScriptText>)
+	public function new(text:String, parentGroup:FlxTypedGroup<DebugScriptText>, color:FlxColor)
 	{
 		super(10, 10, 0, text, 20);
 
 		this.parentGroup = parentGroup;
-		setFormat(Paths.font('vcr.ttf'), size, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		setFormat(Paths.font('vcr.ttf'), size, color, LEFT, OUTLINE, FlxColor.BLACK);
 		scrollFactor.set();
 		borderSize = 1;
 	}

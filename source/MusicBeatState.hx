@@ -3,12 +3,14 @@ package;
 import flixel.FlxG;
 import flixel.addons.ui.FlxUIState;
 
+// TODO Combine Psych's new curSection and curDecStep stuff with Mock's TimingStruct stuff
 abstract class MusicBeatState extends FlxUIState implements MusicBeatable
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
 	private var curDecimalBeat:Float = 0;
+
 	private var controls(get, never):Controls;
 
 	override public function create():Void

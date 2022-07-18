@@ -560,3 +560,32 @@ class Character extends FlxSprite implements Danceable
 		return value;
 	}
 }
+
+enum CharacterRole
+{
+	PLAYER;
+	OPPONENT;
+	GIRLFRIEND;
+}
+
+class CharacterRoleTools
+{
+	public static function createByString(value1:String):CharacterRole
+	{
+		var charRole:CharacterRole = PLAYER;
+		switch (value1)
+		{
+			case 'dad' | 'opponent':
+				charRole = OPPONENT;
+			case 'gf' | 'girlfriend':
+				charRole = GIRLFRIEND;
+			default:
+				var index:Null<Int> = Std.parseInt(value1);
+				if (index != null && index < CharacterRole.createAll().length)
+				{
+					charRole = CharacterRole.createByIndex(index);
+				}
+		}
+		return charRole;
+	}
+}

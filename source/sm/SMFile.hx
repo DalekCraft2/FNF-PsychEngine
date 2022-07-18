@@ -1,10 +1,10 @@
 package sm;
 
-import chart.container.Section;
-import chart.container.Song;
 #if FEATURE_STEPMANIA
-import Note.NoteDef;
+import chart.container.BasicNote;
+import chart.container.Section;
 import chart.container.Song.SongWrapper;
+import chart.container.Song;
 import haxe.Exception;
 import haxe.Json;
 

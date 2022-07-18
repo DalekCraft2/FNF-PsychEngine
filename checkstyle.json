@@ -82,7 +82,7 @@
             }
         },
         {
-            "type": "EnforceVarTypeHint",
+            "type": "VarTypeHint",
             "props": {
                 "ignoreEnumAbstractValues": false,
                 "typeHintPolicy": "enforce_all"

@@ -66,9 +66,9 @@ class SMHeader
 				{
 					var data:TimingStruct = TimingStruct.allTimings[currentIndex - 1];
 					data.endBeat = startBeat;
-					data.length = (data.endBeat - data.startBeat) / (data.bpm / TimingConstants.SECONDS_PER_MINUTE);
-					var step:Float = Conductor.calculateSemiquaverLength(data.bpm);
-					TimingStruct.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.bpm / TimingConstants.SECONDS_PER_MINUTE)) * TimingConstants.MILLISECONDS_PER_SECOND) / step);
+					data.length = (data.endBeat - data.startBeat) / (data.tempo / TimingConstants.SECONDS_PER_MINUTE);
+					var step:Float = Conductor.calculateSemiquaverLength(data.tempo);
+					TimingStruct.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.tempo / TimingConstants.SECONDS_PER_MINUTE)) * TimingConstants.MILLISECONDS_PER_SECOND) / step);
 					TimingStruct.allTimings[currentIndex].startTime = data.startTime + data.length;
 				}
 
