@@ -40,8 +40,7 @@
 
     <!-- _____________________________ Path Settings ____________________________ -->
 
-    <!-- TODO I want to change the source folder name to "src" -->
-    <source path="source" />
+    <source path="src" />
 
     <!-- ENGINE CUSTOMIZATION -->
 

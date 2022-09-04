@@ -4,3 +4,4 @@ General To-Do stuff
 - Don't use conditionals to hide public variables and functions because that's sort of shitty API design
 - I hate kebab-case and lack of standardization. I'm going to make every file's and folder's name use snake_case lIkE mInEcRaFt 
 - Staaage editor~
+- Add Mock documentation to the docs folder and update the existing documentation

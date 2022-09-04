@@ -7,10 +7,7 @@ import cpp.UInt8;
 /**
  * @author Tommy Svensson
  */
-// This metadata is for when the build directory is export/release or export/debug or export/final etc.
-// @:buildXml('<include name="../../../../source/vlc/LibVLCBuild.xml" />')
-// This metadata is for when the build directory is the default (bin)
-@:buildXml('<include name="./../../../source/vlc/LibVLCBuild.xml" />')
+@:buildXml('<include name="./../../../src/vlc/LibVLCBuild.xml" />')
 @:include('LibVLC.h')
 // @:keep
 @:structAccess
