@@ -2,8 +2,8 @@
 	"confirmAnim": "",
 	"idleAnim": "M Tankman Idle",
 	"position": [
-		40,
-		-50
+		0,
+		-95
 	],
 	"scale": 1,
 	"image": "Menu_Tankman"

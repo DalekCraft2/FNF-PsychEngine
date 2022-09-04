@@ -1,13 +1,13 @@
 package ui;
 
-import Note.NoteDef;
+import chart.container.BasicNote;
 import flixel.FlxSprite;
 import flixel.util.FlxColor;
 
 class ChartingBox extends FlxSprite
 {
 	public var connectedNote:Note;
-	public var connectedNoteData:NoteDef;
+	public var connectedNoteData:BasicNote;
 
 	public function new(x:Float, y:Float, originalNote:Note)
 	{

@@ -2412,6 +2412,12 @@
 				"sectionNotes": [
 					[
 						62022.4727,
+						1,
+						0,
+						"No Animation"
+					],
+					[
+						62022.4727,
 						5,
 						0
 					],
@@ -2449,12 +2455,6 @@
 						63202.2461,
 						7,
 						0
-					],
-					[
-						62022.4727,
-						1,
-						0,
-						"No Animation"
 					]
 				],
 				"lengthInSteps": 16,
@@ -5077,6 +5077,6 @@
 				"mustHitSection": true
 			}
 		],
-        "events": []
+		"events": []
 	}
 }

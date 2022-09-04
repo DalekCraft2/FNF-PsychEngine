@@ -5,6 +5,7 @@ import chart.container.BasicNote;
 import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
+import states.PlayState;
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -40,19 +41,19 @@ class Analysis
 
 typedef ReplayDef =
 {
-	var replayGameVer:String;
-	var timestamp:Date;
-	var songId:String;
-	var songName:String;
-	var songDiff:Int;
-	var songNotes:Array<Array<Any>>;
-	var songJudgements:Array<String>;
-	var noteSpeed:Float;
-	var chartPath:String;
-	var isDownscroll:Bool;
-	var sf:Int;
-	var sm:Bool;
-	var ana:Analysis;
+	replayGameVer:String,
+	timestamp:Date,
+	songId:String,
+	songName:String,
+	songDiff:Int,
+	songNotes:Array<Array<Any>>,
+	songJudgements:Array<String>,
+	noteSpeed:Float,
+	chartPath:String,
+	isDownscroll:Bool,
+	sf:Int,
+	sm:Bool,
+	ana:Analysis
 }
 
 class Replay
@@ -107,23 +108,24 @@ class Replay
 			timestamp: Date.now(),
 			replayGameVer: REPLAY_VERSION,
 			sf: Options.save.data.safeFrames,
-			noteSpeed: PlayState.instance.songSpeed,
+			noteSpeed: PlayState.instance.scrollSpeed,
 			isDownscroll: Options.save.data.downScroll,
 			songNotes: notearray,
 			songJudgements: judge,
 			ana: ana
 		};
 
-		var data:String = Json.stringify(json, '\t');
+		var data:String = Json.stringify(json, Constants.JSON_SPACE);
 
 		var time:Float = Date.now().getTime();
 
 		path = Path.withExtension('replay-${PlayState.song.id}-time$time', 'kadeReplay'); // for score screen shit
 
 		#if sys
-		if (!Paths.fileSystem.exists('assets/replays'))
-			FileSystem.createDirectory('assets/replays');
-		File.saveContent(Path.join(['assets/replays', path]), data);
+		var replayDirectory:String = Path.join(['assets', 'replays']);
+		if (!Paths.fileSystem.exists(replayDirectory))
+			FileSystem.createDirectory(replayDirectory);
+		File.saveContent(Path.join([replayDirectory, path]), data);
 
 		loadFromJson();
 
@@ -133,10 +135,11 @@ class Replay
 
 	public function loadFromJson():Void
 	{
-		Debug.logTrace('Loading ${Path.join(['assets/replays', path])} replay...');
+		var replayDirectory:String = Path.join(['assets', 'replays']);
+		Debug.logTrace('Loading ${Path.join([replayDirectory, path])} replay...');
 		try
 		{
-			var repl:ReplayDef = Paths.getJsonDirect(Path.join(['assets/replays', path]));
+			var repl:ReplayDef = Paths.getJsonDirect(Path.join([replayDirectory, path]));
 			replay = repl;
 		}
 		catch (e:Exception)

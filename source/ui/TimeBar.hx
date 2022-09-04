@@ -5,6 +5,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import haxe.io.Path;
 
 class TimeBar extends FlxSpriteGroup
 {
@@ -16,7 +17,7 @@ class TimeBar extends FlxSpriteGroup
 	{
 		super(x, y);
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/hud/timeBar'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic(Path.join(['ui', 'hud', 'timeBar'])));
 
 		bar = new FlxBar(bg.x + 4, bg.y + 4, LEFT_TO_RIGHT, Std.int(bg.width - 8), Std.int(bg.height - 8), instance, property, 0, 1);
 		bar.createFilledBar(FlxColor.BLACK, FlxColor.WHITE);

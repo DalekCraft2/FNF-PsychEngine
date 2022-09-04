@@ -15,7 +15,7 @@ class StoryMenuItem extends FlxSprite
 	{
 		super(x, y);
 
-		loadGraphic(Paths.getGraphic(Path.join(['ui/story/weeks', weekName])));
+		loadGraphic(Paths.getGraphic(Path.join(['ui', 'story', 'weeks', weekName])));
 		antialiasing = Options.save.data.globalAntialiasing;
 	}
 

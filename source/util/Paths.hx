@@ -1,7 +1,9 @@
 package util;
 
+import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxFramesCollection;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.FlxAssets.FlxSoundAsset;
 import flixel.system.FlxSound;
@@ -18,11 +20,6 @@ using StringTools;
 
 #if FEATURE_MODS
 import Mod.ModEnableState;
-#end
-#if USE_CUSTOM_CACHE
-import flixel.graphics.FlxGraphic;
-import flixel.util.FlxArrayUtil;
-import openfl.system.System;
 #end
 
 // TODO For the cache, make a class implement openfl.utils.IAssetCache, and make an instance of it in here
@@ -43,85 +40,6 @@ class Paths
 	// Just as a note, Flash uses the .wav format
 	public static inline final AUDIO_EXT:String = 'ogg';
 	public static inline final VIDEO_EXT:String = 'mp4';
-
-	public static var dumpExclusions:Array<String> = [
-		Path.withExtension('assets/music/freakyMenu', AUDIO_EXT),
-		Path.withExtension('assets/music/breakfast', AUDIO_EXT),
-		Path.withExtension('assets/music/tea-time', AUDIO_EXT),
-	];
-
-	public static function excludeAsset(key:String):Void
-	{
-		if (!dumpExclusions.contains(key))
-			dumpExclusions.push(key);
-	}
-
-	// haya I love you for the base cache dump I took to the max
-	public static function clearUnusedMemory():Void
-	{
-		#if USE_CUSTOM_CACHE
-		// clear non local assets in the tracked assets list
-		for (key in currentTrackedGraphics.keys())
-		{
-			// if it is not currently contained within the used local assets
-			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
-			{
-				// get rid of it
-				var obj:FlxGraphicAsset = currentTrackedGraphics.get(key);
-				if (obj != null)
-				{
-					Assets.cache.removeBitmapData(key);
-					FlxG.bitmap.removeByKey(key);
-					if (obj is FlxGraphic)
-					{
-						cast(obj, FlxGraphic).destroy();
-					}
-					currentTrackedGraphics.remove(key);
-				}
-			}
-		}
-		// run the garbage collector for good measure lmfao
-		System.gc();
-		#end
-	}
-
-	#if USE_CUSTOM_CACHE
-	// define the locally tracked assets
-	private static var localTrackedAssets:Array<String> = [];
-	#end
-
-	public static function clearStoredMemory():Void
-	{
-		#if USE_CUSTOM_CACHE
-		// clear anything not in the tracked assets list
-		@:privateAccess
-		for (key in FlxG.bitmap._cache.keys())
-		{
-			var obj:FlxGraphicAsset = FlxG.bitmap._cache.get(key);
-			if (obj != null && !currentTrackedGraphics.exists(key))
-			{
-				Assets.cache.removeBitmapData(key);
-				FlxG.bitmap.removeByKey(key);
-				if (obj is FlxGraphic)
-				{
-					cast(obj, FlxGraphic).destroy();
-				}
-			}
-		}
-
-		// clear all sounds that are cached
-		for (key in currentTrackedSounds.keys())
-		{
-			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key))
-			{
-				Assets.cache.clear(key);
-				currentTrackedSounds.remove(key);
-			}
-		}
-		// flags everything to be cleared out next unused memory clear
-		FlxArrayUtil.clearArray(localTrackedAssets);
-		#end
-	}
 
 	public static var currentModDirectory(default, set):String = '';
 
@@ -252,14 +170,19 @@ class Paths
 		return file(Path.join(['shaders', Path.withExtension(key, VERT_EXT)]), TEXT, library);
 	}
 
+	public static inline function audio(key:String, ?library:String):String
+	{
+		return file(Path.join(['audios', Path.withExtension(key, AUDIO_EXT)]), SOUND, library);
+	}
+
 	public static inline function sound(key:String, ?library:String):String
 	{
-		return file(Path.join(['sounds', Path.withExtension(key, AUDIO_EXT)]), SOUND, library);
+		return audio(Path.join(['sounds', key]), library);
 	}
 
 	public static inline function music(key:String, ?library:String):String
 	{
-		return file(Path.join(['music', Path.withExtension(key, AUDIO_EXT)]), MUSIC, library);
+		return audio(Path.join(['music', key]), library);
 	}
 
 	public static inline function voices(songId:String):String
@@ -295,7 +218,12 @@ class Paths
 	public static function getText(key:String, ?library:String, ignoreMods:Bool = false):String
 	{
 		var path:String = file(key, TEXT, library);
-		return getTextDirect(path);
+		if (exists(path))
+		{
+			return getTextDirect(path);
+		}
+		Debug.logError('Could not find text file with key "$key" and library "$library"');
+		return null;
 	}
 
 	public static function getTextDirect(path:String):String
@@ -315,147 +243,197 @@ class Paths
 		return null;
 	}
 
-	public static function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
+	public static function getFrames(key:String, ?library:String, format:FrameFormat = SPARROW):FlxFramesCollection
+	{
+		switch (format)
+		{
+			case SPARROW:
+				return getSparrowFrames(key, library);
+			case SPRITE_SHEET_PACKER:
+				return getSpriteSheetPackerFrames(key, library);
+			case TEXTURE_ATLAS:
+				return getTextureAtlasFrames(key, library);
+			case AUTO:
+				var xmlPath:String = file(Path.join(['images', Path.withExtension(key, XML_EXT)]), library);
+				if (exists(xmlPath))
+					return getSparrowFrames(key, library);
+				var txtPath:String = file(Path.join(['images', Path.withExtension(key, TEXT_EXT)]), library);
+				if (exists(txtPath))
+					return getSpriteSheetPackerFrames(key, library);
+				var spritemapPath:String = file(Path.join(['images', key, Path.withExtension('Animation', JSON_EXT)]), library);
+				if (exists(spritemapPath))
+					return AtlasFrameMaker.construct(spritemapPath, null, false);
+				return null;
+		}
+	}
+
+	// FIXME Failing to retrieve a sparrow atlas will eventually cause a crash due to a shader-related NPE
+	public static function getSparrowFrames(key:String, ?library:String):FlxFramesCollection
 	{
 		var imagePath:String = image(key, library);
-		var xmlPath:String = xml(key, library);
-		if (exists(xmlPath))
+		if (exists(imagePath))
 		{
-			return FlxAtlasFrames.fromSparrow(exists(imagePath, IMAGE) ? getGraphicDirect(imagePath) : imagePath,
-				exists(xmlPath) ? getTextDirect(xmlPath) : xmlPath);
+			var xmlPath:String = file(Path.join(['images', Path.withExtension(key, XML_EXT)]), library);
+			if (exists(xmlPath))
+			{
+				return FlxAtlasFrames.fromSparrow(getGraphicDirect(imagePath), getTextDirect(xmlPath));
+			}
+			Debug.logError('Could not find sparrow atlas XML file with key "$key" and library "$library"');
 		}
-		Debug.logError('Could not find sparrow atlas with key "$key", and library "$library"');
+		Debug.logError('Could not find sparrow atlas graphic with key "$key" and library "$library"');
 		return null;
 	}
 
-	public static function getPackerAtlas(key:String, ?library:String):FlxAtlasFrames
+	public static function getSpriteSheetPackerFrames(key:String, ?library:String):FlxFramesCollection
 	{
 		var imagePath:String = image(key, library);
-		var txtPath:String = file(Path.join(['images', Path.withExtension(key, TEXT_EXT)]), library);
-		if (exists(txtPath))
+		if (exists(imagePath))
 		{
-			return FlxAtlasFrames.fromSpriteSheetPacker(exists(imagePath, IMAGE) ? getGraphicDirect(imagePath) : imagePath,
-				exists(txtPath) ? getTextDirect(txtPath) : txtPath);
+			var txtPath:String = file(Path.join(['images', Path.withExtension(key, TEXT_EXT)]), library);
+			if (exists(txtPath))
+			{
+				return FlxAtlasFrames.fromSpriteSheetPacker(getGraphicDirect(imagePath), getTextDirect(txtPath));
+			}
+			Debug.logError('Could not find spritesheet packer atlas text file with key "$key" and library "$library"');
 		}
-		Debug.logError('Could not find packer atlas with key "$key", and library "$library"');
+		Debug.logError('Could not find spritesheet packer atlas graphic with key "$key" and library "$library"');
 		return null;
 	}
 
-	#if USE_CUSTOM_CACHE
-	private static var currentTrackedGraphics:Map<String, FlxGraphicAsset> = [];
-	#end
+	public static function getTextureAtlasFrames(key:String, ?library:String, noAntialiasing:Bool = false):FlxFramesCollection
+	{
+		var path:String = image(Path.join([key, 'spritemap']), library);
+		if (exists(path))
+		{
+			path = Path.directory(path);
+			return AtlasFrameMaker.construct(path, null, noAntialiasing);
+		}
+		Debug.logError('Could not find texture atlas with key "$key" and library "$library"');
+		return null;
+	}
 
-	public static inline function getGraphic(key:String, ?library:String):FlxGraphicAsset
+	public static function getGraphic(key:String, ?library:String):FlxGraphicAsset
 	{
 		var path:String = image(key, library);
-		return getGraphicDirect(path);
+		if (exists(path, IMAGE))
+		{
+			return getGraphicDirect(path);
+		}
+		Debug.logError('Could not find graphic with key "$key" and library "$library"');
+		return null;
 	}
 
 	public static function getGraphicDirect(path:String):FlxGraphicAsset
 	{
 		if (exists(path, IMAGE))
 		{
-			#if USE_CUSTOM_CACHE
-			if (!currentTrackedGraphics.exists(path))
-			#end
+			var newGraphic:Null<FlxGraphicAsset> = null;
+			if (Assets.exists(path, IMAGE))
 			{
-				var newGraphic:Null<FlxGraphicAsset> = null;
-				if (Assets.exists(path, IMAGE))
-				{
-					newGraphic = Assets.getBitmapData(path);
-				}
-				else if (fileSystem.exists(path))
-				{
-					newGraphic = BitmapData.fromFile(path);
-					Assets.cache.setBitmapData(path, newGraphic);
-				}
-				#if !USE_CUSTOM_CACHE
-				return newGraphic;
-				#else
-				currentTrackedGraphics.set(path, newGraphic);
-				#end
+				newGraphic = Assets.getBitmapData(path);
+				// newGraphic = FlxAssets.getBitmapData(path); // Flixel has REALLY strange and inefficient API...
 			}
-			#if USE_CUSTOM_CACHE
-			localTrackedAssets.push(path);
-			return currentTrackedGraphics.get(path);
-			#end
+			else if (fileSystem.exists(path))
+			{
+				newGraphic = BitmapData.fromFile(path);
+				Assets.cache.setBitmapData(path, newGraphic);
+			}
+			return newGraphic;
 		}
 		Debug.logError('Could not find graphic at path "$path"');
 		return null;
 	}
 
-	#if USE_CUSTOM_CACHE
-	private static var currentTrackedSounds:Map<String, FlxSoundAsset> = [];
-	#end
-
-	public static inline function getSound(key:String, ?library:String):FlxSoundAsset
+	public static function getSound(key:String, ?library:String):FlxSoundAsset
 	{
-		return getAudio(Path.join(['sounds', key]), library);
+		var path:String = sound(key, library);
+		if (exists(path, SOUND))
+		{
+			return getAudioDirect(path);
+		}
+		Debug.logError('Could not find sound with key "$key" and library "$library"');
+		return null;
 	}
 
-	public static inline function getMusic(key:String, ?library:String):FlxSoundAsset
+	public static function getMusic(key:String, ?library:String):FlxSoundAsset
 	{
-		return getAudio(Path.join(['music', key]), library);
+		var path:String = music(key, library);
+		if (exists(path, SOUND))
+		{
+			return getAudioDirect(path);
+		}
+		Debug.logError('Could not find music with key "$key" and library "$library"');
+		return null;
 	}
 
-	public static inline function getVoices(songId:String):FlxSoundAsset
+	public static function getVoices(songId:String):FlxSoundAsset
 	{
-		return getAudioDirect(voices(songId));
+		var path:String = voices(songId);
+		if (exists(path, SOUND))
+		{
+			return getAudioDirect(path);
+		}
+		Debug.logError('Could not find vocals for song "$songId"');
+		return null;
 	}
 
-	public static inline function getInst(songId:String):FlxSoundAsset
+	public static function getInst(songId:String):FlxSoundAsset
 	{
-		return getAudioDirect(inst(songId));
+		var path:String = inst(songId);
+		if (exists(path, SOUND))
+		{
+			return getAudioDirect(path);
+		}
+		Debug.logError('Could not find instrumental for song "$songId"');
+		return null;
 	}
 
-	public static inline function getAudio(key:String, ?library:String):FlxSoundAsset
+	public static function getAudio(key:String, ?library:String):FlxSoundAsset
 	{
-		var path:String = file(Path.withExtension(key, AUDIO_EXT), SOUND, library);
-		return getAudioDirect(path);
+		var path:String = audio(key, library);
+		if (exists(path))
+		{
+			return getAudioDirect(path);
+		}
+		Debug.logError('Could not find audio with key "$key" and library "$library"');
+		return null;
 	}
 
 	public static function getAudioDirect(path:String):FlxSoundAsset
 	{
 		if (exists(path, SOUND))
 		{
-			#if USE_CUSTOM_CACHE
-			if (!currentTrackedSounds.exists(path))
-			#end
+			var newSound:Null<FlxSoundAsset> = null;
+			if (Assets.exists(path, SOUND))
 			{
-				var newSound:Null<FlxSoundAsset> = null;
-				if (Assets.exists(path, SOUND))
-				{
-					newSound = Assets.getSound(path);
-				}
-				else if (fileSystem.exists(path))
-				{
-					newSound = Sound.fromFile(path);
-					Assets.cache.setSound(path, newSound);
-				}
-				#if !USE_CUSTOM_CACHE
-				return newSound;
-				#else
-				currentTrackedSounds.set(path, newSound);
-				#end
+				newSound = Assets.getSound(path);
+				// newSound = FlxAssets.getSound(path);
 			}
-			#if USE_CUSTOM_CACHE
-			localTrackedAssets.push(path);
-			return currentTrackedSounds.get(path);
-			#end
+			else if (fileSystem.exists(path))
+			{
+				newSound = Sound.fromFile(path);
+				Assets.cache.setSound(path, newSound);
+			}
+			return newSound;
 		}
-		Debug.logError('Could not find sound at path "$path"');
+		Debug.logError('Could not find audio at path "$path"');
 		return null;
 	}
 
-	public static inline function getRandomSound(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
+	public static function getRandomSound(key:String, min:Int, max:Int, ?library:String):FlxSoundAsset
 	{
 		return getSound('$key${FlxG.random.int(min, max)}', library);
 	}
 
-	public static inline function getJson(key:String, ?library:String):Any
+	public static function getJson(key:String, ?library:String):Any
 	{
 		var path:String = json(key, library);
-		return getJsonDirect(path);
+		if (exists(path))
+		{
+			return getJsonDirect(path);
+		}
+		Debug.logError('Could not find JSON with key "$key" and library "$library"');
+		return null;
 	}
 
 	public static function getJsonDirect(path:String):Any
@@ -472,7 +450,7 @@ class Paths
 				}
 				catch (e:Exception)
 				{
-					Debug.logError('Error parsing a JSON file from path "$path": ${e.message}');
+					Debug.logError('Error parsing JSON file from path "$path": ${e.message}');
 					return null;
 				}
 			}
@@ -481,19 +459,87 @@ class Paths
 		return null;
 	}
 
+	public static function getXml(key:String, ?library:String):Xml
+	{
+		var path:String = xml(key, library);
+		if (exists(path))
+		{
+			return getXmlDirect(path);
+		}
+		Debug.logError('Could not find XML with key "$key" and library "$library"');
+		return null;
+	}
+
+	public static function getXmlDirect(path:String):Xml
+	{
+		if (exists(path))
+		{
+			var rawXml:Null<String> = getTextDirect(path);
+			if (rawXml != null)
+			{
+				try
+				{
+					// Attempt to parse and return the XML data.
+					return Xml.parse(rawXml);
+				}
+				catch (e:Exception)
+				{
+					Debug.logError('Error parsing XML file from path "$path": ${e.message}');
+					return null;
+				}
+			}
+		}
+		Debug.logError('Could not find XML at path "$path"');
+		return null;
+	}
+
 	public static function precacheGraphic(key:String, ?library:String):Void
 	{
-		FlxG.bitmap.add(getGraphic(key, library));
+		var path:String = image(key, library);
+		if (exists(path, IMAGE))
+		{
+			precacheGraphicDirect(path);
+			return;
+		}
+		Debug.logError('Could not find graphic to precache with key "$key" and library "$library"');
 	}
 
-	public static inline function precacheSound(key:String, ?library:String):Void
+	public static function precacheGraphicDirect(path:String):Void
 	{
-		precacheAudioDirect(sound(key, library));
+		FlxG.bitmap.add(getGraphicDirect(path));
 	}
 
-	public static inline function precacheMusic(key:String, ?library:String):Void
+	public static function precacheSound(key:String, ?library:String):Void
 	{
-		precacheAudioDirect(music(key, library));
+		var path:String = sound(key, library);
+		if (exists(path, SOUND))
+		{
+			precacheAudioDirect(path);
+			return;
+		}
+		Debug.logError('Could not find sound to precache with key "$key" and library "$library"');
+	}
+
+	public static function precacheMusic(key:String, ?library:String):Void
+	{
+		var path:String = music(key, library);
+		if (exists(path, SOUND))
+		{
+			precacheAudioDirect(path);
+			return;
+		}
+		Debug.logError('Could not find music to precache with key "$key" and library "$library"');
+	}
+
+	public static function precacheAudio(key:String, ?library:String):Void
+	{
+		var path:String = audio(key, library);
+		if (exists(path, SOUND))
+		{
+			precacheAudioDirect(path);
+			return;
+		}
+		Debug.logError('Could not find audio to precache with key "$key" and library "$library"');
 	}
 
 	public static function precacheAudioDirect(path:String):Void
@@ -692,7 +738,7 @@ class Paths
 			var path:Array<String> = sound.split('/');
 			path.reverse();
 
-			var fileName:String = path[0];
+			// var fileName:String = path[0];
 			var songName:String = path[1];
 
 			if (path[2] != 'songs')
@@ -707,4 +753,12 @@ class Paths
 
 		return songNames;
 	}
+}
+
+enum FrameFormat
+{
+	SPARROW;
+	SPRITE_SHEET_PACKER;
+	TEXTURE_ATLAS;
+	AUTO;
 }

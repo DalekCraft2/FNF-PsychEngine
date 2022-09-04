@@ -1,5 +1,6 @@
 package;
 
+import states.PlayState;
 import NoteKey.NoteColor;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -55,27 +56,24 @@ class StrumNote extends FlxSprite
 				resetAnim = 0;
 			}
 		}
-		// TODO This causes an NPE if, after playing a song with a custom noteskin, the chart editor is loaded with a mod directory other than the one containing that song
-		// if(animation.curAnim != null){ // my bad i was upset
-		if (!PlayState.isPixelStage && animation.curAnim.name == 'confirm')
+		if (!PlayState.isPixelStage && animation.name == 'confirm')
 		{
 			centerOrigin();
 		}
-		// }
 	}
 
 	public function reloadNote():Void
 	{
 		var lastAnim:Null<String> = null;
 		if (animation.curAnim != null)
-			lastAnim = animation.curAnim.name;
+			lastAnim = animation.name;
 
 		if (PlayState.isPixelStage)
 		{
-			var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel']));
+			var path:String = Paths.image(Path.join(['ui', 'notes', '${texture}-pixel']));
 			if (!Paths.exists(path))
 			{
-				path = Paths.image('ui/notes/NOTE_assets-pixel');
+				path = Paths.image(Path.join(['ui', 'notes', 'NOTE_assets-pixel']));
 			}
 			var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
 			loadGraphic(graphic);
@@ -84,7 +82,7 @@ class StrumNote extends FlxSprite
 			loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
 
 			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
+			scale.set(PlayState.PIXEL_ZOOM, PlayState.PIXEL_ZOOM);
 
 			for (color in NoteColor.createAll())
 			{
@@ -97,18 +95,18 @@ class StrumNote extends FlxSprite
 		}
 		else
 		{
-			if (!Paths.exists(Paths.image(Path.join(['ui/notes', texture]))))
+			if (!Paths.exists(Paths.image(Path.join(['ui', 'notes', texture]))))
 			{
 				texture = 'NOTE_assets';
 			}
-			frames = Paths.getSparrowAtlas(Path.join(['ui/notes', texture]));
+			frames = Paths.getFrames(Path.join(['ui', 'notes', texture]));
 			for (color in NoteColor.createAll())
 			{
 				animation.addByPrefix(color.getName(), 'arrow${NoteKey.createByIndex(color.getIndex())}');
 			}
 
 			antialiasing = Options.save.data.globalAntialiasing;
-			setGraphicSize(Std.int(width * 0.7));
+			scale.set(0.7, 0.7);
 
 			var noteKey:NoteKey = NoteKey.createByIndex(noteData);
 
@@ -138,7 +136,7 @@ class StrumNote extends FlxSprite
 		animation.play(anim, force);
 		centerOffsets();
 		centerOrigin();
-		if (animation.curAnim == null || animation.curAnim.name == 'static')
+		if (animation.curAnim == null || animation.name == 'static')
 		{
 			colorSwap.hue = 0;
 			colorSwap.saturation = 0;
@@ -150,7 +148,7 @@ class StrumNote extends FlxSprite
 			colorSwap.saturation = Options.save.data.arrowHSV[noteDataModulo][1] / 100;
 			colorSwap.brightness = Options.save.data.arrowHSV[noteDataModulo][2] / 100;
 
-			if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+			if (animation.name == 'confirm' && !PlayState.isPixelStage)
 			{
 				centerOrigin();
 			}

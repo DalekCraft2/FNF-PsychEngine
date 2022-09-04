@@ -15,14 +15,14 @@ class Checkbox extends FlxSprite
 	{
 		super(x, y);
 
-		frames = Paths.getSparrowAtlas('checkbox');
+		frames = Paths.getFrames('checkbox');
 		animation.addByPrefix('unchecked', 'unchecked', 24, false);
 		animation.addByPrefix('unchecking', 'unchecking', 24, false);
 		animation.addByPrefix('checking', 'checking', 24, false);
 		animation.addByPrefix('checked', 'checked', 24, false);
 
 		antialiasing = Options.save.data.globalAntialiasing;
-		setGraphicSize(Std.int(0.9 * width));
+		scale.set(0.9, 0.9);
 		updateHitbox();
 
 		animationFinished(value ? 'checking' : 'unchecking');
@@ -66,13 +66,13 @@ class Checkbox extends FlxSprite
 			this.value = value;
 			if (value)
 			{
-				if (animation.curAnim.name != 'checked' && animation.curAnim.name != 'checking')
+				if (animation.name != 'checked' && animation.name != 'checking')
 				{
 					animation.play('checking', true);
 					offset.set(34, 25);
 				}
 			}
-			else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
+			else if (animation.name != 'unchecked' && animation.name != 'unchecking')
 			{
 				animation.play('unchecking', true);
 				offset.set(25, 28);

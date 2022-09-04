@@ -17,13 +17,19 @@ end
 
 -- Gameplay/Song interactions
 
---- Called 4 times per section
+--- Called at the start of each bar
+--- @param bar integer @The current bar
+--- @return any
+function onBarHit(bar)
+end
+
+--- Called 4 times per bar
 --- @param beat integer @The current beat
 --- @return any
 function onBeatHit(beat)
 end
 
---- Called 16 times per section
+--- Called 16 times per bar
 --- @param step integer @The current step
 --- @return any
 function onStepHit(step)
@@ -88,7 +94,7 @@ function onGameOver()
     return FUNCTION_CONTINUE
 end
 
---- Called when the GameOverSubState is created
+--- Called when the states.substates.GameOverSubState is created
 --- @return any
 function onGameOverStart()
 end
@@ -157,7 +163,7 @@ function onRecalculateRating()
 end
 
 --- Called when the camera focuses on a character
---- @param focus string @The character on which the camera is now focusing ('boyfriend', 'dad', or 'gf')
+--- @param focus string @The character on which the camera is now focusing ('boyfriend', 'opponent', or 'gf')
 --- @return any
 function onMoveCamera(focus)
 end
@@ -214,7 +220,7 @@ function onCheckForAchievement(name)
         0 and getProperty('endingSong') then
         return FUNCTION_CONTINUE
     end
-    if name == 'bad-health-finish' and getProperty('health') < 0.01 and getProperty('endingSong') then
+    if name == 'bad-health-finish' and getHealth() < 0.01 and getProperty('endingSong') then
         return FUNCTION_CONTINUE
     end
     if name == 'halfway' and getSongPosition > getPropertyFromClass('flixel.FlxG', 'sound.music.length') / 2 then

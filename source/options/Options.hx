@@ -10,6 +10,7 @@ import flixel.math.FlxMath;
 import flixel.util.FlxSave;
 import ui.Alphabet;
 
+// TODO Maybe I *should* have a class for these options like Psych, because it's easy to forget what the names of the variables are in the save file
 class Options
 {
 	public static final UNBINDABLE_KEYS:Array<FlxKey> = [ALT, SHIFT, TAB, CAPSLOCK, CONTROL, ENTER];
@@ -118,16 +119,16 @@ class OptionDefaults
 	public static final showCounters:Bool = true;
 	public static final downScroll:Bool = false;
 	public static final middleScroll:Bool = false;
+	public static final showOpponentStrums:Bool = true;
 	public static final distractions:Bool = true;
 	public static final allowNoteModifiers:Bool = true;
 	public static final bgAlpha:Float = 0;
-	public static final cameraFocus:String = 'Default';
 	public static final healthBarColors:Bool = true;
 	public static final onlyScore:Bool = false;
 	public static final smoothHPBar:Bool = false;
 	public static final fcBasedComboColor:Bool = false;
 	public static final holdsBehindStrums:Bool = false;
-	// public static final noteSkin:?? = ??; // I'll do this when I implement it.
+	// public static final noteSkin:?? = ??; // TODO I'll do this when I implement it.
 	public static final picoCameraShake:Bool = true;
 	public static final senpaiShaderStrength:String = 'All';
 
@@ -268,16 +269,16 @@ class ArrowOption<T> extends ValueOption<T>
 		label = Std.string(value);
 
 		leftArrow = new FlxSprite(0, 0);
-		leftArrow.frames = Paths.getSparrowAtlas('arrows');
-		leftArrow.setGraphicSize(Std.int(leftArrow.width * 0.7));
+		leftArrow.frames = Paths.getFrames('arrows');
+		leftArrow.scale.set(0.7, 0.7);
 		leftArrow.updateHitbox();
 		leftArrow.animation.addByPrefix('pressed', 'arrow push left', 24, false);
 		leftArrow.animation.addByPrefix('static', 'arrow left', 24, false);
 		leftArrow.animation.play('static');
 
 		rightArrow = new FlxSprite(0, 0);
-		rightArrow.frames = Paths.getSparrowAtlas('arrows');
-		rightArrow.setGraphicSize(Std.int(rightArrow.width * 0.7));
+		rightArrow.frames = Paths.getFrames('arrows');
+		rightArrow.scale.set(0.7, 0.7);
 		rightArrow.updateHitbox();
 		rightArrow.animation.addByPrefix('pressed', 'arrow push right', 24, false);
 		rightArrow.animation.addByPrefix('static', 'arrow right', 24, false);
@@ -361,14 +362,14 @@ class OptionCheckbox extends FlxSprite
 	{
 		super(x, y);
 
-		frames = Paths.getSparrowAtlas('checkbox');
+		frames = Paths.getFrames('checkbox');
 		animation.addByPrefix('unchecked', 'unchecked', 24, false);
 		animation.addByPrefix('unchecking', 'unchecking', 24, false);
 		animation.addByPrefix('checking', 'checking', 24, false);
 		animation.addByPrefix('checked', 'checked', 24, false);
 
 		antialiasing = Options.save.data.globalAntialiasing;
-		setGraphicSize(Std.int(0.9 * width));
+		scale.set(0.9, 0.9);
 		updateHitbox();
 
 		animationFinished(value ? 'checking' : 'unchecking');
@@ -412,13 +413,13 @@ class OptionCheckbox extends FlxSprite
 			this.value = value;
 			if (value)
 			{
-				if (animation.curAnim.name != 'checked' && animation.curAnim.name != 'checking')
+				if (animation.name != 'checked' && animation.name != 'checking')
 				{
 					animation.play('checking', true);
 					offset.set(34, 25);
 				}
 			}
-			else if (animation.curAnim.name != 'unchecked' && animation.curAnim.name != 'unchecking')
+			else if (animation.name != 'unchecked' && animation.name != 'unchecking')
 			{
 				animation.play('unchecking', true);
 				offset.set(25, 28);

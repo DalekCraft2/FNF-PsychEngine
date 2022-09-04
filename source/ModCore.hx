@@ -108,7 +108,7 @@ class ModCore
 		output.addType(Paths.TEXT_EXT, TextFileFormat.LINES);
 
 		// You can specify the format of a specific file, with file extension.
-		// output.addFile(Path.withExtension('data/introText', Paths.TEXT_EXT), TextFileFormat.LINES)
+		// output.addFile(Path.join(['data', Path.withExtension('introText', Paths.TEXT_EXT)]), TextFileFormat.LINES)
 		return output;
 	}
 

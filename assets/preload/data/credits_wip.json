@@ -1,0 +1,115 @@
+{
+    "sections": [
+        {
+            "title": "Psych Engine Team",
+            "credits": [
+                {
+                    "name": "Shadow Mario",
+                    "icon": "shadowmario",
+                    "description": "Main Programmer of Psych Engine",
+                    "link": "https://twitter.com/Shadow_Mario_",
+                    "color": "0xFF444444"
+                },
+                {
+                    "name": "RiverOaken",
+                    "icon": "riveroaken",
+                    "description": "Main Artist/Animator of Psych Engine",
+                    "link": "https://twitter.com/RiverOaken",
+                    "color": "0xFFC30085"
+                },
+                {
+                    "name": "shubs",
+                    "icon": "shubs",
+                    "description": "Additional Programmer of Psych Engine",
+                    "link": "https://twitter.com/yoshubs",
+                    "color": "0xFF279ADC"
+                }
+            ]
+        },
+        {
+            "title": "Former Engine Members",
+            "credits": [
+                {
+                    "name": "bb-panzu",
+                    "icon": "bb-panzu",
+                    "description": "Ex-Programmer of Psych Engine",
+                    "link": "https://twitter.com/bbsub3",
+                    "color": "0xFF389A58"
+                }
+            ]
+        },
+        {
+            "title": "Engine Contributors",
+            "credits": [
+                {
+                    "name": "iFlicky",
+                    "icon": "iflicky",
+                    "description": "Delay/Combo Menu Song Composer\nand Dialogue Sounds",
+                    "link": "https://twitter.com/flicky_i",
+                    "color": "0xFFAA32FE"
+                },
+                {
+                    "name": "SqirraRNG",
+                    "icon": "gedehari",
+                    "description": "Chart Editor's Sound Waveform base",
+                    "link": "https://twitter.com/gedehari",
+                    "color": "0xFFFF9300"
+                },
+                {
+                    "name": "PolybiusProxy",
+                    "icon": "polybiusproxy",
+                    "description": ".MP4 Video Loader Extension",
+                    "link": "https://twitter.com/polybiusproxy",
+                    "color": "0xFFFFEAA6"
+                },
+                {
+                    "name": "Keoiki",
+                    "icon": "keoiki",
+                    "description": "Note Splash Animations",
+                    "link": "https://twitter.com/Keoiki_",
+                    "color": "0xFFFFFFFF"
+                },
+                {
+                    "name": "Smokey",
+                    "icon": "smokey",
+                    "description": "Spritemap Texture Support",
+                    "link": "https://twitter.com/Smokey_5_",
+                    "color": "0xFF4D5DBD"
+                }
+            ]
+        },
+        {
+            "title": "Funkin' Crew",
+            "credits": [
+                {
+                    "name": "ninjamuffin99",
+                    "icon": "ninjamuffin99",
+                    "description": "Programmer of Friday Night Funkin'",
+                    "link": "https://twitter.com/ninja_muffin99",
+                    "color": "0xFFF73838"
+                },
+                {
+                    "name": "PhantomArcade",
+                    "icon": "phantomarcade",
+                    "description": "Animator of Friday Night Funkin'",
+                    "link": "https://twitter.com/PhantomArcade3K",
+                    "color": "0xFFFFBB1B"
+                },
+                {
+                    "name": "evilsk8r",
+                    "icon": "evilsk8r",
+                    "description": "Artist of Friday Night Funkin'",
+                    "link": "https://twitter.com/evilsk8r",
+                    "color": "0xFF53E52C"
+                },
+                {
+                    "name": "kawaisprite",
+                    "icon": "kawaisprite",
+                    "description": "Composer of Friday Night Funkin'",
+                    "link": "https://twitter.com/kawaisprite",
+                    "color": "0xFF6475F3"
+                }
+            ]
+        }
+    ]
+}

@@ -5,7 +5,7 @@ import cpp.Pointer;
 import cpp.UInt8;
 
 /**
- * @author Tommy S
+ * @author Tommy Svensson
  */
 // This metadata is for when the build directory is export/release or export/debug or export/final etc.
 // @:buildXml('<include name="../../../../source/vlc/LibVLCBuild.xml" />')
@@ -44,7 +44,7 @@ extern class LibVLC
 
 	public function setFullscreen(fullscreen:Bool):Void;
 
-	public function getLength():Float;
+	public function getLength():Int;
 
 	public function getWidth():Int;
 
@@ -66,22 +66,14 @@ extern class LibVLC
 
 	public function setPosition(position:Float):Void;
 
-	public function getRepeats():Int;
-
-	public function setRepeats(repeats:Int):Void;
-
-	public function useHWacceleration(hwAcc:Bool):Void;
-
 	public function getPixelData():Pointer<UInt8>;
-
-	public function getFPS():Float;
 
 	public function nextFrame():Void;
 
-	public function hasVout():Bool;
+	public function getVOutCount():Int;
 
-	public function getFlag(index:Int): /*Float*/ Dynamic;
+	public function getFlag(index:Int):Float;
 
-	public function setFlag(index:Int, value: /*Float*/ Dynamic):Void;
+	public function setFlag(index:Int, value:Float):Void;
 }
 #end

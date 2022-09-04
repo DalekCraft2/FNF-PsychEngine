@@ -5,16 +5,16 @@ import haxe.io.Path;
 
 typedef MenuCharacterDef =
 {
-	var image:String;
-	var ?scale:Float;
-	var ?position:Array<Int>;
-	var idleAnim:String;
-	var confirmAnim:String;
-	var ?flipX:Bool;
-	var ?loopIdle:Bool;
-	var ?dances:Bool;
-	var ?danceLeftIndices:Array<Int>;
-	var ?danceRightIndices:Array<Int>;
+	image:String,
+	?scale:Float,
+	?position:Array<Float>,
+	idleAnim:String,
+	confirmAnim:String,
+	?flipX:Bool,
+	?loopIdle:Bool,
+	?dances:Bool,
+	?danceLeftIndices:Array<Int>,
+	?danceRightIndices:Array<Int>,
 }
 
 class MenuCharacter extends FlxSprite
@@ -69,7 +69,7 @@ class MenuCharacter extends FlxSprite
 					menuCharacterDef = Paths.getJson(Path.join(['menu_characters', DEFAULT_MENU_CHARACTER]));
 				}
 
-				frames = Paths.getSparrowAtlas(Path.join(['ui/story/menu_characters', menuCharacterDef.image]));
+				frames = Paths.getFrames(Path.join(['ui', 'story', 'menu_characters', menuCharacterDef.image]));
 
 				if (menuCharacterDef.idleAnim != null)
 				{

@@ -62,7 +62,7 @@ _____________________________________
 ## Cool new Chart Editor changes and countless bug fixes
 ![](https://github.com/ShadowMario/FNF-PsychEngine/blob/main/docs/img/chart.png?raw=true)
 * You can now chart "Event" notes, which are bookmarks that trigger specific actions that usually were hardcoded on the vanilla version of the game.
-* Your song's BPM can now have decimal values
+* Your song's tempo can now have decimal values
 * You can manually adjust a Note's strum time if you're really going for milisecond precision
 * You can change a note's type on the Editor, it comes with two example types:
   * Alt Animation: Forces an alt animation to play, useful for songs like Ugh/Stress

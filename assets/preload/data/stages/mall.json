@@ -1,14 +1,171 @@
 {
-	"defaultZoom": 0.8,
+	"background": [
+		{
+			"name": "bg",
+			"key": "stages/christmas/bgWalls",
+			"active": false,
+			"position": {
+				"x": -1000,
+				"y": -500
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.2,
+				"y": 0.2
+			},
+			"graphicScale": {
+				"x": 0.8,
+				"y": 0.8
+			}
+		},
+		{
+			"distraction": true,
+			"name": "upperBoppers",
+			"key": "stages/christmas/upperBop",
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "Upper Crowd Bob",
+					"frameRate": 24
+				}
+			],
+			"position": {
+				"x": -240,
+				"y": -90
+			},
+			"antialiasing": true,
+			"rotation": 2,
+			"scrollFactor": {
+				"x": 0.33,
+				"y": 0.33
+			},
+			"graphicScale": {
+				"x": 0.85,
+				"y": 0.85
+			}
+		},
+		{
+			"name": "bgEscalator",
+			"key": "stages/christmas/bgEscalator",
+			"active": false,
+			"position": {
+				"x": -1100,
+				"y": -600
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.3,
+				"y": 0.3
+			},
+			"graphicScale": {
+				"x": 0.9,
+				"y": 0.9
+			}
+		},
+		{
+			"name": "tree",
+			"key": "stages/christmas/christmasTree",
+			"position": {
+				"x": 370,
+				"y": -250
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			}
+		},
+		{
+			"distraction": true,
+			"name": "bottomBoppers",
+			"key": "stages/christmas/bottomBop",
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "Bottom Level Boppers Idle",
+					"frameRate": 24
+				},
+				{
+					"name": "hey",
+					"prefix": "Bottom Level Boppers HEY",
+					"frameRate": 24
+				}
+			],
+			"position": {
+				"x": -300,
+				"y": 140
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			}
+		},
+		{
+			"name": "fgSnow",
+			"key": "stages/christmas/fgSnow",
+			"position": {
+				"x": -600,
+				"y": 700
+			},
+			"antialiasing": true
+		}
+	],
+	"groups": [],
+	"foreground": [
+		{
+			"distraction": true,
+			"layer": 1,
+			"name": "santa",
+			"key": "stages/christmas/santa",
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "santa idle in fear",
+					"frameRate": 24
+				}
+			],
+			"position": {
+				"x": -840,
+				"y": 150
+			},
+			"antialiasing": true
+		}
+	],
+	"objectOrder": [
+		"bg",
+		"upperBoppers",
+		"bgEscalator",
+		"tree",
+		"bottomBoppers",
+		"fgSnow"
+	],
+	"cameraZoom": 0.8,
 	"isPixelStage": false,
-
-	"boyfriend": [970, 100],
-	"girlfriend": [400, 130],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 970,
+		"y": 100
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 400,
+		"y": 130
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [0, -100],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": 0,
+		"y": -100
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

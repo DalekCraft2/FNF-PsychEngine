@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxSprite;
+import haxe.io.Path;
 import util.CoolUtil;
 
 class BackgroundGirls extends FlxSprite implements Danceable
@@ -13,7 +14,7 @@ class BackgroundGirls extends FlxSprite implements Danceable
 		super(x, y);
 
 		// BG fangirls dissuaded
-		frames = Paths.getSparrowAtlas('stages/weeb/bgFreaks');
+		frames = Paths.getFrames(Path.join(['stages', 'weeb', 'bgFreaks']));
 
 		swapDanceType();
 

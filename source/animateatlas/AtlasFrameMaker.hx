@@ -1,5 +1,6 @@
 package animateatlas;
 
+import haxe.Exception;
 import animateatlas.JSONData.AnimationData;
 import animateatlas.JSONData.AtlasData;
 import animateatlas.displayobject.SpriteAnimationLibrary;
@@ -26,24 +27,18 @@ class AtlasFrameMaker extends FlxFramesCollection
 	 * @param _excludeArray Use this to only create selected animations. Keep null to create all of them.
 	 *
 	 */
-	public static function construct(key:String, ?_excludeArray:Array<String>, noAntialiasing:Bool = false):FlxFramesCollection
+	public static function construct(path:String, ?_excludeArray:Array<String>, noAntialiasing:Bool = false):FlxFramesCollection
 	{
 		var frameCollection:FlxFramesCollection;
 		var frameArray:Array<Array<FlxFrame>> = [];
 
-		if (Paths.exists(Paths.file(Path.join(['images', key, Path.withExtension('spritemap1', Paths.JSON_EXT)]))))
+		if (Paths.exists(Path.join([path, Path.withExtension('spritemap1', Paths.JSON_EXT)])))
 		{
-			#if FEATURE_SCRIPTS
-			PlayState.instance.addTextToDebug('Only Spritemaps made with Adobe Animate 2018 are supported');
-			#end
 			Debug.logWarn('Only Spritemaps made with Adobe Animate 2018 are supported');
 			return null;
 		}
 
-		var animationData:AnimationData = Paths.getJson(Path.join(['images', key, Path.withExtension('Animation', Paths.JSON_EXT)]));
-		var atlasData:AtlasData = Json.parse(Paths.getText(Path.join(['images', key, Path.withExtension('spritemap', Paths.JSON_EXT)])).replace('\uFEFF', ''));
-
-		var graphicAsset:FlxGraphicAsset = Paths.getGraphic(Path.join([key, 'spritemap']));
+		var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(Path.join([path, Path.withExtension('spritemap', Paths.IMAGE_EXT)]));
 		var graphic:FlxGraphic = null;
 		if (graphicAsset is FlxGraphic)
 		{
@@ -53,6 +48,17 @@ class AtlasFrameMaker extends FlxFramesCollection
 		{
 			graphic = FlxGraphic.fromBitmapData(graphicAsset);
 		}
+		var atlasData:AtlasData = null;
+		try
+		{
+			atlasData = Json.parse(Paths.getTextDirect(Path.join([path, Path.withExtension('spritemap', Paths.JSON_EXT)])).replace('\uFEFF', ''));
+		}
+		catch (e:Exception)
+		{
+			Debug.logError('Error reading atlas JSON in directory $path: $e');
+			return null;
+		}
+		var animationData:AnimationData = Paths.getJsonDirect(Path.join([path, Path.withExtension('Animation', Paths.JSON_EXT)]));
 
 		var ss:SpriteAnimationLibrary = new SpriteAnimationLibrary(animationData, atlasData, graphic.bitmap);
 		var t:SpriteMovieClip = ss.createAnimation(noAntialiasing);

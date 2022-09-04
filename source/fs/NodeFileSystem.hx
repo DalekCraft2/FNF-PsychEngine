@@ -2,7 +2,7 @@ package fs;
 
 #if (nodefs)
 #if polymod
-typedef IFileSystem = polymod.fs.NodeFileSystem;
+typedef NodeFileSystem = polymod.fs.NodeFileSystem;
 #else
 import fs.FileSystemCP.IFileSystem;
 import haxe.io.Bytes;

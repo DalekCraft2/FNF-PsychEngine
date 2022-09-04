@@ -1,14 +1,294 @@
 {
-	"defaultZoom": 0.9,
+	"background": [
+		{
+			"name": "skyBG",
+			"key": "stages/limo/limoSunset",
+			"position": {
+				"x": -120,
+				"y": -50
+			},
+			"scrollFactor": {
+				"x": 0.1,
+				"y": 0.1
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "limoMetalPole",
+			"key": "stages/limo/gore/metalPole",
+			"position": {
+				"x": -500,
+				"y": 220
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true,
+			"active": false
+		},
+		{
+			"name": "limoCorpse",
+			"key": "stages/limo/gore/noooooo",
+			"animations": [
+				{
+					"name": "death",
+					"prefix": "Henchmen on rail",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "death",
+			"position": {
+				"x": -500,
+				"y": 90
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "limoCorpse2",
+			"key": "stages/limo/gore/noooooo",
+			"animations": [
+				{
+					"name": "death",
+					"prefix": "henchmen death",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "death",
+			"position": {
+				"x": -500,
+				"y": 220
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "limoLight",
+			"key": "stages/limo/gore/coldHeartKiller",
+			"position": {
+				"x": -320,
+				"y": 140
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true,
+			"active": false
+		},
+		{
+			"name": "bgLimo",
+			"key": "stages/limo/bgLimo",
+			"animations": [
+				{
+					"name": "drive",
+					"prefix": "background limo pink",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "drive",
+			"position": {
+				"x": -200,
+				"y": 480
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true
+		},
+		{
+			"distraction": true,
+			"name": "fastCar",
+			"key": "stages/limo/fastCarLol",
+			"position": {
+				"x": -200,
+				"y": -480
+			},
+			"scrollFactor": {
+				"x": 0.7,
+				"y": 0.7
+			},
+			"antialiasing": true,
+			"visible": false
+		}
+	],
+	"groups": [
+		{
+			"name": "grpLimoParticles",
+			"objects": [
+				{
+					"name": "particle",
+					"key": "stages/limo/gore/stupidBlood",
+					"animations": [
+						{
+							"name": "blood",
+							"prefix": "blood",
+							"frameRate": 24
+						}
+					],
+					"initAnim": "blood",
+					"position": {
+						"x": -400,
+						"y": -400
+					},
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					},
+					"antialiasing": true,
+					"alpha": 0.01
+				}
+			]
+		},
+		{
+			"name": "grpLimoDancers",
+			"className": "BackgroundDancer",
+			"objects": [
+				{
+					"distraction": true,
+					"name": "dancer0",
+					"className": "BackgroundDancer",
+					"classCtorArgs": [
+						200,
+						120,
+						0
+					],
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					}
+				},
+				{
+					"distraction": true,
+					"name": "dancer1",
+					"className": "BackgroundDancer",
+					"classCtorArgs": [
+						570,
+						120,
+						1
+					],
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					}
+				},
+				{
+					"distraction": true,
+					"name": "dancer2",
+					"className": "BackgroundDancer",
+					"classCtorArgs": [
+						940,
+						120,
+						2
+					],
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					}
+				},
+				{
+					"distraction": true,
+					"name": "dancer3",
+					"className": "BackgroundDancer",
+					"classCtorArgs": [
+						1310,
+						120,
+						3
+					],
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					}
+				},
+				{
+					"distraction": true,
+					"name": "dancer4",
+					"className": "BackgroundDancer",
+					"classCtorArgs": [
+						1680,
+						120,
+						4
+					],
+					"scrollFactor": {
+						"x": 0.4,
+						"y": 0.4
+					}
+				}
+			]
+		}
+	],
+	"foreground": [
+		{
+			"layer": 0,
+			"name": "limo",
+			"key": "stages/limo/limoDrive",
+			"animations": [
+				{
+					"name": "drive",
+					"prefix": "Limo stage",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "drive",
+			"position": {
+				"x": -120,
+				"y": 550
+			},
+			"antialiasing": true
+		}
+	],
+	"objectOrder": [
+		"skyBG",
+		"limoMetalPole",
+		"bgLimo",
+		"limoCorpse",
+		"limoCorpse2",
+		"limoLight",
+		"dancer0",
+		"dancer1",
+		"dancer2",
+		"dancer3",
+		"dancer4",
+		"fastCar"
+	],
+	"cameraZoom": 0.9,
 	"isPixelStage": false,
-
-	"boyfriend": [1030, -120],
-	"girlfriend": [400, 130],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 1030,
+		"y": -120
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 400,
+		"y": 130
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [-200, 0],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": -200,
+		"y": 0
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

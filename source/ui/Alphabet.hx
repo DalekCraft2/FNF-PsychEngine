@@ -1,15 +1,19 @@
 package ui;
 
-import flixel.util.FlxArrayUtil;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.system.FlxAssets.FlxSoundAsset;
 import flixel.system.FlxSound;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxTimer;
+import haxe.io.Path;
 
 using StringTools;
+
+// TODO Make FlxTypedButtons with this so it can be clicked
+// TODO Font size
 
 /**
  * Loosely based on FlxTypeText lolol
@@ -414,6 +418,9 @@ class AlphaCharacter extends FlxSprite
 	 */
 	private static final Y_CORRECTION:Float = 90;
 
+	/**
+	 * Used for correcting Y values when the text has a line break.
+	 */
 	public var row:Int = 0;
 
 	private var textSize:Float = 1;
@@ -422,11 +429,11 @@ class AlphaCharacter extends FlxSprite
 	{
 		super(x, y);
 
-		frames = Paths.getSparrowAtlas(bold ? 'ui/fonts/bold' : 'ui/fonts/default');
+		frames = Paths.getFrames(bold ? Path.join(['ui', 'fonts', 'bold']) : Path.join(['ui', 'fonts', 'default']));
 
-		setGraphicSize(Std.int(width * textSize));
-		updateHitbox();
 		this.textSize = textSize;
+		scale.set(textSize, textSize);
+		updateHitbox();
 		antialiasing = Options.save.data.globalAntialiasing;
 	}
 
@@ -437,13 +444,13 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 	}
 
 	public function createBoldNumber(letter:String):Void
 	{
 		// TODO Surgically insert the bold letters from the original Psych alphabet into the PolyEngine alphabet
-		frames = Paths.getSparrowAtlas('ui/fonts/alphabet');
+		frames = Paths.getFrames(Path.join(['ui', 'fonts', 'alphabet']));
 
 		// animation.addByPrefix(letter, letter, 24);
 		animation.addByPrefix(letter, 'bold$letter', 24);
@@ -451,7 +458,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 	}
 
 	public function createBoldSymbol(letter:String):Void
@@ -461,7 +468,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		// y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 		// switch (letter)
 		// {
 		// 	case "'", '^', '“', '”':
@@ -478,7 +485,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 	}
 
 	public function createNumber(letter:String):Void
@@ -488,7 +495,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 	}
 
 	public function createSymbol(letter:String):Void
@@ -498,7 +505,7 @@ class AlphaCharacter extends FlxSprite
 		updateHitbox();
 
 		y = Y_CORRECTION - height;
-		// y += row * 60;
+		y += row * 60;
 		switch (letter)
 		{
 			case "'", '^', '“', '”':

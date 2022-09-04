@@ -1,7 +1,7 @@
 package fs;
 
 #if polymod
-typedef IFileSystem = polymod.fs.StubFileSystem;
+typedef StubFileSystem = polymod.fs.StubFileSystem;
 #else
 import fs.FileSystemCP.IFileSystem;
 import haxe.io.Bytes;

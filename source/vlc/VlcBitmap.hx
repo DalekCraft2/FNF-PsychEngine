@@ -1,7 +1,6 @@
 package vlc;
 
 #if cpp
-import cpp.NativeArray;
 import cpp.Pointer;
 import cpp.Star;
 import cpp.UInt8;
@@ -9,23 +8,18 @@ import haxe.io.Bytes;
 import haxe.io.BytesData;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
+import openfl.errors.Error;
 import openfl.events.Event;
 import openfl.geom.Rectangle;
+import openfl.utils.ByteArray;
 
 /**
- * @author Tommy S
+ * @author Tommy Svensson
  */
 class VlcBitmap extends Bitmap
 {
-	/////////////////////////////////////////////////////////////////////////////////////
-	// ===================================================================================
-	// Consts
-	//-----------------------------------------------------------------------------------
-	// ===================================================================================
-	// Properties
-	//-----------------------------------------------------------------------------------
 	public var fullscreen(get, set):Bool;
-	public var length(get, never):Float;
+	public var length(get, never):Int;
 	public var videoWidth(get, never):Int;
 	public var videoHeight(get, never):Int;
 	public var playing(get, never):Bool;
@@ -33,10 +27,7 @@ class VlcBitmap extends Bitmap
 	public var volume(get, set):Float;
 	public var time(get, set):Int;
 	public var position(get, set):Float;
-	public var repeats(get, set):Int;
 	public var pixelData(get, never):Pointer<UInt8>;
-	public var fps(get, never):Float;
-
 	public var inWindow:Bool = false;
 	public var initComplete:Bool = false;
 
@@ -52,40 +43,30 @@ class VlcBitmap extends Bitmap
 	public var onComplete:() -> Void;
 	public var onError:() -> Void;
 
-	// ===================================================================================
-	// Declarations
-	//-----------------------------------------------------------------------------------
-	private var bufferMem:BytesData;
-	private var libVlc:Star<LibVLC>;
+	private var libVlc:Star<LibVLC> = new LibVLC();
 
-	// ===================================================================================
-	// Variables
-	//-----------------------------------------------------------------------------------
 	private var frameSize:Int;
 	private var _width:Null<Float>;
 	private var _height:Null<Float>;
-	// private var texture:RectangleTexture; // (Stage3D)
 	private var frameRect:Rectangle;
 
 	public function new()
 	{
-		super(null, null, true);
-
-		libVlc = new LibVLC();
+		super();
 
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 	}
 
 	public function play(?source:String):Void
 	{
-		// if (inWindow)
-		// {
-		// 	if (source != null)
-		// 		libVlc.playInWindow(source);
-		// 	else
-		// 		libVlc.playInWindow();
-		// }
-		// else
+		if (inWindow)
+		{
+			if (source != null)
+				libVlc.playInWindow(source);
+			else
+				libVlc.playInWindow();
+		}
+		else
 		{
 			if (source != null)
 				libVlc.play(source);
@@ -122,19 +103,11 @@ class VlcBitmap extends Bitmap
 	{
 		removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 
-		// (BitmapData)
 		if (bitmapData != null)
 		{
 			bitmapData.dispose();
 			bitmapData = null;
 		}
-
-		// (Stage3D)
-		// if (texture != null)
-		// {
-		// 	texture.dispose();
-		// 	texture = null;
-		// }
 
 		onVideoReady = null;
 		onComplete = null;
@@ -146,7 +119,6 @@ class VlcBitmap extends Bitmap
 		onBuffer = null;
 		onProgress = null;
 		onError = null;
-		bufferMem = null;
 
 		// The game fucking crashes when I set this to null and I have no idea why.
 		// I don't think it was even being set to null before I changed this, so it must have always an undiscovered issue.
@@ -161,100 +133,54 @@ class VlcBitmap extends Bitmap
 
 	private function checkFlags():Void
 	{
-		// if (libVlc.getFlag(0) != -1)
-		// {
-		// 	statusOnMediaChanged(libVlc.getFlag(0));
-		// 	libVlc.setFlag(0, -1);
-		// }
-		if (libVlc.getFlag(1) != -1)
+		for (i in 0...19) // 19 flags
 		{
-			statusOnNothingSpecial();
-			libVlc.setFlag(1, -1);
-		}
-		if (libVlc.getFlag(2) != -1)
-		{
-			statusOnOpening();
-			libVlc.setFlag(2, -1);
-		}
-		if (libVlc.getFlag(3) != -1)
-		{
-			statusOnBuffering(libVlc.getFlag(3));
-			libVlc.setFlag(3, -1);
-		}
-		if (libVlc.getFlag(4) != -1)
-		{
-			statusOnPlaying();
-			libVlc.setFlag(4, -1);
-		}
-		if (libVlc.getFlag(5) != -1)
-		{
-			statusOnPaused();
-			libVlc.setFlag(5, -1);
-		}
-		if (libVlc.getFlag(6) != -1)
-		{
-			statusOnStopped();
-			libVlc.setFlag(6, -1);
-		}
-		if (libVlc.getFlag(7) != -1)
-		{
-			statusOnForward();
-			libVlc.setFlag(7, -1);
-		}
-		if (libVlc.getFlag(8) != -1)
-		{
-			statusOnBackward();
-			libVlc.setFlag(8, -1);
-		}
-		if (libVlc.getFlag(9) != -1)
-		{
-			statusOnEndReached();
-			libVlc.setFlag(9, -1);
-		}
-		if (libVlc.getFlag(10) != -1)
-		{
-			statusOnEncounteredError();
-			libVlc.setFlag(10, -1);
-		}
-		if (libVlc.getFlag(11) != -1)
-		{
-			statusOnTimeChanged(libVlc.getFlag(11));
-			libVlc.setFlag(11, -1);
-		}
-		if (libVlc.getFlag(12) != -1)
-		{
-			statusOnPositionChanged(libVlc.getFlag(12));
-			libVlc.setFlag(12, -1);
-		}
-		if (libVlc.getFlag(13) != -1)
-		{
-			statusOnSeekableChanged(libVlc.getFlag(13));
-			libVlc.setFlag(13, -1);
-		}
-		if (libVlc.getFlag(14) != -1)
-		{
-			statusOnPausableChanged(libVlc.getFlag(14));
-			libVlc.setFlag(14, -1);
-		}
-		if (libVlc.getFlag(15) != -1)
-		{
-			statusOnTitleChanged(libVlc.getFlag(15));
-			libVlc.setFlag(15, -1);
-		}
-		// if (libVlc.getFlag(16) != -1)
-		// {
-		// 	statusOnSnapshotTaken(libVlc.getFlag(16));
-		// 	libVlc.setFlag(16, -1);
-		// }
-		if (libVlc.getFlag(17) != -1)
-		{
-			statusOnLengthChanged(libVlc.getFlag(17));
-			libVlc.setFlag(17, -1);
-		}
-		if (libVlc.getFlag(18) != -1)
-		{
-			statusOnVout(libVlc.getFlag(18));
-			libVlc.setFlag(18, -1);
+			var flag:Float = libVlc.getFlag(i);
+			if (flag != -1)
+			{
+				switch (i)
+				{
+					// case 0:
+					// 	statusOnMediaChanged(flag);
+					case 1:
+						statusOnNothingSpecial();
+					case 2:
+						statusOnOpening();
+					case 3:
+						statusOnBuffering(flag);
+					case 4:
+						statusOnPlaying();
+					case 5:
+						statusOnPaused();
+					case 6:
+						statusOnStopped();
+					case 7:
+						statusOnForward();
+					case 8:
+						statusOnBackward();
+					case 9:
+						statusOnEndReached();
+					case 10:
+						statusOnEncounteredError();
+					case 11:
+						statusOnTimeChanged(Std.int(flag));
+					case 12:
+						statusOnPositionChanged(flag);
+					case 13:
+						statusOnSeekableChanged(flag == 1);
+					case 14:
+						statusOnPausableChanged(flag == 1);
+					case 15:
+						statusOnTitleChanged(Std.int(flag));
+					// case 16:
+					// 	statusOnSnapshotTaken(flag);
+					case 17:
+						statusOnLengthChanged(Std.int(flag));
+					case 18:
+						statusOnVout(Std.int(flag));
+				}
+				libVlc.setFlag(i, -1);
+			}
 		}
 	}
 
@@ -265,17 +191,17 @@ class VlcBitmap extends Bitmap
 			// libVlc.getPixelData() sometimes returns null
 			if (pixelData != null)
 			{
-				// TODO Try to use native CPP stuff as little as possible; in other words, make this not use NativeArray
-				NativeArray.setData(bufferMem, pixelData, frameSize);
-				if (bufferMem != null)
+				var bufferMem:BytesData = pixelData.toUnmanagedArray(frameSize);
+				var byteArray:ByteArray = Bytes.ofData(bufferMem);
+				try
 				{
-					// (BitmapData)
-					bitmapData.setPixels(frameRect, Bytes.ofData(bufferMem));
-
-					// (Stage3D)
-					// texture.uploadFromByteArray(Bytes.ofData(bufferMem), 0);
-					// this.width++; // This is a horrible hack to force the texture to update... Surely there is a better way...
-					// this.width--;
+					// FIXME This specific line causes the game to sometimes, but not always, crash.
+					// I may have to resort to using hxCodec if I can't figure out how to fix this...
+					bitmapData.setPixels(frameRect, byteArray);
+				}
+				catch (e:Error)
+				{
+					Debug.logError(e);
 				}
 			}
 		}
@@ -283,19 +209,10 @@ class VlcBitmap extends Bitmap
 
 	private function videoInitComplete():Void
 	{
-		// (BitmapData)
 		if (bitmapData != null)
 			bitmapData.dispose();
 		bitmapData = new BitmapData(videoWidth, videoHeight, true, 0);
 		frameRect = new Rectangle(0, 0, videoWidth, videoHeight);
-
-		// (Stage3D)
-		// if (texture != null)
-		// 	texture.dispose();
-		// texture = Lib.current.stage.stage3Ds[0].context3D.createRectangleTexture(videoWidth, videoHeight, BGRA, true);
-		// bitmapData = BitmapData.fromTexture(texture);
-
-		smoothing = true;
 
 		if (_width != null)
 			width = _width;
@@ -307,7 +224,6 @@ class VlcBitmap extends Bitmap
 		else
 			height = videoHeight;
 
-		bufferMem = new BytesData();
 		frameSize = videoWidth * videoHeight * 4;
 
 		initComplete = true;
@@ -316,9 +232,9 @@ class VlcBitmap extends Bitmap
 			onVideoReady();
 	}
 
-	private function statusOnMediaChanged(newMedia: /*Pointer<libvlc_media_t>*/ Dynamic):Void
-	{
-	}
+	// private function statusOnMediaChanged(newMedia: /*Pointer<libvlc_media_t>*/ Dynamic):Void
+	// {
+	// }
 
 	private function statusOnNothingSpecial():Void
 	{
@@ -400,9 +316,9 @@ class VlcBitmap extends Bitmap
 	{
 	}
 
-	private function statusOnSnapshotTaken(pszFilename:String):Void
-	{
-	}
+	// private function statusOnSnapshotTaken(pszFilename:String):Void
+	// {
+	// }
 
 	private function statusOnLengthChanged(newLength:Int):Void
 	{
@@ -445,7 +361,7 @@ class VlcBitmap extends Bitmap
 		return value;
 	}
 
-	private function get_length():Float
+	private function get_length():Int
 	{
 		return libVlc.getLength();
 	}
@@ -503,25 +419,9 @@ class VlcBitmap extends Bitmap
 		return value;
 	}
 
-	private function get_repeats():Int
-	{
-		return libVlc.getRepeats();
-	}
-
-	private function set_repeats(value:Int):Int
-	{
-		libVlc.setRepeats(value);
-		return value;
-	}
-
 	private function get_pixelData():Pointer<UInt8>
 	{
 		return libVlc.getPixelData();
-	}
-
-	private function get_fps():Float
-	{
-		return libVlc.getFPS();
 	}
 }
 #end

@@ -5,9 +5,12 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import haxe.io.Path;
 import shader.ColorSwap;
+import states.PlayState;
 
 class NoteSplash extends FlxSprite
 {
+	// TODO Rework this class a bit
+	// public var data:Int = 0;
 	public var colorSwap:ColorSwap;
 
 	public function new(x:Float = 0, y:Float = 0, note:Int = 0)
@@ -32,7 +35,7 @@ class NoteSplash extends FlxSprite
 		super.update(elapsed);
 
 		if (animation.curAnim != null)
-			if (animation.curAnim.finished)
+			if (animation.finished)
 				kill();
 	}
 
@@ -48,32 +51,34 @@ class NoteSplash extends FlxSprite
 				texture = PlayState.song.splashSkin;
 		}
 
-		// if (PlayState.isPixelStage)
-		// {
-		// 		var path:String = Paths.image(Path.join(['pixelUI', texture]));
-		// 		if (!Paths.exists(path))
-		// 		{
-		// 			path = Paths.image('pixelUI/noteSplashes');
-		// 		}
-		// 		var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
-		// 		loadGraphic(graphic);
-		// 		width = width / 4;
-		// 		height = height / 5;
-		// 		loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
-		// 	setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
-		// 	loadPixelAnims();
-		// 	antialiasing = false;
-		// }
-		// else
-		// {
-		// 	if (!Paths.exists(Paths.image(texture)))
-		// 	{
-		// 		texture = 'noteSplashes';
-		// 	}
-		// 	frames = Paths.getSparrowAtlas(texture);
-		// 	loadNoteAnims();
-		// 	antialiasing = Options.save.data.globalAntialiasing;
-		// }
+		/*
+			if (PlayState.isPixelStage)
+			{
+				var path:String = Paths.image(Path.join(['pixelUI', texture]));
+				if (!Paths.exists(path))
+				{
+					path = Paths.image(Path.join(['pixelUI', 'noteSplashes'])); // Unfortunately, these don't exist! At least, not yet.
+				}
+				var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
+				loadGraphic(graphic);
+				width = width / 4;
+				height = height / 5;
+				loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
+				scale.set(PlayState.PIXEL_ZOOM, PlayState.PIXEL_ZOOM);
+				loadPixelAnims();
+				antialiasing = false;
+			}
+			else
+			{
+				if (!Paths.exists(Paths.image(texture)))
+				{
+					texture = 'noteSplashes';
+				}
+				frames = Paths.getFrames(texture);
+				loadNoteAnims();
+				antialiasing = Options.save.data.globalAntialiasing;
+			}
+		 */
 		loadAnims(texture);
 
 		colorSwap.hue = hueColor;
@@ -89,7 +94,7 @@ class NoteSplash extends FlxSprite
 
 	private function loadAnims(skin:String):Void
 	{
-		frames = Paths.getSparrowAtlas(Path.join(['particles/splashes', skin]));
+		frames = Paths.getFrames(Path.join(['particles', 'splashes', skin]));
 		for (i in 1...3)
 		{
 			for (color in NoteColor.createAll())

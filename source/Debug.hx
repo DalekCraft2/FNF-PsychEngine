@@ -1,5 +1,6 @@
 package;
 
+import chart.container.Song;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.system.debug.log.LogStyle;
@@ -8,6 +9,7 @@ import flixel.util.FlxStringUtil;
 import haxe.Log;
 import haxe.PosInfos;
 import openfl.Lib;
+import states.PlayState;
 import ui.HealthIcon;
 
 using StringTools;
@@ -271,8 +273,7 @@ class Debug
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(Character, ['id', 'isPlayer', 'barColor'], [FlxSprite]));
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(HealthIcon, ['char', 'isPlayer', 'isOldIcon'], [FlxSprite]));
 		FlxG.debugger.addTrackerProfile(new TrackerProfile(Note, ['x', 'y', 'strumTime', 'mustPress', 'noteData', 'sustainLength'], []));
-		// TODO Get this to work somehow
-		// FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, ['songId', 'speed', 'player1', 'player2', 'gfVersion', 'arrowSkin', 'stage'], []));
+		FlxG.debugger.addTrackerProfile(new TrackerProfile(Song, ['id', 'scrollSpeed', 'player1', 'player2', 'gfVersion', 'noteSkin', 'stage'], []));
 	}
 
 	/**
@@ -284,18 +285,39 @@ class Debug
 		// Example: This will display Boyfriend's sprite properties in a debug window.
 		addConsoleCommand('trackBoyfriend', () ->
 		{
-			Debug.logInfo('CONSOLE: Begin tracking Boyfriend...');
-			trackObject(PlayState.instance.boyfriend);
+			if (PlayState.instance == null)
+			{
+				Debug.logWarn('CONSOLE: PlayState.instance is null!');
+			}
+			else
+			{
+				Debug.logInfo('CONSOLE: Begin tracking Boyfriend...');
+				trackObject(PlayState.instance.boyfriend);
+			}
 		});
 		addConsoleCommand('trackGirlfriend', () ->
 		{
-			Debug.logInfo('CONSOLE: Begin tracking Girlfriend...');
-			trackObject(PlayState.instance.gf);
+			if (PlayState.instance == null)
+			{
+				Debug.logWarn('CONSOLE: PlayState.instance is null!');
+			}
+			else
+			{
+				Debug.logInfo('CONSOLE: Begin tracking Girlfriend...');
+				trackObject(PlayState.instance.gf);
+			}
 		});
-		addConsoleCommand('trackDad', () ->
+		addConsoleCommand('trackOpponent', () ->
 		{
-			Debug.logInfo('CONSOLE: Begin tracking Dad...');
-			trackObject(PlayState.instance.opponent);
+			if (PlayState.instance == null)
+			{
+				Debug.logWarn('CONSOLE: PlayState.instance is null!');
+			}
+			else
+			{
+				Debug.logInfo('CONSOLE: Begin tracking Opponent...');
+				trackObject(PlayState.instance.opponent);
+			}
 		});
 
 		addConsoleCommand('setLogLevel', (logLevel:String) ->

@@ -1,6 +1,5 @@
 package;
 
-import flixel.util.FlxArrayUtil;
 #if FEATURE_ACHIEVEMENTS
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -8,6 +7,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import haxe.io.Path;
 import util.CoolUtil;
@@ -16,14 +16,11 @@ using StringTools;
 
 typedef AchievementDef =
 {
-	var name:String;
-	var description:String;
-	var icon:String;
-	var unlocksAfter:String;
-	var hidden:Bool;
-	// TODO Figure out how this was used initially
-	var customGoal:Bool;
-	var modDirectory:String;
+	name:String,
+	description:String,
+	icon:String,
+	unlocksAfter:String,
+	hidden:Bool
 }
 
 class Achievement extends FlxSpriteGroup
@@ -81,20 +78,6 @@ class Achievement extends FlxSpriteGroup
 				henchmenDeath = EngineData.save.data.henchmenDeath;
 			}
 		}
-
-		// You might be asking "Why didn't you just fucking load it directly dumbass??"
-		// Well, Mr. Smartass, consider that this class was made for Mind Games Mod's demo,
-		// i'm obviously going to change the "Psyche" achievement's objective so that you have to complete the entire week
-		// with no misses instead of just Psychic once the full release is out. So, for not having the rest of your achievements lost on
-		// the full release, we only save the achievements' tag names instead. This also makes me able to rename
-		// achievements later as long as the tag names aren't changed of course.
-
-		// Edit: Oh yeah, just thought that this also makes me able to change the achievements orders easier later if i want to.
-		// So yeah, if you didn't thought about that i'm smarter than you, i think
-
-		// buffoon
-
-		// EDIT 2: Uhh this is weird, this message was written for Mind Games, so it doesn't apply logically for Psych Engine LOL
 	}
 
 	public static function reloadAchievementDef():Void
@@ -106,7 +89,7 @@ class Achievement extends FlxSpriteGroup
 
 		for (directory in directories)
 		{
-			var achievementDirectory:String = Path.join([directory, 'data/achievements']);
+			var achievementDirectory:String = Path.join([directory, 'data', 'achievements']);
 			var achievementListPath:String = Path.join([achievementDirectory, Path.withExtension('achievementList', Paths.TEXT_EXT)]);
 			if (Paths.exists(achievementListPath))
 			{
@@ -165,7 +148,7 @@ class Achievement extends FlxSpriteGroup
 		var achievementIcon:FlxSprite = new FlxSprite(achievementBG.x + 10,
 			achievementBG.y + 10).loadGraphic(Paths.getGraphic(Path.join(['achievements', achievementDef.icon])));
 		achievementIcon.scrollFactor.set();
-		achievementIcon.setGraphicSize(Std.int(achievementIcon.width * (2 / 3)));
+		achievementIcon.scale.set(2 / 3, 2 / 3);
 		achievementIcon.updateHitbox();
 		achievementIcon.antialiasing = Options.save.data.globalAntialiasing;
 
@@ -249,13 +232,13 @@ class AttachedAchievement extends FlxSprite
 			{
 				var graphic:FlxGraphicAsset = Paths.getGraphic(Path.join(['achievements', achievementDef.icon]));
 				if (graphic == null)
-					graphic = Paths.getGraphic('achievements/missing');
+					graphic = Paths.getGraphic(Path.join(['achievements', 'missing']));
 				loadGraphic(graphic);
 			}
 		}
 		else
 		{
-			loadGraphic(Paths.getGraphic('achievements/locked'));
+			loadGraphic(Paths.getGraphic(Path.join(['achievements', 'locked'])));
 		}
 		scale.set(0.7, 0.7);
 		updateHitbox();

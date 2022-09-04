@@ -1,14 +1,90 @@
 {
-	"defaultZoom": 1.05,
+	"background": [
+		{
+			"name": "bg",
+			"key": "stages/weeb/animatedEvilSchool",
+			"animations": [
+				{
+					"name": "school",
+					"prefix": "background 2",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "school",
+			"position": {
+				"x": -900,
+				"y": -1050
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.8,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		},
+		{
+			"name": "bgGhouls",
+			"key": "stages/weeb/bgGhouls",
+			"animations": [
+				{
+					"name": "dance",
+					"prefix": "BG freaks glitch instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "dance",
+			"position": {
+				"x": -100,
+				"y": 190
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			},
+			"visible": false
+		}
+	],
+	"groups": [],
+	"foreground": [],
+	"objectOrder": [
+		"bg",
+		"bgGhouls"
+	],
+	"cameraZoom": 1.05,
 	"isPixelStage": true,
-
-	"boyfriend": [970, 320],
-	"girlfriend": [580, 430],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 970,
+		"y": 320
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 580,
+		"y": 430
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [-100, -100],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": -100,
+		"y": -100
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

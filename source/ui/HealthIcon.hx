@@ -57,24 +57,24 @@ class HealthIcon extends FlxSprite
 		switch (iconMode)
 		{
 			case NEUTRAL:
-				animation.curAnim.curFrame = INDEX_NEUTRAL;
+				animation.frameIndex = INDEX_NEUTRAL;
 			case LOSING:
 				if (hasLosingIcon)
 				{
-					animation.curAnim.curFrame = INDEX_LOSING;
+					animation.frameIndex = INDEX_LOSING;
 				}
 				else
 				{
-					animation.curAnim.curFrame = INDEX_NEUTRAL;
+					animation.frameIndex = INDEX_NEUTRAL;
 				}
 			case WINNING:
 				if (hasWinningIcon)
 				{
-					animation.curAnim.curFrame = INDEX_WINNING;
+					animation.frameIndex = INDEX_WINNING;
 				}
 				else
 				{
-					animation.curAnim.curFrame = INDEX_NEUTRAL;
+					animation.frameIndex = INDEX_NEUTRAL;
 				}
 		}
 	}
@@ -83,13 +83,13 @@ class HealthIcon extends FlxSprite
 	{
 		if (this.char != char)
 		{
-			var iconPath:String = Path.join(['ui/character_icons', char]);
+			var iconPath:String = Path.join(['ui', 'character_icons', char]);
 			if (!Paths.exists(Paths.image(iconPath), IMAGE))
-				iconPath = Path.join(['ui/character_icons', 'icon-$char']); // Legacy support
+				iconPath = Path.join(['ui', 'character_icons', 'icon-$char']); // Legacy support
 			if (!Paths.exists(Paths.image(iconPath), IMAGE))
 			{
 				Debug.logError('Could not find character icon with ID "$char"; using default');
-				iconPath = Path.join(['ui/character_icons', 'face']); // Prevents crash from missing icon
+				iconPath = Path.join(['ui', 'character_icons', 'face']); // Prevents crash from missing icon
 			}
 			var file:FlxGraphicAsset = Paths.getGraphic(iconPath);
 

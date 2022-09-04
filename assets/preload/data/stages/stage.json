@@ -1,14 +1,122 @@
 {
-	"defaultZoom": 0.9,
+	"background": [
+		{
+			"name": "bg",
+			"key": "stages/stage/stageback",
+			"active": false,
+			"position": {
+				"x": -600,
+				"y": -200
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			}
+		},
+		{
+			"name": "stageFront",
+			"key": "stages/stage/stagefront",
+			"active": false,
+			"position": {
+				"x": -650,
+				"y": 600
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 1.1,
+				"y": 1.1
+			}
+		},
+		{
+			"name": "stageLight1",
+			"key": "stages/stage/stage_light",
+			"active": false,
+			"position": {
+				"x": -125,
+				"y": -100
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 1.1,
+				"y": 1.1
+			}
+		},
+		{
+			"name": "stageLight2",
+			"key": "stages/stage/stage_light",
+			"active": false,
+			"position": {
+				"x": 1225,
+				"y": -100
+			},
+			"flipX": true,
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 1.1,
+				"y": 1.1
+			}
+		},
+		{
+			"name": "stageCurtains",
+			"key": "stages/stage/stageCurtains",
+			"active": false,
+			"position": {
+				"x": -500,
+				"y": -300
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 1.3,
+				"y": 1.3
+			},
+			"graphicScale": {
+				"x": 0.9,
+				"y": 0.9
+			}
+		}
+	],
+	"groups": [],
+	"foreground": [],
+	"objectOrder": [],
+	"cameraZoom": 0.9,
 	"isPixelStage": false,
-
-	"boyfriend": [770, 100],
-	"girlfriend": [400, 130],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 770,
+		"y": 100
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 400,
+		"y": 130
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [0, 0],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

@@ -1,0 +1,14 @@
+{
+    "name": "Change Character",
+    "description": "Change one of the three characters to another character",
+    "args": [
+        {
+            "name": "Character role",
+            "description": "Character to change (Dad, BF, GF)"
+        },
+        {
+            "name": "New Character",
+            "description": "New character's name"
+        }
+    ]
+}

@@ -37,6 +37,9 @@
             "props": {}
         },
         {
+            "type": "CommentedOutCode"
+        },
+        {
             "type": "ConditionalCompilation",
             "props": {
                 "allowSingleline": true

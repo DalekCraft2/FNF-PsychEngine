@@ -1,0 +1,14 @@
+{
+    "name": "Change Scroll Speed",
+    "description": "Value 1: Scroll Speed Multiplier (1 is default)\nValue 2: Time it takes to change fully in seconds.",
+    "args": [
+        {
+            "name": "Scroll Speed Multiplier",
+            "description": "(1 is default)"
+        },
+        {
+            "name": "Duration",
+            "description": "Time it takes to change fully in seconds."
+        }
+    ]
+}

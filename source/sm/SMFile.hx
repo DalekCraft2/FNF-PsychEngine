@@ -1,8 +1,8 @@
 package sm;
 
 #if FEATURE_STEPMANIA
+import chart.container.Bar;
 import chart.container.BasicNote;
-import chart.container.Section;
 import chart.container.Song.SongWrapper;
 import chart.container.Song;
 import haxe.Exception;
@@ -102,21 +102,21 @@ class SMFile
 	public function convertToFNF(saveTo:String):String
 	{
 		// array's for helds
-		var heldNotes:Array<NoteDef>;
+		var heldNotes:Array<BasicNote>;
 
 		if (isDouble) // held storage lanes
 			heldNotes = [
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([]),
-				new NoteDef([])
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote(),
+				new BasicNote()
 			];
 		else
-			heldNotes = [new NoteDef([]), new NoteDef([]), new NoteDef([]), new NoteDef([])];
+			heldNotes = [new BasicNote(), new BasicNote(), new BasicNote(), new BasicNote()];
 
 		// variables
 
@@ -128,8 +128,7 @@ class SMFile
 		var song:Song = new Song();
 		song.id = Paths.formatToSongPath(header.TITLE);
 		song.name = header.TITLE;
-		song.player2 = 'gf';
-		song.bpm = header.getBPM(0);
+		song.tempo = header.getBPM(0);
 		song.validScore = false;
 		song.chartVersion = Song.LATEST_CHART;
 
@@ -141,7 +140,7 @@ class SMFile
 				song: Song.toSongDef(song)
 			};
 
-			var data:String = Json.stringify(json, '\t');
+			var data:String = Json.stringify(json, Constants.JSON_SPACE);
 			#if sys
 			File.saveContent(saveTo, data);
 			#end
@@ -162,13 +161,13 @@ class SMFile
 
 			// section declaration
 
-			var section:Section = new Section();
+			var section:Bar = new Bar();
 			section.bpm = header.getBPM(0);
 
 			// if it's not a double always set this to true
 
 			if (!isDouble)
-				section.mustHitSection = true;
+				section.mustHit = true;
 
 			@:privateAccess
 			for (i in 0...measure._measure.length - 1)
@@ -184,17 +183,17 @@ class SMFile
 
 				currentBeat = noteRow / 48;
 
-				if (currentBeat % Conductor.CROTCHETS_PER_MEASURE == 0)
+				if (currentBeat % Conductor.BEATS_PER_BAR == 0)
 				{
 					// ok new section time
-					song.notes.push(section);
-					section = new Section();
+					song.bars.push(section);
+					section = new Bar();
 					section.bpm = header.getBPM(0);
 					if (!isDouble)
-						section.mustHitSection = true;
+						section.mustHit = true;
 				}
 
-				var seg:TimingStruct = TimingStruct.getTimingAtBeat(currentBeat);
+				var seg:TimingSegment = TimingSegment.getTimingAtBeat(currentBeat);
 
 				var timeInSec:Float = (seg.startTime + ((currentBeat - seg.startBeat) / (seg.bpm / TimingConstants.SECONDS_PER_MINUTE)));
 
@@ -220,13 +219,13 @@ class SMFile
 					switch (numba)
 					{
 						case 1: // normal
-							section.sectionNotes.push(new NoteDef([rowTime, lane, 0, 0, currentBeat]));
+							section.notes.push(new NoteDef([rowTime, lane, 0, 0, currentBeat]));
 						case 2: // held head
 							heldNotes[lane] = new NoteDef([rowTime, lane, 0, 0, currentBeat]);
 						case 3: // held tail
 							var data:NoteDef = heldNotes[lane];
 							var timeDiff:Float = rowTime - data.strumTime;
-							section.sectionNotes.push(new NoteDef([data.strumTime, lane, timeDiff, 0 /*, data[4]*/]));
+							section.notes.push(new NoteDef([data.strumTime, lane, timeDiff, 0 /*, data[4]*/]));
 							heldNotes[index] = new NoteDef([]);
 						case 4: // roll head
 							heldNotes[lane] = new NoteDef([rowTime, lane, 0, 0, currentBeat]);
@@ -239,12 +238,12 @@ class SMFile
 
 			// push the section
 
-			song.notes.push(section);
+			song.bars.push(section);
 
 			measureIndex++;
 		}
 
-		song.recalculateAllSectionTimes();
+		song.recalculateAllBarTimes();
 
 		if (header.changeEvents.length != 0)
 		{
@@ -263,46 +262,12 @@ class SMFile
 				});
 			}
 		}
-		/*
-			var newSections:Array<Section> = [];
-
-			for (s in 0...song.notes.length) // lets go ahead and make sure each note is actually in their own section haha
-			{
-				var sec:Section = {
-					startTime: song.notes[s].startTime,
-					endTime: song.notes[s].endTime,
-					lengthInSteps: Conductor.SEMIQUAVERS_PER_MEASURE,
-					bpm: song.bpm,
-					changeBPM: false,
-					mustHitSection: song.notes[s].mustHitSection,
-					sectionNotes: [],
-					altAnim: song.notes[s].altAnim
-				};
-				for (i in song.notes)
-				{
-					for (ii in i.sectionNotes)
-					{
-						if (ii[0] >= sec.startTime && ii[0] < sec.endTime)
-							sec.sectionNotes.push(ii);
-					}
-				}
-				newSections.push(sec);
-			}
-		 */
-
-		// WE ALREADY DO THIS
-
-		// song.notes = newSections;
-
-		// save da song
-
-		// song.chartVersion = Song.latestChart;
 
 		var json:SongWrapper = {
 			song: Song.toSongDef(song)
 		};
 
-		var data:String = Json.stringify(json, '\t');
+		var data:String = Json.stringify(json, Constants.JSON_SPACE);
 		#if sys
 		File.saveContent(saveTo, data);
 		#end

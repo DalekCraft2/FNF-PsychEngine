@@ -4,41 +4,66 @@ import chart.container.Song;
 
 class ChartUtils
 {
-	public static function read(song:Dynamic):Song
+	public static function read(songDef:Dynamic):Song
 	{
-		var chartFormat:ChartFormat = getChartFormat(song);
+		var chartFormat:ChartFormat = getChartFormat(songDef);
 		Debug.logTrace('Format: $chartFormat');
 		switch (chartFormat)
 		{
 			case UNKNOWN:
-				return new VanillaChartReader(song).read();
+				return new VanillaChartReader(songDef).read();
 			// return null;
 			case VANILLA:
-				return new VanillaChartReader(song).read();
+				return new VanillaChartReader(songDef).read();
 			case KADE:
-				return new KadeChartReader(song).read();
+				return new KadeChartReader(songDef).read();
 			case MYTH:
-				return new MythChartReader(song).read();
+				return new MythChartReader(songDef).read();
 			case MYTH_HF:
-				return new MythHfChartReader(song).read();
+				return new MythHfChartReader(songDef).read();
 			case PSYCH:
-				return new PsychChartReader(song).read();
+				return new PsychChartReader(songDef).read();
 			case MOCK:
-				return new MockChartReader(song).read();
+				return new MockChartReader(songDef).read();
 		}
 
 		return null;
+	}
+
+	public static function write(song:Song, chartFormat:ChartFormat):Dynamic
+	{
+		return new MockChartWriter(song).write();
+		// TODO Add writers for each format
+		// switch (chartFormat)
+		// {
+		// 	case UNKNOWN:
+		// 		return new VanillaChartReader(songDef).read();
+		// 	// return null;
+		// 	case VANILLA:
+		// 		return new VanillaChartReader(songDef).read();
+		// 	case KADE:
+		// 		return new KadeChartReader(songDef).read();
+		// 	case MYTH:
+		// 		return new MythChartReader(songDef).read();
+		// 	case MYTH_HF:
+		// 		return new MythHfChartReader(songDef).read();
+		// 	case PSYCH:
+		// 		return new PsychChartReader(songDef).read();
+		// 	case MOCK:
+		// 		return new MockChartWriter(song).write();
+		// }
+		// return null;
 	}
 
 	public static function getChartFormat(song:Dynamic):ChartFormat
 	{
 		switch (song.chartVersion)
 		{
-			case "KE1":
+			case 'KE1':
 				return KADE;
-			case "MYTH 1.0":
+			case 'MYTH 1.0':
 				return MYTH;
-			case "MOCK 1.0":
+			case 'MOCK 1.0' | 'MOCK 1.1':
 				return MOCK;
 			default: // Please, guys, put a chartVersion tag in your chart JSONs.
 				// Some HoloFunk Myth-exclusive JSON tags:
@@ -47,8 +72,12 @@ class ChartUtils
 					return MYTH_HF;
 				}
 
-				// Some Psych-exclusive JSON tags:
-				if (Reflect.hasField(song, 'player3') || Reflect.hasField(song, 'arrowSkin') || Reflect.hasField(song, 'splashSkin'))
+				// Some Psych-exclusive JSON tags (and a commonly used one, "stage"):
+				if (Reflect.hasField(song, 'player3')
+					|| Reflect.hasField(song, 'arrowSkin')
+					|| Reflect.hasField(song, 'splashSkin')
+					|| Reflect.hasField(song, 'stage')
+					|| Reflect.hasField(song, 'gfVersion'))
 				{
 					return PSYCH;
 				}

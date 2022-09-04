@@ -5,7 +5,7 @@
         "gfVersion": "gf-tankmen",
         "stage": "tank",
         "arrowSkin": null,
-		"splashSkin": null,
+        "splashSkin": null,
         "bpm": 160,
         "speed": 2.3,
         "needsVoices": true,
@@ -2993,6 +2993,5 @@
             }
         ],
         "events": []
-    },
-    "generatedBy": "SNIFF ver.6"
+    }
 }

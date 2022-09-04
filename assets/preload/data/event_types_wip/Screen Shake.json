@@ -1,0 +1,14 @@
+{
+    "name": "Screen Shake",
+    "description": "Every value works as the following example: \"1, 0.05\". The first number (1) is the duration. The second number (0.05) is the intensity.",
+    "args": [
+        {
+            "name": "Game Camera shake",
+            "description": "Shake value for game camera"
+        },
+        {
+            "name": "HUD Camera shake",
+            "description": "Shake value for HUD camera"
+        }
+    ]
+}

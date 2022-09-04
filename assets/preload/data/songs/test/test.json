@@ -1,7 +1,7 @@
 {
     "song": {
         "player1": "bf",
-        "player2": "bf-pixel-opponent",
+        "player2": "bf-pixel",
         "gfVersion": "gf",
         "stage": "stage",
         "arrowSkin": null,

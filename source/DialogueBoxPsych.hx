@@ -1,9 +1,9 @@
 package;
 
-import flixel.util.FlxArrayUtil;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.group.FlxSpriteGroup;
+import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import haxe.io.Path;
 import ui.Alphabet;
@@ -14,39 +14,40 @@ using StringTools;
 
 typedef DialogueCharacterDef =
 {
-	var image:String;
-	var dialoguePos:String;
-	var noAntialiasing:Bool;
+	image:String,
+	dialoguePos:String,
+	noAntialiasing:Bool,
 
-	var animations:Array<DialogueAnimationDef>;
-	var position:Array<Float>;
-	var scale:Float;
+	animations:Array<DialogueAnimationDef>,
+	position:Array<Float>,
+	scale:Float,
 }
 
+// TODO Make this like the character animation JSON
 typedef DialogueAnimationDef =
 {
-	var anim:String;
-	var loopName:String;
-	var loopOffsets:Array<Int>;
-	var idleName:String;
-	var idleOffsets:Array<Int>;
+	name:String,
+	loopPrefix:String,
+	loopOffsets:Array<Float>,
+	idlePrefix:String,
+	idleOffsets:Array<Float>,
 }
 
 // Gonna try to kind of make it compatible to Forever Engine,
 // love u Shubs no homo :flushedh4:
 typedef DialogueDef =
 {
-	var dialogue:Array<DialogueLineDef>;
+	dialogue:Array<DialogueLineDef>
 }
 
 typedef DialogueLineDef =
 {
-	var ?portrait:String;
-	var ?expression:String;
-	var ?text:String;
-	var ?boxState:String;
-	var ?speed:Float;
-	var ?sound:String;
+	?portrait:String,
+	?expression:String,
+	?text:String,
+	?boxState:String,
+	?speed:Float,
+	?sound:String
 }
 
 class DialogueCharacter extends FlxSprite
@@ -71,7 +72,7 @@ class DialogueCharacter extends FlxSprite
 		this.id = id;
 
 		reloadCharacterJson(id);
-		frames = Paths.getSparrowAtlas(Path.join(['dialogue_portraits', jsonFile.image]));
+		frames = Paths.getFrames(Path.join(['dialogue', 'portraits', jsonFile.image]));
 		reloadAnimations();
 
 		antialiasing = Options.save.data.globalAntialiasing;
@@ -98,9 +99,9 @@ class DialogueCharacter extends FlxSprite
 		{
 			for (anim in jsonFile.animations)
 			{
-				animation.addByPrefix(anim.anim, anim.loopName, 24, isGhost);
-				animation.addByPrefix(anim.anim + IDLE_SUFFIX, anim.idleName, 24, true);
-				dialogueAnimations.set(anim.anim, anim);
+				animation.addByPrefix(anim.name, anim.loopPrefix, 24, isGhost);
+				animation.addByPrefix(anim.name + IDLE_SUFFIX, anim.idlePrefix, 24, true);
+				dialogueAnimations.set(anim.name, anim);
 			}
 		}
 	}
@@ -112,7 +113,7 @@ class DialogueCharacter extends FlxSprite
 		{ // Anim is null, get a random animation
 			var arrayAnims:Array<String> = [
 				for (anim in dialogueAnimations)
-					anim.anim
+					anim.name
 			];
 			if (arrayAnims.length > 0)
 			{
@@ -121,9 +122,9 @@ class DialogueCharacter extends FlxSprite
 		}
 
 		if (dialogueAnimations.exists(animToPlay)
-			&& (dialogueAnimations.get(animToPlay).loopName == null
-				|| dialogueAnimations.get(animToPlay).loopName.length < 1
-				|| dialogueAnimations.get(animToPlay).loopName == dialogueAnimations.get(animToPlay).idleName))
+			&& (dialogueAnimations.get(animToPlay).loopPrefix == null
+				|| dialogueAnimations.get(animToPlay).loopPrefix.length < 1
+				|| dialogueAnimations.get(animToPlay).loopPrefix == dialogueAnimations.get(animToPlay).idlePrefix))
 		{
 			playIdle = true;
 		}
@@ -152,7 +153,7 @@ class DialogueCharacter extends FlxSprite
 	{
 		if (animation.curAnim == null)
 			return false;
-		return !animation.curAnim.name.endsWith(IDLE_SUFFIX);
+		return !animation.name.endsWith(IDLE_SUFFIX);
 	}
 }
 
@@ -198,7 +199,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		spawnCharacters();
 
 		box = new FlxSprite(70, 370);
-		box.frames = Paths.getSparrowAtlas('dialogue/boxes/speech_bubble');
+		box.frames = Paths.getFrames(Path.join(['dialogue', 'boxes', 'speech_bubble']));
 		box.scrollFactor.set();
 		box.antialiasing = Options.save.data.globalAntialiasing;
 		box.animation.addByPrefix('normal', 'speech bubble normal', 24);
@@ -211,7 +212,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		box.animation.addByPrefix('center-angryOpen', 'speech bubble Middle loud open', 24, false);
 		box.animation.play('normal', true);
 		box.visible = false;
-		box.setGraphicSize(Std.int(box.width * 0.9));
+		box.scale.set(0.9, 0.9);
 		box.updateHitbox();
 		add(box);
 
@@ -238,7 +239,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		if (dialogueEnded)
 		{
 			// Dialogue ending
-			if (box != null && box.animation.curAnim.curFrame <= 0)
+			if (box != null && box.animation.frameIndex <= 0)
 			{
 				box.kill();
 				remove(box);
@@ -321,7 +322,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					for (textBoxType in textBoxTypes)
 					{
 						var checkArray:Array<String> = ['', 'center-'];
-						var animName:String = box.animation.curAnim.name;
+						var animName:String = box.animation.name;
 
 						for (prefix in checkArray)
 						{
@@ -331,7 +332,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 							}
 						}
 					}
-					box.animation.curAnim.curFrame = box.animation.curAnim.frames.length - 1;
+					box.animation.frameIndex = box.animation.frames - 1;
 					box.animation.curAnim.reverse();
 					text.kill();
 					remove(text);
@@ -351,7 +352,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				var char:DialogueCharacter = arrayCharacters[lastCharacter];
 				if (char != null && char.animation.curAnim != null && char.animationIsLoop() && char.animation.finished)
 				{
-					char.playAnim(char.animation.curAnim.name, true);
+					char.playAnim(char.animation.name, true);
 				}
 			}
 			else
@@ -363,12 +364,12 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					char.animation.curAnim.restart();
 				}
 			}
-			if (box.animation.curAnim.finished)
+			if (box.animation.finished)
 			{
 				for (textBoxType in textBoxTypes)
 				{
 					var checkArray:Array<String> = ['', 'center-'];
-					var animName:String = box.animation.curAnim.name;
+					var animName:String = box.animation.name;
 					for (prefix in checkArray)
 					{
 						if (animName == prefix + textBoxType || animName == '$prefix${textBoxType}Open')
@@ -460,7 +461,8 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			var x:Float = LEFT_CHAR_X;
 			var y:Float = DEFAULT_CHAR_Y;
 			var char:DialogueCharacter = new DialogueCharacter(x + OFFSET, y, individualChar);
-			char.setGraphicSize(Std.int(char.width * DialogueCharacter.DEFAULT_SCALE * char.jsonFile.scale));
+			var scaleValue:Float = DialogueCharacter.DEFAULT_SCALE * char.jsonFile.scale;
+			char.scale.set(scaleValue, scaleValue);
 			char.updateHitbox();
 			char.scrollFactor.set();
 			char.alpha = 0.00001;
@@ -491,6 +493,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	private var lastCharacter:Int = -1;
 	private var lastBoxType:String = '';
 
+	// FIXME I seem to have fucked up dialogue so it doesn't print on multiple lines; it prints everything on the first line
 	private function startNextDialog():Void
 	{
 		var curDialogue:DialogueLineDef;
@@ -586,11 +589,11 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	{ // Had to make it static because of the editors
 		box.centerOffsets();
 		box.updateHitbox();
-		if (box.animation.curAnim.name.startsWith('angry'))
+		if (box.animation.name.startsWith('angry'))
 		{
 			box.offset.set(50, 65);
 		}
-		else if (box.animation.curAnim.name.startsWith('center-angry'))
+		else if (box.animation.name.startsWith('center-angry'))
 		{
 			box.offset.set(50, 30);
 		}

@@ -1,11 +1,13 @@
 package;
 
+import states.PlayState;
+
 typedef DifficultyDef =
 {
-	var ?hidden:Bool;
-	var name:String;
-	var chart:String;
-	var displayName:String;
+	?hidden:Bool,
+	name:String,
+	chart:String,
+	displayName:String
 }
 
 class Difficulty

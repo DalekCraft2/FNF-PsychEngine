@@ -5,18 +5,17 @@ import options.Options.OptionDefaults;
 
 class Ratings
 {
-	public static function generateComboRank():ComboRank // generate a combo ranking
+	public static function generateComboRank(misses:Int, shits:Int, bads:Int, goods:Int):ComboRank // generate a combo ranking
 	{
 		var ranking:ComboRank = 'N/A';
 
-		if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods == 0) // Marvelous (SICK) Full Combo
+		if (misses == 0 && bads == 0 && shits == 0 && goods == 0) // Marvelous (SICK) Full Combo
 			ranking = ComboRank.MFC;
-		else
-			if (PlayState.instance.misses == 0 && PlayState.instance.bads == 0 && PlayState.instance.shits == 0 && PlayState.instance.goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
+		else if (misses == 0 && bads == 0 && shits == 0 && goods >= 1) // Good Full Combo (Nothing but Goods & Sicks)
 			ranking = ComboRank.GFC;
-		else if (PlayState.instance.misses == 0) // Regular FC
+		else if (misses == 0) // Regular FC
 			ranking = ComboRank.FC;
-		else if (PlayState.instance.misses < 10) // Single Digit Combo Break
+		else if (misses < 10) // Single Digit Combo Break
 			ranking = ComboRank.SDCB;
 		else
 			ranking = ComboRank.CLEAR;
@@ -96,11 +95,11 @@ class Ratings
 		return ranking;
 	}
 
-	public static function generateComboLetterRank(accuracy:Float):String // generate a letter ranking
+	public static function generateComboLetterRank(misses:Int, shits:Int, bads:Int, goods:Int, accuracy:Float):String // generate a letter ranking
 	{
 		var ranking:String = 'N/A';
 
-		ranking = '(${generateComboRank()}) ${generateGrade(accuracy)}';
+		ranking = '(${generateComboRank(misses, shits, bads, goods)}) ${generateGrade(accuracy)}';
 
 		if (accuracy == 0)
 			ranking = 'N/A';
@@ -136,16 +135,18 @@ class Ratings
 		return Judgement.SHIT;
 	}
 
-	public static function calculateRanking(score:Int, scoreDefault:Int, nps:Int, maxNPS:Int, accuracy:Float):String
+	// TODO Make an object for storing score data, yeesh
+	public static function calculateRanking(score:Int, scoreDefault:Int, nps:Int, maxNPS:Int, misses:Int, shits:Int, bads:Int, goods:Int,
+			accuracy:Float):String
 	{
 		// var showAll:Bool = !PlayStateChangeables.botPlay || PlayState.loadRep;
 		var showAll:Bool = true; // I just like seeing everything.
 
 		var npsString:String = Options.save.data.npsDisplay ? 'NPS: $nps (Max $maxNPS)${showAll ? ' | ' : ''}' : ''; // NPS
 		var scoreString:String = 'Score: ${Options.save.data.safeFrames != OptionDefaults.safeFrames ? '$score ($scoreDefault)' : Std.string(score)}'; // Score
-		var comboBreaksString:String = 'Combo Breaks: ${PlayState.instance.misses}'; // Misses/Combo Breaks
+		var comboBreaksString:String = 'Combo Breaks: ${misses}'; // Misses/Combo Breaks
 		var accuracyString:String = 'Accuracy: ${showAll ? '${FlxMath.roundDecimal(accuracy, 2)}%' : 'N/A'}'; // Accuracy
-		var comboLetterRankString:String = generateComboLetterRank(accuracy); // Combo Rank + Letter Rank
+		var comboLetterRankString:String = generateComboLetterRank(misses, shits, bads, goods, accuracy); // Combo Rank + Letter Rank
 		var fullAccuracyString:String = Options.save.data.accuracyDisplay ? ' | $comboBreaksString | $accuracyString | $comboLetterRankString' : '';
 
 		return '$npsString${(showAll ? '$scoreString$fullAccuracyString' : '')}';

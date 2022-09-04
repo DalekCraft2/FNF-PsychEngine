@@ -1,14 +1,375 @@
 {
-	"defaultZoom": 0.9,
+	"background": [
+		{
+			"name": "tankSky",
+			"key": "stages/tank/tankSky",
+			"active": false,
+			"position": {
+				"x": -400,
+				"y": -400
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0,
+				"y": 0
+			}
+		},
+		{
+			"name": "tankClouds",
+			"key": "stages/tank/tankClouds",
+			"position": {
+				"x": -400,
+				"y": 0
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.1,
+				"y": 0.1
+			}
+		},
+		{
+			"name": "tankMountains",
+			"key": "stages/tank/tankMountains",
+			"active": false,
+			"position": {
+				"x": -300,
+				"y": -20
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.2,
+				"y": 0.2
+			},
+			"graphicScale": {
+				"x": 1.2,
+				"y": 1.2
+			}
+		},
+		{
+			"name": "tankBuildings",
+			"key": "stages/tank/tankBuildings",
+			"active": false,
+			"position": {
+				"x": -200,
+				"y": 0
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.3,
+				"y": 0.3
+			},
+			"graphicScale": {
+				"x": 1.1,
+				"y": 1
+			}
+		},
+		{
+			"name": "tankRuins",
+			"key": "stages/tank/tankRuins",
+			"active": false,
+			"position": {
+				"x": -200,
+				"y": 0
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.35,
+				"y": 0.35
+			},
+			"graphicScale": {
+				"x": 1.1,
+				"y": 1.1
+			}
+		},
+		{
+			"name": "smokeLeft",
+			"key": "stages/tank/smokeLeft",
+			"animations": [
+				{
+					"name": "smoke",
+					"prefix": "SmokeBlurLeft",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "smoke",
+			"position": {
+				"x": -200,
+				"y": -100
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "smokeRight",
+			"key": "stages/tank/smokeRight",
+			"animations": [
+				{
+					"name": "smoke",
+					"prefix": "SmokeRight",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "smoke",
+			"position": {
+				"x": 1100,
+				"y": -100
+			},
+			"scrollFactor": {
+				"x": 0.4,
+				"y": 0.4
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tankWatchtower",
+			"key": "stages/tank/tankWatchtower",
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "watchtower gradient color",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": 100,
+				"y": 50
+			},
+			"scrollFactor": {
+				"x": 0.5,
+				"y": 0.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tankRolling",
+			"key": "stages/tank/tankRolling",
+			"animations": [
+				{
+					"name": "roll",
+					"prefix": "BG tank w lighting",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "roll",
+			"position": {
+				"x": 300,
+				"y": 300
+			},
+			"scrollFactor": {
+				"x": 0.5,
+				"y": 0.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tankGround",
+			"key": "stages/tank/tankGround",
+			"active": false,
+			"position": {
+				"x": -420,
+				"y": -150
+			},
+			"antialiasing": true,
+			"graphicScale": {
+				"x": 1.15,
+				"y": 1.15
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "tankmanRun",
+			"className": "TankmenBG",
+			"objects": []
+		}
+	],
+	"foreground": [
+		{
+			"name": "tank0",
+			"key": "stages/tank/tank0",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "fg tankhead far right instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": -500,
+				"y": 650
+			},
+			"scrollFactor": {
+				"x": 1.7,
+				"y": 1.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tank1",
+			"key": "stages/tank/tank1",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "fg tankhead 5 instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": -300,
+				"y": 750
+			},
+			"scrollFactor": {
+				"x": 2,
+				"y": 0.2
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tank2",
+			"key": "stages/tank/tank2",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "foreground man 3 instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": 450,
+				"y": 940
+			},
+			"scrollFactor": {
+				"x": 1.5,
+				"y": 1.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tank4",
+			"key": "stages/tank/tank4",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "fg tankman bobbin 3 instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": 1300,
+				"y": 900
+			},
+			"scrollFactor": {
+				"x": 1.5,
+				"y": 1.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tank5",
+			"key": "stages/tank/tank5",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "fg tankhead far right instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": 1620,
+				"y": 700
+			},
+			"scrollFactor": {
+				"x": 1.5,
+				"y": 1.5
+			},
+			"antialiasing": true
+		},
+		{
+			"name": "tank3",
+			"key": "stages/tank/tank3",
+			"layer": 2,
+			"distraction": true,
+			"animations": [
+				{
+					"name": "idle",
+					"prefix": "fg tankhead 4 instance",
+					"frameRate": 24
+				}
+			],
+			"initAnim": "idle",
+			"position": {
+				"x": 1300,
+				"y": 1200
+			},
+			"scrollFactor": {
+				"x": 3.5,
+				"y": 2.5
+			},
+			"antialiasing": true
+		}
+	],
+	"objectOrder": [
+		"tankSky",
+		"tankClouds",
+		"tankMountains",
+		"tankRuins",
+		"smokeLeft",
+		"smokeRight",
+		"tankWatchtower",
+		"tankRolling",
+		"tankmanRun",
+		"tankGround"
+	],
+	"cameraZoom": 0.9,
 	"isPixelStage": false,
-
-	"boyfriend": [810, 100],
-	"girlfriend": [200, 75],
-	"opponent": [20, 160],
+	"playerPosition": {
+		"x": 810,
+		"y": 100
+	},
+	"opponentPosition": {
+		"x": 20,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 200,
+		"y": 65
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [0, 0],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
-	"cameraSpeed": 1
+	"playerCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"cameraSpeed": 1,
+	"danceRate": 2
 }

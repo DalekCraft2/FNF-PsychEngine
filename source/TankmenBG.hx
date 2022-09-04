@@ -3,6 +3,7 @@ package;
 import chart.container.BasicNote;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import haxe.io.Path;
 
 class TankmenBG extends FlxSprite
 {
@@ -20,15 +21,15 @@ class TankmenBG extends FlxSprite
 
 		this.goingRight = goingRight;
 
-		frames = Paths.getSparrowAtlas('stages/tank/tankmanKilled1');
+		frames = Paths.getFrames(Path.join(['stages', 'tank', 'tankmanKilled1']));
 		animation.addByPrefix('run', 'tankman running', 24, true);
 		animation.addByPrefix('shot', 'John Shot ${FlxG.random.int(1, 2)}', 24, false);
 		animation.play('run');
-		animation.curAnim.curFrame = FlxG.random.int(0, animation.curAnim.frames.length - 1);
-		antialiasing = true;
+		animation.frameIndex = FlxG.random.int(0, animation.frames - 1);
+		antialiasing = Options.save.data.globalAntialiasing;
 
 		updateHitbox();
-		setGraphicSize(Std.int(0.8 * width));
+		scale.set(0.8, 0.8);
 		updateHitbox();
 	}
 
@@ -45,7 +46,7 @@ class TankmenBG extends FlxSprite
 			visible = false;
 		}
 
-		if (animation.curAnim.name == 'run')
+		if (animation.name == 'run')
 		{
 			var speed:Float = (Conductor.songPosition - strumTime) * tankSpeed;
 			if (goingRight)
@@ -57,7 +58,7 @@ class TankmenBG extends FlxSprite
 				this.x = (0.74 * FlxG.width + endingOffset) - speed;
 			}
 		}
-		else if (animation.curAnim.name == 'shot' && animation.curAnim.curFrame >= animation.curAnim.frames.length - 1)
+		else if (animation.name == 'shot' && animation.finished)
 		{
 			kill();
 		}

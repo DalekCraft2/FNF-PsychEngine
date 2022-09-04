@@ -1,0 +1,14 @@
+{
+    "name": "Add Camera Zoom",
+    "description": "Used on MILF on that one \"hard\" part.",
+    "args": [
+        {
+            "name": "Camera zoom add",
+            "description": "(Default: 0.015)"
+        },
+        {
+            "name": "UI zoom add",
+            "description": "(Default: 0.03)"
+        }
+    ]
+}

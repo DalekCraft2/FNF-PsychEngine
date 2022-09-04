@@ -1,14 +1,120 @@
 {
-	"defaultZoom": 1.05,
+	"background": [
+		{
+			"name": "bg",
+			"key": "stages/philly/sky",
+			"antialiasing": true,
+			"active": false,
+			"position": {
+				"x": -100,
+				"y": 0
+			},
+			"scrollFactor": {
+				"x": 0.1,
+				"y": 0.1
+			}
+		},
+		{
+			"name": "city",
+			"key": "stages/philly/city",
+			"antialiasing": true,
+			"active": false,
+			"position": {
+				"x": -10,
+				"y": 0
+			},
+			"scrollFactor": {
+				"x": 0.3,
+				"y": 0.3
+			},
+			"graphicScale": {
+				"x": 0.85,
+				"y": 0.85
+			}
+		},
+		{
+			"name": "phillyWindow",
+			"key": "stages/philly/window",
+			"antialiasing": true,
+			"position": {
+				"x": -10,
+				"y": 0
+			},
+			"scrollFactor": {
+				"x": 0.3,
+				"y": 0.3
+			},
+			"graphicScale": {
+				"x": 0.85,
+				"y": 0.85
+			}
+		},
+		{
+			"name": "streetBehind",
+			"key": "stages/philly/behindTrain",
+			"active": false,
+			"antialiasing": true,
+			"position": {
+				"x": -40,
+				"y": 50
+			}
+		},
+		{
+			"name": "phillyTrain",
+			"key": "stages/philly/train",
+			"antialiasing": true,
+			"position": {
+				"x": 2000,
+				"y": 360
+			}
+		},
+		{
+			"name": "street",
+			"key": "stages/philly/street",
+			"active": false,
+			"antialiasing": true,
+			"position": {
+				"x": -40,
+				"y": 50
+			}
+		}
+	],
+	"groups": [],
+	"foreground": [],
+	"objectOrder": [
+		"bg",
+		"city",
+		"phillyWindow",
+		"streetBehind",
+		"phillyTrain",
+		"street"
+	],
+	"cameraZoom": 1.05,
 	"isPixelStage": false,
-
-	"boyfriend": [770, 100],
-	"girlfriend": [400, 130],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 770,
+		"y": 100
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 400,
+		"y": 130
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [0, 0],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

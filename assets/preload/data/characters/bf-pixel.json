@@ -108,7 +108,6 @@
 	],
 	"healthIcon": "bf-pixel",
 	"flipX": true,
-	"flipLR": true,
 	"healthBarColors": [
 		123,
 		214,

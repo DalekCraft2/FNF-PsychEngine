@@ -36,9 +36,9 @@ class Main extends Sprite
 		graphics.beginFill(0x333333);
 		graphics.drawRect(0, 0, Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
 
-		var animationData:AnimationData = Paths.getJsonDirect(Path.withExtension('assets/TEST/Animation', Paths.JSON_EXT));
-		var atlasData:AtlasData = Paths.getJsonDirect(Path.withExtension('assets/TEST/spritemap', Paths.JSON_EXT));
-		var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(Path.withExtension('assets/TEST/spritemap', Paths.IMAGE_EXT));
+		var animationData:AnimationData = Paths.getJsonDirect(Path.join(['assets', 'TEST', Path.withExtension('Animation', Paths.JSON_EXT)]));
+		var atlasData:AtlasData = Paths.getJsonDirect(Path.join(['assets', 'TEST', Path.withExtension('spritemap', Paths.JSON_EXT)]));
+		var graphicAsset:FlxGraphicAsset = Paths.getGraphicDirect(Path.join(['assets', 'TEST', Path.withExtension('spritemap', Paths.IMAGE_EXT)]));
 		var bitmapData:BitmapData = null;
 		if (graphicAsset is FlxGraphic)
 		{
@@ -62,8 +62,8 @@ class Main extends Sprite
 		addChild(new FPSMem(10, 10, 0xFFFFFF));
 
 		addEventListener(Event.ENTER_FRAME, update);
-		// addEventListener(MouseEvent.CLICK, addSpriteGirl);
 		addEventListener(MouseEvent.CLICK, addTileGirl);
+		addEventListener(MouseEvent.RIGHT_CLICK, addSpriteGirl);
 	}
 
 	private var prev:Int = 0;

@@ -22,7 +22,7 @@ class AttachedSprite extends FlxSprite
 
 		if (anim != null)
 		{
-			frames = Paths.getSparrowAtlas(file, library);
+			frames = Paths.getFrames(file, library);
 			animation.addByPrefix('idle', anim, 24, loop);
 			animation.play('idle');
 		}

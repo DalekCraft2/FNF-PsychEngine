@@ -1,12 +1,15 @@
 package chart.io;
 
+import chart.container.Bar;
 import chart.container.BasicNote;
-import chart.container.Event.EventGroup;
-import chart.container.Section;
 import chart.container.Song;
+import chart.io.MockChart;
 
 using StringTools;
 
+/**
+ * For versions 1.0 to 1.1
+ */
 class MockChartReader implements ChartReader
 {
 	private final songDef:MockSong;
@@ -31,81 +34,47 @@ class MockChartReader implements ChartReader
 			song.noteSkin = songDef.noteSkin;
 		if (songDef.splashSkin != null)
 			song.splashSkin = songDef.splashSkin;
-		// if (songDef.bpm != null)
-		song.bpm = songDef.bpm;
-		// if (songDef.speed != null)
-		song.speed = songDef.speed;
+		// if (songDef.tempo != null)
+		song.tempo = songDef.tempo;
+		// if (songDef.scrollSpeed != null)
+		song.scrollSpeed = songDef.scrollSpeed;
 		if (songDef.needsVoices != null)
 			song.needsVoices = songDef.needsVoices;
 		if (songDef.validScore != null)
 			song.validScore = songDef.validScore;
-
-		song.events.push({
-			beat: 0,
-			events: [
-				{
-					type: 'Change BPM',
-					value1: song.bpm
-				}
-			]
-		});
-
-		for (sectionDef in songDef.notes)
-		{
-			var section:Section = new Section();
-			var sectionNotes:Array<BasicNote> = [
-				for (noteDef in sectionDef.sectionNotes)
-					new BasicNote(/*noteDef.strumTime*/ 0, noteDef.data, noteDef.sustainLength, noteDef.type, noteDef.beat)
-			];
-			section.sectionNotes = sectionNotes;
-			section.lengthInSteps = sectionDef.lengthInSteps;
-			section.mustHitSection = sectionDef.mustHitSection;
-			section.altAnim = sectionDef.altAnim;
-
-			song.notes.push(section);
-		}
+		if (songDef.offset != null)
+			song.offset = songDef.offset;
 
 		song.events = songDef.events;
 
+		song.generateTimings();
+
+		for (barDef in songDef.bars)
+		{
+			var bar:Bar = new Bar();
+			var notes:Array<BasicNote> = [];
+			for (noteDef in barDef.notes)
+			{
+				var sustainLength:Float = 0;
+				if (songDef.chartVersion == 'MOCK 1.0') // In MOCK 1.0, sustainLength was measured in milliseconds; now it is measured in beats
+				{
+					sustainLength = song.getBeatFromTime(song.getTimeFromBeat(noteDef.beat) + noteDef.sustainLength) - noteDef.beat;
+				}
+				else
+				{
+					sustainLength = noteDef.sustainLength;
+				}
+				notes.push(new BasicNote(noteDef.data, sustainLength, noteDef.type, noteDef.beat));
+			}
+			bar.notes = notes;
+			bar.lengthInSteps = barDef.lengthInSteps;
+			bar.mustHit = barDef.mustHit;
+			bar.altAnim = barDef.altAnim;
+			bar.gfSings = barDef.gfSings;
+
+			song.bars.push(bar);
+		}
+
 		return song;
 	}
-}
-
-typedef MockSongWrapper =
-{
-	var song:MockSong;
-}
-
-typedef MockSong =
-{
-	var player1:String;
-	var player2:String;
-	var gfVersion:String;
-	var stage:String;
-	var noteSkin:String;
-	var splashSkin:String;
-	var ?bpm:Float;
-	var ?speed:Float;
-	var ?needsVoices:Bool;
-	var ?validScore:Bool;
-	var notes:Array<MockSection>;
-	var ?events:Array<EventGroup>;
-	var chartVersion:String;
-}
-
-typedef MockSection =
-{
-	var sectionNotes:Array<MockNote>;
-	var lengthInSteps:Int;
-	var mustHitSection:Bool;
-	var gfSection:Bool;
-	var altAnim:Bool;
-}
-
-typedef MockNote =
-{
-	var beat:Float;
-	var data:Int;
-	var sustainLength:Float;
-	var type:String;
 }

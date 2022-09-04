@@ -1,0 +1,14 @@
+{
+    "name": "Hey!",
+    "description": "Plays the \"Hey!\" animation from Bopeebo",
+    "args": [
+        {
+            "name": "Characters",
+            "description": "BF = Only Boyfriend, GF = Only Girlfriend, Something else = Both."
+        },
+        {
+            "name": "Duration",
+            "description": "Custom animation duration; leave blank for 0.6s"
+        }
+    ]
+}

@@ -1,33 +1,36 @@
 package;
 
+import flixel.FlxCamera;
+import flixel.FlxSprite;
+import flixel.FlxState;
+import flixel.tweens.FlxEase;
+import openfl.display.BlendMode;
+import states.PlayState;
+import states.substates.GameOverSubState;
+
+using StringTools;
+
 #if FEATURE_SCRIPTS
 import Character.CharacterRole;
 import Character.CharacterRoleTools;
 import DialogueBoxPsych.DialogueDef;
-import animateatlas.AtlasFrameMaker;
 import chart.container.Song;
 import flixel.FlxBasic;
-import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxSave;
 import flixel.util.FlxTimer;
-import haxe.Exception;
 import haxe.io.Path;
-import openfl.display.BlendMode;
-
-using StringTools;
-
+import states.FreeplayState;
+import states.LoadingState;
+import states.StoryMenuState;
 #if FEATURE_LUA
 import llua.Convert;
 import llua.Lua;
@@ -42,25 +45,18 @@ import hscript.Parser;
 #if FEATURE_DISCORD
 import Discord.DiscordClient;
 #end
-
-// TODO Possibly switch to hscript
+#end
+// TODO Possibly switch to hScript
+// TODO Add a "callMethod" function to the script API
+// TODO Make a custom exception to be thrown in some of the lua callbacks so the script instances can catch them and print the info
 class FunkinScript
 {
+	#if FEATURE_SCRIPTS
 	public static final FUNCTION_CONTINUE:Any = 0;
 	public static final FUNCTION_STOP:Any = 1;
 	public static final FUNCTION_STOP_LUA:Any = 2;
 
 	#if FEATURE_LUA
-	// Fuck this, I can't figure out linc_lua, so I'mma set everything in Lua itself - Super
-	// TODO Figure out linc_lua (Maybe use Lua.setglobal for these)
-	private static inline final CLENSE:String = '
-	os.execute = nil
-	os.exit = nil
-	package.loaded.os.execute = nil
-	package.loaded.os.exit = nil
-	process = nil
-	package.loaded.process = nil';
-
 	public var lua:State;
 	#elseif hscript
 	public var interp:Interp = new Interp();
@@ -68,6 +64,350 @@ class FunkinScript
 	public var scriptName:String = '';
 
 	private var closed:Bool = false;
+	#end
+
+	public static function getPropertyLoop(qualifierArray:Array<String>, checkForTextsToo:Bool = true, noGameOver:Bool = false):Any
+	{
+		var object:Any = getObjectDirectly(qualifierArray[0], checkForTextsToo, noGameOver);
+		for (i in 1...qualifierArray.length - 1)
+		{
+			object = getVarInArray(object, qualifierArray[i]);
+			if (object == null)
+				return null;
+		}
+		return object;
+	}
+
+	// TODO Study how Psych uses these two functions
+	public static function getVarInArray(instance:Dynamic, variable:String):Any
+	{
+		var arraySplit:Array<String> = variable.split('[');
+		if (arraySplit.length > 1)
+		{
+			var object:Dynamic = Reflect.getProperty(instance, arraySplit[0]);
+			for (i in 1...arraySplit.length)
+			{
+				var key:Dynamic = arraySplit[i].substr(0, arraySplit[i].length - 1); // Minus 1 to remove the second bracket
+				object = object[key];
+			}
+			return object;
+		}
+		return Reflect.getProperty(instance, variable);
+	}
+
+	public static function setVarInArray(instance:Dynamic, variable:String, value:Dynamic):Any
+	{
+		var arraySplit:Array<String> = variable.split('[');
+		if (arraySplit.length > 1)
+		{
+			var object:Dynamic = Reflect.getProperty(instance, arraySplit[0]);
+			for (i in 1...arraySplit.length)
+			{
+				var key:Dynamic = arraySplit[i].substr(0, arraySplit[i].length - 1); // Minus 1 to remove the second bracket
+				if (i >= arraySplit.length - 1) // Last array
+					object[key] = value;
+				else // Anything else
+					object = object[key];
+			}
+			return object;
+		}
+		Reflect.setProperty(instance, variable, value);
+		return true;
+	}
+
+	private static function getPropertyFromGroup(group:Any, variable:String):Any
+	{
+		var qualifierArray:Array<String> = variable.split('.');
+		if (qualifierArray.length > 1)
+		{
+			var object:Any = Reflect.getProperty(group, qualifierArray[0]);
+			for (i in 1...qualifierArray.length - 1)
+			{
+				object = Reflect.getProperty(object, qualifierArray[i]);
+				if (object == null)
+					return null;
+			}
+			return Reflect.getProperty(object, qualifierArray[qualifierArray.length - 1]);
+		}
+		return Reflect.getProperty(group, variable);
+	}
+
+	private static function setPropertyFromGroup(group:Any, variable:String, value:Any):Void
+	{
+		var qualifierArray:Array<String> = variable.split('.');
+		if (qualifierArray.length > 1)
+		{
+			var object:Any = Reflect.getProperty(group, qualifierArray[0]);
+			for (i in 1...qualifierArray.length - 1)
+			{
+				object = Reflect.getProperty(object, qualifierArray[i]);
+				if (object == null)
+					return;
+			}
+			Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+			return;
+		}
+		Reflect.setProperty(group, variable, value);
+	}
+
+	public static function getObjectDirectly(objectName:String, checkForTextsToo:Bool = true, noGameOver:Bool = false):Any
+	{
+		#if FEATURE_SCRIPTS
+		if (PlayState.instance.scriptSprites.exists(objectName))
+		{
+			return PlayState.instance.scriptSprites.get(objectName);
+		}
+		else if (PlayState.stage.layers.exists(objectName))
+		{
+			return PlayState.stage.layers.get(objectName);
+		}
+		else if (checkForTextsToo && PlayState.instance.scriptTexts.exists(objectName))
+		{
+			return PlayState.instance.scriptTexts.get(objectName);
+		}
+		else
+		#end
+		{
+			return getVarInArray(noGameOver ? PlayState.instance : getInstance(), objectName);
+		}
+	}
+
+	private static function loadFrames(spr:FlxSprite, image:String, spriteType:String):Void
+	{
+		switch (spriteType.toLowerCase().trim())
+		{
+			case 'texture' | 'textureatlas' | 'tex':
+				spr.frames = Paths.getFrames(image, TEXTURE_ATLAS);
+			case 'texture_noaa' | 'textureatlas_noaa' | 'tex_noaa':
+				spr.frames = Paths.getTextureAtlasFrames(image, true);
+			case 'packer' | 'packeratlas' | 'pac':
+				spr.frames = Paths.getFrames(image, SPRITE_SHEET_PACKER);
+			default:
+				spr.frames = Paths.getFrames(image);
+		}
+	}
+
+	// Better optimized than using some getProperty shit or idk
+	private static function getFlxEaseByString(ease:String = ''):(t:Float) -> Float
+	{
+		return switch (ease.toLowerCase().trim())
+		{
+			case 'backin':
+				FlxEase.backIn;
+			case 'backinout':
+				FlxEase.backInOut;
+			case 'backout':
+				FlxEase.backOut;
+			case 'bouncein':
+				FlxEase.bounceIn;
+			case 'bounceinout':
+				FlxEase.bounceInOut;
+			case 'bounceout':
+				FlxEase.bounceOut;
+			case 'circin':
+				FlxEase.circIn;
+			case 'circinout':
+				FlxEase.circInOut;
+			case 'circout':
+				FlxEase.circOut;
+			case 'cubein':
+				FlxEase.cubeIn;
+			case 'cubeinout':
+				FlxEase.cubeInOut;
+			case 'cubeout':
+				FlxEase.cubeOut;
+			case 'elasticin':
+				FlxEase.elasticIn;
+			case 'elasticinout':
+				FlxEase.elasticInOut;
+			case 'elasticout':
+				FlxEase.elasticOut;
+			case 'expoin':
+				FlxEase.expoIn;
+			case 'expoinout':
+				FlxEase.expoInOut;
+			case 'expoout':
+				FlxEase.expoOut;
+			case 'quadin':
+				FlxEase.quadIn;
+			case 'quadinout':
+				FlxEase.quadInOut;
+			case 'quadout':
+				FlxEase.quadOut;
+			case 'quartin':
+				FlxEase.quartIn;
+			case 'quartinout':
+				FlxEase.quartInOut;
+			case 'quartout':
+				FlxEase.quartOut;
+			case 'quintin':
+				FlxEase.quintIn;
+			case 'quintinout':
+				FlxEase.quintInOut;
+			case 'quintout':
+				FlxEase.quintOut;
+			case 'sinein':
+				FlxEase.sineIn;
+			case 'sineinout':
+				FlxEase.sineInOut;
+			case 'sineout':
+				FlxEase.sineOut;
+			case 'smoothstepin':
+				FlxEase.smoothStepIn;
+			case 'smoothstepinout':
+				FlxEase.smoothStepInOut;
+			case 'smoothstepout':
+				FlxEase.smoothStepInOut;
+			case 'smootherstepin':
+				FlxEase.smootherStepIn;
+			case 'smootherstepinout':
+				FlxEase.smootherStepInOut;
+			case 'smootherstepout':
+				FlxEase.smootherStepOut;
+			default:
+				FlxEase.linear;
+		}
+	}
+
+	private static function getBlendModeFromString(blend:String):BlendMode
+	{
+		return switch (blend.toLowerCase().trim())
+		{
+			case 'add':
+				ADD;
+			case 'alpha':
+				ALPHA;
+			case 'darken':
+				DARKEN;
+			case 'difference':
+				DIFFERENCE;
+			case 'erase':
+				ERASE;
+			case 'hardlight':
+				HARDLIGHT;
+			case 'invert':
+				INVERT;
+			case 'layer':
+				LAYER;
+			case 'lighten':
+				LIGHTEN;
+			case 'multiply':
+				MULTIPLY;
+			case 'overlay':
+				OVERLAY;
+			case 'screen':
+				SCREEN;
+			case 'shader':
+				SHADER;
+			case 'subtract':
+				SUBTRACT;
+			default:
+				NORMAL;
+		}
+	}
+
+	private static function getCameraFromString(cam:String):FlxCamera
+	{
+		return switch (cam.toLowerCase())
+		{
+			case 'camhud' | 'hud':
+				PlayState.instance.camHUD;
+			case 'camother' | 'other':
+				PlayState.instance.camOther;
+			default:
+				PlayState.instance.camGame;
+		}
+	}
+
+	private static inline function getInstance():FlxState
+	{
+		return PlayState.instance.isDead ? GameOverSubState.instance : PlayState.instance;
+	}
+
+	#if FEATURE_SCRIPTS
+	private static inline function getTextObject(name:String):FlxText
+	{
+		return PlayState.instance.scriptTexts.exists(name) ? PlayState.instance.scriptTexts.get(name) : Reflect.getProperty(PlayState.instance, name);
+	}
+
+	private static function resetTextTag(tag:String):Void
+	{
+		if (PlayState.instance.scriptTexts.exists(tag))
+		{
+			var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
+			PlayState.instance.scriptTexts.remove(tag);
+			text.kill();
+			if (getInstance().members.contains(text))
+			{
+				getInstance().remove(text, true);
+			}
+			text.destroy();
+		}
+	}
+
+	private static function resetSpriteTag(tag:String):Void
+	{
+		if (PlayState.instance.scriptSprites.exists(tag))
+		{
+			var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
+			PlayState.instance.scriptSprites.remove(tag);
+			sprite.kill();
+			if (getInstance().members.contains(sprite))
+			{
+				getInstance().remove(sprite, true);
+			}
+			sprite.destroy();
+		}
+	}
+
+	private static function cancelTween(tag:String):Void
+	{
+		if (PlayState.instance.scriptTweens.exists(tag))
+		{
+			var tween:FlxTween = PlayState.instance.scriptTweens.get(tag);
+			PlayState.instance.scriptTweens.remove(tag);
+			tween.cancel();
+			tween.destroy();
+		}
+	}
+
+	private static function cancelTimer(tag:String):Void
+	{
+		if (PlayState.instance.scriptTimers.exists(tag))
+		{
+			var timer:FlxTimer = PlayState.instance.scriptTimers.get(tag);
+			PlayState.instance.scriptTimers.remove(tag);
+			timer.cancel();
+			timer.destroy();
+		}
+	}
+
+	private static function getObjectToTween(tag:String, vars:String):Any
+	{
+		cancelTween(tag);
+		var qualifierArray:Array<String> = vars.split('.');
+		var object:Any = Reflect.getProperty(getInstance(), qualifierArray[0]);
+		if (PlayState.instance.scriptSprites.exists(qualifierArray[0]))
+		{
+			object = PlayState.instance.scriptSprites.get(qualifierArray[0]);
+		}
+		else if (PlayState.stage.layers.exists(qualifierArray[0]))
+		{
+			object = PlayState.stage.layers.get(qualifierArray[0]);
+		}
+		if (PlayState.instance.scriptTexts.exists(qualifierArray[0]))
+		{
+			object = PlayState.instance.scriptTexts.get(qualifierArray[0]);
+		}
+
+		for (i in 1...qualifierArray.length)
+		{
+			object = Reflect.getProperty(object, qualifierArray[i]);
+			if (object == null)
+				return null;
+		}
+		return object;
+	}
 
 	public function new(path:String)
 	{
@@ -83,10 +423,6 @@ class FunkinScript
 		LuaL.openlibs(lua);
 		Lua.init_callbacks(lua);
 
-		// Debug.logTrace('Lua version: ${Lua.version()}');
-		// Debug.logTrace('LuaJIT version: ${Lua.versionJIT()}');
-
-		// LuaL.dostring(lua, CLENSE);
 		var result:Int = LuaL.dostring(lua, script);
 		var resultStr:String = Lua.tostring(lua, result);
 		if (resultStr != null && result != 0)
@@ -125,11 +461,11 @@ class FunkinScript
 		set('inChartEditor', false);
 
 		// Song/Week variables
-		set('curBpm', Conductor.tempo);
-		set('bpm', PlayState.song.bpm);
-		set('scrollSpeed', PlayState.song.speed);
-		set('crotchetLength', Conductor.crotchetLength);
-		set('semiquaverLength', Conductor.semiquaverLength);
+		set('curTempo', Conductor.tempo);
+		set('tempo', PlayState.song.tempo);
+		set('scrollSpeed', PlayState.song.scrollSpeed);
+		set('beatLength', Conductor.beatLength);
+		set('stepLength', Conductor.stepLength);
 		set('songLength', PlayState.song.inst.length);
 		set('songId', PlayState.song.id);
 		set('songName', PlayState.song.name);
@@ -144,7 +480,7 @@ class FunkinScript
 		set('seenCutscene', PlayState.seenCutscene);
 
 		// Block require and os, Should probably have a proper function but this should be good enough for now until someone smarter comes along and recreates a safe version of the OS library
-		set('require', false);
+		// set('require', false);
 
 		// Camera variables
 		set('cameraX', 0);
@@ -155,8 +491,11 @@ class FunkinScript
 		set('screenHeight', FlxG.height);
 
 		// PlayState variables
+		set('curBar', 0);
 		set('curBeat', 0);
 		set('curStep', 0);
+		set('curDecimalBeat', 0);
+		set('curDecimalStep', 0);
 
 		set('score', 0);
 		set('misses', 0);
@@ -168,9 +507,9 @@ class FunkinScript
 		set('version', EngineData.ENGINE_VERSION.trim());
 
 		set('inGameOver', false);
-		set('mustHitSection', false);
+		set('mustHit', false);
 		set('altAnim', false);
-		set('gfSection', false);
+		set('gfSings', false);
 
 		// Gameplay settings
 		set('healthGainMult', PlayStateChangeables.healthGain);
@@ -188,16 +527,17 @@ class FunkinScript
 		}
 
 		// Default character positions
-		set('defaultBoyfriendX', PlayState.instance.BF_X);
-		set('defaultBoyfriendY', PlayState.instance.BF_Y);
-		set('defaultOpponentX', PlayState.instance.OPPONENT_X);
-		set('defaultOpponentY', PlayState.instance.OPPONENT_Y);
-		set('defaultGirlfriendX', PlayState.instance.GF_X);
-		set('defaultGirlfriendY', PlayState.instance.GF_Y);
+		// TODO I'll fix this later to use constants
+		set('defaultBoyfriendX', Stage.DEFAULT_PLAYER_POSITION.x);
+		set('defaultBoyfriendY', Stage.DEFAULT_PLAYER_POSITION.y);
+		set('defaultOpponentX', Stage.DEFAULT_OPPONENT_POSITION.x);
+		set('defaultOpponentY', Stage.DEFAULT_OPPONENT_POSITION.x);
+		set('defaultGirlfriendX', Stage.DEFAULT_GIRLFRIEND_POSITION.x);
+		set('defaultGirlfriendY', Stage.DEFAULT_GIRLFRIEND_POSITION.x);
 
 		// Character variables
 		set('boyfriendName', PlayState.song.player1);
-		set('dadName', PlayState.song.player2);
+		set('opponentName', PlayState.song.player2);
 		set('gfName', PlayState.song.gfVersion);
 
 		// Some settings
@@ -217,7 +557,7 @@ class FunkinScript
 
 		set('buildTarget', haxe.macro.Compiler.getDefine('target'));
 
-		set("getRunningScripts", function():Array<String>
+		set('getRunningScripts', function():Array<String>
 		{
 			var runningScripts:Array<String> = [];
 			for (script in PlayState.instance.scriptArray)
@@ -225,11 +565,11 @@ class FunkinScript
 			return runningScripts;
 		});
 
-		set("callOnScripts", function(?funcName:String, ?args:Array<Dynamic>, ignoreStops = false, ignoreSelf = true, ?exclusions:Array<String>):Void
+		set('callOnScripts', function(?funcName:String, ?args:Array<Dynamic>, ignoreStops = false, ignoreSelf = true, ?exclusions:Array<String>):Void
 		{
 			if (funcName == null)
 			{
-				#if (linc_luajit >= "0.0.6")
+				#if (linc_luajit >= '0.0.6')
 				LuaL.error(lua, "bad argument #1 to 'callOnScripts' (string expected, got nil)");
 				#end
 				return;
@@ -241,25 +581,25 @@ class FunkinScript
 				exclusions = [];
 
 			Lua.getglobal(lua, 'scriptName');
-			var daScriptName = Lua.tostring(lua, -1);
+			var scriptName:String = Lua.tostring(lua, -1);
 			Lua.pop(lua, 1);
-			if (ignoreSelf && !exclusions.contains(daScriptName))
-				exclusions.push(daScriptName);
+			if (ignoreSelf && !exclusions.contains(scriptName))
+				exclusions.push(scriptName);
 			PlayState.instance.callOnScripts(funcName, args, ignoreStops, exclusions);
 		});
 
-		set("callScript", function(?key:String, ?funcName:String, ?args:Array<Dynamic>):Void
+		set('callScript', function(?key:String, ?funcName:String, ?args:Array<Dynamic>):Void
 		{
 			if (key == null)
 			{
-				#if (linc_luajit >= "0.0.6")
+				#if (linc_luajit >= '0.0.6')
 				LuaL.error(lua, "bad argument #1 to 'callScript' (string expected, got nil)");
 				#end
 				return;
 			}
 			if (funcName == null)
 			{
-				#if (linc_luajit >= "0.0.6")
+				#if (linc_luajit >= '0.0.6')
 				LuaL.error(lua, "bad argument #2 to 'callScript' (string expected, got nil)");
 				#end
 				return;
@@ -284,7 +624,7 @@ class FunkinScript
 			Lua.pushnil(lua);
 		});
 
-		set("getGlobalFromScript", function(?key:String, ?global:String):Void // TODO Make this actually return something
+		set('getGlobalFromScript', function(?key:String, ?global:String):Any
 		{ // returns the global from a script
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -293,34 +633,13 @@ class FunkinScript
 				{
 					if (script.scriptName == path)
 					{
-						Lua.getglobal(script.lua, global);
-						if (Lua.isnumber(script.lua, -1))
-						{
-							Lua.pushnumber(lua, Lua.tonumber(script.lua, -1));
-						}
-						else if (Lua.isstring(script.lua, -1))
-						{
-							Lua.pushstring(lua, Lua.tostring(script.lua, -1));
-						}
-						else if (Lua.isboolean(script.lua, -1) == 1)
-						{
-							Lua.pushboolean(lua, Lua.toboolean(script.lua, -1));
-						}
-						else
-						{
-							Lua.pushnil(lua);
-						}
-						// TODO: table
-
-						Lua.pop(script.lua, 1); // remove the global
-
-						return;
+						return script.get(global);
 					}
 				}
 			}
-			Lua.pushnil(lua);
+			return null;
 		});
-		set("setGlobalFromScript", function(key:String, global:String, val:Dynamic):Void
+		set('setGlobalFromScript', function(key:String, global:String, val:Dynamic):Void
 		{ // returns the global from a script
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -333,10 +652,9 @@ class FunkinScript
 					}
 				}
 			}
-			Lua.pushnil(lua);
 		});
 		// /*
-		set("getGlobals", function(key:String)
+		set('getGlobals', function(key:String):Void
 		{ // returns a copy of the specified file's globals
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -346,7 +664,7 @@ class FunkinScript
 					if (script.scriptName == path)
 					{
 						Lua.newtable(lua);
-						var tableIdx = Lua.gettop(lua);
+						var tableIdx:Int = Lua.gettop(lua);
 						Lua.pushvalue(script.lua, Lua.LUA_GLOBALSINDEX);
 						Lua.pushnil(script.lua);
 						while (Lua.next(script.lua, -2) != 0)
@@ -402,7 +720,7 @@ class FunkinScript
 			Lua.pushnil(lua);
 		});
 		// */
-		set("isRunning", function(key:String)
+		set('isRunning', function(key:String):Bool
 		{
 			var path:String = Paths.script(key);
 			if (Paths.exists(path))
@@ -459,54 +777,24 @@ class FunkinScript
 			scriptWarn('The script "$path" doesn\'t exist!');
 		});
 
-		set('loadSong', function(?name:String, difficultyNum:Int = -1):Void
-		{
-			if (name == null || name.length < 1)
-				name = PlayState.song.id;
-			if (difficultyNum == -1)
-				difficultyNum = PlayState.storyDifficulty;
-
-			var difficulty:String = Difficulty.getDifficultyFilePath(difficultyNum);
-			PlayState.song = Song.loadSong(name, difficulty);
-			PlayState.storyDifficulty = difficultyNum;
-			PlayState.instance.persistentUpdate = false;
-			LoadingState.loadAndSwitchState(new PlayState());
-
-			FlxG.sound.music.pause();
-			FlxG.sound.music.stop();
-			if (PlayState.instance.vocals != null)
-			{
-				PlayState.instance.vocals.pause();
-				PlayState.instance.vocals.stop();
-			}
-		});
-		set('loadFrames', function(variable:String, image:String, spriteType:String = 'sparrow'):Void
-		{
-			var spr:FlxSprite = getObjectDirectly(variable);
-			if (spr != null && image != null && image.length > 0)
-			{
-				loadFrames(spr, image, spriteType);
-			}
-		});
-
 		set('getProperty', function(variable:String):Any
 		{
 			var qualifierArray:Array<String> = variable.split('.');
 			if (qualifierArray.length > 1)
 			{
-				return Reflect.getProperty(getPropertyLoopThingWhatever(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				return getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
 			}
-			return Reflect.getProperty(getInstance(), variable);
+			return getVarInArray(getInstance(), variable);
 		});
 		set('setProperty', function(variable:String, value:Any):Void
 		{
 			var qualifierArray:Array<String> = variable.split('.');
 			if (qualifierArray.length > 1)
 			{
-				Reflect.setProperty(getPropertyLoopThingWhatever(qualifierArray), qualifierArray[qualifierArray.length - 1], value);
+				setVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1], value);
 				return;
 			}
-			Reflect.setProperty(getInstance(), variable, value);
+			setVarInArray(getInstance(), variable, value);
 		});
 		set('getPropertyFromGroup', function(obj:String, index:Int, variable:Dynamic):Dynamic
 		{
@@ -514,7 +802,7 @@ class FunkinScript
 			if (Std.isOfType(group, FlxTypedGroup))
 			{
 				var group:FlxTypedGroup<Dynamic> = group;
-				return getGroupStuff(group.members[index], variable);
+				return getPropertyFromGroup(group.members[index], variable);
 			}
 
 			var groupEntry:Dynamic = group[index];
@@ -524,19 +812,19 @@ class FunkinScript
 				{
 					return groupEntry[variable];
 				}
-				return getGroupStuff(groupEntry, variable);
+				return getPropertyFromGroup(groupEntry, variable);
 			}
 			scriptWarn('Object #$index from group: $obj doesn\'t exist!');
 			return null;
 		});
-		set('setPropertyFromGroup', function(obj:String, index:Int, variable:Dynamic, value:Dynamic):Void
+		set('setPropertyFromGroup', function(obj:String, index:Int, variable:Dynamic, value:Dynamic):Bool
 		{
 			var group:Dynamic = Reflect.getProperty(getInstance(), obj);
 			if (Std.isOfType(group, FlxTypedGroup))
 			{
 				var group:FlxTypedGroup<Dynamic> = group;
-				setGroupStuff(group.members[index], variable, value);
-				return;
+				setPropertyFromGroup(group.members[index], variable, value);
+				return true;
 			}
 
 			var groupEntry:Dynamic = group[index];
@@ -545,10 +833,12 @@ class FunkinScript
 				if (variable is Int)
 				{
 					groupEntry[variable] = value;
-					return;
+					return true;
 				}
-				setGroupStuff(groupEntry, variable, value);
+				setPropertyFromGroup(groupEntry, variable, value);
+				return true;
 			}
+			return false;
 		});
 		set('removeFromGroup', function(obj:String, index:Int, dontDestroy:Bool = false):Void
 		{
@@ -566,49 +856,57 @@ class FunkinScript
 			}
 			group.remove(group[index]);
 		});
-
 		set('getPropertyFromClass', function(classVar:String, variable:String):Any
 		{
+			var qualifiedClass:Class<Any> = Type.resolveClass(classVar);
 			var qualifierArray:Array<String> = variable.split('.');
 			if (qualifierArray.length > 1)
 			{
-				var object:Any = Reflect.getProperty(Type.resolveClass(classVar), qualifierArray[0]);
+				var object:Any = getVarInArray(qualifiedClass, qualifierArray[0]);
 				for (i in 1...qualifierArray.length - 1)
 				{
-					object = Reflect.getProperty(object, qualifierArray[i]);
+					object = getVarInArray(object, qualifierArray[i]);
 				}
-				return Reflect.getProperty(object, qualifierArray[qualifierArray.length - 1]);
+				return getVarInArray(object, qualifierArray[qualifierArray.length - 1]);
 			}
-			return Reflect.getProperty(Type.resolveClass(classVar), variable);
+			return getVarInArray(qualifiedClass, variable);
 		});
 		set('setPropertyFromClass', function(classVar:String, variable:String, value:Any):Void
 		{
+			var qualifiedClass:Class<Any> = Type.resolveClass(classVar);
 			var qualifierArray:Array<String> = variable.split('.');
 			if (qualifierArray.length > 1)
 			{
-				var object:Any = Reflect.getProperty(Type.resolveClass(classVar), qualifierArray[0]);
+				var object:Any = getVarInArray(qualifiedClass, qualifierArray[0]);
 				for (i in 1...qualifierArray.length - 1)
 				{
-					object = Reflect.getProperty(object, qualifierArray[i]);
+					object = getVarInArray(object, qualifierArray[i]);
 				}
-				Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
+				setVarInArray(object, qualifierArray[qualifierArray.length - 1], value);
 				return;
 			}
-			Reflect.setProperty(Type.resolveClass(classVar), variable, value);
+			setVarInArray(qualifiedClass, variable, value);
 		});
 
 		set('getObjectOrder', function(obj:String):Int
 		{
+			var object:FlxBasic;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				return getInstance().members.indexOf(PlayState.instance.scriptSprites.get(obj));
+				object = PlayState.instance.scriptSprites.get(obj);
+			}
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				object = PlayState.stage.layers.get(obj);
 			}
 			else if (PlayState.instance.scriptTexts.exists(obj))
 			{
-				return getInstance().members.indexOf(PlayState.instance.scriptTexts.get(obj));
+				object = PlayState.instance.scriptTexts.get(obj);
 			}
-
-			var object:FlxBasic = Reflect.getProperty(getInstance(), obj);
+			else
+			{
+				object = Reflect.getProperty(getInstance(), obj);
+			}
 			if (object != null)
 			{
 				return getInstance().members.indexOf(object);
@@ -618,31 +916,30 @@ class FunkinScript
 		});
 		set('setObjectOrder', function(obj:String, position:Int):Void
 		{
+			var object:FlxBasic;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				var spr:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				if (spr.wasAdded)
-				{
-					getInstance().remove(spr, true);
-				}
-				getInstance().insert(position, spr);
-				return;
+				object = PlayState.instance.scriptSprites.get(obj);
 			}
-			if (PlayState.instance.scriptTexts.exists(obj))
+			else if (PlayState.stage.layers.exists(obj))
 			{
-				var text:ScriptText = PlayState.instance.scriptTexts.get(obj);
-				if (text.wasAdded)
-				{
-					getInstance().remove(text, true);
-				}
-				getInstance().insert(position, text);
-				return;
+				object = PlayState.stage.layers.get(obj);
+			}
+			else if (PlayState.instance.scriptTexts.exists(obj))
+			{
+				object = PlayState.instance.scriptTexts.get(obj);
+			}
+			else
+			{
+				object = Reflect.getProperty(getInstance(), obj);
 			}
 
-			var object:FlxBasic = Reflect.getProperty(getInstance(), obj);
 			if (object != null)
 			{
-				getInstance().remove(object, true);
+				if (getInstance().members.contains(object))
+				{
+					getInstance().remove(object, true);
+				}
 				getInstance().insert(position, object);
 				return;
 			}
@@ -650,9 +947,9 @@ class FunkinScript
 		});
 
 		// tweens
-		set('doTweenX', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
+		set('doTweenX', function(tag:String, vars:String, value:Float, duration:Float, ease:String):Void
 		{
-			var objectToTween:Any = tweenShit(tag, vars);
+			var objectToTween:Any = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
 				PlayState.instance.scriptTweens.set(tag, FlxTween.tween(objectToTween, {x: value}, duration, {
@@ -669,9 +966,9 @@ class FunkinScript
 				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
-		set('doTweenY', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
+		set('doTweenY', function(tag:String, vars:String, value:Float, duration:Float, ease:String):Void
 		{
-			var objectToTween:Any = tweenShit(tag, vars);
+			var objectToTween:Any = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
 				PlayState.instance.scriptTweens.set(tag, FlxTween.tween(objectToTween, {y: value}, duration, {
@@ -688,9 +985,9 @@ class FunkinScript
 				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
-		set('doTweenAngle', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
+		set('doTweenAngle', function(tag:String, vars:String, value:Float, duration:Float, ease:String):Void
 		{
-			var objectToTween:Any = tweenShit(tag, vars);
+			var objectToTween:Any = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
 				PlayState.instance.scriptTweens.set(tag, FlxTween.tween(objectToTween, {angle: value}, duration, {
@@ -707,9 +1004,9 @@ class FunkinScript
 				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
-		set('doTweenAlpha', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
+		set('doTweenAlpha', function(tag:String, vars:String, value:Float, duration:Float, ease:String):Void
 		{
-			var objectToTween:Any = tweenShit(tag, vars);
+			var objectToTween:Any = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
 				PlayState.instance.scriptTweens.set(tag, FlxTween.tween(objectToTween, {alpha: value}, duration, {
@@ -726,9 +1023,9 @@ class FunkinScript
 				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
-		set('doTweenZoom', function(tag:String, vars:String, value:Any, duration:Float, ease:String):Void
+		set('doTweenZoom', function(tag:String, vars:String, value:Float, duration:Float, ease:String):Void
 		{
-			var objectToTween:Any = tweenShit(tag, vars);
+			var objectToTween:Any = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
 				PlayState.instance.scriptTweens.set(tag, FlxTween.tween(objectToTween, {zoom: value}, duration, {
@@ -747,12 +1044,10 @@ class FunkinScript
 		});
 		set('doTweenColor', function(tag:String, vars:String, targetColor:String, duration:Float, ease:String):Void
 		{
-			var objectToTween:Dynamic = tweenShit(tag, vars);
+			var objectToTween:Dynamic = getObjectToTween(tag, vars);
 			if (objectToTween != null)
 			{
-				var color:Int = Std.parseInt(targetColor);
-				if (!targetColor.startsWith('0x'))
-					color = Std.parseInt('0xFF$targetColor');
+				var color:FlxColor = FlxColor.fromString(targetColor);
 
 				var curColor:FlxColor = objectToTween.color;
 				curColor.alphaFloat = objectToTween.alpha;
@@ -760,8 +1055,8 @@ class FunkinScript
 					ease: getFlxEaseByString(ease),
 					onComplete: (twn:FlxTween) ->
 					{
-						PlayState.instance.scriptTweens.remove(tag);
 						PlayState.instance.callOnScripts('onTweenCompleted', [tag]);
+						PlayState.instance.scriptTweens.remove(tag);
 					}
 				}));
 			}
@@ -770,9 +1065,13 @@ class FunkinScript
 				scriptWarn('Couldn\'t find object: $vars');
 			}
 		});
+		set('cancelTween', function(tag:String):Void
+		{
+			cancelTween(tag);
+		});
 
 		// Tween shit, but for strums
-		set('noteTweenX', function(tag:String, note:Int, value:Any, duration:Float, ease:String):Void
+		set('noteTweenX', function(tag:String, note:Int, value:Float, duration:Float, ease:String):Void
 		{
 			cancelTween(tag);
 			if (note < 0)
@@ -792,7 +1091,7 @@ class FunkinScript
 				}));
 			}
 		});
-		set('noteTweenY', function(tag:String, note:Int, value:Any, duration:Float, ease:String):Void
+		set('noteTweenY', function(tag:String, note:Int, value:Float, duration:Float, ease:String):Void
 		{
 			cancelTween(tag);
 			if (note < 0)
@@ -811,7 +1110,7 @@ class FunkinScript
 				}));
 			}
 		});
-		set('noteTweenAngle', function(tag:String, note:Int, value:Any, duration:Float, ease:String):Void
+		set('noteTweenAngle', function(tag:String, note:Int, value:Float, duration:Float, ease:String):Void
 		{
 			cancelTween(tag);
 			if (note < 0)
@@ -830,7 +1129,7 @@ class FunkinScript
 				}));
 			}
 		});
-		set('noteTweenAlpha', function(tag:String, note:Int, value:Any, duration:Float, ease:String):Void
+		set('noteTweenAlpha', function(tag:String, note:Int, value:Float, duration:Float, ease:String):Void
 		{
 			cancelTween(tag);
 			if (note < 0)
@@ -849,7 +1148,8 @@ class FunkinScript
 				}));
 			}
 		});
-		set('noteTweenDirection', function(tag:String, note:Int, value:Any, duration:Float, ease:String):Void
+		// TODO Figure out what this does
+		set('noteTweenDirection', function(tag:String, note:Int, value:Float, duration:Float, ease:String):Void
 		{
 			cancelTween(tag);
 			if (note < 0)
@@ -868,6 +1168,7 @@ class FunkinScript
 				}));
 			}
 		});
+
 		set('mouseClicked', function(button:String):Bool
 		{
 			var clicked:Bool = FlxG.mouse.justPressed;
@@ -906,11 +1207,6 @@ class FunkinScript
 			return released;
 		});
 
-		set('cancelTween', function(tag:String):Void
-		{
-			cancelTween(tag);
-		});
-
 		set('runTimer', function(tag:String, time:Float = 1, loops:Int = 1):Void
 		{
 			cancelTimer(tag);
@@ -928,6 +1224,7 @@ class FunkinScript
 		{
 			cancelTimer(tag);
 		});
+
 		set('addScore', function(value:Int = 0):Void
 		{
 			PlayState.instance.score += value;
@@ -972,11 +1269,9 @@ class FunkinScript
 			return PlayState.instance.health;
 		});
 
-		set('getColorFromHex', function(color:String):Int
+		set('getColorFromString', function(color:String):FlxColor
 		{
-			if (!color.startsWith('0x'))
-				color = '0xFF$color';
-			return Std.parseInt(color);
+			return FlxColor.fromString(color);
 		});
 		set('keyJustPressed', function(name:String):Bool
 		{
@@ -1057,14 +1352,34 @@ class FunkinScript
 		{
 			Paths.precacheMusic(name);
 		});
-		set('triggerEvent', function(name:String, arg1:Any, arg2:Any):Void
+		set('triggerEvent', function(type:String, arg1:Any, arg2:Any):Void
 		{
-			var value1:String = arg1;
-			var value2:String = arg2;
-			PlayState.instance.triggerEvent(name, value1, value2);
-			scriptTrace('Triggered event: $name, $value1, $value2');
+			var args:Array<Dynamic> = [arg1, arg2];
+			PlayState.instance.triggerEvent(type, args);
+			// scriptTrace('Triggered event: $type, $args');
 		});
 
+		set('loadSong', function(?name:String, difficultyNum:Int = -1):Void
+		{
+			if (name == null || name.length < 1)
+				name = PlayState.song.id;
+			if (difficultyNum == -1)
+				difficultyNum = PlayState.storyDifficulty;
+
+			var difficulty:String = Difficulty.getDifficultyFilePath(difficultyNum);
+			PlayState.song = Song.loadSong(name, difficulty);
+			PlayState.storyDifficulty = difficultyNum;
+			getInstance().persistentUpdate = false;
+			LoadingState.loadAndSwitchState(new PlayState());
+
+			PlayState.song.inst.pause();
+			PlayState.song.inst.stop();
+			if (PlayState.song.vocals != null)
+			{
+				PlayState.song.vocals.pause();
+				PlayState.song.vocals.stop();
+			}
+		});
 		set('startCountdown', function():Void
 		{
 			PlayState.instance.startCountdown();
@@ -1076,7 +1391,7 @@ class FunkinScript
 		});
 		set('restartSong', function(skipTransition:Bool):Void
 		{
-			PlayState.instance.persistentUpdate = false;
+			getInstance().persistentUpdate = false;
 			PlayState.instance.restartSong(skipTransition);
 		});
 		set('exitSong', function(skipTransition:Bool):Void
@@ -1181,34 +1496,28 @@ class FunkinScript
 					PlayState.instance.boyfriendGroup.angle = value;
 			}
 		});
+
 		set('cameraSetTarget', function(target:String):Void
 		{
-			var isDad:Bool = false;
-			if (target == 'dad' || target == 'opponent')
-			{
-				isDad = true;
-			}
-			PlayState.instance.moveCamera(isDad);
+			var role:CharacterRole = CharacterRoleTools.createByString(target.toLowerCase());
+			PlayState.instance.moveCamera(role);
 		});
 		set('cameraShake', function(camera:String, intensity:Float, duration:Float):Void
 		{
-			cameraFromString(camera).shake(intensity, duration);
+			getCameraFromString(camera).shake(intensity, duration);
 		});
 
 		set('cameraFlash', function(camera:String, color:String, duration:Float, forced:Bool):Void
 		{
-			var colorNum:Int = Std.parseInt(color);
-			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF$color');
-			cameraFromString(camera).flash(colorNum, duration, null, forced);
+			var colorNum:FlxColor = FlxColor.fromString(color);
+			getCameraFromString(camera).flash(colorNum, duration, null, forced);
 		});
 		set('cameraFade', function(camera:String, color:String, duration:Float, forced:Bool):Void
 		{
-			var colorNum:Int = Std.parseInt(color);
-			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF$color');
-			cameraFromString(camera).fade(colorNum, duration, false, null, forced);
+			var colorNum:FlxColor = FlxColor.fromString(color);
+			getCameraFromString(camera).fade(colorNum, duration, false, null, forced);
 		});
+
 		set('setRatingPercent', function(value:Float):Void
 		{
 			PlayState.instance.ratingPercent = value;
@@ -1221,20 +1530,26 @@ class FunkinScript
 		{
 			PlayState.instance.ratingFC = value;
 		});
+
 		set('getMouseX', function(camera:String):Float
 		{
-			var cam:FlxCamera = cameraFromString(camera);
+			var cam:FlxCamera = getCameraFromString(camera);
 			return FlxG.mouse.getScreenPosition(cam).x;
 		});
 		set('getMouseY', function(camera:String):Float
 		{
-			var cam:FlxCamera = cameraFromString(camera);
+			var cam:FlxCamera = getCameraFromString(camera);
 			return FlxG.mouse.getScreenPosition(cam).y;
 		});
 
 		set('getMidpointX', function(variable:String):Float
 		{
-			var obj:FlxObject = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxObject = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getMidpoint().x;
 
@@ -1242,7 +1557,12 @@ class FunkinScript
 		});
 		set('getMidpointY', function(variable:String):Float
 		{
-			var obj:FlxObject = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxObject = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getMidpoint().y;
 
@@ -1250,7 +1570,12 @@ class FunkinScript
 		});
 		set('getGraphicMidpointX', function(variable:String):Float
 		{
-			var obj:FlxSprite = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxSprite = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getGraphicMidpoint().x;
 
@@ -1258,7 +1583,12 @@ class FunkinScript
 		});
 		set('getGraphicMidpointY', function(variable:String):Float
 		{
-			var obj:FlxSprite = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxSprite = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getGraphicMidpoint().y;
 
@@ -1266,7 +1596,12 @@ class FunkinScript
 		});
 		set('getScreenPositionX', function(variable:String):Float
 		{
-			var obj:FlxObject = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxObject = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getScreenPosition().x;
 
@@ -1274,7 +1609,12 @@ class FunkinScript
 		});
 		set('getScreenPositionY', function(variable:String):Float
 		{
-			var obj:FlxObject = getObjectDirectly(variable);
+			var qualifierArray:Array<String> = variable.split('.');
+			var obj:FlxObject = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				obj = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
 			if (obj != null)
 				return obj.getScreenPosition().y;
 
@@ -1322,7 +1662,7 @@ class FunkinScript
 			}
 			sprite.antialiasing = Options.save.data.globalAntialiasing;
 			PlayState.instance.scriptSprites.set(tag, sprite);
-			sprite.active = true; // TODO Is this supposed to be false?
+			sprite.active = false;
 		});
 		set('makeAnimatedLuaSprite', function(tag:String, image:String, x:Float, y:Float, spriteType:String = 'sparrow'):Void
 		{
@@ -1337,40 +1677,63 @@ class FunkinScript
 
 		set('makeGraphic', function(obj:String, width:Int, height:Int, color:String):Void
 		{
-			var colorNum:Int = Std.parseInt(color);
-			if (!color.startsWith('0x'))
-				colorNum = Std.parseInt('0xFF$color');
-
-			if (PlayState.instance.scriptSprites.exists(obj))
-			{
-				PlayState.instance.scriptSprites.get(obj).makeGraphic(width, height, colorNum);
-				return;
-			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			var colorNum:FlxColor = FlxColor.fromString(color);
+			var sprite:FlxSprite = getObjectDirectly(obj);
+			// if (PlayState.instance.scriptSprites.exists(obj))
+			// {
+			// 	sprite = PlayState.instance.scriptSprites.get(obj);
+			// }
+			// else
+			// {
+			// 	sprite = Reflect.getProperty(getInstance(), obj);
+			// }
 			if (sprite != null)
 			{
 				sprite.makeGraphic(width, height, colorNum);
 			}
 		});
+		set('loadGraphic', function(variable:String, image:String)
+		{
+			var qualifierArray:Array<String> = variable.split('.');
+			var sprite:FlxSprite = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
+			if (sprite != null && image != null && image.length > 0)
+			{
+				sprite.loadGraphic(Paths.getGraphic(image));
+			}
+		});
+		set('loadFrames', function(variable:String, image:String, spriteType:String = 'sparrow'):Void
+		{
+			var qualifierArray:Array<String> = variable.split('.');
+			var sprite:FlxSprite = getVarInArray(getInstance(), qualifierArray[0]);
+			if (qualifierArray.length > 1)
+			{
+				sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+			}
+			if (sprite != null && image != null && image.length > 0)
+			{
+				loadFrames(sprite, image, spriteType);
+			}
+		});
+
 		set('addAnimationByPrefix', function(obj:String, name:String, prefix:String, frameRate:Int = 24, loop:Bool = true):Void
 		{
-			if (PlayState.instance.scriptSprites.exists(obj))
-			{
-				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				sprite.animation.addByPrefix(name, prefix, frameRate, loop);
-				if (sprite.animation.curAnim == null)
-				{
-					sprite.animation.play(name, true);
-				}
-				return;
-			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			var sprite:FlxSprite = getObjectDirectly(obj);
+			// if (PlayState.instance.scriptSprites.exists(obj))
+			// {
+			// 	sprite = PlayState.instance.scriptSprites.get(obj);
+			// }
+			// else
+			// {
+			// 	sprite = Reflect.getProperty(getInstance(), obj);
+			// }
 			if (sprite != null)
 			{
 				sprite.animation.addByPrefix(name, prefix, frameRate, loop);
-				if (sprite.animation.curAnim == null)
+				if (sprite.animation.curAnim == null && sprite.animation.exists(name))
 				{
 					sprite.animation.play(name, true);
 				}
@@ -1381,22 +1744,19 @@ class FunkinScript
 			var strIndices:Array<String> = indices.trim().split(',');
 			var intIndices:Array<Int> = [for (index in strIndices) Std.parseInt(index)];
 
-			if (PlayState.instance.scriptSprites.exists(obj))
-			{
-				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				sprite.animation.addByIndices(name, prefix, intIndices, '', frameRate, false);
-				if (sprite.animation.curAnim == null)
-				{
-					sprite.animation.play(name, true);
-				}
-				return;
-			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			var sprite:FlxSprite = getObjectDirectly(obj);
+			// if (PlayState.instance.scriptSprites.exists(obj))
+			// {
+			// 	sprite = PlayState.instance.scriptSprites.get(obj);
+			// }
+			// else
+			// {
+			// 	sprite = Reflect.getProperty(getInstance(), obj);
+			// }
 			if (sprite != null)
 			{
 				sprite.animation.addByIndices(name, prefix, intIndices, '', frameRate, false);
-				if (sprite.animation.curAnim == null)
+				if (sprite.animation.curAnim == null && sprite.animation.exists(name))
 				{
 					sprite.animation.play(name, true);
 				}
@@ -1404,39 +1764,52 @@ class FunkinScript
 		});
 		set('objectPlayAnimation', function(obj:String, name:String, forced:Bool = false, startFrame:Int = 0):Void
 		{
-			if (PlayState.instance.scriptSprites.exists(obj))
+			var sprite:FlxSprite = getObjectDirectly(obj);
+			// if (PlayState.instance.scriptSprites.exists(obj))
+			// {
+			// 	sprite = PlayState.instance.scriptSprites.get(obj);
+			// }
+			// else
+			// {
+			// 	sprite = Reflect.getProperty(getInstance(), obj);
+			// }
+			if (sprite != null)
 			{
-				PlayState.instance.scriptSprites.get(obj).animation.play(name, forced, false, startFrame);
+				sprite.animation.play(name, forced, false, startFrame);
 				return;
 			}
-
-			var spr:FlxSprite = Reflect.getProperty(getInstance(), obj);
-			if (spr != null)
-			{
-				spr.animation.play(name, forced);
-			}
+			scriptWarn('Couldn\'t find object: $obj');
 		});
 
 		set('setScrollFactor', function(obj:String, scrollX:Float, scrollY:Float):Void
 		{
+			var object:FlxSprite;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				PlayState.instance.scriptSprites.get(obj).scrollFactor.set(scrollX, scrollY);
-				return;
+				object = PlayState.instance.scriptSprites.get(obj);
+			}
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				object = PlayState.stage.layers.get(obj);
+			}
+			else
+			{
+				object = Reflect.getProperty(getInstance(), obj);
 			}
 
-			var object:FlxObject = Reflect.getProperty(getInstance(), obj);
 			if (object != null)
 			{
 				object.scrollFactor.set(scrollX, scrollY);
+				return;
 			}
+			scriptWarn('Couldn\'t find object: $obj');
 		});
 		set('addLuaSprite', function(tag:String, front:Bool = false):Void
 		{
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
 				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
-				if (!sprite.wasAdded)
+				if (!getInstance().members.contains(sprite))
 				{
 					if (front)
 					{
@@ -1446,75 +1819,104 @@ class FunkinScript
 					{
 						if (PlayState.instance.isDead)
 						{
-							GameOverSubState.instance.insert(GameOverSubState.instance.members.indexOf(GameOverSubState.instance.boyfriend), sprite);
+							getInstance().insert(getInstance().members.indexOf(GameOverSubState.instance.boyfriend), sprite);
 						}
 						else
 						{
-							var position:Int = PlayState.instance.members.indexOf(PlayState.instance.gfGroup);
-							if (PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup) < position)
+							var position:Int = getInstance().members.indexOf(PlayState.instance.gfGroup);
+							if (getInstance().members.indexOf(PlayState.instance.boyfriendGroup) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
+								position = getInstance().members.indexOf(PlayState.instance.boyfriendGroup);
 							}
-							else if (PlayState.instance.members.indexOf(PlayState.instance.opponentGroup) < position)
+							else if (getInstance().members.indexOf(PlayState.instance.opponentGroup) < position)
 							{
-								position = PlayState.instance.members.indexOf(PlayState.instance.opponentGroup);
+								position = getInstance().members.indexOf(PlayState.instance.opponentGroup);
 							}
-							PlayState.instance.insert(position, sprite);
+							getInstance().insert(position, sprite);
 						}
 					}
-					sprite.wasAdded = true;
 					scriptTrace('Added a sprite with tag: $tag');
 				}
 			}
 		});
-		set('setGraphicSize', function(obj:String, x:Int, y:Int = 0):Void
+		set('setGraphicSize', function(obj:String, x:Int, y:Int = 0, updateHitbox:Bool = true):Void
 		{
+			var sprite:FlxSprite;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				sprite.setGraphicSize(x, y);
-				sprite.updateHitbox();
-				return;
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				sprite = PlayState.stage.layers.get(obj);
+			}
+			else
+			{
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
+			}
 			if (sprite != null)
 			{
 				sprite.setGraphicSize(x, y);
-				sprite.updateHitbox();
+				if (updateHitbox)
+					sprite.updateHitbox();
 				return;
 			}
 			scriptWarn('Couldn\'t find object: $obj');
 		});
-		set('scaleObject', function(obj:String, x:Float, y:Float):Void
+		set('scaleObject', function(obj:String, x:Float, y:Float, updateHitbox:Bool = true):Void
 		{
+			var sprite:FlxSprite;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				sprite.scale.set(x, y);
-				sprite.updateHitbox();
-				return;
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				sprite = PlayState.stage.layers.get(obj);
+			}
+			else
+			{
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
+			}
 			if (sprite != null)
 			{
 				sprite.scale.set(x, y);
-				sprite.updateHitbox();
+				if (updateHitbox)
+					sprite.updateHitbox();
 				return;
 			}
 			scriptWarn('Couldn\'t find object: $obj');
 		});
 		set('updateHitbox', function(obj:String):Void
 		{
+			var sprite:FlxSprite;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(obj);
-				sprite.updateHitbox();
-				return;
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
-
-			var sprite:FlxSprite = Reflect.getProperty(getInstance(), obj);
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				sprite = PlayState.stage.layers.get(obj);
+			}
+			else
+			{
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
+			}
 			if (sprite != null)
 			{
 				sprite.updateHitbox();
@@ -1543,10 +1945,9 @@ class FunkinScript
 					sprite.kill();
 				}
 
-				if (sprite.wasAdded)
+				if (getInstance().members.contains(sprite))
 				{
 					getInstance().remove(sprite, true);
-					sprite.wasAdded = false;
 				}
 
 				if (destroy)
@@ -1559,21 +1960,32 @@ class FunkinScript
 
 		set('setObjectCamera', function(obj:String, camera:String = ''):Bool
 		{
+			var object:FlxBasic = null;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				PlayState.instance.scriptSprites.get(obj).cameras = [cameraFromString(camera)];
-				return true;
+				object = PlayState.instance.scriptSprites.get(obj);
+			}
+			else if (PlayState.stage.layers.exists(obj))
+			{
+				object = PlayState.stage.layers.get(obj);
 			}
 			else if (PlayState.instance.scriptTexts.exists(obj))
 			{
-				PlayState.instance.scriptTexts.get(obj).cameras = [cameraFromString(camera)];
-				return true;
+				object = PlayState.instance.scriptTexts.get(obj);
+			}
+			else
+			{
+				var qualifierArray:Array<String> = obj.split('.');
+				var object:FlxObject = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					object = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
 			}
 
-			var object:FlxObject = Reflect.getProperty(getInstance(), obj);
 			if (object != null)
 			{
-				object.cameras = [cameraFromString(camera)];
+				object.cameras = [getCameraFromString(camera)];
 				return true;
 			}
 			scriptWarn('Object $obj doesn\'t exist!');
@@ -1581,16 +1993,27 @@ class FunkinScript
 		});
 		set('setBlendMode', function(obj:String, blend:String = ''):Bool
 		{
+			var sprite:FlxSprite = null;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				PlayState.instance.scriptSprites.get(obj).blend = blendModeFromString(blend);
-				return true;
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
-
-			var spr:FlxSprite = Reflect.getProperty(getInstance(), obj);
-			if (spr != null)
+			else if (PlayState.stage.layers.exists(obj))
 			{
-				spr.blend = blendModeFromString(blend);
+				sprite = PlayState.stage.layers.get(obj);
+			}
+			else
+			{
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
+			}
+			if (sprite != null)
+			{
+				sprite.blend = getBlendModeFromString(blend);
 				return true;
 			}
 			scriptWarn('Object $obj doesn\'t exist!');
@@ -1598,32 +2021,37 @@ class FunkinScript
 		});
 		set('screenCenter', function(obj:String, pos:String = 'xy'):Void
 		{
-			var spr:FlxSprite;
+			var sprite:FlxSprite = null;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				spr = PlayState.instance.scriptSprites.get(obj);
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
 			else if (PlayState.instance.scriptTexts.exists(obj))
 			{
-				spr = PlayState.instance.scriptTexts.get(obj);
+				sprite = PlayState.instance.scriptTexts.get(obj);
 			}
 			else
 			{
-				spr = Reflect.getProperty(getInstance(), obj);
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
 			}
 
-			if (spr != null)
+			if (sprite != null)
 			{
 				switch (pos.trim().toLowerCase())
 				{
 					case 'x':
-						spr.screenCenter(X);
+						sprite.screenCenter(X);
 						return;
 					case 'y':
-						spr.screenCenter(Y);
+						sprite.screenCenter(Y);
 						return;
 					default:
-						spr.screenCenter(XY);
+						sprite.screenCenter(XY);
 						return;
 				}
 			}
@@ -1639,6 +2067,10 @@ class FunkinScript
 				{
 					objectsArray.push(PlayState.instance.scriptSprites.get(name));
 				}
+				else if (PlayState.stage.layers.exists(name))
+				{
+					objectsArray.push(PlayState.stage.layers.get(name));
+				}
 				else if (PlayState.instance.scriptTexts.exists(name))
 				{
 					objectsArray.push(PlayState.instance.scriptTexts.get(name));
@@ -1653,25 +2085,30 @@ class FunkinScript
 		});
 		set('getPixelColor', function(obj:String, x:Int, y:Int):Int
 		{
-			var spr:FlxSprite;
+			var sprite:FlxSprite;
 			if (PlayState.instance.scriptSprites.exists(obj))
 			{
-				spr = PlayState.instance.scriptSprites.get(obj);
+				sprite = PlayState.instance.scriptSprites.get(obj);
 			}
 			else if (PlayState.instance.scriptTexts.exists(obj))
 			{
-				spr = PlayState.instance.scriptTexts.get(obj);
+				sprite = PlayState.instance.scriptTexts.get(obj);
 			}
 			else
 			{
-				spr = Reflect.getProperty(getInstance(), obj);
+				var qualifierArray:Array<String> = obj.split('.');
+				sprite = getVarInArray(getInstance(), qualifierArray[0]);
+				if (qualifierArray.length > 1)
+				{
+					sprite = getVarInArray(getPropertyLoop(qualifierArray), qualifierArray[qualifierArray.length - 1]);
+				}
 			}
 
-			if (spr != null)
+			if (sprite != null)
 			{
-				if (spr.framePixels != null)
-					spr.framePixels.getPixel32(x, y);
-				return spr.pixels.getPixel32(x, y);
+				if (sprite.framePixels != null)
+					sprite.framePixels.getPixel32(x, y);
+				return sprite.pixels.getPixel32(x, y);
 			}
 			return 0;
 		});
@@ -1745,6 +2182,7 @@ class FunkinScript
 
 		set('playMusic', function(sound:String, volume:Float = 1, loop:Bool = false):Void
 		{
+			// FIXME Wait, wouldn't this override the song's instrumental?
 			FlxG.sound.playMusic(Paths.getMusic(sound), volume, loop);
 		});
 		set('playSound', function(sound:String, volume:Float = 1, ?tag:String):Void
@@ -1791,7 +2229,7 @@ class FunkinScript
 		{
 			if (tag == null || tag.length < 1)
 			{
-				FlxG.sound.music.fadeIn(duration, fromValue, toValue);
+				PlayState.song.inst.fadeIn(duration, fromValue, toValue);
 			}
 			else if (PlayState.instance.scriptSounds.exists(tag))
 			{
@@ -1802,7 +2240,7 @@ class FunkinScript
 		{
 			if (tag == null || tag.length < 1)
 			{
-				FlxG.sound.music.fadeOut(duration, toValue);
+				PlayState.song.inst.fadeOut(duration, toValue);
 			}
 			else if (PlayState.instance.scriptSounds.exists(tag))
 			{
@@ -1813,9 +2251,9 @@ class FunkinScript
 		{
 			if (tag == null || tag.length < 1)
 			{
-				if (FlxG.sound.music.fadeTween != null)
+				if (PlayState.song.inst.fadeTween != null)
 				{
-					FlxG.sound.music.fadeTween.cancel();
+					PlayState.song.inst.fadeTween.cancel();
 				}
 			}
 			else if (PlayState.instance.scriptSounds.exists(tag))
@@ -1832,9 +2270,9 @@ class FunkinScript
 		{
 			if (tag == null || tag.length < 1)
 			{
-				if (FlxG.sound.music != null)
+				if (PlayState.song.inst != null)
 				{
-					return FlxG.sound.music.volume;
+					return PlayState.song.inst.volume;
 				}
 			}
 			else if (PlayState.instance.scriptSounds.exists(tag))
@@ -1847,9 +2285,9 @@ class FunkinScript
 		{
 			if (tag == null || tag.length < 1)
 			{
-				if (FlxG.sound.music != null)
+				if (PlayState.song.inst != null)
 				{
-					FlxG.sound.music.volume = value;
+					PlayState.song.inst.volume = value;
 				}
 			}
 			else if (PlayState.instance.scriptSounds.exists(tag))
@@ -1930,9 +2368,7 @@ class FunkinScript
 			var obj:FlxText = getTextObject(tag);
 			if (obj != null)
 			{
-				var colorNum:Int = Std.parseInt(color);
-				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF$color');
+				var colorNum:FlxColor = FlxColor.fromString(color);
 
 				obj.borderSize = size;
 				obj.borderColor = colorNum;
@@ -1943,9 +2379,7 @@ class FunkinScript
 			var obj:FlxText = getTextObject(tag);
 			if (obj != null)
 			{
-				var colorNum:Int = Std.parseInt(color);
-				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF$color');
+				var colorNum:FlxColor = FlxColor.fromString(color);
 
 				obj.color = colorNum;
 			}
@@ -2024,10 +2458,9 @@ class FunkinScript
 			if (PlayState.instance.scriptTexts.exists(tag))
 			{
 				var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
-				if (!text.wasAdded)
+				if (!getInstance().members.contains(text))
 				{
 					getInstance().add(text);
-					text.wasAdded = true;
 					scriptTrace('Added text with tag: $tag');
 				}
 			}
@@ -2042,10 +2475,9 @@ class FunkinScript
 					text.kill();
 				}
 
-				if (text.wasAdded)
+				if (getInstance().members.contains(text))
 				{
 					getInstance().remove(text, true);
-					text.wasAdded = false;
 				}
 
 				if (destroy)
@@ -2106,9 +2538,7 @@ class FunkinScript
 			scriptWarn('luaSpriteMakeGraphic is deprecated! Use makeGraphic instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
-				var colorNum:Int = Std.parseInt(color);
-				if (!color.startsWith('0x'))
-					colorNum = Std.parseInt('0xFF$color');
+				var colorNum:FlxColor = FlxColor.fromString(color);
 
 				PlayState.instance.scriptSprites.get(tag).makeGraphic(width, height, colorNum);
 			}
@@ -2153,7 +2583,7 @@ class FunkinScript
 			scriptWarn('setLuaSpriteCamera is deprecated! Use setObjectCamera instead', false, true);
 			if (PlayState.instance.scriptSprites.exists(tag))
 			{
-				PlayState.instance.scriptSprites.get(tag).cameras = [cameraFromString(camera)];
+				PlayState.instance.scriptSprites.get(tag).cameras = [getCameraFromString(camera)];
 				return true;
 			}
 			scriptWarn('Lua sprite with tag: $tag doesn\'t exist!');
@@ -2229,10 +2659,6 @@ class FunkinScript
 		});
 
 		#if FEATURE_DISCORD
-		// set('changePresence', (details:String, ?state:String, ?smallImageKey:String, ?hasStartTimestamp:Bool, ?endTimestamp:Float) ->
-		// {
-		// 	DiscordClient.changePresence(details, state, smallImageKey, hasStartTimestamp, endTimestamp);
-		// });
 		set('changePresence', DiscordClient.changePresence);
 		#end
 
@@ -2318,7 +2744,7 @@ class FunkinScript
 			var result:Int = Lua.pcall(lua, args.length, 1, 0);
 			var error:String = getLuaErrorMessage(lua);
 
-			if (resultIsAllowed(lua, result))
+			if (isResultAllowed(lua, result))
 			{
 				var converted:Any = Convert.fromLua(lua, result);
 				Lua.pop(lua, 1);
@@ -2369,7 +2795,7 @@ class FunkinScript
 				return;
 			}
 			PlayState.instance.addTextToDebug(text, FlxColor.WHITE);
-			Debug.logTrace('$scriptName: $text');
+			Debug.logTrace('$scriptName: $text'); // FIXME This always uses the last loaded script's name for some reason?
 		}
 	}
 
@@ -2410,7 +2836,7 @@ class FunkinScript
 		return null;
 	}
 
-	private function resultIsAllowed(lua:State, ?result:Int):Bool
+	private function isResultAllowed(lua:State, ?result:Int):Bool
 	{ // Makes it ignore warnings
 		return Lua.type(lua, result) > Lua.LUA_TNONE;
 	}
@@ -2425,300 +2851,12 @@ class FunkinScript
 		}
 	}
 	#end
-
-	private static inline function getTextObject(name:String):FlxText
-	{
-		return PlayState.instance.scriptTexts.exists(name) ? PlayState.instance.scriptTexts.get(name) : Reflect.getProperty(PlayState.instance, name);
-	}
-
-	private static function getGroupStuff(group:Any, variable:String):Any
-	{
-		var qualifierArray:Array<String> = variable.split('.');
-		if (qualifierArray.length > 1)
-		{
-			var object:Any = Reflect.getProperty(group, qualifierArray[0]);
-			for (i in 1...qualifierArray.length - 1)
-			{
-				object = Reflect.getProperty(object, qualifierArray[i]);
-			}
-			return Reflect.getProperty(object, qualifierArray[qualifierArray.length - 1]);
-		}
-		return Reflect.getProperty(group, variable);
-	}
-
-	private static function setGroupStuff(group:Any, variable:String, value:Any):Void
-	{
-		var qualifierArray:Array<String> = variable.split('.');
-		if (qualifierArray.length > 1)
-		{
-			var object:Any = Reflect.getProperty(group, qualifierArray[0]);
-			for (i in 1...qualifierArray.length - 1)
-			{
-				object = Reflect.getProperty(object, qualifierArray[i]);
-			}
-			Reflect.setProperty(object, qualifierArray[qualifierArray.length - 1], value);
-			return;
-		}
-		Reflect.setProperty(group, variable, value);
-	}
-
-	private static function loadFrames(spr:FlxSprite, image:String, spriteType:String):Void
-	{
-		switch (spriteType.toLowerCase().trim())
-		{
-			case 'texture' | 'textureatlas' | 'tex':
-				spr.frames = AtlasFrameMaker.construct(image);
-			case 'texture_noaa' | 'textureatlas_noaa' | 'tex_noaa':
-				spr.frames = AtlasFrameMaker.construct(image, null, true);
-			case 'packer' | 'packeratlas' | 'pac':
-				spr.frames = Paths.getPackerAtlas(image);
-			default:
-				spr.frames = Paths.getSparrowAtlas(image);
-		}
-	}
-
-	private static function resetTextTag(tag:String):Void
-	{
-		if (PlayState.instance.scriptTexts.exists(tag))
-		{
-			var text:ScriptText = PlayState.instance.scriptTexts.get(tag);
-			text.kill();
-			if (text.wasAdded)
-			{
-				PlayState.instance.remove(text, true);
-			}
-			text.destroy();
-			PlayState.instance.scriptTexts.remove(tag);
-		}
-	}
-
-	private static function resetSpriteTag(tag:String):Void
-	{
-		if (PlayState.instance.scriptSprites.exists(tag))
-		{
-			var sprite:ScriptSprite = PlayState.instance.scriptSprites.get(tag);
-			sprite.kill();
-			if (sprite.wasAdded)
-			{
-				PlayState.instance.remove(sprite, true);
-			}
-			sprite.destroy();
-			PlayState.instance.scriptSprites.remove(tag);
-		}
-	}
-
-	private static function cancelTween(tag:String):Void
-	{
-		if (PlayState.instance.scriptTweens.exists(tag))
-		{
-			var tween:FlxTween = PlayState.instance.scriptTweens.get(tag);
-			tween.cancel();
-			tween.destroy();
-			PlayState.instance.scriptTweens.remove(tag);
-		}
-	}
-
-	private static function tweenShit(tag:String, vars:String):Any
-	{
-		cancelTween(tag);
-		var variables:Array<String> = vars.replace(' ', '').split('.');
-		var object:Any = Reflect.getProperty(getInstance(), variables[0]);
-		if (PlayState.instance.scriptSprites.exists(variables[0]))
-		{
-			object = PlayState.instance.scriptSprites.get(variables[0]);
-		}
-		if (PlayState.instance.scriptTexts.exists(variables[0]))
-		{
-			object = PlayState.instance.scriptTexts.get(variables[0]);
-		}
-
-		for (i in 1...variables.length)
-		{
-			object = Reflect.getProperty(object, variables[i]);
-		}
-		return object;
-	}
-
-	private static function cancelTimer(tag:String):Void
-	{
-		if (PlayState.instance.scriptTimers.exists(tag))
-		{
-			var timer:FlxTimer = PlayState.instance.scriptTimers.get(tag);
-			timer.cancel();
-			timer.destroy();
-			PlayState.instance.scriptTimers.remove(tag);
-		}
-	}
-
-	// Better optimized than using some getProperty shit or idk
-	private static function getFlxEaseByString(ease:String = ''):(t:Float) -> Float
-	{
-		return switch (ease.toLowerCase().trim())
-		{
-			case 'backin':
-				FlxEase.backIn;
-			case 'backinout':
-				FlxEase.backInOut;
-			case 'backout':
-				FlxEase.backOut;
-			case 'bouncein':
-				FlxEase.bounceIn;
-			case 'bounceinout':
-				FlxEase.bounceInOut;
-			case 'bounceout':
-				FlxEase.bounceOut;
-			case 'circin':
-				FlxEase.circIn;
-			case 'circinout':
-				FlxEase.circInOut;
-			case 'circout':
-				FlxEase.circOut;
-			case 'cubein':
-				FlxEase.cubeIn;
-			case 'cubeinout':
-				FlxEase.cubeInOut;
-			case 'cubeout':
-				FlxEase.cubeOut;
-			case 'elasticin':
-				FlxEase.elasticIn;
-			case 'elasticinout':
-				FlxEase.elasticInOut;
-			case 'elasticout':
-				FlxEase.elasticOut;
-			case 'expoin':
-				FlxEase.expoIn;
-			case 'expoinout':
-				FlxEase.expoInOut;
-			case 'expoout':
-				FlxEase.expoOut;
-			case 'quadin':
-				FlxEase.quadIn;
-			case 'quadinout':
-				FlxEase.quadInOut;
-			case 'quadout':
-				FlxEase.quadOut;
-			case 'quartin':
-				FlxEase.quartIn;
-			case 'quartinout':
-				FlxEase.quartInOut;
-			case 'quartout':
-				FlxEase.quartOut;
-			case 'quintin':
-				FlxEase.quintIn;
-			case 'quintinout':
-				FlxEase.quintInOut;
-			case 'quintout':
-				FlxEase.quintOut;
-			case 'sinein':
-				FlxEase.sineIn;
-			case 'sineinout':
-				FlxEase.sineInOut;
-			case 'sineout':
-				FlxEase.sineOut;
-			case 'smoothstepin':
-				FlxEase.smoothStepIn;
-			case 'smoothstepinout':
-				FlxEase.smoothStepInOut;
-			case 'smoothstepout':
-				FlxEase.smoothStepInOut;
-			case 'smootherstepin':
-				FlxEase.smootherStepIn;
-			case 'smootherstepinout':
-				FlxEase.smootherStepInOut;
-			case 'smootherstepout':
-				FlxEase.smootherStepOut;
-			default:
-				FlxEase.linear;
-		}
-	}
-
-	private static function blendModeFromString(blend:String):BlendMode
-	{
-		return switch (blend.toLowerCase().trim())
-		{
-			case 'add':
-				ADD;
-			case 'alpha':
-				ALPHA;
-			case 'darken':
-				DARKEN;
-			case 'difference':
-				DIFFERENCE;
-			case 'erase':
-				ERASE;
-			case 'hardlight':
-				HARDLIGHT;
-			case 'invert':
-				INVERT;
-			case 'layer':
-				LAYER;
-			case 'lighten':
-				LIGHTEN;
-			case 'multiply':
-				MULTIPLY;
-			case 'overlay':
-				OVERLAY;
-			case 'screen':
-				SCREEN;
-			case 'shader':
-				SHADER;
-			case 'subtract':
-				SUBTRACT;
-			default:
-				NORMAL;
-		}
-	}
-
-	private static function cameraFromString(cam:String):FlxCamera
-	{
-		return switch (cam.toLowerCase())
-		{
-			case 'camhud' | 'hud':
-				PlayState.instance.camHUD;
-			case 'camother' | 'other':
-				PlayState.instance.camOther;
-			default:
-				PlayState.instance.camGame;
-		}
-	}
-
-	// TODO Check whether the object has the fields before trying to get them
-	private static function getPropertyLoopThingWhatever(qualifierArray:Array<String>, checkForTextsToo:Bool = true):Any
-	{
-		var object:Any = getObjectDirectly(qualifierArray[0], checkForTextsToo);
-		for (i in 1...qualifierArray.length - 1)
-		{
-			object = Reflect.getProperty(object, qualifierArray[i]);
-		}
-		return object;
-	}
-
-	private static function getObjectDirectly(objectName:String, checkForTextsToo:Bool = true):Any
-	{
-		if (PlayState.instance.scriptSprites.exists(objectName))
-		{
-			return PlayState.instance.scriptSprites.get(objectName);
-		}
-		else if (checkForTextsToo && PlayState.instance.scriptTexts.exists(objectName))
-		{
-			return PlayState.instance.scriptTexts.get(objectName);
-		}
-		else
-		{
-			return Reflect.getProperty(getInstance(), objectName);
-		}
-	}
-
-	private static inline function getInstance():FlxState
-	{
-		return PlayState.instance.isDead ? GameOverSubState.instance : PlayState.instance;
-	}
+	#end
 }
 
+#if FEATURE_SCRIPTS
 class ScriptSprite extends FlxSprite
 {
-	public var wasAdded:Bool = false;
-
 	public function new(x:Float = 0, y:Float = 0)
 	{
 		super(x, y);
@@ -2729,8 +2867,6 @@ class ScriptSprite extends FlxSprite
 
 class ScriptText extends FlxText
 {
-	public var wasAdded:Bool = false;
-
 	public function new(x:Float, y:Float, text:String, width:Float)
 	{
 		super(x, y, width, text, 16);

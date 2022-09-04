@@ -13,7 +13,7 @@
     <!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
     <!-- <app preloader="Preloader" resizable="true" /> -->
-    <app preloader="flixel.system.FlxPreloader" />
+    <!-- <app preloader="flixel.system.FlxPreloader" /> -->
 
     <!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
     <set name="SWF_VERSION" value="11.8" />
@@ -40,12 +40,7 @@
 
     <!-- _____________________________ Path Settings ____________________________ -->
 
-    <!-- I sort of want to get rid of these and just use the default build directory -->
-    <!-- <set name="BUILD_DIR" value="export/release" if="release" />
-    <set name="BUILD_DIR" value="export/debug" if="debug" />
-    <set name="BUILD_DIR" value="export/final" if="final" /> -->
-
-    <!-- and I want to change the source folder name to "src" -->
+    <!-- TODO I want to change the source folder name to "src" -->
     <source path="source" />
 
     <!-- ENGINE CUSTOMIZATION -->
@@ -82,13 +77,17 @@
     <!-- Don't enable this on an unofficial build  -->
     <define name="CHECK_FOR_UPDATES" if="desktop officialBuild" />
 
-    <!-- <define name="USE_CUSTOM_CACHE" /> -->
+    <!-- This is for testing my experimental character-flipping thing (specifically, an alternate way of doing it) -->
+    <!-- <define name="FACING_TEST" /> -->
+
+    <!-- <define name="CHART_FLIPPING" /> -->
 
     <define name="PRELOAD_ALL" unless="web" />
     <!-- <define name="PRELOAD_ALL" /> -->
 
-    <assets path="assets/secrets" rename="assets" if="TITLE_SCREEN_EASTER_EGG" />
+    <!-- TODO Learn more about how Lime libraries work -->
     <assets path="assets/preload" rename="assets" />
+    <assets path="assets/secrets" rename="assets" if="TITLE_SCREEN_EASTER_EGG" />
 
     <!-- TODO Figure out whether "32bits" is the correct Haxe compiler flag for 32 bits -->
     <assets path="lib/x64" rename='' if="FEATURE_VIDEOS cpp" unless="32bits" />

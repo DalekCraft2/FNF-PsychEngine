@@ -1,6 +1,5 @@
 package animateatlas.displayobject;
 
-import flixel.util.FlxArrayUtil;
 import animateatlas.HelperEnums.LoopMode;
 import animateatlas.HelperEnums.SymbolType;
 import animateatlas.JSONData.AnimationData;

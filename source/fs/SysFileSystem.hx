@@ -2,7 +2,7 @@ package fs;
 
 #if sys
 #if polymod
-typedef IFileSystem = polymod.fs.SysFileSystem;
+typedef SysFileSystem = polymod.fs.SysFileSystem;
 #else
 import Mod.ModMetadata;
 import fs.FileSystemCP.IFileSystem;

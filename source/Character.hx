@@ -1,12 +1,13 @@
 package;
 
-import animateatlas.AtlasFrameMaker;
+import chart.container.Bar;
 import chart.container.BasicNote;
-import chart.container.Section;
 import chart.container.Song;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.math.FlxPoint;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxColor;
 import flixel.util.FlxSort;
 import haxe.io.Path;
 
@@ -14,33 +15,31 @@ using StringTools;
 
 typedef CharacterDef =
 {
-	var animations:Array<AnimationDef>;
-	var image:String;
-	var ?scale:Float;
-	var ?singDuration:Float;
-	var healthIcon:String;
-	var ?position:Array<Float>;
-	var ?cameraPosition:Array<Float>;
-	var ?flipX:Bool;
-	var ?flipLR:Bool;
-	var ?noAntialiasing:Bool;
-	var ?healthBarColors:Array<Int>;
-	var ?cameraMotionFactor:Float;
-	var ?initialAnimation:String;
+	animations:Array<AnimationDef>,
+	image:String,
+	?scale:Float,
+	?singDuration:Float,
+	healthIcon:String,
+	?position:Array<Float>,
+	?cameraPosition:Array<Float>,
+	?flipX:Bool,
+	?noAntialiasing:Bool,
+	?healthBarColors:Array<Int>,
+	?cameraMotionFactor:Float,
+	?initialAnimation:String
 }
 
 typedef AnimationDef =
 {
-	var name:String;
-	var prefix:String;
-	var indices:Array<Int>;
-	var frameRate:Int;
-	var loop:Bool;
-	var offsets:Array<Int>;
+	name:String,
+	prefix:String,
+	indices:Array<Int>,
+	frameRate:Int,
+	loop:Bool,
+	offsets:Array<Float>
 }
 
-// TODO Automatically correct offsets when character is flipped (One way may be to insert the offsets directly into the XMLs)
-// Seriously, why haven't people been setting the offsets when creating the spritesheets? It would make things much easier.
+// TODO Test positioning with the "facing" variable
 class Character extends FlxSprite implements Danceable
 {
 	/**
@@ -81,11 +80,12 @@ class Character extends FlxSprite implements Danceable
 	 */
 	public var danceIdle:Bool = false;
 
+	public var skipDance:Bool = false;
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimationDef> = [];
 
-	public var positionArray:Array<Float> = [0, 0];
-	public var cameraPosition:Array<Float> = [0, 0];
+	public var position:FlxPoint = FlxPoint.get();
+	public var cameraPosition:FlxPoint = FlxPoint.get();
 
 	public var hasMissAnimations:Bool = false;
 
@@ -93,12 +93,25 @@ class Character extends FlxSprite implements Danceable
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
+
+	/**
+	 * Characters which are designed to be on the right side of the screen (in other words, intended as player) will have this as "true".
+	 * Examples of this type of character are Boyfriend, Pico, and Tankman.
+	 */
+	#if FACING_TEST
+	public var originalFlipX(default, set):Bool = false;
+	#else
 	public var originalFlipX:Bool = false;
-	public var healthBarColors:Array<Int> = [255, 0, 0];
+	#end
+
+	// #end
+	public var healthBarColor:FlxColor = FlxColor.RED;
 	public var cameraMotionFactor:Float = 1;
 	public var initialAnimation:String;
 
 	public var danced:Bool = false;
+
+	private var originalWidth:Float;
 
 	public static function createTemplateCharacterDef():CharacterDef
 	{
@@ -159,7 +172,7 @@ class Character extends FlxSprite implements Danceable
 		return characterDef;
 	}
 
-	public function new(x:Float, y:Float, character:String = DEFAULT_CHARACTER, isPlayer:Bool = false)
+	public function new(?x:Float = 0, ?y:Float = 0, character:String = DEFAULT_CHARACTER, isPlayer:Bool = false)
 	{
 		super(x, y);
 
@@ -171,7 +184,19 @@ class Character extends FlxSprite implements Danceable
 			default:
 				parseDataFile();
 		}
-		originalFlipX = flipX;
+		#if FACING_TEST
+		// facing = originalFlipX ? LEFT : RIGHT;
+		// setFacingFlip(LEFT, !originalFlipX, false);
+		// setFacingFlip(RIGHT, originalFlipX, false);
+		if (facing == LEFT)
+		#else
+		flipX = originalFlipX;
+		if (flipX)
+		#end
+		{
+			leftToRight();
+		}
+
 		this.isPlayer = isPlayer;
 
 		for (noteKey in NoteKey.createAll())
@@ -192,6 +217,13 @@ class Character extends FlxSprite implements Danceable
 		{
 			dance();
 		}
+		originalWidth = frameWidth;
+
+		if (animation.name != null)
+		{
+			// Correct offsets if character was flipped
+			playAnim(animation.name);
+		}
 	}
 
 	override public function update(elapsed:Float):Void
@@ -205,7 +237,7 @@ class Character extends FlxSprite implements Danceable
 				heyTimer -= elapsed;
 				if (heyTimer <= 0)
 				{
-					if (specialAnim && animation.curAnim.name == 'hey' || animation.curAnim.name == 'cheer')
+					if (specialAnim && animation.name == 'hey' || animation.name == 'cheer')
 					{
 						specialAnim = false;
 						dance();
@@ -213,7 +245,7 @@ class Character extends FlxSprite implements Danceable
 					heyTimer = 0;
 				}
 			}
-			else if (specialAnim && animation.curAnim.finished)
+			else if (specialAnim && animation.finished)
 			{
 				specialAnim = false;
 				dance();
@@ -221,12 +253,12 @@ class Character extends FlxSprite implements Danceable
 
 			if (!isPlayer)
 			{
-				if (animation.curAnim.name.startsWith('sing'))
+				if (animation.name.startsWith('sing'))
 				{
 					holdTimer += elapsed;
 				}
 
-				if (holdTimer >= Conductor.semiquaverLength * 0.001 * singDuration)
+				if (holdTimer >= Conductor.stepLength * 0.0011 * singDuration)
 				{
 					dance();
 					holdTimer = 0;
@@ -237,7 +269,7 @@ class Character extends FlxSprite implements Danceable
 			{
 				// TODO Add configuration in order to avoid hardcoding Pico things in Week 7
 				case 'pico-speaker':
-					if (animationNotes.length > 0 && Conductor.songPosition > TimingStruct.getTimeFromBeat(animationNotes[0].beat))
+					if (animationNotes.length > 0 && Conductor.songPosition > Conductor.getTimeFromBeat(animationNotes[0].beat))
 					{
 						var shootAnim:Int = 1;
 
@@ -251,19 +283,36 @@ class Character extends FlxSprite implements Danceable
 					}
 			}
 
-			if (animation.curAnim.finished && animation.exists('${animation.curAnim.name}-loop'))
+			if (animation.finished && animation.exists('${animation.name}-loop'))
 			{
-				playAnim('${animation.curAnim.name}-loop');
+				playAnim('${animation.name}-loop');
 			}
 		}
 	}
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
+	// Overriding this lets us safely call updateHitbox() when the character is doing an animation besides its initial one
+	// override public function updateHitbox():Void
+	// {
+	// 	var animBeforeUpdate:String = animation.name;
+	// 	var frameBeforeUpdate:Int = animation.frameIndex;
+	// 	if (initialAnimation != null)
+	// 	{
+	// 		playAnim(initialAnimation);
+	// 	}
+	// 	else
+	// 	{
+	// 		dance();
+	// 	}
+	// 	super.updateHitbox();
+	// 	if (animBeforeUpdate != null)
+	// 	{
+	// 		playAnim(animBeforeUpdate, false, false, frameBeforeUpdate);
+	// 	}
+	// }
+
 	public function dance(force:Bool = false):Void
 	{
-		if (!debugMode && !specialAnim)
+		if (!debugMode && !skipDance && !specialAnim)
 		{
 			if (danceIdle)
 			{
@@ -295,34 +344,7 @@ class Character extends FlxSprite implements Danceable
 			imageFile = characterDef.image;
 		}
 
-		// sparrow
-		var spriteType:String = 'sparrow';
-
-		// packer
-		var txtToFind:String = Paths.file(Path.join(['images/characters', Path.withExtension(imageFile, Paths.TEXT_EXT)]), TEXT);
-		if (Paths.exists(txtToFind))
-		{
-			spriteType = 'packer';
-		}
-
-		// texture
-		var animToFind:String = Paths.file(Path.join(['images/characters', imageFile, Path.withExtension('Animation', Paths.JSON_EXT)]), TEXT);
-		if (Paths.exists(animToFind))
-		{
-			spriteType = 'texture';
-		}
-
-		switch (spriteType)
-		{
-			case 'packer':
-				frames = Paths.getPackerAtlas(Path.join(['characters', imageFile]));
-
-			case 'sparrow':
-				frames = Paths.getSparrowAtlas(Path.join(['characters', imageFile]));
-
-			case 'texture':
-				frames = AtlasFrameMaker.construct(Path.join(['characters', imageFile]));
-		}
+		frames = Paths.getFrames(Path.join(['characters', imageFile]), AUTO);
 
 		if (characterDef.animations != null)
 		{
@@ -359,18 +381,18 @@ class Character extends FlxSprite implements Danceable
 		if (characterDef.scale != null)
 		{
 			jsonScale = characterDef.scale;
-			setGraphicSize(Std.int(width * jsonScale));
+			scale.set(jsonScale, jsonScale);
 			updateHitbox();
 		}
 
 		if (characterDef.position != null)
 		{
-			positionArray = characterDef.position;
+			position = FlxPoint.get(characterDef.position[0], characterDef.position[1]);
 		}
 
 		if (characterDef.cameraPosition != null)
 		{
-			cameraPosition = characterDef.cameraPosition;
+			cameraPosition = FlxPoint.get(characterDef.cameraPosition[0], characterDef.cameraPosition[1]);
 		}
 
 		if (characterDef.healthIcon != null)
@@ -385,7 +407,7 @@ class Character extends FlxSprite implements Danceable
 
 		if (characterDef.flipX != null)
 		{
-			flipX = characterDef.flipX;
+			originalFlipX = characterDef.flipX;
 		}
 
 		if (characterDef.noAntialiasing != null)
@@ -402,9 +424,9 @@ class Character extends FlxSprite implements Danceable
 			antialiasing = false;
 		}
 
-		if (characterDef.healthBarColors != null && characterDef.healthBarColors.length > 2)
+		if (characterDef.healthBarColors != null && characterDef.healthBarColors.length >= 3)
 		{
-			healthBarColors = characterDef.healthBarColors;
+			healthBarColor = FlxColor.fromRGB(characterDef.healthBarColors[0], characterDef.healthBarColors[1], characterDef.healthBarColors[2]);
 		}
 
 		if (characterDef.cameraMotionFactor != null)
@@ -416,11 +438,6 @@ class Character extends FlxSprite implements Danceable
 		{
 			initialAnimation = characterDef.initialAnimation;
 		}
-
-		if (characterDef.flipLR != null && characterDef.flipLR)
-		{
-			leftToRight();
-		}
 	}
 
 	public function playAnim(animName:String, force:Bool = false, reversed:Bool = false, frame:Int = 0):Void
@@ -428,15 +445,36 @@ class Character extends FlxSprite implements Danceable
 		specialAnim = false;
 		animation.play(animName, force, reversed, frame);
 
+		// /*
+		offset.set();
 		if (animOffsets.exists(animName))
 		{
 			var animOffset:Array<Float> = animOffsets.get(animName);
-			offset.set(animOffset[0], animOffset[1]);
+			offset.add(animOffset[0], animOffset[1]);
+
+			var hasSwappedRole:Bool = isPlayer != originalFlipX;
+
+			if (hasSwappedRole)
+			{
+				offset.x = frameWidth - offset.x - originalWidth;
+			}
 		}
-		else
-		{
-			offset.set(0, 0);
-		}
+		//  */
+
+		// The below method also fixes the offsets but also affects where the camera points at the character, due to updating the hitbox
+		/*
+			updateHitbox();
+			centerOffsets();
+			if (animOffsets.exists(animName))
+			{
+				var animOffset:Array<Float> = animOffsets.get(animName);
+				offset.add(animOffset[0], animOffset[1]);
+				if (flipX)
+				{
+					offset.x = frameWidth - offset.x - originalWidth;
+				}
+			}
+		 */
 
 		if (id.startsWith('gf'))
 		{
@@ -460,11 +498,11 @@ class Character extends FlxSprite implements Danceable
 	{
 		var songDef:Song = Song.loadSong(id, difficulty, folder);
 
-		var sections:Array<Section> = songDef.notes;
+		var bars:Array<Bar> = songDef.bars;
 
-		for (section in sections)
+		for (bar in bars)
 		{
-			for (note in section.sectionNotes)
+			for (note in bar.notes)
 			{
 				animationNotes.push(note);
 			}
@@ -503,6 +541,7 @@ class Character extends FlxSprite implements Danceable
 		settingCharacterUp = false;
 	}
 
+	// TODO Make this not do anything in the character editor to avoid confusion
 	public function leftToRight():Void
 	{
 		for (anim in animationsArray)
@@ -538,9 +577,9 @@ class Character extends FlxSprite implements Danceable
 		animOffsets[name] = [x, y];
 	}
 
-	public function quickAnimAdd(name:String, anim:String):Void
+	public function quickAnimAdd(name:String, prefix:String):Void
 	{
-		animation.addByPrefix(name, anim, 24, false);
+		animation.addByPrefix(name, prefix, 24, false);
 	}
 
 	private function set_isPlayer(value:Bool):Bool
@@ -548,17 +587,38 @@ class Character extends FlxSprite implements Danceable
 		if (isPlayer != value)
 		{
 			isPlayer = value;
+			#if FACING_TEST
+			if (isPlayer)
+			{
+				facing = originalFlipX ? LEFT : RIGHT;
+			}
+			else
+			{
+				facing = originalFlipX ? RIGHT : LEFT;
+			}
+			// if (facing == LEFT)
+			// 	facing = RIGHT;
+			// else if (facing == RIGHT)
+			// 	facing = LEFT;
+			facing = facing;
+			#else
 			flipX = !flipX;
-
+			#end
 			leftToRight();
-			// for (animOffset in animOffsets)
-			// {
-			// 	animOffset[0] = -animOffset[0];
-			// }
-			updateHitbox();
 		}
 		return value;
 	}
+
+	#if FACING_TEST
+	private function set_originalFlipX(value:Bool):Bool
+	{
+		originalFlipX = value;
+		setFacingFlip(LEFT, !value, false);
+		setFacingFlip(RIGHT, value, false);
+		facing = facing;
+		return value;
+	}
+	#end
 }
 
 enum CharacterRole
@@ -573,8 +633,10 @@ class CharacterRoleTools
 	public static function createByString(value1:String):CharacterRole
 	{
 		var charRole:CharacterRole = PLAYER;
-		switch (value1)
+		switch (value1.toLowerCase().trim())
 		{
+			case 'bf' | 'boyfriend' | 'player':
+				charRole = PLAYER;
 			case 'dad' | 'opponent':
 				charRole = OPPONENT;
 			case 'gf' | 'girlfriend':

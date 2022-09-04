@@ -2,11 +2,12 @@ package;
 
 using StringTools;
 
+// TODO Rename this to "PlayableCharacter" or something along those lines
 class Boyfriend extends Character
 {
 	public var startedDeath:Bool = false;
 
-	public function new(x:Float, y:Float, id:String = Character.DEFAULT_CHARACTER)
+	public function new(?x:Float = 0, ?y:Float = 0, id:String = Character.DEFAULT_CHARACTER)
 	{
 		super(x, y, id, true);
 	}
@@ -17,14 +18,14 @@ class Boyfriend extends Character
 
 		if (!debugMode && animation.curAnim != null)
 		{
-			if (animation.curAnim.name.startsWith('sing'))
+			if (animation.name.startsWith('sing'))
 			{
 				holdTimer += elapsed;
 			}
 			else
 				holdTimer = 0;
 
-			if (animation.curAnim.name.endsWith('miss') && animation.curAnim.finished && !debugMode)
+			if (animation.name.endsWith('miss') && animation.finished && !debugMode)
 			{
 				playAnim('idle', true, false, 10);
 			}

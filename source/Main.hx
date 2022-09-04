@@ -1,17 +1,13 @@
 package;
 
-import ui.FPSMem;
-import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.display.StageScaleMode;
 import openfl.events.Event;
-#if USE_CUSTOM_CACHE
-import flixel.graphics.FlxGraphic;
-import openfl.Assets;
-#end
+import states.InitState;
+import ui.FPSMem;
 
 class Main extends Sprite
 {
@@ -77,12 +73,6 @@ class Main extends Sprite
 		ModCore.initialize();
 		#end
 
-		#if USE_CUSTOM_CACHE
-		// fuck you, persistent caching stays ON during sex
-		FlxGraphic.defaultPersist = true;
-		Assets.cache.enabled = false;
-		// the reason for this is we're going to be handling our own cache smartly
-		#end
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, frameRate, frameRate, skipSplash, startFullscreen));
 
 		#if !mobile

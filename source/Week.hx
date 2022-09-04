@@ -2,24 +2,24 @@ package;
 
 import flixel.util.FlxArrayUtil;
 import haxe.io.Path;
+import states.PlayState;
 import util.CoolUtil;
 
 using StringTools;
 
 typedef WeekDef =
 {
-	// JSON variables
-	var songs:Array<String>;
-	var weekCharacters:Array<String>;
-	var weekBackground:String;
-	var weekBefore:String;
-	var storyName:String;
-	var weekName:String;
-	var startUnlocked:Bool;
-	var hiddenUntilUnlocked:Bool;
-	var hideStoryMode:Bool;
-	var hideFreeplay:Bool;
-	var difficulties:Array<String>;
+	songs:Array<String>,
+	weekCharacters:Array<String>,
+	weekBackground:String,
+	weekBefore:String,
+	storyName:String,
+	weekName:String,
+	startUnlocked:Bool,
+	hiddenUntilUnlocked:Bool,
+	hideStoryMode:Bool,
+	hideFreeplay:Bool,
+	difficulties:Array<String>
 }
 
 class Week
@@ -95,7 +95,7 @@ class Week
 
 		for (directory in directories)
 		{
-			var weekDirectory:String = Path.join([directory, 'data/weeks']);
+			var weekDirectory:String = Path.join([directory, 'data', 'weeks']);
 			var weekListPath:String = Path.join([weekDirectory, Path.withExtension('weekList', Paths.TEXT_EXT)]);
 			if (Paths.exists(weekListPath))
 			{

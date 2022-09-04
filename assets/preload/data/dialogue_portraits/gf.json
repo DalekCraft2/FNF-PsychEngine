@@ -16,48 +16,48 @@
 				0,
 				1
 			],
-			"anim": "talk",
-			"idleName": "GF0",
-			"loopName": "GF LOOP"
+			"name": "talk",
+			"idlePrefix": "GF0",
+			"loopPrefix": "GF LOOP"
 		},
 		{
 			"idleOffsets": [
 				70,
 				-11
 			],
-			"anim": "shocked",
+			"name": "shocked",
 			"loopOffsets": [
 				70,
 				0
 			],
-			"idleName": "GF SHOCK0",
-			"loopName": "GF SHOCK LOOP"
+			"idlePrefix": "GF SHOCK0",
+			"loopPrefix": "GF SHOCK LOOP"
 		},
 		{
 			"idleOffsets": [
 				-3,
 				-6
 			],
-			"anim": "confused",
+			"name": "confused",
 			"loopOffsets": [
 				0,
 				0
 			],
-			"idleName": "GF CONFUSED0",
-			"loopName": "GF CONFUSED LOOP"
+			"idlePrefix": "GF CONFUSED0",
+			"loopPrefix": "GF CONFUSED LOOP"
 		},
 		{
 			"idleOffsets": [
 				-3,
 				-6
 			],
-			"anim": "demon",
+			"name": "demon",
 			"loopOffsets": [
 				0,
 				0
 			],
-			"idleName": "GF DEMON0",
-			"loopName": "GF DEMON LOOP"
+			"idlePrefix": "GF DEMON0",
+			"loopPrefix": "GF DEMON LOOP"
 		}
 	]
 }

@@ -1,15 +1,48 @@
 {
 	"animations": [
 		{
-			"loop": false,
 			"offsets": [
 				0,
 				0
 			],
+			"loop": false,
 			"frameRate": 24,
 			"name": "shoot1",
 			"indices": [],
 			"prefix": "Pico shoot 1"
+		},
+		{
+			"offsets": [
+				-1,
+				-128
+			],
+			"loop": false,
+			"frameRate": 24,
+			"name": "shoot2",
+			"indices": [],
+			"prefix": "Pico shoot 2"
+		},
+		{
+			"offsets": [
+				412,
+				-64
+			],
+			"loop": false,
+			"frameRate": 24,
+			"name": "shoot3",
+			"indices": [],
+			"prefix": "Pico shoot 3"
+		},
+		{
+			"offsets": [
+				439,
+				-19
+			],
+			"loop": false,
+			"frameRate": 24,
+			"name": "shoot4",
+			"indices": [],
+			"prefix": "Pico shoot 4"
 		},
 		{
 			"offsets": [
@@ -27,19 +60,8 @@
 			"prefix": "Pico shoot 1"
 		},
 		{
-			"loop": false,
 			"offsets": [
-				0,
-				-128
-			],
-			"frameRate": 24,
-			"name": "shoot2",
-			"indices": [],
-			"prefix": "Pico shoot 2"
-		},
-		{
-			"offsets": [
-				0,
+				1,
 				-128
 			],
 			"loop": true,
@@ -53,19 +75,8 @@
 			"prefix": "Pico shoot 2"
 		},
 		{
-			"loop": false,
 			"offsets": [
-				413,
-				-64
-			],
-			"frameRate": 24,
-			"name": "shoot3",
-			"indices": [],
-			"prefix": "Pico shoot 3"
-		},
-		{
-			"offsets": [
-				413,
+				412,
 				-64
 			],
 			"loop": true,
@@ -79,19 +90,8 @@
 			"prefix": "Pico shoot 3"
 		},
 		{
-			"loop": false,
 			"offsets": [
-				440,
-				-19
-			],
-			"frameRate": 24,
-			"name": "shoot4",
-			"indices": [],
-			"prefix": "Pico shoot 4"
-		},
-		{
-			"offsets": [
-				440,
+				439,
 				-19
 			],
 			"loop": true,
@@ -108,8 +108,8 @@
 	"noAntialiasing": false,
 	"image": "picoSpeaker",
 	"position": [
-		50,
-		-200
+		120,
+		-125
 	],
 	"healthIcon": "pico",
 	"flipX": false,
@@ -119,11 +119,10 @@
 		85
 	],
 	"cameraPosition": [
-		0,
-		0
+		-310,
+		100
 	],
 	"singDuration": 4,
 	"scale": 1,
-	"cameraMotionFactor": 1,
 	"initialAnimation": "shoot1-loop"
 }

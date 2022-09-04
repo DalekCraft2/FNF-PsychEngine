@@ -3,20 +3,53 @@
 		{
 			"loop": false,
 			"offsets": [
-				0,
+				3,
 				0
 			],
-			"frameRate": 24,
 			"name": "idle",
-			"indices": [],
-			"prefix": "Pico Idle Dance"
+			"frameRate": 24,
+			"prefix": "Pico Idle Dance",
+			"indices": []
 		},
 		{
 			"loop": false,
 			"offsets": [
-				65,
-				9
+				21,
+				27
 			],
+			"name": "singUP",
+			"frameRate": 24,
+			"prefix": "pico Up note0",
+			"indices": []
+		},
+		{
+			"loop": false,
+			"offsets": [
+				84,
+				-80
+			],
+			"name": "singDOWN",
+			"frameRate": 24,
+			"prefix": "Pico Down Note0",
+			"indices": []
+		},
+		{
+			"offsets": [
+				85,
+				-10
+			],
+			"loop": false,
+			"frameRate": 24,
+			"name": "singLEFT",
+			"indices": [],
+			"prefix": "Pico NOTE LEFT0"
+		},
+		{
+			"offsets": [
+				-48,
+				2
+			],
+			"loop": false,
 			"frameRate": 24,
 			"name": "singRIGHT",
 			"indices": [],
@@ -25,79 +58,46 @@
 		{
 			"loop": false,
 			"offsets": [
-				-68,
-				-7
+				28,
+				67
 			],
+			"name": "singUPmiss",
 			"frameRate": 24,
-			"name": "singLEFT",
-			"indices": [],
-			"prefix": "Pico NOTE LEFT0"
+			"prefix": "pico Up note miss",
+			"indices": []
 		},
 		{
 			"loop": false,
 			"offsets": [
-				-60,
-				41
+				80,
+				-38
 			],
+			"name": "singDOWNmiss",
+			"frameRate": 24,
+			"prefix": "Pico Down Note MISS",
+			"indices": []
+		},
+		{
+			"offsets": [
+				83,
+				28
+			],
+			"loop": false,
 			"frameRate": 24,
 			"name": "singLEFTmiss",
 			"indices": [],
 			"prefix": "Pico NOTE LEFT miss"
 		},
 		{
-			"loop": false,
 			"offsets": [
-				62,
-				64
+				-45,
+				50
 			],
+			"loop": false,
 			"frameRate": 24,
 			"name": "singRIGHTmiss",
 			"indices": [],
 			"prefix": "Pico Note Right Miss"
-		},
-		{
-			"loop": false,
-			"offsets": [
-				-29,
-				27
-			],
-			"frameRate": 24,
-			"name": "singUP",
-			"indices": [],
-			"prefix": "pico Up note0"
-		},
-		{
-			"loop": false,
-			"offsets": [
-				200,
-				-70
-			],
-			"frameRate": 24,
-			"name": "singDOWN",
-			"indices": [],
-			"prefix": "Pico Down Note0"
-		},
-		{
-			"loop": false,
-			"offsets": [
-				210,
-				-28
-			],
-			"frameRate": 24,
-			"name": "singDOWNmiss",
-			"indices": [],
-			"prefix": "Pico Down Note MISS"
-		},
-		{
-			"loop": false,
-			"offsets": [
-				-19,
-				67
-			],
-			"frameRate": 24,
-			"name": "singUPmiss",
-			"indices": [],
-			"prefix": "pico Up note miss"
 		}
 	],
 	"noAntialiasing": false,
@@ -108,14 +108,13 @@
 	],
 	"healthIcon": "pico",
 	"flipX": true,
-	"flipLR": true,
 	"healthBarColors": [
 		183,
 		216,
 		85
 	],
 	"cameraPosition": [
-		0,
+		220,
 		0
 	],
 	"singDuration": 4,

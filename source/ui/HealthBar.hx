@@ -5,6 +5,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.ui.FlxBar;
 import flixel.util.FlxColor;
+import haxe.io.Path;
 
 class HealthBar extends FlxSpriteGroup
 {
@@ -26,7 +27,7 @@ class HealthBar extends FlxSpriteGroup
 	{
 		super(x, y);
 
-		bg = new FlxSprite().loadGraphic(Paths.getGraphic('ui/hud/healthBar'));
+		bg = new FlxSprite().loadGraphic(Paths.getGraphic(Path.join(['ui', 'hud', 'healthBar'])));
 
 		bar = new FlxBar(bg.x + 4, bg.y + 4, RIGHT_TO_LEFT, Std.int(bg.width - 8), Std.int(bg.height - 8), instance, property, min, max);
 		setColors(baseColor, secondaryColor);

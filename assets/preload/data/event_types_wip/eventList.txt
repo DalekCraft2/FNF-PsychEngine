@@ -1,0 +1,15 @@
+
+Hey!
+Set GF Speed
+Philly Glow
+Kill Henchmen
+Add Camera Zoom
+BG Freaks Expression
+Trigger BG Ghouls
+Play Animation
+Camera Follow Pos
+Alt Idle Animation
+Screen Shake
+Change Character
+Change Scroll Speed
+Change Tempo

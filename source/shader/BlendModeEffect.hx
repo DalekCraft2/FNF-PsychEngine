@@ -5,7 +5,7 @@ import openfl.display.ShaderParameter;
 
 typedef BlendModeShader =
 {
-	var uBlendColor:ShaderParameter<Float>;
+	uBlendColor:ShaderParameter<Float>
 }
 
 class BlendModeEffect

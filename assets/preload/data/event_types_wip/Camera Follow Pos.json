@@ -1,0 +1,14 @@
+{
+    "name": "Camera Follow Pos",
+    "description": "The camera won't change the follow point after using this. For getting it back to normal, leave both values blank.",
+    "args": [
+        {
+            "name": "X",
+            "description": "X Coordinate"
+        },
+        {
+            "name": "Y",
+            "description": "Y Coordinate"
+        }
+    ]
+}

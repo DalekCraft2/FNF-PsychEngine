@@ -164,6 +164,7 @@ class VideoHandler
 		updateSize();
 	}
 
+	// TODO If hxCodec doesn't have this, and I have to switch to hxCodec to get video to work again, I'm going to (1) make a PR to add this auto-resize code, and (2) add the HTML5 parts of VideoHandler.
 	private function updateSize():Void
 	{
 		#if (js && html5)

@@ -1,0 +1,10 @@
+{
+    "name": "Philly Glow",
+    "description": "Exclusive to Week 3. No, I won't add it to other weeks.",
+    "args": [
+        {
+            "name": "Action",
+            "description": "0 = OFF, 1 = ON, 2 = Reset Gradient"
+        }
+    ]
+}

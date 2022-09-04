@@ -5,6 +5,9 @@ import flixel.FlxSprite;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.io.Path;
 import shader.ColorSwap;
+import states.PlayState;
+
+using StringTools;
 
 // TODO Note type JSON files for some minor configuration?
 class Note extends FlxSprite
@@ -17,6 +20,7 @@ class Note extends FlxSprite
 	public var noteType(default, set):String;
 	public var beat:Float = 0;
 
+	public var unModifiedStrumTime:Float = 0;
 	public var noteDataModulo(get, never):Int;
 
 	public var mustPress:Bool = false;
@@ -51,6 +55,7 @@ class Note extends FlxSprite
 
 	// Script API shit
 	public var noteSplashDisabled:Bool = false;
+	public var noteSplashForced:Bool = false;
 	public var noteSplashTexture:String;
 	public var noteSplashHue:Float = 0;
 	public var noteSplashSat:Float = 0;
@@ -80,20 +85,22 @@ class Note extends FlxSprite
 
 	public var hitsoundDisabled:Bool = false;
 
-	public var animSuffix:String = '';
+	// TODO So it turns out that the correct word for this might be "postfix" instead of "suffix"
+	public var animSuffix(default, set):String = '';
 
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, isSustainNote:Bool = false, inEditor:Bool = false, beat:Float)
 	{
-		super();
+		super((Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50, -2000);
 
 		this.prevNote = prevNote == null ? this : prevNote;
 		this.isSustainNote = isSustainNote;
 		this.inEditor = inEditor;
 		this.beat = beat;
 
-		x += (Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
-		y -= 2000;
+		// x += (Options.save.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
+		// // MAKE SURE ITS DEFINITELY OFF SCREEN?
+		// y -= 2000;
+		this.unModifiedStrumTime = strumTime;
 		this.strumTime = strumTime;
 		if (!inEditor)
 			this.strumTime += Options.save.data.noteOffset;
@@ -140,10 +147,10 @@ class Note extends FlxSprite
 				var animToPlay:String = NoteColor.createByIndex(prevNote.noteDataModulo).getName();
 				prevNote.animation.play('${animToPlay}hold');
 
-				prevNote.scale.y *= Conductor.semiquaverLength / 100 * 1.05;
+				prevNote.scale.y *= Conductor.stepLength / 100 * 1.05;
 				if (PlayState.instance != null)
 				{
-					prevNote.scale.y *= PlayState.instance.songSpeed;
+					prevNote.scale.y *= PlayState.instance.scrollSpeed;
 				}
 
 				if (PlayState.isPixelStage)
@@ -194,16 +201,15 @@ class Note extends FlxSprite
 			}
 		}
 
-		if (tooLate && !inEditor)
+		if (!inEditor && tooLate)
 		{
 			if (alpha > 0.3)
 				alpha = 0.3;
 		}
 	}
 
-	// TODO Jesus, learn to use shorter variable names.
-	private var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
-	private var lastNoteScaleToo:Float = 1;
+	private var lastNoteOffsetX:Float = 0;
+	private var lastNoteScale:Float = 1;
 
 	public var originalHeightForCalcs:Float = 6;
 
@@ -226,7 +232,7 @@ class Note extends FlxSprite
 		var animName:Null<String> = null;
 		if (animation.curAnim != null)
 		{
-			animName = animation.curAnim.name;
+			animName = animation.name;
 		}
 
 		var lastScaleY:Float = scale.y;
@@ -235,10 +241,10 @@ class Note extends FlxSprite
 		{
 			if (isSustainNote)
 			{
-				var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel-ends']));
+				var path:String = Paths.image(Path.join(['ui', 'notes', '${texture}-pixel-ends']));
 				if (!Paths.exists(path))
 				{
-					path = Paths.image('ui/notes/NOTE_assets-pixel-ends');
+					path = Paths.image(Path.join(['ui', 'notes', 'NOTE_assets-pixel-ends']));
 				}
 				var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
 				loadGraphic(graphic);
@@ -249,10 +255,10 @@ class Note extends FlxSprite
 			}
 			else
 			{
-				var path:String = Paths.image(Path.join(['ui/notes', '${texture}-pixel']));
+				var path:String = Paths.image(Path.join(['ui', 'notes', '${texture}-pixel']));
 				if (!Paths.exists(path))
 				{
-					path = Paths.image('ui/notes/NOTE_assets-pixel');
+					path = Paths.image(Path.join(['ui', 'notes', 'NOTE_assets-pixel']));
 				}
 				var graphic:FlxGraphicAsset = Paths.getGraphicDirect(path);
 				loadGraphic(graphic);
@@ -260,33 +266,33 @@ class Note extends FlxSprite
 				height = height / 5;
 				loadGraphic(graphic, true, Math.floor(width), Math.floor(height));
 			}
-			setGraphicSize(Std.int(width * PlayState.PIXEL_ZOOM));
+			scale.set(PlayState.PIXEL_ZOOM, PlayState.PIXEL_ZOOM);
 			loadPixelNoteAnims();
 			antialiasing = false;
 
 			if (isSustainNote)
 			{
-				offsetX += lastNoteOffsetXForPixelAutoAdjusting;
-				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.PIXEL_ZOOM / 2);
-				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
+				offsetX += lastNoteOffsetX;
+				lastNoteOffsetX = (width - 7) * (PlayState.PIXEL_ZOOM / 2);
+				offsetX -= lastNoteOffsetX;
 
 				/*
 					if (animName != null && !animName.endsWith('end'))
 					{
-						lastScaleY /= lastNoteScaleToo;
-						lastNoteScaleToo = (6 / height);
-						lastScaleY *= lastNoteScaleToo;
+						lastScaleY /= lastNoteScale;
+						lastNoteScale = PlayState.PIXEL_ZOOM / height;
+						lastScaleY *= lastNoteScale;
 					}
 				 */
 			}
 		}
 		else
 		{
-			if (!Paths.exists(Paths.image(Path.join(['ui/notes', texture]))))
+			if (!Paths.exists(Paths.image(Path.join(['ui', 'notes', texture]))))
 			{
 				texture = 'NOTE_assets';
 			}
-			frames = Paths.getSparrowAtlas(Path.join(['ui/notes', texture]));
+			frames = Paths.getFrames(Path.join(['ui', 'notes', texture]));
 			loadNoteAnims();
 			antialiasing = Options.save.data.globalAntialiasing;
 		}
@@ -315,7 +321,7 @@ class Note extends FlxSprite
 			}
 		}
 
-		setGraphicSize(Std.int(width * 0.7));
+		scale.set(0.7, 0.7);
 		updateHitbox();
 	}
 
@@ -392,6 +398,16 @@ class Note extends FlxSprite
 		{
 			texture = value;
 			reloadNote(null, value);
+		}
+		return value;
+	}
+
+	private function set_animSuffix(value:String):String
+	{
+		animSuffix = value;
+		for (sustainNote in children)
+		{
+			sustainNote.animSuffix = value;
 		}
 		return value;
 	}

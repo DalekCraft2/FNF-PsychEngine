@@ -188,7 +188,6 @@
 	],
 	"healthIcon": "bf",
 	"flipX": true,
-	"flipLR": true,
 	"healthBarColors": [
 		49,
 		176,

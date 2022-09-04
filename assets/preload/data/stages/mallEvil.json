@@ -1,14 +1,81 @@
 {
-	"defaultZoom": 1.05,
+	"background": [
+		{
+			"name": "bg",
+			"key": "stages/christmas/evilBG",
+			"active": false,
+			"position": {
+				"x": -400,
+				"y": -500
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.2,
+				"y": 0.2
+			},
+			"graphicScale": {
+				"x": 0.8,
+				"y": 0.8
+			}
+		},
+		{
+			"name": "evilTree",
+			"key": "stages/christmas/evilTree",
+			"active": false,
+			"position": {
+				"x": 300,
+				"y": -300
+			},
+			"antialiasing": true,
+			"scrollFactor": {
+				"x": 0.2,
+				"y": 0.2
+			}
+		},
+		{
+			"name": "evilSnow",
+			"key": "stages/christmas/evilSnow",
+			"active": false,
+			"position": {
+				"x": -200,
+				"y": 700
+			},
+			"antialiasing": true
+		}
+	],
+	"groups": [],
+	"foreground": [],
+	"objectOrder": [
+		"bg",
+		"evilTree",
+		"evilSnow"
+	],
+	"cameraZoom": 1.05,
 	"isPixelStage": false,
-
-	"boyfriend": [1090, 100],
-	"girlfriend": [400, 130],
-	"opponent": [100, 20],
+	"playerPosition": {
+		"x": 1090,
+		"y": 100
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 20
+	},
+	"gfPosition": {
+		"x": 400,
+		"y": 130
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [0, 0],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

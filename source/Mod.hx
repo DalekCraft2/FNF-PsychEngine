@@ -3,6 +3,7 @@ package;
 #if FEATURE_MODS
 import flixel.util.FlxColor;
 import haxe.io.Path;
+import states.FreeplayState;
 import ui.Alphabet;
 import ui.AttachedSprite;
 #if polymod
@@ -11,16 +12,16 @@ import polymod.PolymodConfig;
 
 typedef ModEnableState =
 {
-	var title:String;
-	var enabled:Bool;
+	title:String,
+	enabled:Bool
 }
 
 typedef ModMetadataDef =
 {
-	var title:String;
-	var description:String;
-	var color:String;
-	var restart:Bool;
+	title:String,
+	description:String,
+	color:String,
+	restart:Bool
 }
 
 class ModMetadata

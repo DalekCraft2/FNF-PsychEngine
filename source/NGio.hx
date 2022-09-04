@@ -8,7 +8,6 @@ import io.newgrounds.Call;
 import io.newgrounds.NG;
 import io.newgrounds.objects.Medal;
 import io.newgrounds.objects.Score;
-import io.newgrounds.objects.ScoreBoard;
 import io.newgrounds.objects.events.Response;
 import io.newgrounds.objects.events.Result.GetCurrentVersionResult;
 import openfl.Lib;
@@ -43,10 +42,10 @@ class NGio
 		{
 			NG.create(api);
 
-			new FlxTimer().start(2, function(tmr:FlxTimer)
+			new FlxTimer().start(2, (tmr:FlxTimer) ->
 			{
 				var call:Call<GetCurrentVersionResult> = NG.core.calls.app.getCurrentVersion(GAME_VER)
-					.addDataHandler(function(response:Response<GetCurrentVersionResult>)
+					.addDataHandler((response:Response<GetCurrentVersionResult>) ->
 					{
 						GAME_VER = response.result.data.currentVersion;
 						GAME_VER_NUMS = GAME_VER.split(' ')[0].trim();

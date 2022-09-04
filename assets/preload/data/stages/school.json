@@ -1,14 +1,205 @@
 {
-	"defaultZoom": 1.05,
+	"background": [
+		{
+			"name": "bgSky",
+			"key": "stages/weeb/weebSky",
+			"active": false,
+			"position": {
+				"x": 0,
+				"y": 0
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.1,
+				"y": 0.1
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		},
+		{
+			"name": "bgSchool",
+			"key": "stages/weeb/weebSchool",
+			"active": false,
+			"position": {
+				"x": -200,
+				"y": 0
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.6,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		},
+		{
+			"name": "bgStreet",
+			"key": "stages/weeb/weebStreet",
+			"active": false,
+			"position": {
+				"x": -200,
+				"y": 0
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.95,
+				"y": 0.95
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		},
+		{
+			"name": "fgTrees",
+			"key": "stages/weeb/weebTreesBack",
+			"active": false,
+			"position": {
+				"x": -30,
+				"y": 130
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicSize": {
+				"x": 1492.8,
+				"y": 1492.8
+			}
+		},
+		{
+			"name": "bgTrees",
+			"key": "stages/weeb/weebTrees",
+			"animations": [
+				{
+					"name": "treeLoop",
+					"indices": [
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					],
+					"frameRate": 12,
+					"loop": true
+				}
+			],
+			"initAnim": "treeLoop",
+			"position": {
+				"x": -580,
+				"y": -800
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.85,
+				"y": 0.85
+			},
+			"graphicSize": {
+				"x": 2612.4,
+				"y": 2612.4
+			}
+		},
+		{
+			"name": "treeLeaves",
+			"key": "stages/weeb/petals",
+			"animations": [
+				{
+					"name": "petals",
+					"prefix": "PETALS ALL",
+					"frameRate": 24,
+					"loop": true
+				}
+			],
+			"initAnim": "petals",
+			"position": {
+				"x": -200,
+				"y": -40
+			},
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.85,
+				"y": 0.85
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		},
+		{
+			"distraction": true,
+			"name": "bgGirls",
+			"className": "BackgroundGirls",
+			"classCtorArgs": [
+				-100,
+				190
+			],
+			"antialiasing": false,
+			"scrollFactor": {
+				"x": 0.9,
+				"y": 0.9
+			},
+			"graphicScale": {
+				"x": 6,
+				"y": 6
+			}
+		}
+	],
+	"groups": [],
+	"foreground": [],
+	"objectOrder": [
+		"bgSky",
+		"bgSchool",
+		"bgStreet",
+		"fgTrees",
+		"bgTrees",
+		"treeLeaves",
+		"bgGirls"
+	],
+	"cameraZoom": 1.05,
 	"isPixelStage": true,
-
-	"boyfriend": [970, 320],
-	"girlfriend": [580, 430],
-	"opponent": [100, 100],
+	"playerPosition": {
+		"x": 970,
+		"y": 320
+	},
+	"opponentPosition": {
+		"x": 100,
+		"y": 100
+	},
+	"gfPosition": {
+		"x": 580,
+		"y": 430
+	},
 	"hideGirlfriend": false,
-
-	"cameraBoyfriend": [-100, -100],
-	"cameraOpponent": [0, 0],
-	"cameraGirlfriend": [0, 0],
+	"playerCameraOffset": {
+		"x": -100,
+		"y": -100
+	},
+	"opponentCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
+	"gfCameraOffset": {
+		"x": 0,
+		"y": 0
+	},
 	"cameraSpeed": 1
 }

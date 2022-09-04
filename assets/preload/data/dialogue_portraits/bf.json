@@ -16,61 +16,61 @@
 				0,
 				0
 			],
-			"anim": "talk",
-			"idleName": "BF0",
-			"loopName": "BF LOOP"
+			"name": "talk",
+			"idlePrefix": "BF0",
+			"loopPrefix": "BF LOOP"
 		},
 		{
 			"idleOffsets": [
 				4,
 				-8
 			],
-			"anim": "excited",
+			"name": "excited",
 			"loopOffsets": [
 				5,
 				0
 			],
-			"idleName": "BF EXCITED0",
-			"loopName": "BF EXCITED LOOP"
+			"idlePrefix": "BF EXCITED0",
+			"loopPrefix": "BF EXCITED LOOP"
 		},
 		{
 			"idleOffsets": [
 				0,
 				0
 			],
-			"anim": "pissed",
+			"name": "pissed",
 			"loopOffsets": [
 				0,
 				0
 			],
-			"idleName": "BF PISSED0",
-			"loopName": "BF PISSED LOOP"
+			"idlePrefix": "BF PISSED0",
+			"loopPrefix": "BF PISSED LOOP"
 		},
 		{
 			"idleOffsets": [
 				-6,
 				-11
 			],
-			"anim": "shocked",
+			"name": "shocked",
 			"loopOffsets": [
 				-4,
 				0
 			],
-			"idleName": "BF SHOCK0",
-			"loopName": "BF SHOCK LOOP"
+			"idlePrefix": "BF SHOCK0",
+			"loopPrefix": "BF SHOCK LOOP"
 		},
 		{
 			"loopOffsets": [
 				-3,
 				0
 			],
-			"anim": "confused",
+			"name": "confused",
 			"idleOffsets": [
 				-6,
 				-11
 			],
-			"loopName": "BF CONFUSED LOOP",
-			"idleName": "BF CONFUSED0"
+			"loopPrefix": "BF CONFUSED LOOP",
+			"idlePrefix": "BF CONFUSED0"
 		}
 	]
 }

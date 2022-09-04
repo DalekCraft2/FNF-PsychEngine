@@ -20,7 +20,6 @@ import openfl.display.PixelSnapping;
 import openfl.display.Sprite;
 import openfl.errors.ArgumentError;
 import openfl.errors.Error;
-import openfl.filters.BlurFilter;
 import openfl.filters.GlowFilter;
 import openfl.geom.ColorTransform;
 import openfl.geom.Matrix;
@@ -353,23 +352,21 @@ class SpriteSymbol extends Sprite
 
 	private function setFilterData(data:FilterData):Void
 	{
-		var blur:BlurFilter;
-		var glow:GlowFilter;
 		if (data != null)
 		{
-			if (data.BlurFilter != null)
-			{
-				blur = new BlurFilter();
-				blur.blurX = data.BlurFilter.blurX;
-				blur.blurY = data.BlurFilter.blurY;
-				blur.quality = data.BlurFilter.quality;
-				_bitmap.bitmapData.applyFilter(_bitmap.bitmapData, new Rectangle(0, 0, _bitmap.bitmapData.width, _bitmap.bitmapData.height), new Point(0, 0),
-					blur);
-				filters.push(blur);
-			}
+			// if (data.BlurFilter != null)
+			// {
+			// 	var blur:BlurFilter = new BlurFilter();
+			// 	blur.blurX = data.BlurFilter.blurX;
+			// 	blur.blurY = data.BlurFilter.blurY;
+			// 	blur.quality = data.BlurFilter.quality;
+			// 	_bitmap.bitmapData.applyFilter(_bitmap.bitmapData, new Rectangle(0, 0, _bitmap.bitmapData.width, _bitmap.bitmapData.height), new Point(0, 0),
+			// 		blur);
+			// 	filters.push(blur);
+			// }
 			if (data.GlowFilter != null)
 			{
-				glow = new GlowFilter();
+				var glow:GlowFilter = new GlowFilter();
 				glow.blurX = data.GlowFilter.blurX;
 				glow.blurY = data.GlowFilter.blurY;
 				glow.color = data.GlowFilter.color;

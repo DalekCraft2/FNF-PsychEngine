@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vlc/vlc.h>
+#include <mutex>
 
 namespace vlc
 {
@@ -12,32 +13,12 @@ namespace vlc
 		uint8_t *pixelData;
 		float flags[19] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
-		LibVLC()
+		LibVLC::LibVLC()
 		{
-			const char *argv[] =
-				{
-					// "--aout", "amem",
-					"--drop-late-frames",
-					"--ignore-config",
-					"--intf", "dummy",
-					"--no-disable-screensaver",
-					"--no-snapshot-preview",
-					"--no-stats",
-					"--no-video-title-show",
-					"--text-renderer", "dummy",
-					"--quiet",
-					// "--no-xlib", // no xlib if linux
-					// "--vout", "vmem",
-					// "--avcodec-hw=dxva2",
-					// "--verbose=2"
-				};
-
-			int argc = sizeof(argv) / sizeof(*argv);
-			libVlcInstance = libvlc_new(argc, argv);
-			mediaPlayer = libvlc_media_player_new(libVlcInstance);
+			libVlcInstance = libvlc_new(0, NULL);
 		}
 
-		~LibVLC()
+		LibVLC::~LibVLC()
 		{
 			// libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mediaPlayer);
 			// if (eventManager != nullptr)
@@ -73,10 +54,12 @@ namespace vlc
 		void setPath(const char *path)
 		{
 			libvlc_media_t *media = libvlc_media_new_path(libVlcInstance, path);
+			mediaPlayer = libvlc_media_player_new(libVlcInstance);
 			libvlc_media_player_set_media(mediaPlayer, media);
 			libvlc_media_release(media);
-			useHWacceleration(true);
-			setRepeats(repeats);
+
+			initCallbacks();
+			registerEvents();
 		}
 
 		void play()
@@ -85,9 +68,8 @@ namespace vlc
 			// 	delete pixelData;
 			pixelData = nullptr;
 
-			initCallbacks();
-			registerEvents();
-			libvlc_media_player_play(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_play(mediaPlayer);
 		}
 
 		void play(const char *path)
@@ -109,62 +91,81 @@ namespace vlc
 
 		void stop()
 		{
-			libvlc_media_player_stop(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_stop(mediaPlayer);
 		}
 
 		void pause()
 		{
-			libvlc_media_player_set_pause(mediaPlayer, true);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_set_pause(mediaPlayer, true);
 		}
 
 		void resume()
 		{
-			libvlc_media_player_set_pause(mediaPlayer, false);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_set_pause(mediaPlayer, false);
 		}
 
 		void togglePause()
 		{
-			libvlc_media_player_pause(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_pause(mediaPlayer);
 		}
 
 		bool getFullscreen()
 		{
-			return libvlc_get_fullscreen(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_get_fullscreen(mediaPlayer);
+			return false;
 		}
 
 		void setFullscreen(bool fullscreen)
 		{
-			libvlc_set_fullscreen(mediaPlayer, fullscreen);
+			if (mediaPlayer != nullptr)
+				libvlc_set_fullscreen(mediaPlayer, fullscreen);
 		}
 
 		libvlc_time_t getLength()
 		{
-			return libvlc_media_player_get_length(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_get_length(mediaPlayer);
+			return 0;
 		}
 
 		int getWidth()
 		{
-			return libvlc_video_get_width(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_video_get_width(mediaPlayer);
+			return 0;
 		}
 
 		int getHeight()
 		{
-			return libvlc_video_get_height(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_video_get_height(mediaPlayer);
+			return 0;
 		}
 
 		bool isPlaying()
 		{
-			return libvlc_media_player_is_playing(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_is_playing(mediaPlayer);
+			return false;
 		}
 
 		bool isSeekable()
 		{
-			return libvlc_media_player_is_seekable(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_is_seekable(mediaPlayer);
+			return false;
 		}
 
 		float getVolume()
 		{
-			return libvlc_audio_get_volume(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_audio_get_volume(mediaPlayer);
+			return 0;
 		}
 
 		void setVolume(float volume)
@@ -174,62 +175,34 @@ namespace vlc
 			if (volume < 0)
 				volume = 0;
 
-			libvlc_audio_set_volume(mediaPlayer, volume);
+			if (mediaPlayer != nullptr)
+				libvlc_audio_set_volume(mediaPlayer, volume);
 		}
 
 		libvlc_time_t getTime()
 		{
-			return libvlc_media_player_get_time(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_get_time(mediaPlayer);
+			return 0;
 		}
 
 		void setTime(libvlc_time_t time)
 		{
-			libvlc_media_player_set_time(mediaPlayer, time);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_set_time(mediaPlayer, time);
 		}
 
 		float getPosition()
 		{
-			return libvlc_media_player_get_position(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_get_position(mediaPlayer);
+			return 0;
 		}
 
 		void setPosition(float position)
 		{
-			libvlc_media_player_set_position(mediaPlayer, position);
-		}
-
-		int getRepeats()
-		{
-			return repeats;
-		}
-
-		void setRepeats(int repeats)
-		{
-			this->repeats = repeats;
-
-			libvlc_media_t *media = libvlc_media_player_get_media(mediaPlayer);
-			if (media != nullptr)
-			{
-				const char *option = "input-repeat=" + this->repeats;
-				libvlc_media_add_option(media, option);
-			}
-		}
-
-		void useHWacceleration(bool hwAcc)
-		{
-			if (hwAcc)
-			{
-				libvlc_media_t *media = libvlc_media_player_get_media(mediaPlayer);
-				if (media != nullptr)
-				{
-					libvlc_media_add_option(media, ":hwdec=vaapi");
-					libvlc_media_add_option(media, ":ffmpeg-hw");
-					libvlc_media_add_option(media, ":avcodec-hw=dxva2.lo");
-					libvlc_media_add_option(media, ":avcodec-hw=any");
-					libvlc_media_add_option(media, ":avcodec-hw=dxva2");
-					libvlc_media_add_option(media, "--avcodec-hw=dxva2");
-					libvlc_media_add_option(media, ":avcodec-hw=vaapi");
-				}
-			}
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_set_position(mediaPlayer, position);
 		}
 
 		uint8_t *getPixelData()
@@ -237,35 +210,36 @@ namespace vlc
 			return pixelData;
 		}
 
-		float getFPS()
-		{
-			return libvlc_media_player_get_fps(mediaPlayer);
-		}
-
 		void nextFrame()
 		{
-			libvlc_media_player_next_frame(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				libvlc_media_player_next_frame(mediaPlayer);
 		}
 
-		bool hasVout()
+		uint32_t getVOutCount()
 		{
-			return libvlc_media_player_has_vout(mediaPlayer);
+			if (mediaPlayer != nullptr)
+				return libvlc_media_player_has_vout(mediaPlayer);
+			return false;
 		}
 
 		float getFlag(int index)
 		{
-			return flags[index];
+			if (index < sizeof(flags))
+				return flags[index];
+			return 0;
 		}
 
 		void setFlag(int index, float value)
 		{
-			flags[index] = value;
+			if (index < sizeof(flags))
+				flags[index] = value;
 		}
 
 	private:
 		libvlc_instance_t *libVlcInstance;
 		libvlc_media_player_t *mediaPlayer;
-		int repeats;
+		std::mutex imagemutex;
 
 		static void callbacks(const libvlc_event_t *event, void *ptr)
 		{
@@ -337,46 +311,56 @@ namespace vlc
 
 		void registerEvents()
 		{
-			libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mediaPlayer);
-			if (eventManager != nullptr)
+			if (mediaPlayer != nullptr)
 			{
-				// libvlc_event_attach(eventManager, libvlc_MediaPlayerMediaChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerNothingSpecial, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerOpening, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerPaused, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerStopped, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerForward, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerBackward, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerTimeChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerPositionChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerSeekableChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerPausableChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerTitleChanged, callbacks, this);
-				// libvlc_event_attach(eventManager, libvlc_MediaPlayerSnapshotTaken, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerLengthChanged, callbacks, this);
-				libvlc_event_attach(eventManager, libvlc_MediaPlayerVout, callbacks, this);
+				libvlc_event_manager_t *eventManager = libvlc_media_player_event_manager(mediaPlayer);
+				if (eventManager != nullptr)
+				{
+					// libvlc_event_attach(eventManager, libvlc_MediaPlayerMediaChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerNothingSpecial, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerOpening, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerBuffering, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerPlaying, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerPaused, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerStopped, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerForward, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerBackward, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerTimeChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerPositionChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerSeekableChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerPausableChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerTitleChanged, callbacks, this);
+					// libvlc_event_attach(eventManager, libvlc_MediaPlayerSnapshotTaken, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerLengthChanged, callbacks, this);
+					libvlc_event_attach(eventManager, libvlc_MediaPlayerVout, callbacks, this);
+				}
 			}
 		}
 
 		void initCallbacks()
 		{
-			libvlc_video_set_callbacks(mediaPlayer, lockVideo, unlockVideo, displayVideo, this);
-			libvlc_video_set_format_callbacks(mediaPlayer, setupVideo, cleanupVideo);
+			if (mediaPlayer != nullptr)
+			{
+				libvlc_video_set_callbacks(mediaPlayer, lockVideo, unlockVideo, displayVideo, this);
+				libvlc_video_set_format_callbacks(mediaPlayer, setupVideo, cleanupVideo);
+			}
 		}
 
 		static void *lockVideo(void *opaque, void **planes)
 		{
 			LibVLC *self = (LibVLC *)opaque;
+			self->imagemutex.lock();
 			*planes = self->pixelData;
-			return nullptr;
+			return NULL;
+			// return nullptr;
 		}
 
 		static void unlockVideo(void *opaque, void *picture, void *const *planes)
 		{
+			LibVLC *self = (LibVLC *)opaque;
+			self->imagemutex.unlock();
 		}
 
 		static void displayVideo(void *opaque, void *picture)
@@ -387,19 +371,19 @@ namespace vlc
 		{
 			LibVLC *self = (LibVLC *)*opaque;
 
-			uint32_t _w = *width;
-			uint32_t _h = *height;
-			uint32_t _pitch = _w * 4;
-			uint32_t _frame = _w * _h * 4;
+			uint32_t _width = *width;
+			uint32_t _height = *height;
+			uint32_t _pitch = _width * 4;
+			uint32_t _frame = _width * _height * 4;
 
 			*pitches = _pitch;
-			*lines = _h;
+			*lines = _height;
 			memcpy(chroma, "RV32", 4);
 
 			if (self->pixelData != nullptr)
 				delete self->pixelData;
 			self->pixelData = new uint8_t[_frame];
-			return 1;
+			return 1; // One color plane
 		}
 
 		static void cleanupVideo(void *opaque)

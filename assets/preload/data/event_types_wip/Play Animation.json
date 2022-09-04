@@ -1,0 +1,14 @@
+{
+    "name": "Play Animation",
+    "description": "Plays an animation on a Character. Once the animation is completed, the animation changes to Idle.",
+    "args": [
+        {
+            "name": "Animation",
+            "description": "Name of animation to play."
+        },
+        {
+            "name": "Character",
+            "description": "Character to play animation (Dad, BF, GF)"
+        }
+    ]
+}

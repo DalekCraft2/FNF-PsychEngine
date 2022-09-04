@@ -1,0 +1,10 @@
+{
+    "name": "Set GF Speed",
+    "description": "Sets GF head bopping speed. Used on Fresh during the beatbox parts.",
+    "args": [
+        {
+            "name": "Speed",
+            "description": "1 = Normal speed,\n2 = 1/2 speed, 4 = 1/4 speed etc."
+        }
+    ]
+}

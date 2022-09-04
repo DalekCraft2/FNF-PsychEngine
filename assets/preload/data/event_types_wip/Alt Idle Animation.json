@@ -1,0 +1,14 @@
+{
+    "name": "Alt Idle Animation",
+    "description": "Sets a specified suffix after the idle animation name. You can use this to trigger \"idle-alt\" if you set Value 2 to -alt",
+    "args": [
+        {
+            "name": "Character",
+            "description": "Character to set (Dad, BF or GF)"
+        },
+        {
+            "name": "Suffix",
+            "description": "New suffix (Leave it blank to disable)"
+        }
+    ]
+}

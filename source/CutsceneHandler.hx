@@ -4,26 +4,29 @@ import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.util.FlxSort;
+import states.PlayState;
 
+// TODO What if we had JSON files for these too? yes i like json a lot
+// TODO Make this not have references to PlayState.instance (in fact, do that with most other classes, too)
 class CutsceneHandler extends FlxBasic
 {
 	public var timedEvents:Array<Dynamic> = [];
-	public var finishCallback:Void->Void = null;
-	public var finishCallback2:Void->Void = null;
-	public var onStart:Void->Void = null;
-	public var endTime:Float = 0;
+	public var finishCallback:Void->Void;
+	public var finishCallback2:Void->Void;
+	public var onStart:Void->Void;
+	public var endTime:Float;
 	public var objects:Array<FlxSprite> = [];
-	public var music:String = null;
+	public var music:String;
 
 	public function new()
 	{
 		super();
 
-		timer(0, function()
+		timer(0, () ->
 		{
 			if (music != null)
 			{
-				FlxG.sound.playMusic(Paths.music(music), 0, false);
+				FlxG.sound.playMusic(Paths.getMusic(music), 0, false);
 				FlxG.sound.music.fadeIn();
 			}
 			if (onStart != null)
@@ -32,10 +35,10 @@ class CutsceneHandler extends FlxBasic
 		PlayState.instance.add(this);
 	}
 
-	private var cutsceneTime:Float = 0;
+	private var cutsceneTime:Float;
 	private var firstFrame:Bool = false;
 
-	override function update(elapsed)
+	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -48,7 +51,8 @@ class CutsceneHandler extends FlxBasic
 		cutsceneTime += elapsed;
 		if (endTime <= cutsceneTime)
 		{
-			finishCallback();
+			if (finishCallback != null)
+				finishCallback();
 			if (finishCallback2 != null)
 				finishCallback2();
 
@@ -60,8 +64,8 @@ class CutsceneHandler extends FlxBasic
 			}
 
 			kill();
-			destroy();
 			PlayState.instance.remove(this);
+			destroy();
 		}
 
 		while (timedEvents.length > 0 && timedEvents[0][0] <= cutsceneTime)
@@ -71,18 +75,18 @@ class CutsceneHandler extends FlxBasic
 		}
 	}
 
-	public function push(spr:FlxSprite)
+	public function push(spr:FlxSprite):Void
 	{
 		objects.push(spr);
 	}
 
-	public function timer(time:Float, func:Void->Void)
+	public function timer(time:Float, func:Void->Void):Void
 	{
 		timedEvents.push([time, func]);
 		timedEvents.sort(sortByTime);
 	}
 
-	function sortByTime(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
+	private function sortByTime(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
 	{
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1[0], Obj2[0]);
 	}

@@ -1,0 +1,10 @@
+{
+    "name": "Change Tempo",
+    "description": "Change tempo of the song",
+    "args": [
+        {
+            "name": "Value",
+            "description": "New tempo"
+        }
+    ]
+}

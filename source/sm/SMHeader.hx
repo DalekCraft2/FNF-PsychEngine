@@ -1,6 +1,8 @@
 package sm;
 
 #if FEATURE_STEPMANIA
+import chart.container.Event;
+
 using StringTools;
 
 class SMHeader
@@ -51,7 +53,7 @@ class SMHeader
 		var bpmSplit:Array<String> = BPMS.split(',');
 		if (printAllBpms)
 		{
-			TimingStruct.clearTimings();
+			TimingSegment.clearTimings();
 			var currentIndex:Int = 0;
 			for (i in bpmSplit)
 			{
@@ -60,28 +62,23 @@ class SMHeader
 
 				var endBeat:Float = Math.POSITIVE_INFINITY;
 
-				TimingStruct.addTiming(startBeat, bpm, endBeat, -Std.parseFloat(OFFSET));
+				TimingSegment.addTiming(startBeat, bpm, endBeat, -Std.parseFloat(OFFSET));
 
 				if (changeEvents.length != 0)
 				{
-					var data:TimingStruct = TimingStruct.allTimings[currentIndex - 1];
+					var data:TimingSegment = TimingSegment.allTimings[currentIndex - 1];
 					data.endBeat = startBeat;
 					data.length = (data.endBeat - data.startBeat) / (data.tempo / TimingConstants.SECONDS_PER_MINUTE);
-					var step:Float = Conductor.calculateSemiquaverLength(data.tempo);
-					TimingStruct.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.tempo / TimingConstants.SECONDS_PER_MINUTE)) * TimingConstants.MILLISECONDS_PER_SECOND) / step);
-					TimingStruct.allTimings[currentIndex].startTime = data.startTime + data.length;
+					var step:Float = Conductor.calculateStepLength(data.tempo);
+					TimingSegment.allTimings[currentIndex].startStep = Math.floor(((data.endBeat / (data.tempo / TimingConstants.SECONDS_PER_MINUTE)) * TimingConstants.MILLISECONDS_PER_SECOND) / step);
+					TimingSegment.allTimings[currentIndex].startTime = data.startTime + data.length;
 				}
 
-				changeEvents.push(new Event(0, beat, 'Change BPM', bpm));
+				changeEvents.push(new Event(beat, 'Change Tempo', [bpm]));
 
 				if (bpmSplit.length == 1)
 					break;
 				currentIndex++;
-			}
-
-			for (event in changeEvents)
-			{
-				event.strumTime = TimingStruct.getTimeFromBeat(event.beat);
 			}
 
 			return 0.0;

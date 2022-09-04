@@ -2,8 +2,8 @@
 
 # Just so I don't have to delete everything what I am testing in the mod folder before pushing a commit.
 # Comment this out if you are not me.
-mods/
-!mods/template_mod
+# mods/
+# !mods/template_mod/**
 
 # File used for the NG API. Should not be shared with others.
 APIStuff.hx

@@ -5,6 +5,17 @@ class OptionCategory extends Option
 	public var options:Array<Option> = [];
 	public var curSelected:Int = 0;
 
+	public function new(name:String, opts:Array<Option>)
+	{
+		super();
+
+		this.name = name;
+		for (opt in opts)
+		{
+			addOption(opt);
+		}
+	}
+
 	public function addOption(opt:Option):Void
 	{
 		if (opt.parent != null)
@@ -19,16 +30,5 @@ class OptionCategory extends Option
 	{
 		opt.parent = null;
 		options.remove(opt);
-	}
-
-	public function new(name:String, opts:Array<Option>)
-	{
-		super();
-
-		this.name = name;
-		for (opt in opts)
-		{
-			addOption(opt);
-		}
 	}
 }

@@ -6,97 +6,139 @@
 				0
 			],
 			"loop": false,
+			"frameRate": 24,
 			"name": "idle",
-			"frameRate": 24,
-			"prefix": "Tankman Idle Dance instance",
-			"indices": []
+			"indices": [],
+			"prefix": "Tankman Idle Dance"
 		},
 		{
 			"offsets": [
-				80,
-				-10
+				28,
+				54
 			],
-			"loop": false,
-			"name": "singRIGHT",
+			"indices": [],
 			"frameRate": 24,
-			"prefix": "Tankman Right Note instance",
-			"indices": []
-		},
-		{
-			"offsets": [
-				89,
-				-98
-			],
-			"loop": false,
-			"name": "singDOWN",
-			"frameRate": 24,
-			"prefix": "Tankman DOWN note instance",
-			"indices": []
-		},
-		{
-			"offsets": [
-				38,
-				50
-			],
-			"loop": false,
 			"name": "singUP",
+			"loop": false,
+			"prefix": "Tankman UP note 1"
+		},
+		{
+			"offsets": [
+				66,
+				-107
+			],
+			"indices": [],
 			"frameRate": 24,
-			"prefix": "Tankman UP note instance",
-			"indices": []
+			"name": "singDOWN",
+			"loop": false,
+			"prefix": "Tankman DOWN note 1"
+		},
+		{
+			"offsets": [
+				91,
+				-23
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singLEFT",
+			"loop": false,
+			"prefix": "Tankman Note Left 1"
 		},
 		{
 			"offsets": [
 				-21,
-				-26
+				-11
 			],
-			"loop": false,
-			"name": "singLEFT",
+			"indices": [],
 			"frameRate": 24,
-			"prefix": "Tankman Note Left instance",
-			"indices": []
+			"name": "singRIGHT",
+			"loop": false,
+			"prefix": "Tankman Right Note 1"
 		},
 		{
 			"offsets": [
-				0,
-				14
-			],
-			"loop": false,
-			"name": "singDOWN-alt",
-			"frameRate": 24,
-			"prefix": "PRETTY GOOD",
-			"indices": []
-		},
-		{
-			"offsets": [
-				-14,
+				-12,
 				-8
 			],
-			"loop": false,
-			"name": "singUP-alt",
+			"indices": [],
 			"frameRate": 24,
-			"prefix": "TANKMAN UGH",
-			"indices": []
+			"name": "singUP-alt",
+			"loop": false,
+			"prefix": "TANKMAN UGH"
+		},
+		{
+			"offsets": [
+				101,
+				16
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singDOWN-alt",
+			"loop": false,
+			"prefix": "PRETTY GOOD tankman"
+		},
+		{
+			"offsets": [
+				28,
+				54
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singUPmiss",
+			"loop": false,
+			"prefix": "Tankman UP note MISS"
+		},
+		{
+			"offsets": [
+				66,
+				-107
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singDOWNmiss",
+			"loop": false,
+			"prefix": "Tankman DOWN note MISS"
+		},
+		{
+			"offsets": [
+				91,
+				-23
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singLEFTmiss",
+			"loop": false,
+			"prefix": "Tankman Note Left MISS"
+		},
+		{
+			"offsets": [
+				-16,
+				-11
+			],
+			"indices": [],
+			"frameRate": 24,
+			"name": "singRIGHTmiss",
+			"loop": false,
+			"prefix": "Tankman Right Note MISS"
 		}
 	],
 	"noAntialiasing": false,
 	"image": "tankmanCaptain",
 	"position": [
-		27,
-		170
+		0,
+		240
 	],
 	"healthIcon": "tankman",
 	"flipX": true,
-	"flipLR": true,
 	"healthBarColors": [
-		255,
-		255,
-		255
+		225,
+		225,
+		225
 	],
 	"cameraPosition": [
-		-74,
-		10
+		0,
+		0
 	],
-	"singDuration": 6.1,
-	"scale": 0.9,
-	"cameraMotionFactor": 1
+	"singDuration": 4,
+	"scale": 1
 }

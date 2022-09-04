@@ -1,0 +1,14 @@
+{
+    "name": "Set Property",
+    "description": "Change the value of a property. Functions similarly to the script's setProperty() function.",
+    "args": [
+        {
+            "name": "Variable",
+            "description": "Name of property"
+        },
+        {
+            "name": "Value",
+            "description": "New value for property"
+        }
+    ]
+}
