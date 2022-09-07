@@ -78,17 +78,6 @@ namespace vlc
 			play();
 		}
 
-		// TODO Fix these two functions
-		void playInWindow()
-		{
-			play();
-		}
-
-		void playInWindow(const char *path)
-		{
-			play(path);
-		}
-
 		void stop()
 		{
 			if (mediaPlayer != nullptr)
@@ -239,7 +228,6 @@ namespace vlc
 	private:
 		libvlc_instance_t *libVlcInstance;
 		libvlc_media_player_t *mediaPlayer;
-		std::mutex imagemutex;
 
 		static void callbacks(const libvlc_event_t *event, void *ptr)
 		{
@@ -343,24 +331,21 @@ namespace vlc
 		{
 			if (mediaPlayer != nullptr)
 			{
-				libvlc_video_set_callbacks(mediaPlayer, lockVideo, unlockVideo, displayVideo, this);
 				libvlc_video_set_format_callbacks(mediaPlayer, setupVideo, cleanupVideo);
+				libvlc_video_set_callbacks(mediaPlayer, lockVideo, unlockVideo, displayVideo, this);
 			}
 		}
 
 		static void *lockVideo(void *opaque, void **planes)
 		{
 			LibVLC *self = (LibVLC *)opaque;
-			self->imagemutex.lock();
 			*planes = self->pixelData;
 			return NULL;
-			// return nullptr;
 		}
 
 		static void unlockVideo(void *opaque, void *picture, void *const *planes)
 		{
 			LibVLC *self = (LibVLC *)opaque;
-			self->imagemutex.unlock();
 		}
 
 		static void displayVideo(void *opaque, void *picture)

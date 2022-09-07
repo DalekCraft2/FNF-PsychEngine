@@ -24,11 +24,6 @@ extern class LibVLC
 	})
 	public function play(path:String):Void;
 
-	@:overload(function():Void
-	{
-	})
-	public function playInWindow(path:String):Void;
-
 	public function stop():Void;
 
 	public function pause():Void;

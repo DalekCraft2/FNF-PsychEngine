@@ -8,7 +8,6 @@ import haxe.io.Bytes;
 import haxe.io.BytesData;
 import openfl.display.Bitmap;
 import openfl.display.BitmapData;
-import openfl.errors.Error;
 import openfl.events.Event;
 import openfl.geom.Rectangle;
 import openfl.utils.ByteArray;
@@ -28,7 +27,6 @@ class VlcBitmap extends Bitmap
 	public var time(get, set):Int;
 	public var position(get, set):Float;
 	public var pixelData(get, never):Pointer<UInt8>;
-	public var inWindow:Bool = false;
 	public var initComplete:Bool = false;
 
 	public var onVideoReady:() -> Void;
@@ -59,20 +57,10 @@ class VlcBitmap extends Bitmap
 
 	public function play(?source:String):Void
 	{
-		if (inWindow)
-		{
-			if (source != null)
-				libVlc.playInWindow(source);
-			else
-				libVlc.playInWindow();
-		}
+		if (source != null)
+			libVlc.play(source);
 		else
-		{
-			if (source != null)
-				libVlc.play(source);
-			else
-				libVlc.play();
-		}
+			libVlc.play();
 
 		if (onPlay != null)
 			onPlay();
@@ -193,16 +181,9 @@ class VlcBitmap extends Bitmap
 			{
 				var bufferMem:BytesData = pixelData.toUnmanagedArray(frameSize);
 				var byteArray:ByteArray = Bytes.ofData(bufferMem);
-				try
-				{
-					// FIXME This specific line causes the game to sometimes, but not always, crash.
-					// I may have to resort to using hxCodec if I can't figure out how to fix this...
-					bitmapData.setPixels(frameRect, byteArray);
-				}
-				catch (e:Error)
-				{
-					Debug.logError(e);
-				}
+				// FIXME This specific line causes the game to sometimes, but not always, crash.
+				// I may have to resort to using hxCodec if I can't figure out how to fix this...
+				bitmapData.setPixels(frameRect, byteArray);
 			}
 		}
 	}

@@ -5,3 +5,6 @@ General To-Do stuff
 - I hate kebab-case and lack of standardization. I'm going to make every file's and folder's name use snake_case lIkE mInEcRaFt 
 - Staaage editor~
 - Add Mock documentation to the docs folder and update the existing documentation
+- Maybe only use single quotes when string interpolation is being used
+- Change some Traces to be logged as Info instead
+- Open an issue on HaxeFlixel GitHub about the disappearing cursor bug

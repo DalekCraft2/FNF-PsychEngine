@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://lime.software/project/1.0.3"
+<project xmlns="http://lime.openfl.org/project/1.0.4"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://lime.software/project/1.0.3 http://lime.software/xsd/project-1.0.3.xsd">
+    xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/xsd/project-1.0.4.xsd">
 
     <!-- _________________________ Application Settings _________________________ -->
 
-    <app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="Main" version="0.2.7.1" company="DalekCraft" />
+    <app title="Friday Night Funkin': Mock Engine" file="Mock Engine" packageName="me.dalekcraft.mockengine" package="me.dalekcraft.mockengine" main="funkin.Main" version="0.2.7.1" company="DalekCraft" />
 
     <!--Switch Export with Unique ApplicationID and Icon-->
     <set name="APP_ID" value="0x0100f6c013bbc000" />
 
-    <!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
-		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
-    <!-- <app preloader="Preloader" resizable="true" /> -->
+    <!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file 
+        or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
+    <!-- <app preloader="funkin.Preloader" resizable="true" /> -->
     <!-- <app preloader="flixel.system.FlxPreloader" /> -->
 
     <!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
@@ -59,8 +59,8 @@
     <!-- Defines whether Mods should be enabled. -->
     <define name="FEATURE_MODS" if="desktop" />
 
-    <!-- Defines whether StepMania files can be loaded. (I'm keeping this disabled until I ensure that it works.) -->
-    <!-- <define name="FEATURE_STEPMANIA" if="desktop" /> -->
+    <!-- Defines whether StepMania files can be loaded. -->
+    <define name="FEATURE_STEPMANIA" if="desktop" />
 
     <!-- Defines whether videos should be enabled. Works with CPP (currently only on Windows) or with both JavaScript and HTML5. -->
     <define name="FEATURE_VIDEOS" if="web || cpp" />
@@ -112,7 +112,7 @@
     <!-- <haxelib name="nape-haxe4" /> -->
 
     <haxelib name="linc_luajit" if="FEATURE_LUA" />
-    
+
     <haxelib name="newgrounds" />
 
     <!-- Enable this if you want to use Polymod to manage assets (and mods, if enabled). (Requires that mods use Polymod folders such as _append for some assets) -->
@@ -158,13 +158,14 @@
     <haxedef name="POLYMOD_MOD_METADATA_FILE" value="/_meta.json" />
     <haxedef name="POLYMOD_MOD_ICON_FILE" value="/_icon.png" />
     <haxedef name="POLYMOD_MOD_PACK_FILE" value="/_pack.txt" />
-    
+
     <!-- <haxedef name="hscriptPos" /> -->
 
     <!-- _________________________________ Custom _______________________________ -->
 
     <!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 
+    <!-- FIXME Lime 8.0.0 has somehow changed something such that the icon for the FNF window is the size 16 one whereas the icon in the taskbar is one of the others, and I would rather find out how to resolve it than downgrade -->
     <icon path="art/icon16.png" size='16' />
     <icon path="art/icon32.png" size='32' />
     <icon path="art/icon64.png" size='64' />

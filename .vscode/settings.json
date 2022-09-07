@@ -83,7 +83,7 @@
         "middleScroll",
         "frameRate",
         "ghostTapping",
-        "hideHud",
+        "hideHUD",
         "timeBarType",
         "scoreZoom",
         "cameraZoomOnBeat",

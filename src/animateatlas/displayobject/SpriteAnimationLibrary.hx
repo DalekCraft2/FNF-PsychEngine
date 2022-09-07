@@ -62,9 +62,9 @@ class SpriteAnimationLibrary
 		return hasSymbol(name);
 	}
 
-	public function createAnimation(noAntialiasing:Bool, ?symbol:String):SpriteMovieClip
+	public function createAnimation(smoothing:Bool, ?symbol:String):SpriteMovieClip
 	{
-		this.smoothing = !noAntialiasing;
+		this.smoothing = smoothing;
 		symbol = (symbol != null) ? symbol : _defaultSymbolName;
 		if (!hasSymbol(symbol))
 		{
